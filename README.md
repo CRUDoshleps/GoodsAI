@@ -122,6 +122,7 @@ flowchart LR
 | --- | --- |
 | [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) | Продуктовый бриф по пяти вопросам чекпоинта |
 | [CASE_REQUIREMENTS_TRACEABILITY.md](CASE_REQUIREMENTS_TRACEABILITY.md) | Требования кейса и соответствие компонентов GoodsAI |
+| [context/case/platform-requirements.md](context/case/platform-requirements.md) | Исходные требования кейса, сохранённые с платформы |
 | [IMPLEMENTATION_MASTER_PLAN.md](IMPLEMENTATION_MASTER_PLAN.md) | Детальный план реализации, роли, эксперименты и чек-лист |
 | [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md) | Полное техническое ТЗ, контракты, риски и критерии приёмки |
 | [PRODUCT_IMPROVEMENTS.md](PRODUCT_IMPROVEMENTS.md) | Продуктовые фичи и приоритеты |
