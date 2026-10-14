@@ -133,10 +133,12 @@
 1. «Карточка товара: title + description + seller fields».
 2. «Rules и словари: regex, бренды, единицы, типовые форматы».
 3. «Local encoder: кандидат-спан + confidence».
-4. «LLM fallback: низкая уверенность, конфликт или новая категория».
-5. «Normalizer + evidence verifier + schema validator».
-6. Финальная развилка в три статуса: «auto_accept», «review», «abstain».
-Покажи, что типовые случаи из rules могут идти напрямую в normalizer, сложные — в encoder, а только residual — в LLM. После всех источников всегда стоит validator.
+4. «Fast model шлюза: низкая уверенность после encoder».
+5. «Strong model шлюза: только конфликт, редкая формулировка или новая категория».
+6. «Normalizer + evidence verifier + schema validator».
+7. Финальная развилка в три статуса: «auto_accept», «review», «abstain».
+Покажи, что типовые случаи из rules могут идти напрямую в normalizer, сложные — в encoder, массовый остаток — в fast model, а редкие конфликты — в strong model. После всех источников всегда стоит validator.
+Под схемой мелко: «Модели доступны через OpenAI SDK хакатонного шлюза; ключ команды не хранится в репозитории».
 Слева маленькое примечание моноширинным шрифтом:
 «После EDA: priority = спрос × доля пропусков × ожидаемая точность».
 Под ним: «Включаем только после проверки связей query_clicks и SKU».
@@ -207,7 +209,7 @@
 Рубрика: «08 / DELIVERY».
 Заголовок: «Реалистичный путь к воспроизводимому MVP».
 Слева нарисуй вертикальный roadmap из пяти этапов:
-«Аудит и предобработка датасета» → «EDA + контракт данных» → «Rules baseline + normalizer» → «Local encoder + LLM residual» → «Review demo + predictions».
+«Аудит и предобработка датасета» → «EDA + контракт данных» → «Rules baseline + normalizer» → «Local encoder + модели шлюза» → «Review demo + predictions».
 Под первым этапом мелко укажи: «дедупликация, очистка текста, унификация кодировок и единиц; сырые данные сохраняются неизменными».
 Справа сделай один компактный технический блок «Стек MVP»:
 «Python 3.11».
@@ -215,7 +217,7 @@
 «YAML + Pydantic».
 «regex + RapidFuzz + словари».
 «PyTorch + Hugging Face Transformers + русскоязычный BERT encoder».
-«JSON schema для LLM fallback».
+«OpenAI SDK хакатонного шлюза: fast model, затем strong model; JSON schema».
 «Streamlit или static HTML для review demo».
 «pytest · Git · GitHub».
 Допускается один ряд из максимум пяти маленьких монохромных логотипов: Python, DuckDB, Hugging Face, PyTorch, GitHub.

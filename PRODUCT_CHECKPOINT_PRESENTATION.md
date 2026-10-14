@@ -91,7 +91,7 @@ title + description + seller fields
                          ↓  сложный / нераспознанный случай
 2. Локальный encoder: кандидат-спан + confidence
                          ↓  низкая уверенность / конфликт / новая категория
-3. Предоставленная LLM: JSON-кандидат по строгой схеме
+3. Fast model шлюза, затем strong model только для редкого остатка: JSON-кандидат по строгой схеме
                          ↓
 4. Normalizer + evidence verifier + schema validator
                          ↓
@@ -119,7 +119,7 @@ title + description + seller fields
 | Rules / normalizer | `re`, `pydantic`, `rapidfuzz`; отдельные парсеры чисел и единиц |
 | Локальная модель | Hugging Face `transformers` + PyTorch; дообучаемый русскоязычный BERT-encoder для token classification или извлечения span |
 | Проверка | Exact/normalized span match, типы и диапазоны, conflict detector |
-| LLM fallback | Предоставленная организаторами модель; JSON schema, ограниченный список атрибутов, лимит токенов, cache |
+| Model gateway | OpenAI SDK на VM; fast model для массового остатка, `openai/gpt-oss-120b` для редких конфликтов; JSON schema, лимит токенов, cache |
 | Review demo | Streamlit или статический HTML-прототип |
 | Воспроизводимость | `uv`/`pip`, `pytest`, фиксированный seed, конфигурации экспериментов |
 
@@ -197,8 +197,8 @@ title + description + seller fields
 | Галлюцинация LLM | JSON schema + evidence span + verifier | Нет доказательства → `abstain` |
 | Title и description противоречат | Source-aware conflict detector | `review` |
 | `256GB`, `0.25 TB`, `256 Гб` | Unit normalizer + canonical dictionaries | `256 ГБ` |
-| Редкие значения и новые категории | LLM fallback, active learning, отдельный cold-start срез | Контролируем деградацию |
-| Рост стоимости | Rules → encoder → LLM, cache, лимит бюджета | Измеряемый cost cap |
+| Редкие значения и новые категории | Fast/strong модели шлюза, active learning, отдельный cold-start срез | Контролируем деградацию |
+| Рост стоимости | Rules → encoder → fast model → strong model, cache, лимит бюджета | Измеряемый cost cap |
 | Некачественный продавец | Seller quality score и сегментные метрики | Видим источник ошибки |
 
 Политика принятия:

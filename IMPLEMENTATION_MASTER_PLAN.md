@@ -8,7 +8,7 @@
 
 1. **Собственные правила и справочники** — почти бесплатны, детерминированы, дают baseline и weak labels.
 2. **Собственный дообученный encoder на наших мощностях** — основной ML-слой для свободного текста. Он компактнее LLM, дешевле в inference и адаптируется к словарю М.Видео.
-3. **Предоставленная нейросеть / LLM** — ограниченный fallback для residual set, новых категорий и конфликтных формулировок. Её ответ никогда не записывается без independent validation.
+3. **Модели хакатонного OpenAI-совместимого шлюза** — fast model для массового residual set и strong model для редких конфликтных формулировок. Их ответы никогда не записываются без independent validation.
 
 ```mermaid
 flowchart TD
@@ -35,10 +35,10 @@ flowchart TD
 - поля title, description, seller attributes;
 - формат целевых атрибутов: списки, JSON или колонки;
 - наличие категорий, обязательных полей, справочников и span-разметки;
-- лицензии, лимиты, цены и интерфейс предоставленной нейросети;
+- лимиты, тарифы, доступность fast/strong моделей и режим JSON-ответа в хакатонном шлюзе;
 - доступное железо: CPU, GPU, RAM, интернет.
 
-До этой проверки не выбирать окончательно модель, пороги и целевые F1. Внешнюю LLM не считать гарантированно доступной, пока организаторы не подтвердят правила передачи датасета в API и возможности VM.
+До этой проверки не выбирать окончательно модель, пороги и целевые F1. На VM шлюз доступен через OpenAI SDK без ручной передачи ключа; перед реализацией проверяем конкретные доступные модели и режим JSON на тестовых карточках.
 
 ## 2. Поэтапный план работы
 
@@ -133,7 +133,7 @@ smartphone:
 
 **Готово, когда:** E2 показывает таблицу сравнения E1/E2 и error analysis минимум из 30 ошибок.
 
-### Этап F. Внешняя/предоставленная нейросеть как fallback
+### Этап F. Модели хакатонного шлюза как fallback
 
 LLM нельзя пускать «в лоб» на весь CSV. Создаётся `ModelProvider` adapter:
 
@@ -142,7 +142,7 @@ class AttributeFallbackProvider:
     def extract(self, text, requested_attributes, schema) -> list[Candidate]: ...
 ```
 
-Он позволяет заменить предоставленную нейросеть на локальную без переделки пайплайна. Router вызывает provider, только если rules и encoder не дали `auto_accept`.
+На VM адаптер создаёт OpenAI-совместимый клиент через `OpenAI()` без аргументов. Router вызывает fast model шлюза только если rules и encoder не дали `auto_accept`; strong model — только после fast model при конфликте или новой категории. Имена моделей передаются конфигурацией, ключи не попадают в Git или frontend. Детали: [HACKATHON_LLM_GATEWAY.md](HACKATHON_LLM_GATEWAY.md).
 
 Prompt должен требовать строго JSON и запрещать догадки:
 
@@ -163,7 +163,8 @@ Prompt должен требовать строго JSON и запрещать �
 1. подтверждённое структурированное поле продавца;
 2. точное правило;
 3. local encoder после нормализации и калибровки;
-4. LLM после independent validation.
+4. fast model шлюза после independent validation;
+5. strong model шлюза после independent validation.
 
 Если источники расходятся и нет бизнес-правила приоритета, выход — `review`, а не выбор случайного значения. Порог уверенности настраивается на validation так, чтобы максимизировать coverage при целевой precision auto-accept.
 
@@ -261,7 +262,7 @@ Router хранит `content_hash`, `schema_version`, `dictionary_version`, `mod
 
 ### P2 — выделяет решение
 
-- Budget-aware LLM fallback с cache.
+- Budget-aware fast/strong model fallback с cache.
 - Traffic-aware priority queue.
 - Seller feedback concept.
 - Cold-start playbook для новой категории.
