@@ -207,7 +207,8 @@
 Рубрика: «08 / DELIVERY».
 Заголовок: «Реалистичный путь к воспроизводимому MVP».
 Слева нарисуй вертикальный roadmap из пяти этапов:
-«EDA» → «Rules baseline + normalizer» → «Local encoder» → «LLM residual + cost report» → «Review demo + predictions + презентация».
+«Аудит и предобработка датасета» → «EDA + контракт данных» → «Rules baseline + normalizer» → «Local encoder + LLM residual» → «Review demo + predictions».
+Под первым этапом мелко укажи: «дедупликация, очистка текста, унификация кодировок и единиц; сырые данные сохраняются неизменными».
 Справа сделай один компактный технический блок «Стек MVP»:
 «Python 3.11».
 «Polars / Pandas / DuckDB / Jupyter».

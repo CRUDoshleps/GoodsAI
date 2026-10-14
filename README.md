@@ -127,8 +127,8 @@ flowchart LR
 | [MEASUREMENT_AND_EXPERIMENT_PLAN.md](MEASUREMENT_AND_EXPERIMENT_PLAN.md) | План метрик, срезов, экспериментов и мониторинга |
 | [MVP_BACKLOG_AND_DELIVERY_PLAN.md](MVP_BACKLOG_AND_DELIVERY_PLAN.md) | Product backlog, стек, этапы поставки и Definition of Done |
 | [FIGMA_MAKE_PROMPT.md](FIGMA_MAKE_PROMPT.md) | Готовый промпт для Figma Make, список вложений и арт-дирекция презентации |
-| [presentation/GoodsAI_Product_Checkpoint_Final.pdf](presentation/GoodsAI_Product_Checkpoint_Final.pdf) | Финальная PDF-презентация для продуктового чекпоинта |
-| [presentation/GoodsAI_Product_Checkpoint_Final.pptx](presentation/GoodsAI_Product_Checkpoint_Final.pptx) | Редактируемая версия презентации PowerPoint |
+| [presentation/GoodsAI_Product_Checkpoint_v3.pdf](presentation/GoodsAI_Product_Checkpoint_v3.pdf) | Актуальная PDF-презентация для продуктового чекпоинта |
+| [presentation/GoodsAI_Product_Checkpoint_v3.pptx](presentation/GoodsAI_Product_Checkpoint_v3.pptx) | Актуальная редактируемая версия PowerPoint |
 | [CASE_REQUIREMENTS_TRACEABILITY.md](CASE_REQUIREMENTS_TRACEABILITY.md) | Требования кейса и соответствие компонентов GoodsAI |
 | [context/case/platform-requirements.md](context/case/platform-requirements.md) | Исходные требования кейса, сохранённые с платформы |
 | [IMPLEMENTATION_MASTER_PLAN.md](IMPLEMENTATION_MASTER_PLAN.md) | Детальный план реализации, роли, эксперименты и чек-лист |
