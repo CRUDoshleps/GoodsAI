@@ -126,6 +126,7 @@ flowchart LR
 | [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md) | Полное техническое ТЗ, контракты, риски и критерии приёмки |
 | [PRODUCT_IMPROVEMENTS.md](PRODUCT_IMPROVEMENTS.md) | Продуктовые фичи и приоритеты |
 | [RESEARCH_AND_ARCHITECTURE.md](RESEARCH_AND_ARCHITECTURE.md) | Научная опора, открытые проекты и тезисы защиты |
+| [context/README.md](context/README.md) | Исходные материалы кейса и инструкции работы с архивом датасета |
 
 ## Статус
 
