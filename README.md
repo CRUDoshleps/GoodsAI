@@ -122,6 +122,7 @@ flowchart LR
 | --- | --- |
 | [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) | Продуктовый бриф по пяти вопросам чекпоинта |
 | [PRODUCT_CHECKPOINT_PRESENTATION.md](PRODUCT_CHECKPOINT_PRESENTATION.md) | Готовая структура 10-слайдового продуктового брифа, речь и научная опора |
+| [GOODS_AI_DIAGRAMS.md](GOODS_AI_DIAGRAMS.md) | Mermaid-схемы пайплайна, архитектуры, обучения, сценариев и формул |
 | [CASE_REQUIREMENTS_TRACEABILITY.md](CASE_REQUIREMENTS_TRACEABILITY.md) | Требования кейса и соответствие компонентов GoodsAI |
 | [context/case/platform-requirements.md](context/case/platform-requirements.md) | Исходные требования кейса, сохранённые с платформы |
 | [IMPLEMENTATION_MASTER_PLAN.md](IMPLEMENTATION_MASTER_PLAN.md) | Детальный план реализации, роли, эксперименты и чек-лист |
