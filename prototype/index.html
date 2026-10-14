@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GoodsAI — проверка характеристик</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172033; background: #f4f6fa; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 36px 20px; }
+    main { max-width: 1100px; margin: auto; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; }
+    h1 { font-size: 24px; margin: 0 0 5px; }
+    .sub, .muted { color: #657089; font-size: 14px; }
+    .badge { background: #e9edff; color: #3949ab; border-radius: 20px; padding: 8px 12px; font-size: 12px; white-space: nowrap; }
+    .card { background: white; border: 1px solid #e1e6ef; border-radius: 14px; padding: 22px; box-shadow: 0 5px 18px #1e2c4b0a; }
+    .grid { display: grid; grid-template-columns: 0.95fr 1.3fr; gap: 18px; }
+    h2 { font-size: 16px; margin: 0 0 16px; }
+    .label { text-transform: uppercase; letter-spacing: .07em; color: #7b8498; font-size: 10px; font-weight: 700; margin: 16px 0 6px; }
+    .value { font-size: 14px; line-height: 1.55; }
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; color: #717b91; font-size: 11px; font-weight: 600; padding: 0 8px 10px; }
+    td { border-top: 1px solid #edf0f5; padding: 12px 8px; vertical-align: middle; }
+    .confidence { font-variant-numeric: tabular-nums; font-weight: 650; }
+    .status { display: inline-block; border-radius: 20px; background: #e8f7ee; color: #197447; padding: 5px 9px; font-size: 11px; }
+    .status.review { background: #fff4dc; color: #8a5a00; }
+    .evidence { color: #69748a; font-size: 12px; }
+    .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    button { border: 1px solid #d6dcea; background: white; color: #29344c; border-radius: 8px; padding: 10px 14px; font-weight: 600; }
+    button.primary { color: white; background: #4055d6; border-color: #4055d6; }
+    .note { margin-top: 18px; font-size: 12px; color: #7c8495; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } header { align-items: flex-start; flex-direction: column; } .card { padding: 17px; overflow-x: auto; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Проверка характеристик товара</h1>
+        <div class="sub">Карточка 10482 · Смартфоны · результат извлечения</div>
+      </div>
+      <span class="badge">Концептуальный прототип · демо-данные</span>
+    </header>
+    <section class="grid">
+      <article class="card">
+        <h2>Текст карточки</h2>
+        <div class="label">Заголовок</div>
+        <div class="value">Смартфон Samsung Galaxy S24, 256 ГБ, чёрный</div>
+        <div class="label">Описание продавца</div>
+        <div class="value">Экран 6,7 дюйма. Ёмкость аккумулятора 4000 мА·ч. Цвет корпуса — графитовый.</div>
+        <div class="label">Поля продавца</div>
+        <div class="value">Бренд: Samsung · Память: 256GB</div>
+      </article>
+      <article class="card">
+        <h2>Предложенные характеристики</h2>
+        <table class="table">
+          <thead><tr><th>Атрибут</th><th>Значение</th><th>Уверенность</th><th>Статус</th></tr></thead>
+          <tbody>
+            <tr><td>Бренд</td><td>Samsung</td><td class="confidence">98%</td><td><span class="status">Готово</span></td></tr>
+            <tr><td>Модель</td><td>Galaxy S24</td><td class="confidence">96%</td><td><span class="status">Готово</span></td></tr>
+            <tr><td>Память</td><td>256 ГБ</td><td class="confidence">95%</td><td><span class="status">Готово</span></td></tr>
+            <tr><td>Диагональ</td><td>6,7 дюйма</td><td class="confidence">93%</td><td><span class="status">Готово</span></td></tr>
+            <tr><td>Цвет</td><td>чёрный</td><td class="confidence">71%</td><td><span class="status review">Проверить</span></td></tr>
+            <tr><td>Батарея</td><td>4000 мА·ч</td><td class="confidence">91%</td><td><span class="status">Готово</span></td></tr>
+          </tbody>
+        </table>
+        <div class="label">Основание для проверки</div>
+        <div class="evidence">Для цвета источники расходятся: в заголовке «чёрный», в описании «графитовый». Требуется подтверждение канонического значения.</div>
+        <div class="actions"><button>Исправить значения</button><button class="primary">Подтвердить готовые</button></div>
+      </article>
+    </section>
+    <p class="note">Значения и оценки в этом макете вымышлены и показывают предполагаемый сценарий интерфейса. Работающей модели и подключения к каталогу нет.</p>
+  </main>
+</body>
+</html>
