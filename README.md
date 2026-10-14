@@ -126,6 +126,7 @@ flowchart LR
 | [PRE_DEVELOPMENT_PRODUCT_ANALYSIS.md](PRE_DEVELOPMENT_PRODUCT_ANALYSIS.md) | Product discovery: проблема, сегменты, JTBD, гипотезы, риски и границы MVP |
 | [MEASUREMENT_AND_EXPERIMENT_PLAN.md](MEASUREMENT_AND_EXPERIMENT_PLAN.md) | План метрик, срезов, экспериментов и мониторинга |
 | [MVP_BACKLOG_AND_DELIVERY_PLAN.md](MVP_BACKLOG_AND_DELIVERY_PLAN.md) | Product backlog, стек, этапы поставки и Definition of Done |
+| [FIGMA_MAKE_PROMPT.md](FIGMA_MAKE_PROMPT.md) | Готовый промпт для Figma Make, список вложений и арт-дирекция презентации |
 | [CASE_REQUIREMENTS_TRACEABILITY.md](CASE_REQUIREMENTS_TRACEABILITY.md) | Требования кейса и соответствие компонентов GoodsAI |
 | [context/case/platform-requirements.md](context/case/platform-requirements.md) | Исходные требования кейса, сохранённые с платформы |
 | [IMPLEMENTATION_MASTER_PLAN.md](IMPLEMENTATION_MASTER_PLAN.md) | Детальный план реализации, роли, эксперименты и чек-лист |
