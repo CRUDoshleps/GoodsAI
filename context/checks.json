@@ -1,0 +1,41 @@
+{
+  "audit_date": "2026-10-14",
+  "timezone": "Europe/Moscow",
+  "repository": "/Users/timuralmetov/GoodsAI",
+  "commit": "a934b5dddc474d5611c71de3a77305f27651238e",
+  "tracked_files": [
+    "CASE_REQUIREMENTS_TRACEABILITY.md",
+    "IMPLEMENTATION_MASTER_PLAN.md",
+    "PRODUCT_IMPROVEMENTS.md",
+    "PROJECT_CONTEXT.md",
+    "README.md",
+    "RESEARCH_AND_ARCHITECTURE.md",
+    "TECHNICAL_SPEC.md",
+    "prototype/index.html"
+  ],
+  "original_status_porcelain": "",
+  "git_fsck_exit": 0,
+  "git_diff_check_exit": 0,
+  "broken_relative_markdown_links": [],
+  "prototype_script_count": 0,
+  "prototype_inline_event_handler_count": 0,
+  "spec_example": {
+    "actual_slice": "axy S",
+    "claimed_evidence": "Samsung Galaxy S24 256GB Black",
+    "raw_value": "256GB",
+    "correct_raw_value_start": 28,
+    "correct_raw_value_end": 33
+  },
+  "runtime_model_tests": "not applicable: implementation and data absent",
+  "source_sha256": {
+    "CASE_REQUIREMENTS_TRACEABILITY.md": "d22fd985bda136bf16ccdccb6e8422faab1c43be5c56f89e78965a564590481c",
+    "IMPLEMENTATION_MASTER_PLAN.md": "2895bc2b98e32a6f432b21ea7d7e90d3886d310c100c218ec018e4f4fc681e50",
+    "PRODUCT_IMPROVEMENTS.md": "2b547ff2fa8721a4bdfabb17322cd939952cae427c422ce7f86d83fed85a9183",
+    "PROJECT_CONTEXT.md": "4f84bbbdb9abfc613cc5f8c19dcae4359762beaaaf7166a5564adcef25148ba7",
+    "README.md": "d3636c3ffd8e00bed2efa4d9aa2dde958b3ceeba197f3ea19f3ff2a59d3a18e9",
+    "RESEARCH_AND_ARCHITECTURE.md": "3e6e9a7ba4b7ed5fd02187c81ea971b4021d4824113a5870f93d139d3312ec24",
+    "TECHNICAL_SPEC.md": "5c6321506ff762907a53bc5c0075ab49208f3a2623836bf96b1dfa1ddc48dc41",
+    "prototype/index.html": "be45c56e60d38f0cb2c5dc5101b38ff770510ae3bfc762260badd2ee5c5da38f"
+  },
+  "snapshot_note": "Historical checks before cu_ws.zip was supplied. Current scope is conceptual prototype for product checkpoint; see README.md and data_snapshot.json."
+}

@@ -1,0 +1,173 @@
+{
+  "date": "2026-10-14",
+  "scope": "Preliminary catalog profile and Parquet footer metadata only; no model evaluation or Parquet row joins",
+  "archive": {
+    "path": "/Users/timuralmetov/GoodsAI/cu_ws.zip",
+    "bytes": 1156787524,
+    "sha256": "28758293f1174b2f19adcf2c99a86a9b5d2094aa22f3bbc92538af7180b59043",
+    "entries": [
+      {
+        "file": "query_clicks.parquet",
+        "uncompressed_bytes": 650887879,
+        "compressed_bytes": 650600709,
+        "crc32": "29a9dd16"
+      },
+      {
+        "file": "skus.pkl",
+        "uncompressed_bytes": 1565150311,
+        "compressed_bytes": 158503058,
+        "crc32": "9f9d8534"
+      },
+      {
+        "file": "sku_desc.parquet",
+        "uncompressed_bytes": 352149681,
+        "compressed_bytes": 347683263,
+        "crc32": "8135ec63"
+      }
+    ]
+  },
+  "catalog": {
+    "catalog_date": "2026-05-13T03:00:00+0000",
+    "offers": 546069,
+    "taxonomy_categories": 6963,
+    "populated_categories": 3599,
+    "unique_ids": 546069,
+    "duplicate_id_extra_rows": 0,
+    "category_id_types": {
+      "str": 546069
+    },
+    "param_container_types": {
+      "list": 546040,
+      "dict": 29
+    },
+    "counts": {
+      "unknown_category_references": 39,
+      "search_param_entries": 14548468,
+      "skus_with_base_and_search_alias": 445338,
+      "skus_with_repeated_param_name": 148871,
+      "skus_with_multi_values_for_same_name": 148871,
+      "empty_model": 5,
+      "empty_vendor": 11,
+      "empty_param_value": 1
+    },
+    "param_entries": 20975731,
+    "distinct_param_names": 12999,
+    "normalized_duplicate_name_groups": 39760,
+    "normalized_duplicate_name_extra_rows": 113841,
+    "repeated_vendor_model_groups": 43215,
+    "repeated_vendor_model_extra_rows": 121738
+  },
+  "top_categories": [
+    {
+      "id": "36480",
+      "name": "Матрасы",
+      "offers": 54760
+    },
+    {
+      "id": "1189",
+      "name": "Чехлы для смартфонов",
+      "offers": 30458
+    },
+    {
+      "id": "56758",
+      "name": "Фотошторы",
+      "offers": 26592
+    },
+    {
+      "id": "56152",
+      "name": "Матрасы-топперы",
+      "offers": 15841
+    },
+    {
+      "id": "34350",
+      "name": "Подушки",
+      "offers": 13033
+    },
+    {
+      "id": "30446",
+      "name": "Смесители",
+      "offers": 11979
+    },
+    {
+      "id": "32119",
+      "name": "Коврики автомобильные",
+      "offers": 10418
+    },
+    {
+      "id": "31840",
+      "name": "Шторы для ванной",
+      "offers": 10012
+    },
+    {
+      "id": "36580",
+      "name": "Шины",
+      "offers": 8660
+    },
+    {
+      "id": "761",
+      "name": "Смартфоны",
+      "offers": 7988
+    },
+    {
+      "id": "1523",
+      "name": "Защитные стекла",
+      "offers": 7913
+    },
+    {
+      "id": "55924",
+      "name": "Видеоигры",
+      "offers": 6570
+    },
+    {
+      "id": "55923",
+      "name": "Цифровые версии видеоигр",
+      "offers": 6463
+    },
+    {
+      "id": "9385",
+      "name": "Люстры",
+      "offers": 5772
+    },
+    {
+      "id": "32345",
+      "name": "Диваны",
+      "offers": 5338
+    }
+  ],
+  "parquet": {
+    "sku_desc.parquet": {
+      "rows": 1177200,
+      "row_groups": 10,
+      "columns": [
+        "sku_id",
+        "title",
+        "description"
+      ],
+      "measurement": "footer metadata, row contents not scanned"
+    },
+    "query_clicks.parquet": {
+      "rows": 30991350,
+      "row_groups": 253,
+      "columns": [
+        "sku_id",
+        "toValidUTF8(sku_name)",
+        "toValidUTF8(sku_brand_name)",
+        "sku_price",
+        "sku_subject_id",
+        "sku_seo_id",
+        "toValidUTF8(query_text)",
+        "sku_position"
+      ],
+      "measurement": "footer metadata, row contents not scanned"
+    }
+  },
+  "unverified": [
+    "cross_file_sku_join_coverage",
+    "parquet_null_and_duplicate_rates",
+    "official_required_attribute_list",
+    "gold_label_quality",
+    "official_split",
+    "model_quality",
+    "traffic_event_semantics"
+  ]
+}
