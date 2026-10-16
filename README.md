@@ -124,6 +124,7 @@ flowchart LR
 | --- | --- |
 | [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) | Продуктовый бриф по пяти вопросам чекпоинта |
 | [PRODUCT_CHECKPOINT_PRESENTATION.md](PRODUCT_CHECKPOINT_PRESENTATION.md) | Готовая структура 10-слайдового продуктового брифа, речь и научная опора |
+| [PITCH_SCRIPT_10_MIN.md](PITCH_SCRIPT_10_MIN.md) | Готовый сценарий защиты на 10 минут с пометками пяти обязательных ответов |
 | [GOODS_AI_DIAGRAMS.md](GOODS_AI_DIAGRAMS.md) | Mermaid-схемы пайплайна, архитектуры, обучения, сценариев и формул |
 | [PRE_DEVELOPMENT_PRODUCT_ANALYSIS.md](PRE_DEVELOPMENT_PRODUCT_ANALYSIS.md) | Product discovery: проблема, сегменты, JTBD, гипотезы, риски и границы MVP |
 | [MEASUREMENT_AND_EXPERIMENT_PLAN.md](MEASUREMENT_AND_EXPERIMENT_PLAN.md) | План метрик, срезов, экспериментов и мониторинга |
