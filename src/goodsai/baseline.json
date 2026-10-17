@@ -1,0 +1,48 @@
+{
+  "schema_version": "0.1",
+  "rules_version": "rules-0.1.0",
+  "dictionary_version": "manual-public-brand-and-color-names-v1",
+  "seed": "goodsai-e1-v1",
+  "categories": {
+    "761": ["brand", "model", "storage_gb", "ram_gb", "screen_inches", "battery_mah", "color"],
+    "482": ["brand", "model", "capacity_l", "power_w", "color"]
+  },
+  "brands": {
+    "Apple": ["Apple"], "Samsung": ["Samsung"], "Xiaomi": ["Xiaomi"],
+    "POCO": ["Poco"], "Redmi": ["Redmi"], "HUAWEI": ["Huawei"],
+    "HONOR": ["Honor"], "realme": ["Realme"], "OPPO": ["Oppo"],
+    "vivo": ["Vivo"], "TECNO": ["Tecno"], "Infinix": ["Infinix"],
+    "Nokia": ["Nokia"], "Motorola": ["Motorola"], "Google": ["Google"],
+    "OnePlus": ["OnePlus"], "Nothing": ["Nothing"], "ZTE": ["ZTE"],
+    "BQ": ["BQ"], "Philips": ["Philips"], "Sony": ["Sony"], "ASUS": ["Asus"],
+    "Tefal": ["Tefal"], "REDMOND": ["Redmond", "Редмонд"],
+    "Polaris": ["Polaris"], "Kitfort": ["Kitfort", "Китфорт"],
+    "Bosch": ["Bosch"], "Braun": ["Braun"], "Midea": ["Midea"],
+    "WMF": ["WMF"], "Smeg": ["Smeg"], "Gorenje": ["Gorenje"],
+    "Scarlett": ["Scarlett"], "VITEK": ["Vitek"], "Rondell": ["Rondell"],
+    "De'Longhi": ["De'Longhi", "Delonghi"], "BORK": ["Bork"],
+    "Moulinex": ["Moulinex"], "CENTEK": ["Centek"], "BBK": ["BBK"],
+    "DEXP": ["Dexp"], "GALAXY": ["Galaxy"], "MAUNFELD": ["Maunfeld"],
+    "Econ": ["Econ"], "Hyundai": ["Hyundai"], "Starwind": ["Starwind"],
+    "Endever": ["Endever"], "Supra": ["Supra"], "Oursson": ["Oursson"],
+    "Haier": ["Haier"], "Hisense": ["Hisense"]
+  },
+  "colors": {
+    "черный": ["черный", "чёрный", "черная", "чёрная", "black"],
+    "белый": ["белый", "белая", "white"],
+    "серый": ["серый", "серая", "gray", "grey"],
+    "серебристый": ["серебристый", "серебристая", "silver"],
+    "синий": ["синий", "синяя", "blue"],
+    "темно-синий": ["темно-синий", "тёмно-синий", "темно синий", "dark blue"],
+    "голубой": ["голубой", "голубая", "light blue"],
+    "красный": ["красный", "красная", "red"],
+    "зеленый": ["зеленый", "зелёный", "зеленая", "зелёная", "green"],
+    "желтый": ["желтый", "жёлтый", "желтая", "жёлтая", "yellow"],
+    "розовый": ["розовый", "розовая", "pink"],
+    "фиолетовый": ["фиолетовый", "фиолетовая", "purple", "violet"],
+    "золотой": ["золотой", "золотистый", "gold"],
+    "бежевый": ["бежевый", "бежевая", "beige"],
+    "оранжевый": ["оранжевый", "оранжевая", "orange"],
+    "коричневый": ["коричневый", "коричневая", "brown"]
+  }
+}
