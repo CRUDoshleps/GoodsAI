@@ -1,22 +1,31 @@
 # GoodsAI — состояние проекта и вход для команды
 
-Актуализировано: **17 октября 2026 года, Europe/Moscow**. Состояние: рабочий E1 baseline; завершена AI-разметка 120 карточек, подготовлены 24 для пользовательской проверки; независимая gold-оценка ещё не выполнена.
+Актуализировано: **17 октября 2026 года, Europe/Moscow**. Состояние: рабочий E1 baseline; заморожены 22 AI-assisted human-reviewed карточки в reviewed-v2, выполнена отдельная development/validation-оценка. Независимой gold/test-оценки ещё нет.
 Рабочий каталог: `C:\Users\vladn\projects\GoodsAI`; ветка: `feature/vlad-setup`; базовый коммит настройки: `cf16e59` (`chore: initialize local development environment`).
 **Baseline и исходный handoff опубликованы в feature-ветке коммитом `c3feee2` (`feat: add reproducible baseline and team handoff`).** Этот документ, план разметки и распределение задач описывают следующий этап; текущий HEAD проверять через `git log -1 --oneline`.
 Ветка отслеживает `origin/feature/vlad-setup`; наличие remote-ветки не означает успешную отправку последнего коммита. Доступность текущей версии проверять после успешного push, сравнив локальный и удалённый SHA.
-После fetch проверено: `origin/main` на `6fe9ea0` содержит merge начальной настройки (`cf16e59`, PR #1), но ещё не baseline `c3feee2`. Для запуска и задач команды нужна согласованная версия `feature/vlad-setup`, а не текущий main.
+Свежий fetch 17 октября выполнен успешно после включения интерактивного Credential Manager: `origin/main` на `6fe9ea0` содержит только начальную настройку (`cf16e59`, PR #1), рабочий baseline `c3feee2` остаётся в feature; `origin/feature/vlad-setup` совпадает с HEAD `5e6160e`. Пользовательский fetch на ВМ подтвердил тот же main. Предварительный `git merge-tree` текущих опубликованных веток прошёл без конфликтов; фактическое слияние не выполнялось.
+
+**Новый P0 — публикация в main и запуск ВМ до ежедневных прогонов.** По сообщениям организаторов с 18 октября в 06:00–10:00 МСК проверяется последний commit main; также обязательно полноценное решение на ВМ, API/транзакции будут описаны позже. Подготовлен [план main + ВМ](runbooks/main_and_vm_release_plan.md). Пользователь подключился через SSH и передал [диагностику ВМ](runbooks/vm_reproduction.md): checkout на initial `20ea64f`, untracked `.gitignore`/`.ipynb_checkpoints/`, диск 64G, свободно 55G. Затем установил uv 0.13.1 и отдельный CPython 3.12.15 в домашнем каталоге; системный `python3` остался 3.10.12. Свежий remote ещё не проверяли. Агент сам ВМ не контролирует; GoodsAI и сервис ещё не установлены/не запускались, сервера/API сейчас нет. Улучшения extractor идут после первого опубликованного рабочего снимка. План сам по себе не означает выполненный merge или deployment.
 
 ## 1. Как быстро восстановить контекст
 
 1. Прочитать этот документ и [AGENTS.md](../AGENTS.md), проверить `git status --short --branch`.
 2. Найти свою область в карте модулей ниже; открыть только соответствующий исходник и тесты.
 3. Для команд использовать [инструкцию baseline](baseline.md), для измерений — [результаты E1](baseline_results.md).
+   Требования задания, обязательные поля и состав сдачи — [REQUIREMENTS_AND_DELIVERY.md](REQUIREMENTS_AND_DELIVERY.md).
 4. Детальный [EDA](research/dataset_findings.md), [контракт/архитектура](research/architecture_and_contract.md), [оценивание](research/evaluation.md) нужны при работе с данными, интерфейсами или метриками.
 5. [Исходный план](research/implementation_plan.md) и [подготовка окружения](development_setup.md) — снимки предыдущих этапов. Указания «создать baseline» и «ещё не запускался» там исторические; не создавать повторно уже существующие модули.
 
-Текущая разметочная работа: [план AI-разметки](research/annotation_plan.md). В локальном `data/gold/e1/ai/full.annotations.jsonl` завершены **120 карточек / 720 решений: 504 present, 183 absent, 32 ambiguous, 1 unjudgeable**. Подготовлены `review24.md` (24 карточки, баланс категории/split и наличия описания), `disputes.md` (33 спорных решения в 26 карточках с полными текстами), `full.review.md`, `full.manifest.json` и `START_HERE.md`. Прежние пилот и ручные файлы сохранены неизменными: 15 решений подтверждены пользователем, две development-карточки полностью проверены; цвет/объём третьей ещё обсуждаются. В полном наборе все метки остаются label_source=ai, фактическая ручная проверка хранится отдельно. Базовые цвета нормализуем; составные цвета, неоднозначные записи памяти и ошибочные единицы не исправляем произвольно. Состояние/габариты — кандидаты на следующую версию, текущий контракт не расширен. Это не независимый gold, evaluator и prediction-код не изменены, метрики не запускались. Проверка первого блока уже получена; текущий прогресс описан ниже.
+Текущая разметочная работа: [план AI-разметки](research/annotation_plan.md). По всем 24 карточкам получена обратная связь. Актуальный локальный `data/gold/e1/ai/full.annotations.v4.jsonl` содержит **120 карточек / 720 решений: 517 present, 183 absent, 19 ambiguous, 1 unjudgeable**; спорных 20 пар в 15 карточках. Текущие формы — `review24.v4.md`, `disputes.v4.md`, `full.review.v4.md`, номера R/A сохранены. В v4 уточнены пять именований по первичным источникам: полное Galaxy Line в трёх явно подписанных title, model TWK4P439 и KRWK02. Новые свойства с сайтов не подставлялись; это AI-adjudication, а не ручное подтверждение.
 
-Получена проверка R02–R06: дополнительно подтверждены 29 существующих решений; R05 проверен полностью. В `review.human-reviewed.v2.jsonl` три полные development-карточки / 19 пар. Внешнее подтверждение RAM R03 записано отдельно. Журнал `review.round2.feedback.json` и пояснения `review.round2.md` различают подтверждения и предложения о десятичном TB→GB, единицах памяти и составных цветах. Исходный AI-набор и его manifest не менялись; новые правила ещё обсуждаются. Следующая партия для пользователя — R07–R12, а предыдущие шесть позиций по цвету/памяти остаются в обсуждении.
+**Текущая ручная часть — `review.human-reviewed.v6.jsonl`: 22 полные проверки / 130 пар (10 development, 12 validation).** В раунде 5 пользователь подтвердил R17/R19/R21/R22/R23; происхождение — `review.round5.feedback.json`, контрольные суммы — `review.manifest.v6.json`. Полный AI-набор v4 и прежний human-v5 не перезаписаны. R03/R04 остаются частичными: десятичное 1 TB = 1000 GB явно одобрено, универсальный GB default для RAM не утверждён, трактовка написания Tb отдельно не согласована. Голые числа и ошибочные единицы рекомендуется отправлять на review; в R19 объём остаётся unjudgeable, внешние литры не подставлены. Новая runtime-логика здесь не внедрялась.
+
+**Текущая оценка — [reviewed-v2](research/baseline_evaluation_v2.md)**: `data/gold/e1/reviewed/reviewed-v2/`, 10 development / 57 judged и 12 validation / 67 judged; исключены 5 ambiguous и 1 unjudgeable. Validation: TP=29, FP=1, FN=21; **P=96,7%, R=58,0%, F1=72,5%**. Development: TP=18, FP=1, FN=19; F1=64,3%. Изменился набор карточек, а не метод; сравнение с v1 не доказывает прирост/деградацию baseline. В development model объясняет 9 FN. Два оставшихся случая — локальный `outputs/evaluation/reviewed-v2/pending_review.md`. Данные/метрики/SKU остаются вне Git.
+
+История: этап [плана/промпта](research/next_stage_prompt.md) выполнен в [первой оценке и error analysis](research/first_baseline_evaluation.md). Сохранённый reviewed-v1: 9 development / 52 judged и 8 validation / 48 judged; validation F1=74,6%. Прежние 17 наборов меток в v2 не изменены. Обе версии — малые неслучайные AI-assisted выборки, validation участвовал в обсуждении политики, не независимый holdout.
+
+Проверены hashes, raw evidence и совпадение всех 10 324 predictions с исходным E1; точных/нормализованных межsplit-дублей и пересечений групп не найдено. Аудит близких дублей остаётся участнику C. Текущие метрики/ошибки — `outputs/evaluation/reviewed-v2/`; v1 сохранён отдельно. Правила не улучшались, модели не обучались, commit/push не выполнялись. Следующий приоритет по development — extractor `model` (9 FN), затем цвета/бренды и числовой разбор. Рекомендация агента GPT-6.1 Sol / High в плане не выбирает модель runtime.
 
 При расхождении документации и кода сначала проверить код, конфигурацию и manifest, затем исправить документацию. Полный EDA по умолчанию не повторять.
 
@@ -27,13 +36,16 @@ GoodsAI решает кейс №3 М.Видео на хакатоне «Точ�
 Целевой вход кейса: название, описание, поля продавца; выход: обязательные атрибуты, канонические значения и confidence. Текущий E1 намеренно **text-only**: без полей продавца.
 
 Источник требований: [PDF кейсодателя](product-stage/context/case/attribute-extraction-case.pdf), стр. 10 и 16–18, и [сохранённый текст платформы](product-stage/context/case/platform-requirements.md).
+Разделы 3–6 повторно предоставлены пользователем 17 октября и сверены: для смартфона прямо названы бренд, модель, память, диагональ, батарея и цвет; E1 включает их и дополнительный RAM. Пример ноутбука содержит бренд, CPU, RAM, накопитель, диагональ и цвет; ноутбуки пока не поддерживаются. Полная схема/справочники категорий остаются открытым вопросом; набор чайника — наш пилотный выбор. Подробная [связь требований с реализацией и сдачей](REQUIREMENTS_AND_DELIVERY.md) отделяет подтверждённые условия от проектных намерений продуктового этапа.
 Требуются: только текст, извлечение/нормализация без выдуманных фактов, rules baseline и последующая проба ML или LLM, per-attribute P/R/F1 на gold.
 Шесть артефактов сдачи: воспроизводимый код/ноутбук, README, EDA, pipeline, файл предсказаний, финальная презентация. Полный технический scoring rubric и формат автопроверки пока не подтверждены.
+Задание требует один репозиторий или архив с запуском по README, попытку ML **или** LLM после rules baseline и per-attribute/per-category оценку. Обязательный дообученный encoder, конкретный каскад или web-интерфейс не заданы. Текущие 10 324 predictions — локальный пилот, не весь каталог; итоговый файл нужен в согласованном комплекте сдачи, хотя сейчас predictions исключены из Git. Обещанные CSV/JSON, готовая разметка и точная схема не совпали с обнаруженными Parquet/pickle и weak references; дополнительную выдачу нужно уточнить.
 Продуктовый этап пройден с максимальной оценкой **по сообщению команды**; в репозитории сохранены его материалы, а не протокол проверки этой оценки.
 
 | Дата | Что необходимо | Статус/основание |
 | --- | --- | --- |
-| 19 октября | Первый технический checkpoint: реальный запуск, предсказания, validation-оценка на ручных метках, ограничения | Дата задана пользователем; запуск уже есть, ручных метрик ещё нет |
+| До 06:00 МСК 18 октября, далее ежедневно | Рабочее решение в main выданного Gitea; отдельно запуск на ВМ | Новый приоритет по цитате организаторов; remote main/ВМ ещё не подтверждены, API ожидается |
+| 19 октября | Первый технический checkpoint: реальный запуск, предсказания, validation-оценка на ручных метках, ограничения | Дата задана пользователем; локальный запуск и AI-assisted reviewed-метрики есть; независимый gold и ВМ не подтверждены |
 | 21 октября | Сравнить rules с одним ML/LLM-вариантом на фиксированном split, если согласованы доступ и бюджет | Внутренний этап плана, **не подтверждённый внешний дедлайн** |
 | 23 октября | Комплект шести артефактов, согласованный охват/формат, воспроизводимость и интеграция в Gitea main через PR | Технический отбор по сообщению пользователя; время сдачи уточнить |
 
@@ -117,13 +129,27 @@ data/processed/e1/prepare_manifest.json      hashes, размеры срезов
 data/gold/e1/tasks.jsonl                     120 незаполненных заданий
 data/gold/e1/split_manifest.jsonl            SKU → группа → split
 data/gold/e1/annotation_manifest.json        метод/размеры/ограничения отбора
-data/gold/e1/ai/full.annotations.jsonl       120 AI-карточек, 720 решений, не независимый gold
+data/gold/e1/ai/full.annotations.jsonl       исходный ai-full-v2, сохранён для истории
+data/gold/e1/ai/full.annotations.v3.jsonl    сохранённый ai-full-v3
+data/gold/e1/ai/full.annotations.v4.jsonl    актуальный ai-full-v4, 120 карточек / 720 решений
+data/gold/e1/ai/full.manifest.v4.json        hashes текущей версии и источников
+data/gold/e1/ai/review24.v4.md              текущая форма проверки с прежними номерами
+data/gold/e1/ai/disputes.v4.md              текущие 20 спорных меток
+data/gold/e1/ai/review.human-reviewed.v6.jsonl  22 полные проверки / 130 пар
+data/gold/e1/reviewed/reviewed-v2/              замороженный dev/validation reference
+outputs/evaluation/reviewed-v2/                метрики, ошибки, manifests
+data/gold/e1/ai/full.manifest.v3.json        hashes текущей версии и её исходников
+data/gold/e1/ai/review24.v3.md              сохранённая форма проверки v3
+data/gold/e1/ai/disputes.v3.md              сохранённые 25 спорных решений v3
+data/gold/e1/ai/review.human-reviewed.v4.jsonl  11 полных проверок / 75 пар
 data/gold/e1/ai/full.manifest.json           hashes, статистика и ограничения полного прохода
 data/gold/e1/ai/review24.md                  24 карточки для проверки пользователем
 data/gold/e1/ai/disputes.md                  все 33 спорных решения с текстами
 data/gold/e1/ai/pilot.human-reviewed.jsonl   две ранее проверенные development-карточки
 data/gold/e1/ai/review.human-reviewed.v2.jsonl  три полные development-карточки после R02–R06
 data/gold/e1/ai/review.round2.feedback.json  журнал подтверждений и вопросов R02–R06
+data/gold/e1/ai/review.human-reviewed.v3.jsonl  шесть полных карточек / 40 пар после R07–R12
+data/gold/e1/ai/review.round3.feedback.json  журнал подтверждений и вопросов R07–R12
 outputs/baseline/predictions.jsonl           10 324 результата
 outputs/baseline/predictions.manifest.json   code/config/input/output hashes, среда, счётчики
 outputs/baseline/predictions.repeat.jsonl    побайтная проверка повторного запуска
@@ -212,7 +238,7 @@ Wrong value = FP+FN; метрики считаются по каноническ
 .\.venv\Scripts\python.exe -m unittest discover -s scripts/research -p 'test_*.py' -v
 ```
 
-После ручной разметки вместо tasks.jsonl указать реально созданный reviewed-файл нужного split. Сейчас есть три AI-assisted human-reviewed карточки development в `review.human-reviewed.v2.jsonl` (ранние две сохранены в `pilot.human-reviewed.jsonl`); они не являются независимой validation-оценкой. Полный `full.annotations.jsonl` имеет источник ai и не принимается текущим evaluator как reviewed/manual.
+Команда с tasks.jsonl выше — историческая проверка pending=120. Для текущей оценки использовать отдельные `data/gold/e1/reviewed/reviewed-v2/{development,validation}.jsonl` и новый output-путь; команды — в [отчёте v2](research/baseline_evaluation_v2.md). Источник `review.human-reviewed.v6.jsonl` содержит 22 AI-assisted проверки, 10 development / 12 validation. Происхождение и excluded ambiguous/unjudgeable раскрываются отдельно; это не независимый gold. Контекстные гипотезы R10 не оцениваются как present. Полные AI-файлы v2/v3/v4 не принимаются evaluator как reviewed/manual.
 Отсутствующие inventory/проекцию готовить по [инструкции на другом компьютере](baseline.md#как-воспроизвести-на-другом-компьютере), без повторения всего click EDA.
 CLI `inventory` пишет новый fingerprint-файл в data/processed; это не доказательство официального происхождения. `--config` — глобальная опция **перед** подкомандой.
 Для чтения manifests без изменения данных: `Get-Content outputs/baseline/metrics.json` и `Get-Content outputs/baseline/predictions.manifest.json`.
@@ -254,7 +280,7 @@ VM по сведениям пользователя: 2 CPU, 4 ГБ RAM, 32 ГБ 
 | Воспроизводимость | Существующие полный выход и повтор побайтно одинаковы; run_id `8a72d1342ed8e7a6f13d` |
 | Локальный predict | 13,869 с; p50 0,526 мс / p95 4,955 мс на запись; peak working set 29,7 МиБ |
 | Отдельный prepare | 13,856 с; peak working set ~485 МиБ |
-| Качество | **Precision/recall/F1 не измерены**, metrics.json: no_judged_manual_labels, pending_cards=120 |
+| Качество | Текущий reviewed-v2: 12 validation-карточек / 67 judged, P=96,7%, R=58,0%, F1=72,5%; [отчёт](research/baseline_evaluation_v2.md). Reviewed-v1 и старый `outputs/baseline/metrics.json` с pending=120 сохранены как история |
 
 **Покрытие НЕ равно точности.** Рабочий extractor и точные spans не заменяют независимую ручную проверку.
 Это измерения Windows 11 / Python 3.12.6, не VM benchmark; время не является SLA. Полные hashes и определения таймеров — в отчёте/manifests.
@@ -266,7 +292,7 @@ Manifests сохраняют старый commit + dirty status и отдель�
 
 P0 — препятствует честной оценке/сдаче; P1 — следующий прирост качества; P2 — после измерений. Backlog ниже — **предложение, не назначение участников и не разрешение на VM/API**.
 Общие blockers P0: нет независимого gold, required-списка/официального формата и подтверждённого Linux-прогона; baseline `c3feee2` ещё не интегрирован в основную ветку. Baseline уже опубликован в Gitea feature-ветке; начальная настройка проекта отдельно вошла в main через PR #1.
-Долг P1: model отсутствует, aliases/контексты ограничены, confidence не калиброван, near-duplicates не проверены. P2: ML/LLM-опыт, интервалы метрик и отдельная span-conditioned normalization-оценка.
+Замеры H05 на доступной проверенной части выполнены, полный независимый reference H03 ещё не готов. Долг P1: model отсутствует (9 development FN в v2), цвета/бренды и числовой разбор ограничены; confidence не калиброван, near-duplicates не проверены. P2: ML/LLM-опыт, интервалы метрик и отдельная span-conditioned normalization-оценка.
 
 | ID | Приоритет / задача | Зависимости | Где работать | Критерий готовности | Независимость |
 | --- | --- | --- | --- | --- | --- |

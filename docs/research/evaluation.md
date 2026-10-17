@@ -1,7 +1,12 @@
 # Как честно оценить первый эксперимент
 
-Дата: 17 октября 2026 года. Это план оценки; extractor и модели ещё не запускались.
-Числа качества появятся только после реализации, независимой разметки и измерений.
+Дата: 17 октября 2026 года. Ниже — методика оценки и план расширения reference.
+Rules extractor уже работает; выполнена [первая оценка](first_baseline_evaluation.md)
+на 9 development и 8 validation AI-assisted human-reviewed карточках.
+После новых подтверждений выполнен [замер reviewed-v2](baseline_evaluation_v2.md)
+на 10 development / 12 validation. Метод неизменен, выборка расширена.
+Это не независимый gold/test; ML/LLM-модель в pipeline ещё не запускалась.
+Планы 120/300 карточек и двойной слепой проверки ниже не являются результатами.
 
 ## Что является разметкой
 
@@ -137,7 +142,7 @@ SKU, отдельно от невзвешенных метрик; для SKU б�
 ## Методические источники
 
 - [scikit-learn: precision, recall и F-measures](https://scikit-learn.org/stable/modules/model_evaluation.html#precision-recall-f-measure-metrics).
-- [scikit-learn: GroupShuffleSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupShuffleSplit.html) — разделение целых групп; конкретный код split пока не реализован.
+- [scikit-learn: GroupShuffleSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupShuffleSplit.html) — методический пример разделения групп; E1 использует собственный детерминированный split связных компонентов в `annotation.py`.
 - [scikit-learn: probability calibration](https://scikit-learn.org/stable/modules/calibration.html) — разделение score и калиброванной вероятности.
 
 Библиотека scikit-learn для текущего EDA не устанавливалась.

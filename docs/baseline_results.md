@@ -3,6 +3,9 @@
 17 октября 2026 года, Windows 11, Python 3.12.6. Эти результаты относятся к
 правилам `rules-0.1.0` и конфигурации в `src/goodsai/baseline.json`.
 Инструкция и устройство pipeline: [baseline.md](baseline.md).
+Первый замер качества на AI-assisted human-reviewed subset опубликован отдельно:
+[first_baseline_evaluation.md](research/first_baseline_evaluation.md).
+Ниже сохранены исходные результаты predict и состояние до появления reviewed-reference.
 
 ## Реальные входные и выходные данные
 
