@@ -1,0 +1,18 @@
+[Unit]
+Description=GoodsAI provisional HTTP API on port 8000
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+WorkingDirectory=%h/project
+ExecStart=%h/project/.venv/bin/python -m goodsai.api --host 0.0.0.0 --port 8000
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+UMask=0077
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+
+[Install]
+WantedBy=default.target

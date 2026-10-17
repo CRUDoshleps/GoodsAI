@@ -44,13 +44,52 @@ loginctl show-user "$(id -u)" -p Linger
 ss -ltn
 ```
 
-Ненулевой exit code отдельных команд — результат диагностики, не повод менять
-настройки вслепую. Если доступен пользовательский systemd, можно подготовить
-user unit с WorkingDirectory=%h/project, ExecStart=%h/project/.venv/bin/python
--m goodsai.api --host 0.0.0.0 --port 8000 и Restart=on-failure. Если linger
-выключен, работа после logout требует отдельного решения; его не включаем
-автоматически. Если user manager недоступен, выбрать доступный на ВМ supervisor.
-Шаблон и команды установки менеджера будут добавлены после диагностики.
+Пользователь передал результат: PID 1 — systemd, user manager — running,
+Linger=no, TCP 8000 свободен. Поэтому выбран пользовательский systemd unit
+[deploy/systemd/goodsai.service](../../deploy/systemd/goodsai.service).
+Он запускает существующую `.venv` из `~/project`, перезапускает процесс при
+сбое и включается в default.target. Изменение пути checkout требует правки unit.
+
+Сначала обновить чистую ветку main, установить `.[serve,test]` и выполнить
+обе тестовые команды из раздела выше. Foreground-команду после тестов для
+этого способа запускать не нужно. Затем в SSH:
+
+```bash
+cd ~/project &&
+loginctl enable-linger "$(id -un)" &&
+test "$(loginctl show-user "$(id -u)" -p Linger --value)" = yes &&
+mkdir -p "$HOME/.config/systemd/user" &&
+test ! -e "$HOME/.config/systemd/user/goodsai.service" &&
+test ! -L "$HOME/.config/systemd/user/goodsai.service" &&
+install -m 0644 deploy/systemd/goodsai.service "$HOME/.config/systemd/user/goodsai.service" &&
+systemctl --user daemon-reload &&
+systemctl --user enable --now goodsai.service &&
+systemctl --user status goodsai.service --no-pager --full &&
+curl --fail-with-body --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:8000/health
+```
+
+`enable-linger` оставляет менеджер этого пользователя работающим после logout
+и запускает его при загрузке ВМ. Поведение описано в
+[официальной документации loginctl](https://github.com/systemd/systemd/blob/main/man/loginctl.xml).
+Если команда требует недоступных прав/возвращает Access denied, остановиться
+и передать вывод: нужен администратор для включения linger; sudo автоматически
+не добавлять. Одна опция `enable` без linger не доказывает работу после выхода.
+Если unit-файл уже существует, цепочка тоже остановится: сначала сравнить
+его с версией из Git, не перезаписывать неизвестную конфигурацию.
+
+Нужны `active (running)`, `enabled` и `Linger=yes`; health проверяется отдельно,
+поскольку Type=simple может стать active до готовности HTTP. При ошибке:
+
+```bash
+systemctl --user status goodsai.service --no-pager --full
+journalctl --user -u goodsai.service -n 50 --no-pager
+```
+
+Управление только GoodsAI: `systemctl --user restart goodsai.service` после
+обновления кода/окружения; `systemctl --user disable --now goodsai.service`
+останавливает процесс и отключает автозапуск. Linger не отключать автоматически:
+он относится ко всем службам пользователя. Unit пока подготовлен локально,
+его реальный запуск на ВМ не подтверждён.
 
 После запуска проверить с ВМ:
 
