@@ -1,5 +1,6 @@
 # Local datasets: never commit original or processed data.
 /data/
+.local_inventory.json
 **/context/datasets/
 
 # Local experiment artifacts, predictions, models and logs.
