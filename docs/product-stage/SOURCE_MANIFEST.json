@@ -1,0 +1,133 @@
+{
+  "repository": "https://github.com/CRUDoshleps/GoodsAI",
+  "commit": "c949dd64191b4c4ca777ce5be143ac308fb276ae",
+  "retrieved_on": "2026-10-17",
+  "excluded": [
+    "context/datasets/",
+    "prototype/",
+    ".gitattributes",
+    "superseded presentation v3"
+  ],
+  "files": [
+    {
+      "path": "CASE_REQUIREMENTS_TRACEABILITY.md",
+      "bytes": 9027,
+      "git_blob_sha1": "ffd0f90923d7847d723c109c1ad333039a3a12fc",
+      "sha256": "251cbbaa1b2fe01e192a3f4cc759b71137f21943ddc44c6d519e57bcda1ad643"
+    },
+    {
+      "path": "FIGMA_MAKE_PROMPT.md",
+      "bytes": 24617,
+      "git_blob_sha1": "a8d703a6ca93fd3020143a4e145cd7854bc0bc10",
+      "sha256": "c404cfc89b89b370a51b1b5d2a2e81ecaf00c3f72c6325472c167856d6d6611c"
+    },
+    {
+      "path": "GOODS_AI_DIAGRAMS.md",
+      "bytes": 14699,
+      "git_blob_sha1": "ae6cc3d0308aa83a7633e6951ed75d17ae1b5c7b",
+      "sha256": "c392b1d9e07e8dd40870da77ce8544e1099d74d7a4790ab8369a74aa2b4c48c4"
+    },
+    {
+      "path": "HACKATHON_LLM_GATEWAY.md",
+      "bytes": 6041,
+      "git_blob_sha1": "05e4b25f63089fcffb27907f419f04890c55dc77",
+      "sha256": "2874615ab7c39eb883267c908ecf2a4f0ec82825ff934a1f86ef22b9339b9151"
+    },
+    {
+      "path": "IMPLEMENTATION_MASTER_PLAN.md",
+      "bytes": 17953,
+      "git_blob_sha1": "6cd4be631759308941d0b5a012ea221be01c27b0",
+      "sha256": "b2684569363d01a1ee3f19f17087fd9a108d8c326670ab5326c01b1624f9358b"
+    },
+    {
+      "path": "MEASUREMENT_AND_EXPERIMENT_PLAN.md",
+      "bytes": 10426,
+      "git_blob_sha1": "35e33708d7cdea75007ad8c1abec439e76ec53b9",
+      "sha256": "4cf3c077b77c7a033c2e9e218414237d0cbfc4a1d0bc0bc00769b55f45e52f38"
+    },
+    {
+      "path": "MVP_BACKLOG_AND_DELIVERY_PLAN.md",
+      "bytes": 11346,
+      "git_blob_sha1": "47583e76f6eea38920e7485b034d3cf9f28f885a",
+      "sha256": "a4eae3683e6926a212c1a653310939f9d2464d2f92530830bea985b35370dd52"
+    },
+    {
+      "path": "PITCH_SCRIPT_10_MIN.md",
+      "bytes": 7965,
+      "git_blob_sha1": "559dc99506724f82794a4bc844da85895aed3d2d",
+      "sha256": "6b9125c13f8a577aaa372b6c7b476520a6b179bee0143718c81cca91251bd7ea"
+    },
+    {
+      "path": "PRE_DEVELOPMENT_PRODUCT_ANALYSIS.md",
+      "bytes": 15255,
+      "git_blob_sha1": "e29af00eea31f34da4f6de712187ecede758ea7f",
+      "sha256": "20eeb25f2ecae965b5e6873797cd9e7b4c4c66fd2fc766147171281dbc74d4ba"
+    },
+    {
+      "path": "PRODUCT_CHECKPOINT_PRESENTATION.md",
+      "bytes": 21586,
+      "git_blob_sha1": "339fe204a27eabefc13c4cae15b5d39c5eb1b62a",
+      "sha256": "3a7622ebcfdeca77add7186733c15cff119d433edbc6a81a53794bf1e5d0013c"
+    },
+    {
+      "path": "PRODUCT_IMPROVEMENTS.md",
+      "bytes": 7637,
+      "git_blob_sha1": "60df5883b4aaf17777113d459363021adce3f295",
+      "sha256": "2b547ff2fa8721a4bdfabb17322cd939952cae427c422ce7f86d83fed85a9183"
+    },
+    {
+      "path": "PROJECT_CONTEXT.md",
+      "bytes": 12772,
+      "git_blob_sha1": "07b2c40ae78bca2646477b9f862751c0034e3d6c",
+      "sha256": "4f84bbbdb9abfc613cc5f8c19dcae4359762beaaaf7166a5564adcef25148ba7"
+    },
+    {
+      "path": "README.md",
+      "bytes": 14592,
+      "git_blob_sha1": "1b44a66b14b565321b06b0ec3c74a32fa916f2e1",
+      "sha256": "3b64e8e37a91821829601d241a7ffe8a3eb04c510e6f38f5d3053dad6c151c74"
+    },
+    {
+      "path": "RESEARCH_AND_ARCHITECTURE.md",
+      "bytes": 23866,
+      "git_blob_sha1": "41fd29562061db0c6dcac544aed475fd0618ea4e",
+      "sha256": "a2566c0fac9b94c09e46d43db996756c7d567efb42e24479f28b0ac3d057b37c"
+    },
+    {
+      "path": "TECHNICAL_SPEC.md",
+      "bytes": 28946,
+      "git_blob_sha1": "bdbf3f1ca9754c32b8910cf6e4579efdd180a246",
+      "sha256": "f8e1a6a5f76ab69e8196644b31db344f4ab59b7f626a96dc8aa975cf06b8fd20"
+    },
+    {
+      "path": "context/README.md",
+      "bytes": 1733,
+      "git_blob_sha1": "cd60a008e881adca94dfedf0e751451139051a7f",
+      "sha256": "764daf8b9480ff04c5bddbf26671eb4c4325b259132d2663daaa101c60cf349e"
+    },
+    {
+      "path": "context/case/attribute-extraction-case.pdf",
+      "bytes": 554562,
+      "git_blob_sha1": "f50ef900ae7f8f14b664b27eaff46a6179f2debb",
+      "sha256": "139f890fdf868238889871f2149580cdaee4e687221526292a503358bcdc7946"
+    },
+    {
+      "path": "context/case/platform-requirements.md",
+      "bytes": 8792,
+      "git_blob_sha1": "0244b9544c2fbd09671d8759af1c9a2039b3d894",
+      "sha256": "ce5e001be4185d3343ee0c31f29627c01c3a890bd623857c783a9a9a339148f6"
+    },
+    {
+      "path": "presentation/GoodsAI_Product_Checkpoint_Final.pdf",
+      "bytes": 403895,
+      "git_blob_sha1": "e437ef1e9627685103e773364cd45ce3685d723c",
+      "sha256": "f4572334862cfeffb230042e1a974b6be8730c6df9a7a7d6c6312975d946133f"
+    },
+    {
+      "path": "presentation/GoodsAI_Product_Checkpoint_Final.pptx",
+      "bytes": 65529,
+      "git_blob_sha1": "1f7d70daf92c887913befb88cbeb9641226596ec",
+      "sha256": "cd92128068e9cbf68adb3e7b5047b4a10c70e3c2ffaba396b86111eaf0498293"
+    }
+  ]
+}

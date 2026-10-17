@@ -1,0 +1,30 @@
+# Local datasets: never commit original or processed data.
+/data/
+**/context/datasets/
+
+# Local experiment artifacts, predictions, models and logs.
+/outputs/
+/logs/
+/mlruns/
+/wandb/
+/models/
+
+# Secrets (examples must contain placeholders only).
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/secrets/
+
+# Python environments and caches.
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.log
