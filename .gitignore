@@ -28,3 +28,8 @@ __pycache__/
 .ruff_cache/
 .ipynb_checkpoints/
 *.log
+
+# Local Python package installation and build artifacts.
+*.egg-info/
+/build/
+/dist/

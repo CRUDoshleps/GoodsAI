@@ -1,0 +1,2 @@
+pyarrow==26.0.0
+duckdb==1.5.6
