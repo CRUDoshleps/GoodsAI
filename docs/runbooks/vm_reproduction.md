@@ -20,6 +20,12 @@ checkout, установка GoodsAI и запуск приложения ещё
 | `git ls-tree --name-only origin/main` после fetch | Только `.gitignore`, `README.md`, `docs`; runtime baseline в main отсутствует |
 | Worktree после fetch | `main...origin/main [behind 2]`, те же untracked `.gitignore`/`.ipynb_checkpoints/`; файлы checkout не обновлялись |
 
+После этого Gitea обновлена агентом по прямому разрешению пользователя:
+PR #2 merged, main содержит baseline и документы (`b3b3d55`). Это проверено
+на локальном компьютере через API и fetch. На ВМ новый main пока не получен;
+последний её подтверждённый checkout всё ещё initial. Следующие команды
+обновления должны сначала сохранить локальный `.gitignore` и проверить историю.
+
 ## Выводы и следующий шаг
 
 1. Текущий `python3` не удовлетворяет `requires-python >=3.12` из проекта.
