@@ -18,7 +18,8 @@ python3.12 -m venv .venv
 ```
 
 Если Python установлен через uv, окружение можно создать командой
-`~/.local/bin/uv venv --python 3.12 .venv` вместо первой строки. На Windows
+`~/.local/bin/uv venv --python 3.12 --seed .venv` вместо первой строки (`--seed`
+устанавливает pip для следующей команды). На Windows
 используйте `py -3.12 -m venv .venv` и `.venv\Scripts\python.exe`.
 Установка зависимостей требует сети; само извлечение выполняется локально.
 
