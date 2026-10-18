@@ -7,14 +7,16 @@
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
 | опубликованный технический baseline | Gitea `main` | `48b45dc` |
-| рабочая интеграционная база | GitHub `integration/current` | ветка от `48b45dc` с новой документацией |
+| рабочая интеграционная база | GitHub `main` | Gitea history + новая документация и mirror workflow |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | runtime schema | `0.1` | — |
 | rules | `rules-0.3.0-m2-policy` | — |
 | dictionaries | `manual-reviewed-brand-and-color-names-v2` | — |
 
-GitHub и Gitea имели независимые истории. Актуальный код Gitea перенесён в
-GitHub `integration/current` без переписывания существующих `main`/`dev`.
+GitHub и Gitea имели независимые истории. Прежний GitHub `main` сохранён в
+`legacy/github-main-before-gitea-sync-2026-10-19`, после чего актуальный код
+Gitea стал новым GitHub `main`. Каждый push в GitHub `main` автоматически
+fast-forward публикуется в Gitea; divergence останавливает workflow.
 
 ## Реализовано
 

@@ -36,7 +36,7 @@
 | ID | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
-| SYNC-001 | P0 | DONE | интегратор | Codex | `integration/current` | актуальный Gitea `main` перенесён в рабочую ветку GitHub |
+| SYNC-001 | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
 | DATA-001 | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
@@ -46,7 +46,7 @@
 | CONF-001 | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
 | SPEC-001 | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
-| REL-002 | P0 | IN_PROGRESS | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
+| REL-002 | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
 | LLM-001 | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
@@ -103,7 +103,7 @@
 2. Добавить remotes `work` и `release` без credentials в URL.
 3. Опубликовать актуальную историю в новой GitHub-ветке.
 4. Не переписывать старые GitHub `main`/`dev`.
-5. После review создать постоянную `integration/current`.
+5. Сделать перенесённую историю новым GitHub `main`, сохранив старый main.
 
 **Готово, когда:** GitHub содержит актуальный код Gitea, source SHA записан,
 команда знает базовую ветку, а старые ветки не потеряны.
@@ -251,6 +251,11 @@ split; test contents не использовались для настройки
 **Готово, когда:** обычный commit в GitHub `main` автоматически доходит до
 Gitea fast-forward; divergence останавливает job, а старый GitHub `main`
 доступен в резервной ветке.
+
+**Выполнено 19 октября:** прежний GitHub `main` сохранён в
+`legacy/github-main-before-gitea-sync-2026-10-19`; новый `main` создан из
+актуального Gitea commit и документации. Workflow run `39177817712` завершился
+успешно и fast-forward обновил Gitea. Secrets сохранены только в GitHub Actions.
 
 ### LLM-001 — gateway adapter
 

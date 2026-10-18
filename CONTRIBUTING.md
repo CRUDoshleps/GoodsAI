@@ -30,7 +30,7 @@ BACKLOG → READY → IN_PROGRESS → REVIEW → DONE
 
 ```bash
 git fetch work
-git switch -c eval/eval-001-independent-gold work/dev
+git switch -c eval/eval-001-independent-gold work/main
 # изменить только строку задачи в TASKS.md
 git add TASKS.md
 git commit -m "chore(tasks): claim EVAL-001"
@@ -64,9 +64,9 @@ gold или метода, если PR заявляет независимую о
 
 ### Merge
 
-Интегратор убеждается, что изменения основаны на актуальной ветке, проверки
-прошли и цифры воспроизводимы. После merge интегратор ставит `DONE` и добавляет
-merge SHA. Release в Gitea — отдельная задача типа `REL`.
+Интегратор убеждается, что изменения основаны на актуальном GitHub `main`,
+проверки прошли и цифры воспроизводимы. После merge workflow публикует тот же
+commit в Gitea `main`; интегратор проверяет Actions и ставит `DONE`.
 
 ## Ветки и коммиты
 

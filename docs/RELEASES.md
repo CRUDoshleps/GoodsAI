@@ -4,8 +4,8 @@
 
 | Remote | Сервис | Назначение |
 | --- | --- | --- |
-| `work` | GitHub | задачи, feature-ветки, review и интеграция |
-| `release` | Gitea организаторов | проверяемый `main` и release tags |
+| `work` | GitHub | задачи, feature-ветки, PR и основной `main` |
+| `release` | Gitea организаторов | автоматическое зеркало GitHub `main` и release tags |
 
 Секреты не встраиваются в remote URL. HTTPS credential вводится интерактивно
 или через разрешённый credential manager; предпочтительный GitHub transport — SSH.
@@ -14,23 +14,21 @@
 
 GitHub и Gitea имели несвязанные истории. Актуальным техническим источником
 выбран Gitea `main` `48b45dc`, потому что только там есть runtime, tests и свежий
-`PROJECT_STATUS`. Эта история опубликована в GitHub-ветках
-`docs/gov-001-team-workflow` и `integration/current`; существующие GitHub
-`main` и `dev` не переписывались. Новые задачи ответвляются от
-`integration/current`. Замена старой `dev` или смена default branch требует
-отдельного решения команды, потому что истории не имеют общего предка.
+`PROJECT_STATUS`. Прежний GitHub `main` сохранён в резервной ветке
+`legacy/github-main-before-gitea-sync-2026-10-19`. После этого актуальная
+история стала новым GitHub `main`. Старая `dev` сохранена без изменений.
 
 ## Обычная разработка
 
 ```bash
 git fetch work --prune
-git switch -c <type>/<task-id>-<slug> work/integration/current
+git switch -c <type>/<task-id>-<slug> work/main
 # claim в TASKS.md, отдельный commit и push
 git push -u work HEAD
 ```
 
-PR направляется в `integration/current`. После review интегратор сливает его и
-ставит задачу в `DONE`. Gitea на этом этапе не меняется.
+PR направляется в GitHub `main`. После review интегратор сливает его, ждёт
+успешного mirror workflow и только затем ставит задачу в `DONE`.
 
 ## Автоматическое зеркало GitHub main → Gitea main
 
@@ -73,31 +71,28 @@ Release candidate — конкретный GitHub commit. Для него соз
 9. VM проверена по `RUNBOOK.md`.
 10. Назначены release engineer и reviewer.
 
-## Публикация в Gitea
+## Фиксация релиза
 
-Публикация выполняется из отдельной release-ветки, созданной от проверенного
-GitHub commit. Release engineer сначала обновляет удалённое состояние и
-убеждается, что Gitea `main` не изменился после начала подготовки.
+GitHub `main` уже публикуется в Gitea автоматически. Release engineer сначала
+убеждается, что оба `main` указывают на один commit, затем выполняет preflight,
+обновляет VM и фиксирует release manifest. Release tag можно отдельно отправить
+в оба репозитория после успешного smoke.
 
 Безопасная последовательность:
 
 ```text
 fetch work + release
 verify expected GitHub SHA
-verify expected Gitea main SHA
-create rel/<date>-<n> from source SHA
+verify Gitea main equals GitHub main
 run preflight again
-push release branch to Gitea
-open Gitea PR into main
-review diff and manifests
-merge without force
 tag release-YYYYMMDD-N
-update VM to merged SHA
+push the same tag to work and release
+update VM to main SHA
 run smoke and save release report
 ```
 
-Точные push/merge команды выполняет release engineer после проверки удалённого
-состояния. Документ специально не предлагает force push или переписывание main.
+Точные tag/deploy команды выполняет release engineer после проверки удалённого
+состояния. Force push и переписывание Gitea `main` запрещены.
 
 ## Release manifest
 
@@ -127,17 +122,17 @@ Manifest не содержит токены, пароли, URL с credentials и
 Hotfix допускается только при поломке проверяемого сервиса:
 
 1. задача `REL/BUG` в `TASKS.md`;
-2. ветка от текущего Gitea `main`;
+2. ветка от текущего GitHub `main`;
 3. минимальная правка и regression test;
-4. PR в Gitea;
-5. немедленный backport того же commit/diff в GitHub;
+4. PR в GitHub `main`;
+5. успешный автоматический mirror в Gitea;
 6. новый release manifest.
 
 VM никогда не становится единственным местом правки.
 
 ## Rollback
 
-Rollback возвращает предыдущий известный Gitea release SHA, перезапускает
-service и проверяет health/predict. Причина и время фиксируются в release report.
-После восстановления создаётся отдельная задача на исправление; повреждённый
-release tag не перемещается.
+Для быстрого восстановления VM временно запускается на предыдущем известном
+release SHA. В GitHub `main` создаётся обычный revert commit; workflow
+fast-forward переносит его в Gitea. После этого VM обновляется на новый main и
+проверяет health/predict. Release tag не перемещается, force push не применяется.

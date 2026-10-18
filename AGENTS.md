@@ -5,7 +5,7 @@
 1. Прочитать `docs/PROJECT_STATUS.md`, `TASKS.md` и документ своей области.
 2. Выполнить `git status --short --branch` и `git fetch work`.
 3. Выбрать одну задачу со статусом `READY`.
-4. Создать ветку `<type>/<id>-<slug>` от согласованной рабочей базы.
+4. Создать ветку `<type>/<id>-<slug>` от `work/main`.
 5. Поставить задачу в `IN_PROGRESS`, указать исполнителя и ветку.
 6. Отдельно закоммитить и опубликовать захват: `chore(tasks): claim <ID>`.
 
@@ -65,7 +65,8 @@
 
 ## Репозитории
 
-`work` — GitHub для разработки. `release` — Gitea организаторов. Выпуск в
-Gitea выполняется только по `docs/RELEASES.md` из проверенного GitHub SHA.
+`work` — GitHub для разработки. `release` — Gitea организаторов. Feature-ветки
+сливаются в GitHub `main`; workflow автоматически fast-forward публикует этот
+commit в Gitea `main`. Прямые рабочие commits в Gitea запрещены.
 Секреты никогда не помещаются в URL remote, commit, PR, terminal transcript
 или документацию.
