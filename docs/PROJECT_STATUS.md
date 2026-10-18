@@ -7,9 +7,9 @@
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
 | опубликованный технический baseline | Gitea `main` | `48b45dc` |
-| рабочая интеграционная база | GitHub `main` | `7a7d47a` |
+| рабочая интеграционная база | GitHub `main` | `81fe5be` + status close |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
-| типизированная система задач | GitHub `gov/gov-002-task-system` | claim `d4e20e0`, Issue #1 |
+| типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
 | rules | `rules-0.3.0-m2-policy` | — |
 | dictionaries | `manual-reviewed-brand-and-color-names-v2` | — |
