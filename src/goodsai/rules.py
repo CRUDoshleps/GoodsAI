@@ -3,7 +3,8 @@ from dataclasses import dataclass, replace
 import re
 
 from goodsai.contracts import Product
-from goodsai.normalize import NUMBER, UNITS, number, numeric
+from goodsai.model_rules import ModelRules
+from goodsai.normalize import NUMBER, UNITS, model_name, number, numeric
 from goodsai.text import segments, visible_view
 
 
@@ -37,6 +38,7 @@ def context(text: str, start: int, end: int, radius: int = 45) -> str:
 class Rules:
     def __init__(self, config: dict):
         self.config = config
+        self.model_rules = ModelRules(config)
         self.aliases = {}
         for kind in ["brands", "colors"]:
             self.aliases[kind] = [(canonical, re.compile(bounded_alias(alias), re.I))
@@ -164,12 +166,19 @@ class Rules:
                     continue
                 yield self.make(attr, value, field, offset, text, m, attr + ".explicit.v1", 0.8)
 
+    def models(self, product: Product, field: str, text: str):
+        for start, end, rule in self.model_rules.spans(product.category_id, field, text):
+            fragment = text[start:end]
+            yield Candidate("model", model_name(fragment), None, field, start, end,
+                            fragment, 0.8, rule)
+
     def candidates(self, product: Product):
         yield from self.brand(product)
         for field in ["title", "description"]:
             source = getattr(product, field) or ""
             text, positions = visible_view(source)
             found = list(self.colors(field, 0, text))
+            found.extend(self.models(product, field, text))
             if product.category_id == "761":
                 found.extend(self.memory(field, 0, text))
             found.extend(self.quantities(product, field, 0, text))

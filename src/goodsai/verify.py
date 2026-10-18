@@ -1,10 +1,41 @@
 """Deterministic merger: conflicts abstain; uncalibrated candidates require review."""
 from collections import defaultdict
 from decimal import Decimal, InvalidOperation
+import math
 
 from goodsai.contracts import Product, validate_prediction
-from goodsai.normalize import BOUNDS, UNITS
+from goodsai.normalize import BOUNDS, UNITS, model_name
 from goodsai.rules import Rules
+from goodsai.text import visible_span
+
+
+def validate_candidate(candidate, product: Product, requested: list[str]) -> None:
+    """Validate internal rule candidates before field access and merging."""
+    if not isinstance(candidate.attribute, str) or candidate.attribute not in requested:
+        raise ValueError("Rule returned an attribute outside category schema")
+    if not isinstance(candidate.field, str) or candidate.field not in {"title", "description"}:
+        raise ValueError("Invalid candidate field")
+    source = getattr(product, candidate.field) or ""
+    if (type(candidate.start) is not int or type(candidate.end) is not int
+            or not 0 <= candidate.start < candidate.end <= len(source)):
+        raise ValueError("Invalid candidate offsets")
+    if any(not isinstance(v, str) or not v.strip() for v in (candidate.value, candidate.text, candidate.rule_id)):
+        raise ValueError("Invalid candidate strings")
+    if (type(candidate.score) not in (int, float) or not math.isfinite(candidate.score)
+            or not 0 <= candidate.score <= 1 or candidate.unit != UNITS.get(candidate.attribute)):
+        raise ValueError("Invalid candidate score/unit")
+    if source[candidate.start:candidate.end] != candidate.text:
+        raise ValueError("Rule violated raw evidence invariant")
+    if candidate.attribute == "model" and model_name(visible_span(source, candidate.start, candidate.end)) != candidate.value:
+        raise ValueError("Model value is not derived from visible evidence")
+    if candidate.attribute in BOUNDS:
+        low, high = BOUNDS[candidate.attribute]
+        try:
+            value = Decimal(candidate.value)
+            if not value.is_finite() or not Decimal(str(low)) <= value <= Decimal(str(high)):
+                raise ValueError("Candidate outside schema")
+        except InvalidOperation as exc:
+            raise ValueError("Invalid candidate number") from exc
 
 
 class Extractor:
@@ -22,20 +53,7 @@ class Extractor:
             return row
         grouped = defaultdict(list)
         for candidate in self.rules.candidates(product):
-            if candidate.attribute not in requested:
-                raise ValueError("Rule returned an attribute outside category schema")
-            source = getattr(product, candidate.field) or ""
-            if source[candidate.start:candidate.end] != candidate.text:
-                raise ValueError("Rule violated raw evidence invariant")
-            if candidate.attribute in BOUNDS:
-                low, high = BOUNDS[candidate.attribute]
-                try:
-                    value = Decimal(candidate.value)
-                    if (not value.is_finite() or not Decimal(str(low)) <= value <= Decimal(str(high))
-                            or candidate.unit != UNITS[candidate.attribute]):
-                        raise ValueError("Candidate outside schema")
-                except InvalidOperation as exc:
-                    raise ValueError("Invalid candidate number") from exc
+            validate_candidate(candidate, product, requested)
             grouped[candidate.attribute].append(candidate)
         for attr in requested:
             candidates = grouped[attr]
@@ -46,7 +64,7 @@ class Extractor:
             if len(values) > 1:
                 base["reason_codes"] = ["conflicting_evidence"]
             elif not candidates:
-                base["reason_codes"] = ["rule_not_implemented" if attr == "model" else "not_found_by_rules"]
+                base["reason_codes"] = ["not_found_by_rules"]
             else:
                 c = min(candidates, key=lambda c: (-c.score, c.field != "title", c.start, c.rule_id))
                 base.update(value=c.value, unit=c.unit, confidence=c.score, decision="review",

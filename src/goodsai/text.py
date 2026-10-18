@@ -64,3 +64,17 @@ def visible_view(source: str):
     parser.feed(source)
     parser.close()
     return "".join(text for text, _ in parser.parts), [pos for _, positions in parser.parts for pos in positions]
+
+
+def visible_span(source: str, start: int, end: int) -> str:
+    """Resolve a complete raw span in its original HTML context, not in isolation."""
+    text, positions = visible_view(source)
+    indices = [i for i, pos in enumerate(positions)
+               if pos is not None and pos[0] >= start and pos[1] <= end]
+    if not indices:
+        raise ValueError("Model evidence is not visible text")
+    first, last = indices[0], indices[-1]
+    if (positions[first][0] != start or positions[last][1] != end
+            or any(pos is None for pos in positions[first:last + 1])):
+        raise ValueError("Model evidence crosses a hidden or block boundary")
+    return text[first:last + 1]

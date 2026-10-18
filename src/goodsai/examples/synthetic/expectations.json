@@ -1,25 +1,25 @@
 {
-  "demo_version": "synthetic-v1",
+  "demo_version": "synthetic-v2-model",
   "origin": "synthetic_examples_not_catalog_gold",
   "cases": [
     {
       "sku_id": "demo-phone", "status": "processed",
       "values": {
-        "brand": ["Samsung", null], "storage_gb": ["256", "GB"], "ram_gb": ["8", "GB"],
+        "brand": ["Samsung", null], "model": ["Demo X82", null], "storage_gb": ["256", "GB"], "ram_gb": ["8", "GB"],
         "screen_inches": ["6.5", "inch"], "battery_mah": ["5000", "mAh"], "color": ["черный", null]
       },
-      "abstentions": {"model": "rule_not_implemented"}
+      "abstentions": {}
     },
     {
       "sku_id": "demo-kettle", "status": "processed",
-      "values": {"brand": ["Tefal", null], "capacity_l": ["1.7", "L"], "power_w": ["2200", "W"], "color": ["белый", null]},
-      "abstentions": {"model": "rule_not_implemented"}
+      "values": {"brand": ["Tefal", null], "model": ["KX-82", null], "capacity_l": ["1.7", "L"], "power_w": ["2200", "W"], "color": ["белый", null]},
+      "abstentions": {}
     },
     {
       "sku_id": "demo-conflict", "status": "processed",
       "values": {"brand": ["Samsung", null]},
       "abstentions": {
-        "model": "rule_not_implemented", "storage_gb": "conflicting_evidence",
+        "model": "not_found_by_rules", "storage_gb": "conflicting_evidence",
         "ram_gb": "not_found_by_rules", "screen_inches": "not_found_by_rules",
         "battery_mah": "not_found_by_rules", "color": "not_found_by_rules"
       }
@@ -27,7 +27,7 @@
     {
       "sku_id": "demo-missing", "status": "processed", "values": {},
       "abstentions": {
-        "brand": "not_found_by_rules", "model": "rule_not_implemented",
+        "brand": "not_found_by_rules", "model": "not_found_by_rules",
         "capacity_l": "not_found_by_rules", "power_w": "not_found_by_rules", "color": "not_found_by_rules"
       }
     },

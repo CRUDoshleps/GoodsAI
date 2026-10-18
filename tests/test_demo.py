@@ -24,7 +24,7 @@ class DemoTests(unittest.TestCase):
             self.assertEqual(first["checks_passed"], 6)
             self.assertEqual(first["checks_total"], 6)
             self.assertEqual(first["status_counts"], {"processed": 4, "unsupported_category": 1, "invalid_input": 1})
-            self.assertEqual(first["decision_counts"], {"review": 11, "abstain": 13})
+            self.assertEqual(first["decision_counts"], {"review": 13, "abstain": 11})
             self.assertEqual(first["llm_calls"], 0)
             self.assertNotIn("f1", first)
             self.assertEqual(first["run_id"], second["run_id"])
