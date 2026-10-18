@@ -10,6 +10,12 @@
 /wandb/
 /models/
 
+# Internal output publication state (never delete locks while a writer runs).
+.*.goodsai.lock
+.*.goodsai-transaction.json
+.*.goodsai-*.tmp
+.goodsai-txn-*/
+
 # Secrets (examples must contain placeholders only).
 .env
 .env.*

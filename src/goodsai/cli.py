@@ -10,15 +10,23 @@ import time
 from goodsai import __version__
 from goodsai.annotation import annotation_tasks
 from goodsai.contracts import Product, load_config
-from goodsai.data import atomic_text, check_output, digest, inventory_sources, prepare, read_jsonl, write_json, write_line
+from goodsai.data import check_output, digest, inventory_sources, prepare, read_jsonl, write_json, write_line
 from goodsai.evaluate import evaluate
 from goodsai.runtime import identity, peak_rss_bytes
+from goodsai.storage import staged_prediction_pair
 from goodsai.verify import Extractor
 
 
 def predict(input_path: Path, output: Path, config: dict) -> dict:
+    output = output.resolve()
     check_output(output, input_path)
     check_output(output.with_suffix(".manifest.json"), input_path)
+    with staged_prediction_pair(output) as (staged_output, staged_manifest):
+        report = _predict_staged(input_path, staged_output, staged_manifest, config)
+    return report
+
+
+def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path, config: dict) -> dict:
     started = time.perf_counter()
     meta = identity(config)
     input_hash = digest(input_path)
@@ -31,7 +39,7 @@ def predict(input_path: Path, output: Path, config: dict) -> dict:
     reasons = Counter()
     slices = defaultdict(Counter)
     statuses = Counter()
-    with atomic_text(output) as stream:
+    with staged_output.open("w", encoding="utf-8", newline="\n") as stream:
         for line_no, row in enumerate(read_jsonl(input_path), 1):
             sku = row.get("sku_id")
             if isinstance(sku, str) and sku in seen:
@@ -68,7 +76,7 @@ def predict(input_path: Path, output: Path, config: dict) -> dict:
     elapsed.sort()
     seconds = time.perf_counter() - started
     report = meta | {"version": __version__, "run_id": run_id, "input_sha256": input_hash,
-                     "output_sha256": digest(output), "rows": rows, "invalid_input_rows": errors,
+                     "output_sha256": digest(staged_output), "rows": rows, "invalid_input_rows": errors,
                      "elapsed_seconds": seconds, "cards_per_second_including_io": rows / seconds,
                      "extractor_p50_ms": elapsed[(len(elapsed) - 1) // 2] * 1000,
                      "extractor_p95_ms": elapsed[int((len(elapsed) - 1) * .95)] * 1000,
@@ -76,7 +84,7 @@ def predict(input_path: Path, output: Path, config: dict) -> dict:
                      "slices": dict(slices), "status_counts": dict(statuses), "abstention_reasons": dict(reasons),
                      "llm_calls": 0, "quality_status": "not_evaluated_without_manual_gold",
                      "confidence_kind": "heuristic", "calibrated": False}
-    write_json(output.with_suffix(".manifest.json"), report)
+    write_json(staged_manifest, report)
     return report
 
 

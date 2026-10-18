@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from goodsai.contracts import Product, validate_prediction
-from goodsai.data import read_jsonl
+from goodsai.data import read_jsonl, read_predictions
 from goodsai.normalize import UNITS, numeric
 
 
@@ -27,7 +27,7 @@ def evaluate(predictions: Path, gold: Path | None, config: dict) -> dict:
                 "precision": None, "recall": None, "f1": None,
                 "note": "N/A: no independent manual labels; extraction coverage is not accuracy."}
     pred = {}
-    for row in read_jsonl(predictions):
+    for row in read_predictions(predictions):
         validate_prediction(row, config)
         if row["sku_id"] in pred:
             raise ValueError("Duplicate prediction SKU")

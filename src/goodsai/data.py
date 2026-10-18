@@ -2,10 +2,10 @@
 from contextlib import contextmanager
 import hashlib
 import json
-import os
 from pathlib import Path
 
 from goodsai.contracts import Product
+from goodsai.storage import atomic_text as _atomic_text, prediction_snapshot
 
 
 def digest(path: Path) -> str:
@@ -37,14 +37,14 @@ def check_output(path: Path, *inputs: Path):
 @contextmanager
 def atomic_text(path: Path):
     check_output(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(path.name + ".tmp")
-    try:
-        with temporary.open("w", encoding="utf-8", newline="\n") as stream:
-            yield stream
-        os.replace(temporary, path)
-    finally:
-        temporary.unlink(missing_ok=True)
+    with _atomic_text(path) as stream:
+        yield stream
+
+
+def read_predictions(path: Path):
+    """Locked, recovered and checksum-verified predictions; standalone JSONL also accepted."""
+    with prediction_snapshot(path) as verified:
+        yield from read_jsonl(verified)
 
 
 def write_line(stream, row: dict):

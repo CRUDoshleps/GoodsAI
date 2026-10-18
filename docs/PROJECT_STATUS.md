@@ -1,7 +1,7 @@
 # GoodsAI — состояние проекта и вход для команды
 
 Актуализировано: **18 октября 2026 года, Europe/Moscow**. Состояние: рабочий E1 baseline; заморожены 22 AI-assisted human-reviewed карточки в reviewed-v2, выполнена отдельная development/validation-оценка. Независимой gold/test-оценки ещё нет.
-Рабочий каталог: `C:\Users\vladn\projects\GoodsAI`; ветка подготовки следующего этапа: `feature/vlad-reproducible-demo`; базовый коммит настройки: `cf16e59` (`chore: initialize local development environment`).
+Рабочий каталог: `C:\Users\vladn\projects\GoodsAI`; текущая ветка задачи R3: `feature/vlad-atomic-output`; базовый коммит настройки: `cf16e59` (`chore: initialize local development environment`).
 **Baseline, EDA, тесты и актуальные отчёты опубликованы в Gitea main через [PR #2](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/2), merge-коммит `b3b3d55d05a276aa1db3e333fee7cc24d1c6a139`.** В него вошли baseline `c3feee2`, handoff `5e6160e` и документационный релиз `5d41970`. Текущий HEAD, включая последующие изменения статуса, проверять через Git.
 Для следующего этапа используется новая ветка от актуального main; доступность её коммита проверять после push сравнением локального и удалённого SHA. Старая feature/vlad-setup слита в main; исторические упоминания ниже относятся к прежнему этапу.
 17 октября пользователь явно разрешил commit/push и интеграцию в main через PR. После push `5d41970` PR #2 обновлён и слит без принудительного merge; API подтвердил `merged=true`, fetch — `origin/main=b3b3d55`. Tree main совпал с проверенной feature-версией, baseline и документы присутствуют, Git-данные/секреты не добавлены. Рабочая feature-ветка затем fast-forward обновлена до merge-коммита; локальный main не переключался и история не переписывалась. Вкладка платформы «Последний push в Gitea» инструментально не проверена.
@@ -17,11 +17,18 @@
 локально: `python -m goodsai.demo --output-dir outputs/demo`, 6/6 сценариев,
 4 выходных файла с динамическими SHA/run_id; [индекс сдачи](DELIVERY_INDEX.md).
 Проверены Windows/Python 3.12.6, 30 baseline/data/API/demo + 3 reader tests,
-чистая установка из wheel и запуск вне репозитория. Изменения после подготовки
-`1779055` оформляются отдельным коммитом; 18 октября пользователь разрешил
-commit/push в feature-ветку. Интеграция в main и обновление ВМ не выполнялись;
-фактический commit и состояние публикации проверяются через Git.
-R1 и публичная часть R2 закрыты; передача реальных predictions, общий R3,
+чистая установка из wheel и запуск вне репозитория. Demo-коммит `1bb9493`
+после подготовки `1779055` опубликован в feature и перенесён через PR #8 в main.
+18 октября пользователь разрешил отдельные ветки/commit/push для следующих
+задач и merge только при отсутствии новых веток коллег. ВМ этим этапом не обновлялась;
+фактический commit текущей задачи и состояние публикации проверяются через Git.
+R1 и публичная часть R2 закрыты; demo-релиз слит в main через PR #8,
+merge `b249523`. Перед созданием/merge проверены live branches и PR: новых
+веток коллег не было. R3 выполнен в отдельной feature-ветке: уникальные tempfile,
+OS-блокировки и журнал восстановления predictions/manifest; evaluator использует
+проверяющее SHA чтение под блокировкой. [План и проверки R3](research/atomic_output_plan.md),
+[восстановление output](runbooks/output_recovery.md). На Windows прошли **42+3 tests**,
+demo 6/6; POSIX/ВМ этого R3-релиза не проверены. Передача реальных predictions,
 проектирование verifier/policy и модельный этап остаются впереди.
 README дополнительно проверен по командам: Windows demo (6/6), просмотр JSONL/
 summary, batch своей карточки и Invoke-RestMethod health/predict к локальному
@@ -114,6 +121,7 @@ GoodsAI решает кейс №3 М.Видео на хакатоне «Точ�
 | [contracts.py](../src/goodsai/contracts.py) | `Product.from_dict`: JSON → строго text-only Product; `validate_prediction`: результат + config [+ Product] → проверка/ValueError | data, CLI, verifier, evaluator |
 | [demo.py](../src/goodsai/demo.py), [синтетические ресурсы](../src/goodsai/examples/synthetic/) | Встроенные вымышленные inputs → существующий predict → проверка ожиданий/evidence → predictions/manifest/summary; новый output-dir | CLI, validator, package data; `tests/test_demo.py` |
 | [data.py](../src/goodsai/data.py) | `prepare`: доверенная проекция + raw descriptions + inventory → pilot/provenance/manifests; JSONL I/O и атомарная замена отдельных файлов | PyArrow, Product, CLI |
+| [storage.py](../src/goodsai/storage.py) | Неблокирующие OS locks, уникальные tempfile, recoverable predictions/manifest, snapshot reader | data/CLI/evaluator/demo; tests/test_storage.py |
 | [text.py](../src/goodsai/text.py) | HTML-строка → видимый текст + карта исходных координат; исключает script/style/attrs/comments | Rules; HTMLParser |
 | [rules.py](../src/goodsai/rules.py) | `Rules.candidates(Product)` → Candidate со значением, единицей, span, score и rule_id; бренд/цвет/память/числовые характеристики | text, normalize, config |
 | [normalize.py](../src/goodsai/normalize.py) | Строка числа + unit + attribute → каноническая десятичная строка; bounds, L/ml, W/kW, GB | Rules, contracts, verifier, evaluator |
@@ -259,7 +267,7 @@ Evidence: field=`title` или `description`, start/end — Unicode code points,
 
 Статусы SKU: processed (допускает все abstain), unsupported_category (attributes=[]), invalid_input (attributes=[], input_line и reason_codes).
 При invalid_input категория null; если исходный ID не строка, выходной sku_id пуст. `error` допускается валидатором, но текущий CLI не превращает программные исключения в такие строки — запуск прекращается.
-Повреждённый JSONL, дубли, пустой вход или ошибка реализации останавливают запуск. Атомарно заменяется отдельный файл, не весь набор артефактов одной транзакцией.
+Повреждённый JSONL, дубли, пустой вход или ошибка реализации останавливают запуск. Одиночные файлы заменяются атомарно; у predict/manifest есть журнал восстановления и проверяющий SHA reader. Это не одна атомарная операция над двумя файлами и не общая транзакция для всех артефактов prepare/demo.
 Evaluator принимает reviewed manual gold с annotator, тем же текстовым входом и всеми requested attributes. Present требует canonical value/unit и точного evidence; absent — null; ambiguous/unjudgeable исключаются со счётчиком.
 Wrong value = FP+FN; метрики считаются по канонической паре value/unit. Catalog weak labels не принимаются как manual gold; незаполненные задания дают N/A. Подробнее — [оценивание](research/evaluation.md).
 
@@ -331,7 +339,7 @@ Manifests сохраняют старый commit + dirty status и отдель�
 На время проверки разметки Владом подготовлено отдельное [распределение задач команды](TEAM_TASKS.md): A — Linux-воспроизводимость, B — изолированный прототип model, C — аудит split и вопросы по требованиям. Это рабочее предложение на трёх остальных участников; принятие задач исполнителями и выполнение не подтверждены. Разметка и изменения общей схемы остаются у Влада с Codex.
 
 P0 — препятствует честной оценке/сдаче; P1 — следующий прирост качества; P2 — после измерений. Backlog ниже — **предложение, не назначение участников и не разрешение на VM/API**.
-Общие blockers P0: нет независимого gold и полной официальной схемы/формата интеграции. Интеграция baseline в main и установка/синтетические tests на Linux ВМ выполнены; сервис на 8000 запущен пользователем через systemd. Следующие приоритеты — R1/R2/R3 и проектирование R4/R7 нового плана.
+Общие blockers P0: нет независимого gold и полной официальной схемы/формата интеграции. Интеграция baseline/demo в main и установка/синтетические tests прежней версии на Linux ВМ выполнены; сервис на 8000 запущен пользователем через systemd. R1 и публичная часть R2 закрыты, R3 проверен локально; следующие приоритеты — проектирование R4/R7 и извлечение model (R6), оставшаяся передача реальных артефактов R2.
 Замеры H05 на доступной проверенной части выполнены, полный независимый reference H03 ещё не готов. Долг P1: model отсутствует (9 development FN в v2), цвета/бренды и числовой разбор ограничены; confidence не калиброван, near-duplicates не проверены. ML/LLM-опыт повышен до P0 подготовки / P1 интеграции (R7); интервалы метрик и span-conditioned normalization-оценка остаются после расширения reference.
 
 | ID | Приоритет / задача | Зависимости | Где работать | Критерий готовности | Независимость |
