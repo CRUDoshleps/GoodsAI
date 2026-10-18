@@ -1,0 +1,6 @@
+{"schema_version":"0.1","sku_id":"demo-phone","category_id":"761","title":"Смартфон Samsung Demo 8/256GB черный","description":"Диагональ экрана 6,5 дюйма; аккумулятор 5000 мАч.","seller_attributes":[],"source_flags":[]}
+{"schema_version":"0.1","sku_id":"demo-kettle","category_id":"482","title":"Электрочайник Tefal Demo белый","description":"Объем 1700 мл. Мощность 2,2 кВт.","seller_attributes":[],"source_flags":[]}
+{"schema_version":"0.1","sku_id":"demo-conflict","category_id":"761","title":"Смартфон Samsung Demo 256GB","description":"Встроенная память 128 ГБ.","seller_attributes":[],"source_flags":[]}
+{"schema_version":"0.1","sku_id":"demo-missing","category_id":"482","title":"Товар для демонстрации","description":null,"seller_attributes":[],"source_flags":[]}
+{"schema_version":"0.1","sku_id":"demo-unknown","category_id":"synthetic-unsupported","title":"Синтетический товар Samsung 8/256GB","description":null,"seller_attributes":[],"source_flags":[]}
+{"schema_version":"0.1","sku_id":"demo-invalid","category_id":"761","title":42,"description":null,"seller_attributes":[],"source_flags":[]}

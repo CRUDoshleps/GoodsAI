@@ -13,10 +13,22 @@
 результата **—/5**. Продуктовый этап **10/10**; правило его включения
 в общий итог не разъяснено. Прочерки не считаем нулями.
 Актуальный порядок работ: [план после ревью](research/post_review_plan.md).
-Следующая ограниченная задача — [воспроизводимое демо и индекс результатов](research/reproducible_demo_plan.md).
-Сначала commit/push документов подготовки в новую feature-ветку; код задачи пока не реализован.
-Ближайший пакет — демонстрационные артефакты и воспроизводимость оценки,
-атомарная запись; параллельно проектирование verifier/policy и модельного этапа.
+Задача [воспроизводимого демо](research/reproducible_demo_plan.md) реализована
+локально: `python -m goodsai.demo --output-dir outputs/demo`, 6/6 сценариев,
+4 выходных файла с динамическими SHA/run_id; [индекс сдачи](DELIVERY_INDEX.md).
+Проверены Windows/Python 3.12.6, 30 baseline/data/API/demo + 3 reader tests,
+чистая установка из wheel и запуск вне репозитория. Изменения после подготовки
+`1779055` оформляются отдельным коммитом; 18 октября пользователь разрешил
+commit/push в feature-ветку. Интеграция в main и обновление ВМ не выполнялись;
+фактический commit и состояние публикации проверяются через Git.
+R1 и публичная часть R2 закрыты; передача реальных predictions, общий R3,
+проектирование verifier/policy и модельный этап остаются впереди.
+README дополнительно проверен по командам: Windows demo (6/6), просмотр JSONL/
+summary, batch своей карточки и Invoke-RestMethod health/predict к локальному
+серверу на 8000 выполнены успешно. Полный JSON соответствует коду; Bash-блоки
+прошли syntax check, Linux-запуск не выполнялся. Протокол проверки — локальный
+`outputs/readme-check-8ed6470141/verification.json`. Добавлены отдельные инструкции
+первой/повторной установки, собственной карточки и ручного HTTP-запуска для двух ОС.
 Новый план имеет приоритет над историческим порядком H-задач ниже.
 
 HTTP-адаптер и systemd unit опубликованы в main через PR #6/#7 (последний
@@ -100,6 +112,7 @@ GoodsAI решает кейс №3 М.Видео на хакатоне «Точ�
 | [pyproject.toml](../pyproject.toml), [__init__.py](../src/goodsai/__init__.py) | Установка, версия, ресурс JSON, entrypoint `goodsai`; исходники → Python-пакет | setuptools, CLI |
 | [baseline.json](../src/goodsai/baseline.json) | Версии rules/dictionary, seed, категории/атрибуты, aliases брендов/цветов → config dict | `load_config`, Rules, annotation |
 | [contracts.py](../src/goodsai/contracts.py) | `Product.from_dict`: JSON → строго text-only Product; `validate_prediction`: результат + config [+ Product] → проверка/ValueError | data, CLI, verifier, evaluator |
+| [demo.py](../src/goodsai/demo.py), [синтетические ресурсы](../src/goodsai/examples/synthetic/) | Встроенные вымышленные inputs → существующий predict → проверка ожиданий/evidence → predictions/manifest/summary; новый output-dir | CLI, validator, package data; `tests/test_demo.py` |
 | [data.py](../src/goodsai/data.py) | `prepare`: доверенная проекция + raw descriptions + inventory → pilot/provenance/manifests; JSONL I/O и атомарная замена отдельных файлов | PyArrow, Product, CLI |
 | [text.py](../src/goodsai/text.py) | HTML-строка → видимый текст + карта исходных координат; исключает script/style/attrs/comments | Rules; HTMLParser |
 | [rules.py](../src/goodsai/rules.py) | `Rules.candidates(Product)` → Candidate со значением, единицей, span, score и rule_id; бренд/цвет/память/числовые характеристики | text, normalize, config |
