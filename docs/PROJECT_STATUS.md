@@ -7,13 +7,14 @@
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
 | опубликованный технический baseline | Gitea `main` | `48b45dc` |
-| реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | ветка от `48b45dc` |
+| рабочая интеграционная база | GitHub `integration/current` | ветка от `48b45dc` с новой документацией |
+| реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | runtime schema | `0.1` | — |
 | rules | `rules-0.3.0-m2-policy` | — |
 | dictionaries | `manual-reviewed-brand-and-color-names-v2` | — |
 
 GitHub и Gitea имели независимые истории. Актуальный код Gitea перенесён в
-отдельную GitHub-ветку без переписывания существующих `main`/`dev`.
+GitHub `integration/current` без переписывания существующих `main`/`dev`.
 
 ## Реализовано
 
