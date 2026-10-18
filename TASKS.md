@@ -46,6 +46,7 @@
 | CONF-001 | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
 | SPEC-001 | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
+| REL-002 | P0 | IN_PROGRESS | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
 | LLM-001 | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
@@ -234,6 +235,22 @@ split; test contents не использовались для настройки
 
 **Готово, когда:** Gitea `main` и VM работают на одном проверенном SHA,
 происхождение из GitHub доказуемо, rollback проверяем.
+
+### REL-002 — автоматическое зеркало main
+
+**Шаги**
+
+1. Сохранить прежний GitHub `main` в резервной ветке.
+2. Сделать актуальный код Gitea и новую документацию GitHub `main`.
+3. Добавить workflow, который запускается только после push в GitHub `main`.
+4. Проверять, что Gitea `main` является предком публикуемого commit.
+5. Запретить force push из workflow.
+6. Хранить Gitea credentials только в GitHub Secrets.
+7. Выполнить ручной запуск и проверить совпадение SHA двух `main`.
+
+**Готово, когда:** обычный commit в GitHub `main` автоматически доходит до
+Gitea fast-forward; divergence останавливает job, а старый GitHub `main`
+доступен в резервной ветке.
 
 ### LLM-001 — gateway adapter
 
