@@ -119,3 +119,6 @@ SHA Python-кода зависит от байтов/переносов стро
 по Git/PR; эти experimental manifests фиксируют проверенную рабочую версию до commit.
 Wheel SHA: `77b01305450594a0be54b3eb4a0a91b8c47560533057693b204a739f3240e5d5`;
 локальный протокол — `outputs/release/model-wheel-verification.json`.
+Передача кода — [PR #10](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/10),
+коммит реализации `a3f254a`; состояние merge проверяется по PR, отдельно от
+локальных tests и от пока не обновлённой ВМ.
