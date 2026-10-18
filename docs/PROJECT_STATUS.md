@@ -17,6 +17,8 @@ merge `c813f3153baadd9bd749cdc9c16105fa2b4b9764`.
 подтвердили прежние 5 веток, main=c813f31 и отсутствие открытых PR.
 Используется текущая `feature/vlad-model-evaluation`; перед merge инвентаризация
 повторяется. Фактический commit/merged state проверять через Git и PR.
+Основной M2-коммит `b8b9331` опубликован в feature;
+передача — [PR #11](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/11).
 README исправлен по текущим 69 тестам и подтверждённому пользователем M1 на ВМ.
 Повторная локальная проверка README: demo 6/6, полный JSON совпал с runtime,
 CLI и ASGI health/predict/docs прошли, 10 Bash-блоков проверены синтаксически,
