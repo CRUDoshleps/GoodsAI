@@ -36,7 +36,7 @@ class ComparisonTests(unittest.TestCase):
             root = Path(folder)
             gold = self.write(root / "dev.jsonl", reference())
             fingerprint = comparison.sha(gold)
-            result = comparison.run(gold, root / "dev", repeats=1)
+            result = comparison.run(gold, root / "dev", repeats=1, allow_dictionary_changes=True)
             self.assertEqual(result["variants"]["A"]["model"]["fn"], 1)
             self.assertEqual(result["variants"]["B"]["model"]["fn"], 1)
             self.assertEqual(result["variants"]["C"]["model"]["tp"], 1)
@@ -52,9 +52,10 @@ class ComparisonTests(unittest.TestCase):
                 comparison.run(gold, root / "dev", repeats=1)
             self.assertEqual(comparison.sha(root / "dev/experiment.manifest.json"), before)
             val = self.write(root / "val.jsonl", reference("validation", "synthetic-val", "invented-val"))
-            comparison.run(val, root / "val", "validation", freeze_from=root / "dev", repeats=1)
+            comparison.run(val, root / "val", "validation", freeze_from=root / "dev", repeats=1,
+                           allow_dictionary_changes=True)
             comparison.run(val, root / "feedback", "validation", freeze_from=root / "dev", repeats=1,
-                           previous_run=root / "val", feedback_reference=True)
+                           previous_run=root / "val", feedback_reference=True, allow_dictionary_changes=True)
             feedback = json.loads((root / "feedback/summary.json").read_text(encoding="utf-8"))
             self.assertEqual(feedback["reference_use"], "development_feedback")
             self.assertEqual(feedback["previous_comparison"]["lost_tp"], 0)
@@ -90,6 +91,17 @@ class ComparisonTests(unittest.TestCase):
         delta = comparison.compare([gold], {"A": make(None), "B": make(None), "C": make("Wrong X99")})
         self.assertEqual(delta[0]["before_verdict"], "FN")
         self.assertEqual(delta[0]["after_verdict"], "FP+FN")
+
+    def test_dictionary_comparison_is_explicit_and_does_not_allow_schema_drift(self):
+        from goodsai.contracts import load_config
+        config = load_config()
+        changed = config | {"colors": dict(config["colors"], invented=["invented"])}
+        with self.assertRaisesRegex(ValueError, "allow-dictionary-changes"):
+            comparison.check_configs(config, changed)
+        self.assertEqual(comparison.check_configs(config, changed, True), ["colors"])
+        for change in [{"schema_version": "2"}, {"categories": {"other": ["brand"]}}]:
+            with self.subTest(change=change), self.assertRaisesRegex(ValueError, "schema"):
+                comparison.check_configs(config, config | change, True)
 
 
 if __name__ == "__main__":

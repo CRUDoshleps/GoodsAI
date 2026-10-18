@@ -1,11 +1,40 @@
 # GoodsAI — состояние проекта и вход для команды
 
-Актуализировано: **18 октября 2026 года, Europe/Moscow**. Рабочий E1 baseline;
+Актуализировано: **19 октября 2026 года, Europe/Moscow**. Рабочий E1 baseline;
 22 исторические AI-assisted human-reviewed карточки reviewed-v2 и 20 новых M2.
 Новые development-разметка и A/B/C-оценка завершены. Независимого gold/test ещё нет.
-Рабочий каталог: `C:\Users\vladn\projects\GoodsAI`; текущая ветка M2:
-`feature/vlad-model-evaluation` от актуального `origin/main=c813f31` (fetch проверен).
+Рабочий каталог: `C:\Users\vladn\projects\GoodsAI`; текущая ветка исправлений:
+`feature/vlad-m2-policy-fixes` от актуального `origin/main=5adab92` (fetch проверен).
 Перед началом рабочее дерево было чистым; существующие документы плана сохранены.
+
+**Текущий результат: согласованные политики M2 перенесены в runtime.**
+[Изменения, воспроизведение и ограничения](research/m2_policy_fixes_results.md).
+Устранён default storage по величине одиночного GB; поддержана связная пара
+с единицами у обоих чисел. Применены утверждённые brand/subbrand и точные
+цветовые алиасы; маркетинговые слова/общая пометка сохраняются в поддержанных spans.
+Контракт v0.1, heuristic confidence и review/abstain сохранены; модельная grammar
+не расширялась. rules-0.3.0-m2-policy; tests/test_policy.py — синтетические регрессии.
+На неизменном M2 reference: 58/3/25 → **69 TP / 0 FP / 14 FN**,
+P/R/F1 **100,0/83,1/90,8%**. Model прежний: 12/0/7.
+Excluded-кандидаты 2→0; judged coverage 60%, all-pair 57,5%, card 100%.
+На M2, старом development и development_feedback lost_tp=0/new_fp=0.
+Всё это разработка на AI-assisted reviewed reference, не независимый test.
+82 tests прошли на Windows/Python 3.12.6; demo 6/6, CLI/API parity.
+Артефакты `outputs/experiments/model-stage/m2-policy-fixes-v2` и `*-slices`,
+регрессии `m2-policy-legacy-development-v2` / `m2-policy-legacy-feedback-v2`.
+Старые данные/gold/предсказания/отчёты сохранены, независимый test не открывался.
+Пользователь разрешил публикацию этой реализации через feature-ветку/PR в main;
+перед выпуском fetch и Gitea API подтвердили прежние 6 веток и отсутствие PR.
+Фактический SHA и merged state проверять через Git/PR. M3/API и обновление ВМ
+агентом не выполнялись. Инструкция ВМ прежняя, ожидается 82 tests после обновления.
+Следующие шаги: проверка релиза на ВМ; явные форматы/границы model и отдельно
+разрешённый реальный M3. Независимая человеческая оценка остаётся открытой.
+
+**История публикации предыдущего M2:** PR #11 слит в main, merge `5adab92`.
+Пользователь показал на ВМ 69 tests OK, service active и health status=ok;
+это проверка прежнего runtime M1 в M2, а не новой rules-0.3.0.
+Ниже сохранена история подготовки/передачи, не текущий статус новой ветки.
+
 M1 с исправлениями слит через [PR #10](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/10),
 merge `c813f3153baadd9bd749cdc9c16105fa2b4b9764`.
 Пользователь показал этот SHA на ВМ и ответ /predict с model.phone-title.v2;
@@ -229,6 +258,7 @@ GoodsAI решает кейс №3 М.Видео на хакатоне «Точ�
 | [storage.py](../src/goodsai/storage.py) | Неблокирующие OS locks, уникальные tempfile, recoverable predictions/manifest, snapshot reader | data/CLI/evaluator/demo; tests/test_storage.py |
 | [text.py](../src/goodsai/text.py) | HTML-строка → видимый текст + карта исходных координат; исключает script/style/attrs/comments | Rules; HTMLParser |
 | [rules.py](../src/goodsai/rules.py) | `Rules.candidates(Product)` → Candidate со значением, единицей, span, score и rule_id; бренд/цвет/память/числовые характеристики | text, normalize, config |
+| [test_policy.py](../tests/test_policy.py) | Согласованные memory/brand/color на вымышленных карточках; пары, отрицательные случаи, HTML/evidence, CLI parity | Rules, Extractor; отчёт policy fixes |
 | [model_rules.py](../src/goodsai/model_rules.py) | Консервативные model spans: коммерческое имя/индекс в title, явное «Модель:»; только текст/схема | Rules; tests/test_model.py |
 | [compare_model_stage.py](../scripts/research/compare_model_stage.py) | Снимок baseline A, ablation B, M1 C; отдельный text-only input, метрики/Δ/SHA; validation только из frozen development | Локальные data/outputs, tests/test_model_comparison.py |
 | [prepare_m2.py](../scripts/research/prepare_m2.py), [review_m2.py](../scripts/research/review_m2.py) | Frozen отбор, family quarantine, metadata-only test, проверка SHA/evidence и сборка AI-черновика; без predictions | Локальные data/gold/e1/m2, tests/test_m2_preparation.py; протокол M2 |

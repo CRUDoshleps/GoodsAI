@@ -48,6 +48,17 @@ def package_hashes(package):
             for p in sorted(package.rglob("*")) if p.is_file() and p.suffix in {".py", ".json", ".jsonl"}}
 
 
+def check_configs(baseline, current, allow_dictionary_changes=False):
+    """Keep the output schema fixed; dictionary comparisons require opt-in."""
+    if any(current[k] != baseline[k] for k in ["schema_version", "categories"]):
+        raise ValueError("Comparison requires the same schema and categories")
+    changed = [k for k in ["brands", "colors", "brand_subbrands", "color_modifiers"]
+               if current.get(k) != baseline.get(k)]
+    if changed and not allow_dictionary_changes:
+        raise ValueError("Dictionary/policy differences require --allow-dictionary-changes")
+    return changed
+
+
 def _predict_worker(package_root, variant, input_path, output):
     sys.path.insert(0, str(package_root))
     from goodsai.cli import predict
@@ -95,7 +106,8 @@ def compare(gold, variants, transitions=(("A", "B"), ("B", "C"), ("A", "C"))):
 
 
 def run(gold_path, output_dir, split="development", baseline_ref="5f77d81", freeze_from=None,
-        historical=None, repeats=3, previous_run=None, feedback_reference=False):
+        historical=None, repeats=3, previous_run=None, feedback_reference=False,
+        allow_dictionary_changes=False):
     """Never choose rules from labels: this function only freezes/runs/evaluates."""
     if split not in {"development", "validation"} or repeats < 1:
         raise ValueError("Only development/validation and positive repeats are allowed")
@@ -170,8 +182,7 @@ def run(gold_path, output_dir, split="development", baseline_ref="5f77d81", free
     from goodsai.runtime import identity
     config = load_config(str(packages["C"] / "baseline.json"))
     baseline_config = json.loads((packages["A"] / "baseline.json").read_text(encoding="utf-8"))
-    if any(config[k] != baseline_config[k] for k in ["schema_version", "categories", "brands", "colors"]):
-        raise ValueError("This M1 comparison requires the same schema, units and dictionaries")
+    dictionary_changes = check_configs(baseline_config, config, allow_dictionary_changes)
     inputs = []
     for row in gold:
         inputs.append(Product.from_dict({k: row[k] for k in ["schema_version", "sku_id", "category_id", "title",
@@ -257,6 +268,7 @@ def run(gold_path, output_dir, split="development", baseline_ref="5f77d81", free
                                        "llm_calls": 0, "llm_tokens": 0, "api_cost_rub": 0,
                                        "latency": timings, "timing_note": "Small split, descriptive only; no SLA"})
     manifest = {"status": "completed", "split": split, "baseline_commit": baseline_commit,
+                "allow_dictionary_changes": allow_dictionary_changes, "dictionary_changes": dictionary_changes,
                 "reference_use": "development_feedback" if feedback_reference else split,
                 "previous_comparison": previous_comparison,
                 "reference": {"path": str(gold_path), "sha256": gold_hash},
@@ -290,10 +302,13 @@ def main():
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--previous-run", type=Path, help="Compare C against a preserved run on the same reference")
     parser.add_argument("--feedback-reference", action="store_true", help="Mark validation used to fix known errors")
+    parser.add_argument("--allow-dictionary-changes", action="store_true",
+                        help="Explicitly compare approved dictionary/policy changes with an unchanged output schema")
     args = parser.parse_args()
     try:
         result = run(args.gold, args.output_dir, args.split, args.baseline_ref,
-                     args.freeze_from, args.historical, args.repeats, args.previous_run, args.feedback_reference)
+                     args.freeze_from, args.historical, args.repeats, args.previous_run, args.feedback_reference,
+                     args.allow_dictionary_changes)
     except (ValueError, OSError, KeyError, subprocess.CalledProcessError) as exc:
         parser.exit(2, f"model comparison: {type(exc).__name__}: {exc}\n")
     print(json.dumps(result, ensure_ascii=True, allow_nan=False, indent=2))

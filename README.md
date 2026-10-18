@@ -117,6 +117,11 @@ model=Demo X82. `processed` означает,
 description может отсутствовать или быть null. Непустые seller_attributes
 и готовые target-поля в текущем E1 не поддерживаются.
 
+Память заполняется при явной роли или связной паре с единицей (`8/256GB`,
+`8GB/256GB`). Одиночное `256GB` без роли оставляет storage/RAM пустыми;
+величина числа не заменяет текстовое указание. Известные точные оттенки
+сохраняются, конфликт конкретных значений даёт abstain.
+
 Windows:
 
 ```powershell
@@ -144,7 +149,7 @@ invalid_input; проверяй status каждой строки, даже ес�
 
 Первый инкремент `model` опубликован в main через PR #10 (c813f31).
 Ниже сохранена история его измерений; актуальная расширенная development-оценка
-M2 приведена после таблицы. Runtime M2 остаётся тем же M1.
+M2 приведена после таблицы. Затем выполнены policy fixes этой версии — ниже.
 На **AI-assisted human-reviewed** validation reviewed-v2 после фиксации правил:
 
 | Вариант | Карточки | Judged-пары | TP / FP / FN | Precision | Recall | micro-F1 |
@@ -174,11 +179,16 @@ Per-attribute/per-category P/R/F1, support, coverage и SHA:
 Дополнительно завершена проверка **20 новых development-карточек M2**:
 120 полей, 115 judged / 5 ambiguous, AI-assisted human-reviewed, не holdout.
 На одном новом reference baseline A: P/R/F1 **93,9/55,4/69,7%**;
-текущий M1 C: **95,1/69,9/80,6%**, model 12 TP / 0 FP / 7 FN.
-Runtime M2 не менялся, независимый test остаётся закрытым. Две storage-выдачи
+прежний M1 C: **95,1/69,9/80,6%**, model 12 TP / 0 FP / 7 FN.
+При подготовке reference runtime M2 не менялся, независимый test остаётся закрытым. Две storage-выдачи
 на ambiguous-парах отдельно раскрыты, не засчитаны правильными ответами.
 [Метрики, ограничения, диагностика и команды M2](docs/research/m2_evaluation_results.md).
-На Windows/Python 3.12.6 прошли 69 tests; этот M2 не проверялся на ВМ.
+19 октября отдельно исправлены согласованные политики памяти/brand/color:
+на том же M2 reference **69 TP / 0 FP / 14 FN**, P/R/F1 **100,0/83,1/90,8%**,
+две выдачи на ambiguous устранены, прежние TP сохранены. Это результат подбора
+по development, не независимый holdout. Model: по-прежнему 12 TP / 0 FP / 7 FN.
+[Реализация, сравнение и ограничения](docs/research/m2_policy_fixes_results.md).
+82 tests прошли на Windows; новая версия rules-0.3.0 ещё не проверена на ВМ.
 M2 и reviewed-v2 используют разные карточки и версии инструкции; сравнение
 вариантов корректно внутри одного reference, а не между этими итогами.
 
@@ -266,16 +276,17 @@ Linux:
 .venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v
 ```
 
-Для текущей версии проверены 69 основных tests на Windows/Python 3.12.6,
+Для текущей версии проверены 82 основных tests на Windows/Python 3.12.6,
 включая отдельные процессы для конкуренции и принудительного завершения записи
 и запуск demo вне репозитория.
 M1-тесты включают фиксацию кода, A/B/C ablation и синтетический validation;
-M2 добавил 7 тестов sampling/review и 3 теста postprocessing метрик.
+M2 добавил 7 тестов sampling/review и 3 теста postprocessing метрик;
+policy fixes — 11 policy tests, 1 HTTP policy test и 1 dictionary comparison guard.
 3 reader tests относятся к неизменённому исследовательскому reader и в M2
 не перезапускались. Wheel runtime M1 ранее проверен через отдельный каталог
 установки и изолированный запуск demo вне checkout. Пользователь подтвердил
-M1 c813f31 и HTTP /predict на ВМ; это не подтверждает прогон всех 69 тестов там.
-M2 runtime не меняет; его Linux-прогон выполняется отдельно при обновлении ВМ.
+для опубликованного прежнего M2 69 tests OK, active и health ok на ВМ.
+Это не проверка новых policy fixes; их Linux-прогон нужен отдельно при обновлении ВМ.
 
 ## Для разработчиков
 
@@ -447,7 +458,7 @@ M2 runtime не меняет; его Linux-прогон выполняется �
       "confidence_kind": "heuristic",
       "decision": "review",
       "method": "rule",
-      "rule_id": "color.explicit.v1",
+      "rule_id": "color.explicit.v2",
       "evidence": {
         "field": "title",
         "start": 34,

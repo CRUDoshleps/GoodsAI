@@ -26,7 +26,7 @@ class ModelRules:
         # Reuse public manufacturer/color spellings only to locate boundaries.
         self.brands = sorted({a for aliases in config["brands"].values() for a in aliases}, key=len, reverse=True)
         self.phone_brands = sorted({a for name, aliases in config["brands"].items()
-                                    if name != "GALAXY" for a in aliases}, key=len, reverse=True)
+                                    if name not in {"GALAXY", "Galaxy Line"} for a in aliases}, key=len, reverse=True)
         # Model boundaries only: do not change the existing brand extractor.
         self.model_brands = sorted(set(self.brands) | set(config.get("model_brand_aliases", [])),
                                    key=len, reverse=True)
@@ -35,7 +35,7 @@ class ModelRules:
     @staticmethod
     def prefix(text: str, aliases: list[str]):
         for alias in aliases:
-            m = re.match(re.escape(alias) + r"(?!\w)", text, re.I)
+            m = re.match(re.escape(alias).replace(r"\ ", r"[^\S\n]+") + r"(?!\w)", text, re.I)
             if m:
                 return m
         return None
