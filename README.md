@@ -1,483 +1,173 @@
 # GoodsAI
 
-Проект команды tochka-sborki-2026-team-054: извлечение атрибутов товаров из
-названия и описания. Rules baseline E1 поддерживает смартфоны (`761`) и чайники
-(`482`), возвращает JSONL с каноническими значениями и точными текстовыми
-свидетельствами. Все найденные значения — кандидаты `review`.
+Извлечение характеристик товара из названия и описания. Текущая версия —
+воспроизводимый rules baseline для смартфонов (`761`) и чайников (`482`).
+Она возвращает нормализованное значение, точный фрагмент исходного текста и
+явное решение `review` или `abstain`.
 
-[Демо](#демо-одной-командой) · [Своя карточка](#проверить-свою-карточку) ·
-[HTTP](#http-сервис-на-порту-8000) · [Тесты](#тесты) ·
-[Обновление ВМ](docs/runbooks/update_vm.md) ·
-[Полный JSON](#полный-пример-входа-и-результата) · [Артефакты сдачи](docs/DELIVERY_INDEX.md)
+Проект развивается как гибридная система. Правила закрывают частые и хорошо
+формализуемые случаи. Модель или LLM будет получать только сложный остаток.
+Любой кандидат проходит одну проверку схемы, диапазона, конфликта и evidence.
+LLM пока **не подключена к основному runtime**; это задача следующего этапа.
 
-## Демо одной командой
+## Что работает сейчас
 
-Нужны Git checkout этой версии проекта и Python **3.12+** (проверен 3.12).
-Открой терминал **в корне GoodsAI**, где находится `pyproject.toml`, и выбери
-инструкцию для своей ОС. Выполняй команды по порядку; при ошибке сначала
-устрани её. Для первой установки на Windows (PowerShell):
+- CLI для подготовки данных, пакетного прогноза и оценки;
+- HTTP API `/health` и `/predict` на порту 8000;
+- правила для бренда, модели, памяти, экрана, батареи, мощности, объёма и цвета;
+- нормализация единиц и словарных значений;
+- точные offsets evidence в исходном тексте;
+- отказ при конфликте или отсутствии значения;
+- атомарная запись predictions и manifest;
+- синтетическое демо из шести сценариев;
+- unit и интеграционные проверки.
+
+## Быстрый запуск
+
+Требуется Python 3.12+.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[serve,test]'
+python -m goodsai.demo --output-dir outputs/demo
+```
+
+Windows PowerShell:
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e .
-.\.venv\Scripts\python.exe -m goodsai.demo --output-dir outputs/demo
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[serve,test]"
+python -m goodsai.demo --output-dir outputs/demo
 ```
 
-На Linux:
+Демо создаёт в `outputs/demo/` вход, predictions, manifest и отчёт проверки.
+Ожидаемый итог — `6/6`. Это проверка сквозного сценария, а не оценка качества
+на реальных товарах.
+
+## Пакетный прогноз
+
+Минимальная строка входного JSONL:
+
+```json
+{"schema_version":"0.1","sku_id":"demo-1","category_id":"761","title":"Смартфон Acme X1 8/256 ГБ, черный","description":null,"seller_attributes":[],"source_flags":[]}
+```
+
+Запуск:
 
 ```bash
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -e .
-.venv/bin/python -m goodsai.demo --output-dir outputs/demo
+goodsai predict \
+  --input src/goodsai/examples/synthetic/products.jsonl \
+  --output outputs/predictions.jsonl
 ```
 
-Если `.venv` уже настроена, повторно создавать её не нужно. После обновления
-исходников достаточно установки `-m pip install -e .` и команды демо из блока
-своей ОС. Активация окружения не требуется: в командах указан его Python.
-`py -3.12`/`python3.12` предполагают установленный Python 3.12; если используешь
-другой подходящий Python, укажи его при создании окружения.
+Для каждого запрошенного атрибута ответ содержит одну запись. Найденное
+значение имеет `decision=review`, эвристический `confidence`, метод и evidence.
+При отсутствии или конфликте возвращается `decision=abstain` с `reason_codes`.
+Текущий confidence не является вероятностью и не разрешает `auto_accept`.
 
-Если Python установлен через uv, вместо создания venv используйте
-`~/.local/bin/uv venv --python 3.12 --seed .venv`: `--seed` добавляет pip.
-Установка требует сети; само демо работает локально, без raw, gold и LLM.
-После установки его можно запускать из другой папки через абсолютный путь
-к Python окружения; относительный output-dir считается от текущей папки.
-
-Команда вызывает существующий batch `predict`, проверяет все шесть сценариев
-и печатает JSON-сводку. Ожидается `checks_passed=6`, `checks_total=6`,
-`rows=6`, `llm_calls=0`. Это smoke-проверка синтетических примеров, не P/R/F1.
-
-```text
-outputs/demo/
-  input.jsonl                  синтетический вход
-  predictions.jsonl            реальный результат predict: одна строка на вход
-  predictions.manifest.json    run_id, SHA входа/выхода/кода/config, среда, счётчики
-  summary.json                 проверки сценариев, статусы, причины, SHA артефактов
-```
-
-Рядом могут быть служебные файлы `.*.goodsai.lock`. Это не предсказания и не
-признак ошибки: блокировка хранится ОС, а пустой lock-файл остаётся после работы.
-Не удаляй его, пока процесс читает или записывает результат.
-
-Каталог должен быть **новым**. Повторный запуск в существующий каталог,
-даже пустой, завершается с кодом 2 без перезаписи. Для следующего запуска
-укажите, например, `--output-dir outputs/demo-next`. При сбое новый каталог
-сохраняется для диагностики; summary появляется только после успеха всех проверок.
-Запись в data/raw и в каталог поставляемых примеров запрещена.
-
-Чтобы посмотреть результат на Windows:
-
-```powershell
-Get-Content outputs/demo/summary.json -Raw -Encoding UTF8 | ConvertFrom-Json | Select-Object checks_passed, checks_total, rows
-Get-Content outputs/demo/predictions.jsonl -Encoding UTF8
-```
-
-На Linux:
+## HTTP API
 
 ```bash
-cat outputs/demo/summary.json
-cat outputs/demo/predictions.jsonl
+goodsai-serve --host 0.0.0.0 --port 8000
 ```
 
-В сводке должны быть `checks_passed=6`, `checks_total=6`, `rows=6`.
-JSONL означает: каждая строка — отдельный JSON-объект. Файлы также можно
-открыть в редакторе; если выбрано другое имя output-dir, замени его в путях.
+Проверка health:
 
-| Синтетический сценарий | Ожидаемый результат |
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+`POST /predict` принимает один JSON-объект по схеме из примера выше. Контракт
+API временный до публикации точной схемы организаторов.
+
+## Подготовка данных
+
+Исходные данные не хранятся в Git. Поместите выданные файлы в `data/raw/`,
+затем выполните:
+
+```bash
+goodsai inventory \
+  --raw-dir data/raw \
+  --output data/processed/source_inventory.json
+
+goodsai prepare \
+  --catalog outputs/eda/catalog_skus.parquet \
+  --descriptions data/raw/sku_desc.parquet \
+  --inventory data/raw/.local_inventory.json \
+  --output-dir data/processed/e1
+```
+
+Подготовка включает проверку источников, выбор разрешённых текстовых полей,
+приведение типов, контроль SKU, фиксацию provenance и manifest с hashes.
+Готовые target-поля каталога не передаются extractor как подсказки.
+
+## Оценка
+
+```bash
+goodsai evaluate \
+  --predictions outputs/predictions.jsonl \
+  --gold data/gold/e1/reference.jsonl \
+  --output outputs/metrics.json
+```
+
+Главные метрики: precision, recall и F1 по атрибутам, coverage, доля отказов,
+ошибки по категориям и методы извлечения. Метрика без независимой ручной
+разметки не считается финальным качеством.
+
+Последний development-замер на 20 AI-assisted human-reviewed карточках:
+`69 TP / 0 FP / 14 FN`, `P=100%`, `R=83,1%`, `F1=90,8%`. Эта выборка
+использовалась при разработке правил, поэтому результат нельзя выдавать за
+независимый test. Подробности и более ранние срезы: [оценка](docs/EVALUATION.md).
+
+## Проверки
+
+```bash
+python -m unittest discover -s tests -v
+python -m unittest discover -s scripts/research -p 'test_*.py' -v
+```
+
+На опубликованном Gitea `main` команда ранее получила 82 проверки на
+Windows/Python 3.12.6. После каждого нового изменения проверки выполняются
+заново в своей среде; этот README не заменяет свежий test report.
+
+## Репозитории и ветки
+
+- **GitHub** — рабочая разработка, feature-ветки и review.
+- **Gitea организаторов** — только проверенные релизы для оценки.
+- `main` в Gitea не используется как общая черновая ветка.
+
+Новая работа начинается с [TASKS.md](TASKS.md): сначала задача переводится в
+`IN_PROGRESS` отдельным commit, затем меняется код. Подробный процесс —
+[CONTRIBUTING.md](CONTRIBUTING.md), выпуск — [docs/RELEASES.md](docs/RELEASES.md).
+
+## Карта документации
+
+| Файл | Назначение |
 | --- | --- |
-| demo-phone | processed; Samsung, model=Demo X82, 256 GB, 8 GB RAM, 6.5 inch, 5000 mAh, черный |
-| demo-kettle | processed; Tefal, model=KX-82, 1700 мл → 1.7 L, 2,2 кВт → 2200 W, белый |
-| demo-conflict | processed; storage_gb=null, abstain, conflicting_evidence |
-| demo-missing | processed; все запрошенные значения null/abstain |
-| demo-unknown | unsupported_category; attributes=[] |
-| demo-invalid | invalid_input; attributes=[]; строка 6 с title=42 нарушает контракт |
+| [TASKS.md](TASKS.md) | очередь, владельцы, статусы и подробные подзадачи |
+| [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md) | актуальное техническое задание и критерии приёмки |
+| [RESEARCH.md](RESEARCH.md) | научные и open source основания решений |
+| [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | что реально сделано и что ещё отсутствует |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | текущая и целевая архитектура гибридного pipeline |
+| [docs/DATASET.md](docs/DATASET.md) | подготовка, ограничения и защита от утечки |
+| [docs/EVALUATION.md](docs/EVALUATION.md) | дизайн эксперимента, формулы и честные метрики |
+| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | трассировка требований и шести артефактов |
+| [docs/RUNBOOK.md](docs/RUNBOOK.md) | запуск, диагностика и восстановление |
+| [docs/RELEASES.md](docs/RELEASES.md) | GitHub → VM → Gitea и чек-лист релиза |
 
-Итого: **4 processed, 1 unsupported_category, 1 invalid_input**, 13 кандидатов
-review и 11 отказов abstain среди 24 запрошенных пар. demo-phone извлекает
-model=Demo X82. `processed` означает,
-что карточка обработана, и не обещает наличия найденных значений. Невалидная
-карточка в демо намеренная; если исходы отличаются, команда завершится ошибкой.
+## Границы текущей версии
 
-Единый источник вымышленных примеров — [products.jsonl](src/goodsai/examples/synthetic/products.jsonl);
-отдельные [ожидания](src/goodsai/examples/synthetic/expectations.json) используются
-только для проверки результата, не передаются extractor. Ресурсы входят в wheel;
-копировать реальные карточки в примеры не нужно.
+- поддерживаются две категории, а не весь каталог;
+- seller attributes пока запрещены, чтобы не подмешать target;
+- LLM/encoder отсутствуют в основном пути;
+- `auto_accept` выключен до независимой оценки и калибровки;
+- фактическое качество на независимом test неизвестно;
+- публичный API временный;
+- реальные данные, gold, predictions, модели, логи и секреты не входят в Git.
 
-## Проверить свою карточку
-
-Создай `my-card.jsonl` в корне проекта: UTF-8 **без BOM**, один JSON-объект
-на строку. Пример содержимого одной строки:
-
-```json
-{"schema_version":"0.1","sku_id":"my-phone","category_id":"761","title":"Смартфон Samsung Demo X82 8/256GB черный","description":"Аккумулятор 5000 мАч.","seller_attributes":[]}
-```
-
-`sku_id` — твой строковый идентификатор, `category_id` — строка `761` для
-смартфона или `482` для чайника. title — обязательная непустая строка;
-description может отсутствовать или быть null. Непустые seller_attributes
-и готовые target-поля в текущем E1 не поддерживаются.
-
-Память заполняется при явной роли или связной паре с единицей (`8/256GB`,
-`8GB/256GB`). Одиночное `256GB` без роли оставляет storage/RAM пустыми;
-величина числа не заменяет текстовое указание. Известные точные оттенки
-сохраняются, конфликт конкретных значений даёт abstain.
-
-Windows:
-
-```powershell
-.\.venv\Scripts\python.exe -m goodsai.cli predict --input my-card.jsonl --output outputs/my-card/predictions.jsonl
-```
-
-Linux:
-
-```bash
-.venv/bin/python -m goodsai.cli predict --input my-card.jsonl --output outputs/my-card/predictions.jsonl
-```
-
-Рядом появится `predictions.manifest.json`. Для нового запуска выбирай новый
-output: обычный CLI predict, в отличие от demo, может перезаписать производный
-файл. Запись одного output защищена блокировкой: конкурирующий процесс получает
-`Output is busy` и должен повторить попытку после завершения первого. Predictions
-и manifest публикуются с журналом восстановления; evaluator проверяет SHA пары.
-Если запуск прервали, [порядок восстановления](docs/runbooks/output_recovery.md)
-позволяет прочитать последний согласованный результат. Неизвестная категория
-даёт unsupported_category, невалидная карточка —
-invalid_input; проверяй status каждой строки, даже если команда завершилась
-без ошибки. Это пакетный вызов; HTTP-сервер для него не нужен.
-
-## Измеренное качество и комплект сдачи
-
-Первый инкремент `model` опубликован в main через PR #10 (c813f31).
-Ниже сохранена история его измерений; актуальная расширенная development-оценка
-M2 приведена после таблицы. Затем выполнены policy fixes этой версии — ниже.
-На **AI-assisted human-reviewed** validation reviewed-v2 после фиксации правил:
-
-| Вариант | Карточки | Judged-пары | TP / FP / FN | Precision | Recall | micro-F1 |
-| --- | ---: | ---: | --- | ---: | ---: | ---: |
-| Baseline до model | 12 | 67 | 29 / 1 / 21 | 96,7% | 58,0% | 72,5% |
-| M1: правила model | 12 | 67 | 35 / 3 / 15 | 92,1% | 70,0% | 79,5% |
-| M1: исправление границ | 12 | 67 | 36 / 1 / 14 | 97,3% | 72,0% | 82,8% |
-
-Первый M1 добавил две ошибки model; после разбора одна исправлена, вторая
-заменена отказом. **Последняя строка — результат на использованной обратной
-связи, а не независимый validation:** исправления учитывали найденные ошибки.
-Ранее правильные значения не потеряны на этих карточках. На development
-по-прежнему исправлены 8 из 9 model FN без новых FP. Это ограниченный
-review-only baseline; независимая оценка ещё нужна, расширенный development M2 — ниже.
-[Исправления, сравнение с M1 и команды](docs/research/model_boundary_fix_results.md);
-[первоначальный M1](docs/research/model_stage_results.md) сохранён как история.
-
-Исторический reference reviewed-v2 содержит 22 полные проверки; development — 10 карточек,
-57 judged-пар, он не включён в строку выше. Выборка малая и неслучайная;
-validation участвовал в обсуждении политики и не является независимым holdout.
-Эти метрики не пересчитываются демо и не относятся ко всему каталогу.
-Candidate coverage не равно precision; auto-accepted coverage текущего E1 — 0.
-
-Per-attribute/per-category P/R/F1, support, coverage и SHA:
-[reviewed-v2](docs/research/baseline_evaluation_v2.md).
-
-Дополнительно завершена проверка **20 новых development-карточек M2**:
-120 полей, 115 judged / 5 ambiguous, AI-assisted human-reviewed, не holdout.
-На одном новом reference baseline A: P/R/F1 **93,9/55,4/69,7%**;
-прежний M1 C: **95,1/69,9/80,6%**, model 12 TP / 0 FP / 7 FN.
-При подготовке reference runtime M2 не менялся, независимый test остаётся закрытым. Две storage-выдачи
-на ambiguous-парах отдельно раскрыты, не засчитаны правильными ответами.
-[Метрики, ограничения, диагностика и команды M2](docs/research/m2_evaluation_results.md).
-19 октября отдельно исправлены согласованные политики памяти/brand/color:
-на том же M2 reference **69 TP / 0 FP / 14 FN**, P/R/F1 **100,0/83,1/90,8%**,
-две выдачи на ambiguous устранены, прежние TP сохранены. Это результат подбора
-по development, не независимый holdout. Model: по-прежнему 12 TP / 0 FP / 7 FN.
-[Реализация, сравнение и ограничения](docs/research/m2_policy_fixes_results.md).
-82 tests прошли на Windows; новая версия rules-0.3.0 ещё не проверена на ВМ.
-M2 и reviewed-v2 используют разные карточки и версии инструкции; сравнение
-вариантов корректно внутри одного reference, а не между этими итогами.
-
-Все шесть требуемых артефактов, команды, версии и открытые пункты:
-[индекс сдачи](docs/DELIVERY_INDEX.md).
-Реальные данные, reference и predictions хранятся вне Git; согласованный канал
-передачи итогового файла пока открыт. Финальная техническая презентация и
-сравнение с ML/LLM ещё не готовы. Демо эти пункты не заменяет.
-
-## HTTP-сервис на порту 8000
-
-17 октября администраторы уточнили: на выходные достаточно решения на **8000**
-и всей кодовой базы в **main** одного выданного репозитория. Официальные ручки
-и транзакции обещаны в понедельник вечером. Маршруты ниже — временные,
-это не утверждённый контракт организаторов.
-
-Для ручного запуска HTTP на Windows (PowerShell, из корня проекта):
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -e '.[serve,test]'
-.\.venv\Scripts\python.exe -m goodsai.api --host 127.0.0.1 --port 8000
-```
-
-На Linux/ВМ после создания `.venv`:
-
-```bash
-.venv/bin/python -m pip install -e '.[serve,test]'
-.venv/bin/python -m goodsai.api --host 0.0.0.0 --port 8000
-```
-
-Последняя команда работает в foreground. Для постоянного запуска после выхода
-из SSH нужен менеджер процессов: [инструкция сервиса](docs/runbooks/http_service.md).
-Windows-команда слушает только этот компьютер. На ВМ организаторов требуется
-`0.0.0.0:8000`. Если служба GoodsAI уже работает на 8000, второй процесс
-на этом порту не запускай: используй существующий сервис. Остановить ручной
-запуск можно Ctrl+C в его терминале; CLI demo завершается сам.
-Если сервис уже установлен на ВМ, используй [повторное обновление](docs/runbooks/update_vm.md):
-чистый main → fast-forward → установка extras → тесты → restart службы → smoke.
-
-Пока сервер работает, открой `http://127.0.0.1:8000/docs` **в браузере того же
-компьютера**: POST /predict → Try it out → заполни JSON → Execute.
-Для проверки с компьютера через платформу открывай адрес демо команды с `/docs`
-в конце. `127.0.0.1` на твоём компьютере не является адресом удалённой ВМ.
-Корневой `/` показывает служебный JSON, отдельной web-формы товара пока нет.
-
-Из второго терминала Windows:
-
-```powershell
-Invoke-RestMethod -Uri 'http://127.0.0.1:8000/health'
-Invoke-RestMethod -Uri 'http://127.0.0.1:8000/predict' -Method Post -ContentType 'application/json' -Body '{"schema_version":"0.1","sku_id":"demo","category_id":"761","title":"Samsung Example 8/256GB"}'
-```
-
-Из второго терминала ВМ:
-
-```bash
-curl --fail-with-body http://127.0.0.1:8000/health
-curl --fail-with-body http://127.0.0.1:8000/predict \
-  -H 'Content-Type: application/json' \
-  --data '{"schema_version":"0.1","sku_id":"demo","category_id":"761","title":"Samsung Example 8/256GB"}'
-```
-
-`/health` возвращает `status=ok`, `/predict` — один JSON того же v0.1, что CLI
-(у HTTP `run_id=http-rules-v0`). Корень `/` описывает сервис; интерактивная
-документация — `/docs`. Неизвестная категория даёт `unsupported_category`.
-Все извлечённые кандидаты по-прежнему `review`, confidence не калиброван.
-Этот адаптер не улучшает качество извлечения и не вызывает внешние модели.
-
-## Тесты
-
-Для всех тестов основного пакета, включая HTTP, сначала установи extras
-`.[serve,test]` из HTTP-раздела. Без них HTTP-тесты будут пропущены — это не
-подтверждает их прохождение. Новая установка pip-зависимостей требует сети.
-
-Windows:
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
-.\.venv\Scripts\python.exe -m unittest discover -s scripts/research -p 'test_*.py' -v
-```
-
-Linux:
-
-```bash
-.venv/bin/python -m unittest discover -s tests -v
-.venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v
-```
-
-Для текущей версии проверены 82 основных tests на Windows/Python 3.12.6,
-включая отдельные процессы для конкуренции и принудительного завершения записи
-и запуск demo вне репозитория.
-M1-тесты включают фиксацию кода, A/B/C ablation и синтетический validation;
-M2 добавил 7 тестов sampling/review и 3 теста postprocessing метрик;
-policy fixes — 11 policy tests, 1 HTTP policy test и 1 dictionary comparison guard.
-3 reader tests относятся к неизменённому исследовательскому reader и в M2
-не перезапускались. Wheel runtime M1 ранее проверен через отдельный каталог
-установки и изолированный запуск demo вне checkout. Пользователь подтвердил
-для опубликованного прежнего M2 69 tests OK, active и health ok на ВМ.
-Это не проверка новых policy fixes; их Linux-прогон нужен отдельно при обновлении ВМ.
-
-## Для разработчиков
-
-Первый прогон организаторов: [баллы и разбор 18 октября](docs/reviews/2026-10-18_first_run.md).
-Текущий порядок доработок: [план после ревью](docs/research/post_review_plan.md).
-
-Начните с [актуального состояния проекта](docs/PROJECT_STATUS.md): карта модулей,
-контракты, результаты и задачи для команды. Новым сессиям Codex также нужно
-прочитать [AGENTS.md](AGENTS.md), затем только файлы своей задачи.
-
-Подробные исследования: [docs/research/](docs/research/).
-Подтверждённые требования, обязательные атрибуты и комплект сдачи:
-[docs/REQUIREMENTS_AND_DELIVERY.md](docs/REQUIREMENTS_AND_DELIVERY.md).
-Проверенные команды установки, запуска и тестирования: [инструкция baseline](docs/baseline.md).
-Первая оценка неизменного baseline на небольшой проверенной части разметки:
-[метрики, error analysis и ограничения](docs/research/first_baseline_evaluation.md).
-После новых подтверждений reference расширен до 22 карточек:
-[текущая оценка reviewed-v2](docs/research/baseline_evaluation_v2.md).
-Публикация для ежедневной проверки и обязательный запуск на ВМ:
-[план main + ВМ](docs/runbooks/main_and_vm_release_plan.md) (main опубликован; systemd/HTTP smoke на ВМ подтверждены пользователем).
-
-## GoodsAI: первая рабочая версия
-
-Локальный text-only baseline извлекает характеристики смартфонов и электрических
-чайников с помощью правил и словарей. Результат — JSONL с исходными текстовыми
-доказательствами, нормализованными значениями и эвристическим score.
-
-Установка, запуск, результаты на реальных данных и ограничения:
-[docs/baseline.md](docs/baseline.md).
-
-Исследование датасетов: [docs/research/dataset_findings.md](docs/research/dataset_findings.md).
-Данные, разметка и предсказания хранятся локально в исключённых из Git `data/` и `outputs/`.
-
-## Полный пример входа и результата
-
-Первая синтетическая карточка:
-
-```json
-{
-  "schema_version": "0.1",
-  "sku_id": "demo-phone",
-  "category_id": "761",
-  "title": "Смартфон Samsung Demo X82 8/256GB черный",
-  "description": "Диагональ экрана 6,5 дюйма; аккумулятор 5000 мАч.",
-  "seller_attributes": [],
-  "source_flags": []
-}
-```
-
-Один объект из predictions.jsonl ниже отформатирован для чтения (в самом файле
-он занимает одну строку). run_id показан из локального demo-run и изменится
-при изменении байтов входа, кода или config; готовый ответ не подставляется.
-
-```json
-{
-  "schema_version": "0.1",
-  "run_id": "eacb6e71074715490849",
-  "sku_id": "demo-phone",
-  "category_id": "761",
-  "status": "processed",
-  "attributes": [
-    {
-      "attribute": "brand",
-      "value": "Samsung",
-      "unit": null,
-      "confidence": 0.85,
-      "confidence_kind": "heuristic",
-      "decision": "review",
-      "method": "rule",
-      "rule_id": "brand.explicit-title.v1",
-      "evidence": {
-        "field": "title",
-        "start": 9,
-        "end": 16,
-        "text": "Samsung"
-      },
-      "reason_codes": []
-    },
-    {
-      "attribute": "model",
-      "value": "Demo X82",
-      "unit": null,
-      "confidence": 0.8,
-      "confidence_kind": "heuristic",
-      "decision": "review",
-      "method": "rule",
-      "rule_id": "model.phone-title.v2",
-      "evidence": {
-        "field": "title",
-        "start": 17,
-        "end": 25,
-        "text": "Demo X82"
-      },
-      "reason_codes": []
-    },
-    {
-      "attribute": "storage_gb",
-      "value": "256",
-      "unit": "GB",
-      "confidence": 0.8,
-      "confidence_kind": "heuristic",
-      "decision": "review",
-      "method": "rule",
-      "rule_id": "memory.title-pair.v1",
-      "evidence": {
-        "field": "title",
-        "start": 26,
-        "end": 33,
-        "text": "8/256GB"
-      },
-      "reason_codes": []
-    },
-    {
-      "attribute": "ram_gb",
-      "value": "8",
-      "unit": "GB",
-      "confidence": 0.8,
-      "confidence_kind": "heuristic",
-      "decision": "review",
-      "method": "rule",
-      "rule_id": "memory.title-pair.v1",
-      "evidence": {
-        "field": "title",
-        "start": 26,
-        "end": 33,
-        "text": "8/256GB"
-      },
-      "reason_codes": []
-    },
-    {
-      "attribute": "screen_inches",
-      "value": "6.5",
-      "unit": "inch",
-      "confidence": 0.8,
-      "confidence_kind": "heuristic",
-      "decision": "review",
-      "method": "rule",
-      "rule_id": "screen_inches.explicit.v1",
-      "evidence": {
-        "field": "description",
-        "start": 17,
-        "end": 26,
-        "text": "6,5 дюйма"
-      },
-      "reason_codes": []
-    },
-    {
-      "attribute": "battery_mah",
-      "value": "5000",
-      "unit": "mAh",
-      "confidence": 0.8,
-      "confidence_kind": "heuristic",
-      "decision": "review",
-      "method": "rule",
-      "rule_id": "battery_mah.explicit.v1",
-      "evidence": {
-        "field": "description",
-        "start": 40,
-        "end": 48,
-        "text": "5000 мАч"
-      },
-      "reason_codes": []
-    },
-    {
-      "attribute": "color",
-      "value": "черный",
-      "unit": null,
-      "confidence": 0.75,
-      "confidence_kind": "heuristic",
-      "decision": "review",
-      "method": "rule",
-      "rule_id": "color.explicit.v2",
-      "evidence": {
-        "field": "title",
-        "start": 34,
-        "end": 40,
-        "text": "черный"
-      },
-      "reason_codes": []
-    }
-  ]
-}
-```
-
-`value` — каноническая строка, `unit` — единица или null; `evidence` указывает
-поле и точный raw-фрагмент с zero-based, end-exclusive offsets. `confidence`
-с `confidence_kind=heuristic` — инженерный score, **не вероятность**.
-Найденные значения остаются `review`; автоматического принятия нет.
-`model` извлекается из однозначных названий/индексов и явного поля «Модель:».
-Неясная граница имени даёт abstain с `not_found_by_rules`; разные явные
-модели дают `conflicting_evidence`. Неясные серии остаются в отказе;
-новые формы имён требуют проверки.
-При abstain value/unit/confidence/evidence равны null, причина — в reason_codes.
-Точный span доказывает источник текста, но не истинность характеристики.
+Эти ограничения превращены в задачи с владельцами и критериями готовности в
+[TASKS.md](TASKS.md).

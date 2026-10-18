@@ -39,6 +39,7 @@
 | SYNC-001 | P0 | REVIEW | интегратор | Codex | `docs/gov-001-team-workflow` | актуальный Gitea `main` перенесён в рабочую ветку GitHub |
 | SEC-001 | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
+| DATA-001 | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
 | EVAL-001 | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
 | EVAL-002 | P0 | READY | data/QA | — | — | аудит дублей и утечек между split |
 | ART-001 | P0 | READY | интегратор/аналитик | — | — | финальный predictions-файл, manifest и отчёт метрик |
@@ -51,6 +52,7 @@
 | VER-001 | P1 | READY | NLP/QA | — | — | проверка отрицаний, совместимости и чужих сущностей |
 | ML-001 | P1 | BLOCKED | ML engineer | — | — | компактный encoder только после baseline и gold; ждёт EVAL-001 |
 | API-001 | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
+| QA-001 | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 
@@ -83,3 +85,257 @@
 - Основа: Gitea `main` на commit `48b45dc`.
 - Цель: сократить документы, зафиксировать роли, архитектуру, научные ссылки,
   подробный backlog и разделить рабочую разработку с релизами организаторам.
+
+## Подробные задачи
+
+### SYNC-001 — рабочая база GitHub
+
+**Шаги**
+
+1. Проверить Gitea `main`, дерево и последний SHA.
+2. Добавить remotes `work` и `release` без credentials в URL.
+3. Опубликовать актуальную историю в новой GitHub-ветке.
+4. Не переписывать старые GitHub `main`/`dev`.
+5. После review создать постоянную `integration/current`.
+
+**Готово, когда:** GitHub содержит актуальный код Gitea, source SHA записан,
+команда знает базовую ветку, а старые ветки не потеряны.
+
+### SEC-001 — ротация доступов
+
+**Шаги**
+
+1. Капитан перевыпускает показанные в чате VM/Gitea/Jupyter/LLM credentials.
+2. Проверяет, что старые значения больше не работают.
+3. Осматривает Git history, notebook outputs, shell history и логи.
+4. Настраивает передачу через менеджер секретов или страницу команды.
+5. Публикует только факт ротации, без значений.
+
+**Готово, когда:** открытые значения отозваны, секретов нет в Git и логах.
+
+### ENV-001 — воспроизводимость VM
+
+**Шаги**
+
+1. Взять утверждённый GitHub SHA.
+2. Создать чистое Python 3.12 окружение на VM.
+3. Установить пакет и выполнить `pip check`.
+4. Запустить обе test suites и demo.
+5. Проверить batch, API health и один синтетический predict.
+6. Сохранить безопасный отчёт: SHA, OS, Python, команды, exit codes, время.
+
+**Готово, когда:** тот же SHA воспроизводится одной инструкцией, service active,
+демо 6/6, все проверки зелёные и известен rollback.
+
+### DATA-001 — подготовка датасета
+
+**Шаги**
+
+1. Обновить inventory исходных файлов с размером и SHA-256.
+2. Проверить schemas, типы, null, Unicode/HTML и аномальные длины.
+3. Построить безопасную проекцию title/description/category/SKU.
+4. Проверить join, пропуски, несовпадающие titles и повторяющиеся params.
+5. Построить exact/normalized/near-duplicate группы.
+6. Проверить split и исключить target leakage/exposed families.
+7. Создать processed JSONL, provenance и manifest.
+8. Обновить EDA-агрегаты без реальных текстов в Git.
+
+**Готово, когда:** одна команда повторяет выход по тем же hashes; все потери
+строк объяснены; дубли не пересекают splits; targets не входят в inference.
+
+### EVAL-001 — независимый gold/test
+
+**Шаги**
+
+1. Заморозить annotation guideline и категории.
+2. Выбрать карточки из неэкспонированных product families.
+3. Дать двум людям текст без predictions и готовых params.
+4. Сохранить независимые ответы и disagreements.
+5. Провести adjudication третьим человеком или заранее назначенным экспертом.
+6. Зафиксировать present/absent/ambiguous и evidence.
+7. Версионировать manifest, hashes и reviewer provenance.
+8. Не открывать test разработчикам до freeze методов.
+
+**Готово, когда:** есть достаточный blind human reference, agreement report и
+строгая граница validation/test. Размер утверждает аналитик до разметки.
+
+### EVAL-002 — аудит split и leakage
+
+**Шаги**
+
+1. Проверить уникальность SKU и group ID.
+2. Найти exact и normalized text duplicates.
+3. Выдать near-duplicate candidates без публикации реальных текстов.
+4. Проверить product families между splits.
+5. Пометить AI/model-exposed карточки.
+6. Сформировать агрегаты и список нарушений локально.
+
+**Готово, когда:** подтверждённых пересечений нет либо создана новая версия
+split; test contents не использовались для настройки.
+
+### ART-001 — комплект результата
+
+**Шаги**
+
+1. Уточнить официальный вход и формат output.
+2. Выполнить полный batch на release candidate.
+3. Проверить одну строку результата на каждую входную карточку.
+4. Создать manifest с hashes, Git SHA, config и status counts.
+5. Запустить evaluator на разрешённом reference.
+6. Связать predictions, metrics и release report checksums.
+7. Передать большой файл по утверждённому каналу.
+
+**Готово, когда:** сторонний reviewer может связать каждую цифру с конкретным
+файлом и commit, а артефакт доступен организаторам.
+
+### CONF-001 — конфигурация
+
+**Шаги**
+
+1. Инвентаризировать hardcoded bounds, scores, limits и model names.
+2. Спроектировать versioned category/method/runtime configs.
+3. Добавить строгую валидацию и fail-fast.
+4. Сохранить безопасные defaults: LLM off, auto_accept off.
+5. Обеспечить одинаковую загрузку CLI/API/tests.
+6. Добавить config hash в manifest.
+
+**Готово, когда:** новая категория/модель не требует правки orchestration-кода,
+невалидный config останавливает запуск, а defaults безопасны.
+
+### SPEC-001 — официальный контракт
+
+**Шаги**
+
+1. Передать организаторам вопросы из `docs/REQUIREMENTS.md`.
+2. Сохранить ответы со ссылкой и датой.
+3. Отделить требования от решений команды.
+4. Обновить input/output schema и migration notes.
+5. Согласовать confidence, abstain и seller attributes.
+
+**Готово, когда:** неизвестные пункты либо подтверждены источником, либо явно
+помечены внутренней политикой; API и batch используют одну версию.
+
+### REL-001 — GitHub → Gitea
+
+**Шаги**
+
+1. Назначить source SHA и release engineer/reviewer.
+2. Собрать test/demo/artifact reports.
+3. Проверить неизменность Gitea `main`.
+4. Push release-ветки и PR без force.
+5. Merge, tag, update VM и smoke test.
+6. Сохранить manifest и rollback SHA.
+
+**Готово, когда:** Gitea `main` и VM работают на одном проверенном SHA,
+происхождение из GitHub доказуемо, rollback проверяем.
+
+### LLM-001 — gateway adapter
+
+**Шаги**
+
+1. Создать provider interface без импорта в rules.
+2. Читать URL/key только из окружения.
+3. Отправлять только неразобранные поля и минимальный текст.
+4. Требовать JSON schema, evidence, offsets и возможность abstain.
+5. Ввести timeout, ограниченный retry, concurrency и budget guard.
+6. Проверять ответ общим verifier.
+7. Логировать безопасные агрегаты tokens/cost/latency/reason.
+8. Добавить fake provider tests без реальных вызовов.
+
+**Готово, когда:** provider можно выключить; недоступность не ломает rules;
+невалидный или неподтверждённый ответ отвергается; секреты не логируются.
+
+### LLM-002 — сравнение моделей
+
+**Шаги**
+
+1. После EVAL-001 выбрать fast и strong модели доступного шлюза.
+2. Заморозить prompts, schema и budget.
+3. Прогнать rules, LLM-only и cascade на одном validation.
+4. Посчитать P/R/F1, evidence, calls, tokens, рубли, p50/p95.
+5. Разобрать ошибки и построить Pareto-таблицу.
+6. Выбрать model IDs конфигом или отказаться от route.
+
+**Готово, когда:** выбор основан на зафиксированном отчёте, а не на размере
+модели или единичных примерах.
+
+### ROUTE-001 — гибридный router
+
+**Шаги**
+
+1. Маршрутизировать по атрибутам, а не целым карточкам без причины.
+2. Сохранять успешные rules-кандидаты.
+3. Отправлять остаток в разрешённый model route.
+4. Объединять ответы только через verifier.
+5. Записывать route reasons и расходы.
+6. Реализовать budget/provider fallback в abstain.
+7. Калибровать thresholds на validation.
+
+**Готово, когда:** cascade улучшает выбранную Pareto-точку, воспроизводим и
+безопасно работает при отключённой LLM.
+
+### VER-001 — relation verifier
+
+**Шаги**
+
+1. Собрать отрицательные шаблоны: совместимость, аксессуар, комплект, negation.
+2. Проверять связь evidence с главным товаром.
+3. Обрабатывать несколько сущностей и значения разной роли.
+4. Добавить conflict policy title/description.
+5. Применить один интерфейс к rules/encoder/LLM.
+6. Измерить false accepts до/после.
+
+**Готово, когда:** коварный набор QA-001 проходит, а recall loss раскрыт.
+
+### ML-001 — компактный encoder
+
+**Шаги**
+
+1. Начинать только после независимого gold и split audit.
+2. Выбрать token classification или span extraction baseline.
+3. Зафиксировать seed, tokenizer, checkpoint и training manifest.
+4. Не использовать test и готовые catalog targets как признаки.
+5. Сравнить с rules/LLM по качеству, latency, RAM и стоимости поддержки.
+6. Экспортировать веса и воспроизводимый inference либо отклонить гипотезу.
+
+**Готово, когда:** модель даёт измеримую пользу на validation и помещается в
+ограничения VM; иначе решение «не использовать» считается валидным итогом.
+
+### API-001 — официальный интерфейс
+
+**Шаги**
+
+1. Получить официальный contract.
+2. Согласовать batch и single-card semantics.
+3. Ввести request/run ID, limits, timeouts и stable error codes.
+4. Проверить content type, size, JSON depth и unknown fields.
+5. Добавить readiness отдельно от liveness при model route.
+6. Документировать примеры и обратную совместимость.
+
+**Готово, когда:** контракт проходит organizer scenarios, ошибки предсказуемы,
+а transport не меняет prediction core.
+
+### QA-001 — коварный и аварийный набор
+
+**Шаги**
+
+1. Добавить синтетические конфликты, negation, совместимость и редкие единицы.
+2. Проверить пустой/огромный/невалидный JSON и неизвестную категорию.
+3. Проверить provider timeout, malformed schema и budget exhaustion.
+4. Проверить параллельную запись, interruption и recovery.
+5. Проверить CLI/API parity и отсутствие текста/секретов в логах.
+
+**Готово, когда:** каждый риск имеет ожидаемый status/reason и regression test.
+
+### PRODUCT-001 — review-сценарий
+
+**Шаги**
+
+1. Показать карточку, значение, evidence, method и reason.
+2. Реализовать принять/исправить/отклонить.
+3. Записывать reviewer и время без перезаписи исходного prediction.
+4. Измерить время обработки и agreement.
+5. Экспортировать проверенные правки в очередь разметки.
+
+**Готово, когда:** оператор решает 10–20 карточек без поиска evidence вручную,
+а действия воспроизводимо превращаются в versioned feedback.

@@ -1,555 +1,134 @@
-# GoodsAI — состояние проекта и вход для команды
+# Состояние проекта
 
-Актуализировано: **19 октября 2026 года, Europe/Moscow**. Рабочий E1 baseline;
-22 исторические AI-assisted human-reviewed карточки reviewed-v2 и 20 новых M2.
-Новые development-разметка и A/B/C-оценка завершены. Независимого gold/test ещё нет.
-Рабочий каталог: `C:\Users\vladn\projects\GoodsAI`; текущая ветка исправлений:
-`feature/vlad-m2-policy-fixes` от актуального `origin/main=5adab92` (fetch проверен).
-Перед началом рабочее дерево было чистым; существующие документы плана сохранены.
+Актуально на 19 октября 2026 года.
 
-**Текущий результат: согласованные политики M2 перенесены в runtime.**
-[Изменения, воспроизведение и ограничения](research/m2_policy_fixes_results.md).
-Устранён default storage по величине одиночного GB; поддержана связная пара
-с единицами у обоих чисел. Применены утверждённые brand/subbrand и точные
-цветовые алиасы; маркетинговые слова/общая пометка сохраняются в поддержанных spans.
-Контракт v0.1, heuristic confidence и review/abstain сохранены; модельная grammar
-не расширялась. rules-0.3.0-m2-policy; tests/test_policy.py — синтетические регрессии.
-На неизменном M2 reference: 58/3/25 → **69 TP / 0 FP / 14 FN**,
-P/R/F1 **100,0/83,1/90,8%**. Model прежний: 12/0/7.
-Excluded-кандидаты 2→0; judged coverage 60%, all-pair 57,5%, card 100%.
-На M2, старом development и development_feedback lost_tp=0/new_fp=0.
-Всё это разработка на AI-assisted reviewed reference, не независимый test.
-82 tests прошли на Windows/Python 3.12.6; demo 6/6, CLI/API parity.
-Артефакты `outputs/experiments/model-stage/m2-policy-fixes-v2` и `*-slices`,
-регрессии `m2-policy-legacy-development-v2` / `m2-policy-legacy-feedback-v2`.
-Старые данные/gold/предсказания/отчёты сохранены, независимый test не открывался.
-Пользователь разрешил публикацию этой реализации через feature-ветку/PR в main;
-перед выпуском fetch и Gitea API подтвердили прежние 6 веток и отсутствие PR.
-Фактический SHA и merged state проверять через Git/PR. M3/API и обновление ВМ
-агентом не выполнялись. Инструкция ВМ прежняя, ожидается 82 tests после обновления.
-Следующие шаги: проверка релиза на ВМ; явные форматы/границы model и отдельно
-разрешённый реальный M3. Независимая человеческая оценка остаётся открытой.
+## Версии
 
-**История публикации предыдущего M2:** PR #11 слит в main, merge `5adab92`.
-Пользователь показал на ВМ 69 tests OK, service active и health status=ok;
-это проверка прежнего runtime M1 в M2, а не новой rules-0.3.0.
-Ниже сохранена история подготовки/передачи, не текущий статус новой ветки.
-
-M1 с исправлениями слит через [PR #10](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/10),
-merge `c813f3153baadd9bd749cdc9c16105fa2b4b9764`.
-Пользователь показал этот SHA на ВМ и ответ /predict с model.phone-title.v2;
-полная suite на ВМ этим выводом не подтверждена. Агент ВМ в M2 не менял.
-Базовый коммит настройки: `cf16e59` (`chore: initialize local development environment`).
-
-Пользователь разрешил публикацию M2 через PR в main при отсутствии новых
-веток/коммитов команды. После восстановления авторизации fetch и Gitea API
-подтвердили прежние 5 веток, main=c813f31 и отсутствие открытых PR.
-Используется текущая `feature/vlad-model-evaluation`; перед merge инвентаризация
-повторяется. Фактический commit/merged state проверять через Git и PR.
-Основной M2-коммит `b8b9331` опубликован в feature;
-передача — [PR #11](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/11).
-README исправлен по текущим 69 тестам и подтверждённому пользователем M1 на ВМ.
-Повторная локальная проверка README: demo 6/6, полный JSON совпал с runtime,
-CLI и ASGI health/predict/docs прошли, 10 Bash-блоков проверены синтаксически,
-pip check успешен. Локальный протокол — `outputs/release/m2-publish-v1/readme-verification.json`.
-[Инструкция повторного обновления ВМ](runbooks/update_vm.md) подготовлена;
-этот M2-релиз агентом на ВМ не запускался, unit/runtime не менялись.
-
-**M2: development полностью проверен и оценён.** [Результаты и следующие задачи](research/m2_evaluation_results.md).
-Round6: 20 карточек / 120 полей, 83 present / 32 absent / 5 ambiguous,
-judged 115, pending 0, policy-v3. Frozen reference —
-`data/gold/e1/m2/v2/reviewed/development.human-reviewed.jsonl`, происхождение
-AI-assisted сохранено, независимость false. На одной версии reference A/B:
-46 TP / 3 FP / 37 FN, P/R/F1 93,9/55,4/69,7%; текущий M1 C: 58/3/25,
-95,1/69,9/80,6%. Model: 12 TP / 0 FP / 7 FN. Остальные атрибуты неизменны.
-Две storage-выдачи на ambiguous исключены из P/R/F1 и раскрыты как нарушение
-новой политики default-роли памяти; не считать их правильными ответами.
-69 tests прошли. Реальный run — `outputs/experiments/model-stage/m2-reviewed-development-v1`,
-срезы — `m2-reviewed-development-v1-slices-v2`. Код runtime, независимый test,
-M3/API, публикация и ВМ не менялись. Следующий этап — адресные policy/форматные
-исправления и отдельно разрешённый M3; независимый reviewer/test остаётся долгом.
-
-История подготовки/подтверждений ниже; актуальная оценка — по ссылке выше.
-[Протокол отбора и команды](research/m2_evaluation_preparation.md).
-Новый development v2 — 20 карточек / 120 AI-решений. Исходный черновик
-79 present / 32 absent / 9 ambiguous сохранён. После согласования политики v2
-версия policy-v2 — 82 present / 32 absent / 6 ambiguous; это изменение инструкции,
-не улучшение runtime. Открыть локальный `data/gold/e1/m2/v2/START_HERE.md`,
-Историческая форма — `review-round5/development.review.md` (D01–D20).
-Окончательный reviewed-reference и метрики созданы после round6.
-Получена [первая обратная связь D01–D07](research/m2_round1_policy_notes.md):
-D02 подтверждена полностью (7 полей); ещё 3 цветовых решения подтверждены
-в частичных карточках. Локальные новые feedback/partial/human-reviewed файлы —
-`data/gold/e1/m2/v2/feedback/round1.*`, старый черновик не изменён.
-Позже согласована [политика v2](research/m2_annotation_policy_v2.md): приоритет
-явного суббренда, основного коммерческого имени, ambiguous для одиночного
-объёма без роли и конкретного цвета над общей пометкой «многоцветный».
-После явного подтверждения остальных полей D01–D07 сохранён новый round3:
-`feedback/round3.human-reviewed.jsonl` — 7 полностью проверенных карточек,
-49 полей (37 present / 8 absent / 4 ambiguous; judged 45). Позже пользователь
-проверил D08–D20, явно подтвердив неупомянутые поля: [round4](research/m2_round4_adjudication.md).
-После явного подтверждения D08/D16 в `feedback/round5.*` 119 подтверждённых
-полей, 19 полных карточек / 115 полей. Осталось model D18: [разбор внешнего
-контекста](research/m2_round5_external_context.md). Производитель называет базовую
-модель отдельно от варианта; пользователь подтвердил внешний чёрный цвет.
-В direct reference эти внешние факты не подставлены. Предложено model=ambiguous,
-color остаётся absent; затем пользователь подтвердил model ambiguous в round6.
-Окончательные решения:
-83 present / 32 absent / 5 ambiguous. Короткая форма — `review-round5/HUMAN_STATUS.round5.md`.
-Происхождение AI-assisted сохранено,
-это не независимый gold. Исторические 22 reviewed-карточки
-проверены на влияние этих уточнений: новых изменений меток не найдено.
-Runtime/старая разметка не менялись. Оценка после подтверждений выполнена;
-см. итоговый отчёт M2, а не прежние промежуточные N/A.
-Резерв test — 40 metadata-only пустых заданий (20 каждой категории), без
-экспорта текстов, AI-разметки и predictions. Для итоговой независимой оценки
-нужен отдельный слепой человек-reviewer после фиксации сравниваемых методов.
-Аудит учитывает 532 известных экспозиции, вычислил 2 196 семейств, исключил
-632 mixed-split и 317 exposed-семейств (множества пересекаются); выбранные
-60 SKU/group/family не пересекаются. Семантическая независимость не доказана.
-v1 сохранён как технический след усиления группировки; действующий пакет v2.
-Runtime, старые данные/отчёты не менялись; commit/push/merge, M3/API и ВМ
-не выполнялись. Проверки M2 и ограничения — в протоколе.
-**Baseline, EDA, тесты и актуальные отчёты опубликованы в Gitea main через [PR #2](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/2), merge-коммит `b3b3d55d05a276aa1db3e333fee7cc24d1c6a139`.** В него вошли baseline `c3feee2`, handoff `5e6160e` и документационный релиз `5d41970`. Текущий HEAD, включая последующие изменения статуса, проверять через Git.
-Для следующего этапа используется новая ветка от актуального main; доступность её коммита проверять после push сравнением локального и удалённого SHA. Старая feature/vlad-setup слита в main; исторические упоминания ниже относятся к прежнему этапу.
-17 октября пользователь явно разрешил commit/push и интеграцию в main через PR. После push `5d41970` PR #2 обновлён и слит без принудительного merge; API подтвердил `merged=true`, fetch — `origin/main=b3b3d55`. Tree main совпал с проверенной feature-версией, baseline и документы присутствуют, Git-данные/секреты не добавлены. Рабочая feature-ветка затем fast-forward обновлена до merge-коммита; локальный main не переключался и история не переписывалась. Вкладка платформы «Последний push в Gitea» инструментально не проверена.
-
-**Текущий этап — доработки по первому прогону организаторов.**
-Сохранены [8 баллов и полные комментарии прогона 18 октября](reviews/2026-10-18_first_run.md).
-На дополнительном скриншоте общий балл платформы **17,17/35**;
-оценённые технические критерии — **17,17/20 (85,85%)**, блок качества
-результата **—/5**. Продуктовый этап **10/10**; правило его включения
-в общий итог не разъяснено. Прочерки не считаем нулями.
-Актуальный порядок работ: [план после ревью](research/post_review_plan.md).
-Задача [воспроизводимого демо](research/reproducible_demo_plan.md) реализована
-локально: `python -m goodsai.demo --output-dir outputs/demo`, 6/6 сценариев,
-4 выходных файла с динамическими SHA/run_id; [индекс сдачи](DELIVERY_INDEX.md).
-Проверены Windows/Python 3.12.6, 30 baseline/data/API/demo + 3 reader tests,
-чистая установка из wheel и запуск вне репозитория. Demo-коммит `1bb9493`
-после подготовки `1779055` опубликован в feature и перенесён через PR #8 в main.
-18 октября пользователь разрешил отдельные ветки/commit/push для следующих
-задач и merge только при отсутствии новых веток коллег. ВМ этим этапом не обновлялась;
-фактический commit текущей задачи и состояние публикации проверяются через Git.
-R1 и публичная часть R2 закрыты; demo-релиз слит в main через PR #8,
-merge `b249523`. Перед созданием/merge проверены live branches и PR: новых
-веток коллег не было. R3 выполнен в отдельной feature-ветке: уникальные tempfile,
-OS-блокировки и журнал восстановления predictions/manifest; evaluator использует
-проверяющее SHA чтение под блокировкой. [План и проверки R3](research/atomic_output_plan.md),
-[восстановление output](runbooks/output_recovery.md). На Windows прошли **42+3 tests**,
-demo 6/6; POSIX/ВМ этого R3-релиза не проверены. Передача реальных predictions,
-проектирование verifier/policy и модельный этап остаются впереди.
-18 октября подготовлен [план функционального этапа model](research/model_extraction_stage_plan.md):
-сначала явная модель + минимальные проверки + измерение, затем расширение reference
-и реальный LLM fallback через выданный организаторами шлюз.
-Уточнение пользователя и скриншот 18 октября подтвердили Base URL,
-переменные OPENAI_BASE_URL/OPENAI_API_KEY на ВМ, список моделей/тарифов и
-дневной лимит 100 ₽. План скорректирован: шлюз — основной путь, локальные веса —
-резерв. Предложенный бюджет первого опыта до 10 ₽ ещё не потрачен агентом;
-работоспособность ключа и API не проверялась, секреты не читались.
-M1 реализован локально после согласования нормализации: явные model-правила,
-проверки кандидатов/видимого evidence, синтетические тесты и сравнение A/B/C.
-Development: TP/FP/FN 18/1/19 → 26/1/11, F1 64,3% → 81,3%; model 8 TP,
-0 FP, 1 FN. После фиксации кода validation: 29/1/21 → 35/3/15,
-F1 72,5% → 79,5%, precision **96,7% → 92,1%**: два новых model FP.
-Это сохранённая исходная версия: [отчёт M1](research/model_stage_results.md).
-Затем пользователь разрешил исправление двух ошибок: один случай исправлен,
-второй заменён отказом; прежних TP не потеряно. На использованном feedback-срезе
-36/1/14, P=97,3%, R=72,0%, F1=82,8%; model 7 TP / 0 FP / 5 FN.
-Development не ухудшился. Validation теперь явно используется как обратная
-связь разработки, не независимый holdout. [Отчёт исправлений](research/model_boundary_fix_results.md).
-Остальные атрибуты не изменились; baseline A совпал с историческими predictions
-на обоих срезах без учёта run_id. 59 tests прошли, demo 6/6, CLI/API parity
-проверена на обеих категориях. На момент M1 M2/M3, независимый test, LLM и изменение ВМ
-не выполнялись; актуальный M2/ВМ-статус — в начале документа. Пользователь разрешил PR/публикацию при отсутствии новых веток
-или коммитов команды; проверка live Gitea обязательна перед merge.
-README дополнительно проверен по командам: Windows demo (6/6), просмотр JSONL/
-summary, batch своей карточки и Invoke-RestMethod health/predict к локальному
-серверу на 8000 выполнены успешно. Полный JSON соответствует коду; Bash-блоки
-прошли syntax check, Linux-запуск не выполнялся. Протокол проверки — локальный
-`outputs/readme-check-8ed6470141/verification.json`. Добавлены отдельные инструкции
-первой/повторной установки, собственной карточки и ручного HTTP-запуска для двух ОС.
-Новый план имеет приоритет над историческим порядком H-задач ниже.
-
-HTTP-адаптер и systemd unit опубликованы в main через PR #6/#7 (последний
-известный merge `fdfa9b4`). Проверенный организаторами SHA на скриншотах не указан.
-Пользователь подтвердил ответ `/predict` через демо: смартфон processed,
-корректные бренд/память/экран/батарея/цвет; model abstain ожидаем.
-Затем 17 октября в 20:47:28 МСК установлен user-service: enabled/active,
-ExecStart на 0.0.0.0:8000, проверка Linger=yes прошла, health вернул ok после
-одной повторной попытки при старте. Повторный active/health также получен.
-Проверка после выхода предложена и ответ получен, но сам факт закрытия всех
-сессий не указан; перезагрузка не проверялась. Агент опирается на вывод
-пользователя, сам SSH не контролирует. Позже пользователь показал VM SHA c813f31
-и новый model-ответ /predict; это не повтор всех тестов на Linux.
-На ВМ ранее подтверждены 18+3 CLI/reader tests; локально для HTTP — 25+3.
-Успешный HTTP smoke на ВМ не означает повторный прогон всех 28 тестов там.
-Реальный data-run на ВМ и официальный API ещё не проверены; ручки/транзакции
-обещаны на понедельник 19 октября вечером. [Протокол ВМ](runbooks/vm_reproduction.md).
-
-## 1. Как быстро восстановить контекст
-
-1. Прочитать этот документ и [AGENTS.md](../AGENTS.md), проверить `git status --short --branch`.
-2. Найти свою область в карте модулей ниже; открыть только соответствующий исходник и тесты.
-3. Для команд использовать [инструкцию baseline](baseline.md), для измерений — [результаты E1](baseline_results.md).
-   Требования задания, обязательные поля и состав сдачи — [REQUIREMENTS_AND_DELIVERY.md](REQUIREMENTS_AND_DELIVERY.md).
-4. Детальный [EDA](research/dataset_findings.md), [контракт/архитектура](research/architecture_and_contract.md), [оценивание](research/evaluation.md) нужны при работе с данными, интерфейсами или метриками.
-5. [Исходный план](research/implementation_plan.md) и [подготовка окружения](development_setup.md) — снимки предыдущих этапов. Указания «создать baseline» и «ещё не запускался» там исторические; не создавать повторно уже существующие модули.
-
-Текущая разметочная работа: [план AI-разметки](research/annotation_plan.md). По всем 24 карточкам получена обратная связь. Актуальный локальный `data/gold/e1/ai/full.annotations.v4.jsonl` содержит **120 карточек / 720 решений: 517 present, 183 absent, 19 ambiguous, 1 unjudgeable**; спорных 20 пар в 15 карточках. Текущие формы — `review24.v4.md`, `disputes.v4.md`, `full.review.v4.md`, номера R/A сохранены. В v4 уточнены пять именований по первичным источникам: полное Galaxy Line в трёх явно подписанных title, model TWK4P439 и KRWK02. Новые свойства с сайтов не подставлялись; это AI-adjudication, а не ручное подтверждение.
-
-**Текущая ручная часть — `review.human-reviewed.v6.jsonl`: 22 полные проверки / 130 пар (10 development, 12 validation).** В раунде 5 пользователь подтвердил R17/R19/R21/R22/R23; происхождение — `review.round5.feedback.json`, контрольные суммы — `review.manifest.v6.json`. Полный AI-набор v4 и прежний human-v5 не перезаписаны. R03/R04 остаются частичными: десятичное 1 TB = 1000 GB явно одобрено, универсальный GB default для RAM не утверждён, трактовка написания Tb отдельно не согласована. Голые числа и ошибочные единицы рекомендуется отправлять на review; в R19 объём остаётся unjudgeable, внешние литры не подставлены. Новая runtime-логика здесь не внедрялась.
-
-**Исходная оценка baseline — [reviewed-v2](research/baseline_evaluation_v2.md)**: `data/gold/e1/reviewed/reviewed-v2/`, 10 development / 57 judged и 12 validation / 67 judged; исключены 5 ambiguous и 1 unjudgeable. Validation: TP=29, FP=1, FN=21; **P=96,7%, R=58,0%, F1=72,5%**. Development: TP=18, FP=1, FN=19; F1=64,3%. Изменился набор карточек, а не метод; сравнение с v1 не доказывает прирост/деградацию baseline. В development model объясняет 9 FN. Два оставшихся случая — локальный `outputs/evaluation/reviewed-v2/pending_review.md`. Данные/метрики/SKU остаются вне Git.
-
-История: этап [плана/промпта](research/next_stage_prompt.md) выполнен в [первой оценке и error analysis](research/first_baseline_evaluation.md). Сохранённый reviewed-v1: 9 development / 52 judged и 8 validation / 48 judged; validation F1=74,6%. Прежние 17 наборов меток в v2 не изменены. Обе версии — малые неслучайные AI-assisted выборки, validation участвовал в обсуждении политики, не независимый holdout.
-
-Проверены hashes, raw evidence и совпадение всех 10 324 predictions с исходным E1; точных/нормализованных межsplit-дублей и пересечений групп не найдено. Аудит близких дублей остаётся участнику C. Текущие метрики/ошибки — `outputs/evaluation/reviewed-v2/`; v1 сохранён отдельно. Правила не улучшались, модели не обучались, commit/push не выполнялись. Следующий приоритет по development — extractor `model` (9 FN), затем цвета/бренды и числовой разбор. Рекомендация агента GPT-6.1 Sol / High в плане не выбирает модель runtime.
-
-При расхождении документации и кода сначала проверить код, конфигурацию и manifest, затем исправить документацию. Полный EDA по умолчанию не повторять.
-
-## 2. Проект, требования и ближайшие даты
-
-GoodsAI решает кейс №3 М.Видео на хакатоне «Точка сборки»: извлекает характеристики из текстовой карточки, нормализует их и возвращает структурированные значения с уверенностью.
-Проблема бизнеса — пропущенные/неоднородные характеристики мешают фильтрации, поиску и сравнению товаров. Рост CTR/GMV текущими экспериментами не доказан.
-Целевой вход кейса: название, описание, поля продавца; выход: обязательные атрибуты, канонические значения и confidence. Текущий E1 намеренно **text-only**: без полей продавца.
-
-Источник требований: [PDF кейсодателя](product-stage/context/case/attribute-extraction-case.pdf), стр. 10 и 16–18, и [сохранённый текст платформы](product-stage/context/case/platform-requirements.md).
-Разделы 3–6 повторно предоставлены пользователем 17 октября и сверены: для смартфона прямо названы бренд, модель, память, диагональ, батарея и цвет; E1 включает их и дополнительный RAM. Пример ноутбука содержит бренд, CPU, RAM, накопитель, диагональ и цвет; ноутбуки пока не поддерживаются. Полная схема/справочники категорий остаются открытым вопросом; набор чайника — наш пилотный выбор. Подробная [связь требований с реализацией и сдачей](REQUIREMENTS_AND_DELIVERY.md) отделяет подтверждённые условия от проектных намерений продуктового этапа.
-Требуются: только текст, извлечение/нормализация без выдуманных фактов, rules baseline и последующая проба ML или LLM, per-attribute P/R/F1 на gold.
-Шесть артефактов сдачи: воспроизводимый код/ноутбук, README, EDA, pipeline, файл предсказаний, финальная презентация. Из первого прогона известны восемь оценок с максимумами (20 баллов) и ещё не оценённый блок качества (5 баллов). Правило агрегации между этапами, проверенный SHA и полный формат автопроверки пока не подтверждены.
-Задание требует один репозиторий или архив с запуском по README, попытку ML **или** LLM после rules baseline и per-attribute/per-category оценку. Обязательный дообученный encoder, конкретный каскад или web-интерфейс не заданы. Текущие 10 324 predictions — локальный пилот, не весь каталог; итоговый файл нужен в согласованном комплекте сдачи, хотя сейчас predictions исключены из Git. Обещанные CSV/JSON, готовая разметка и точная схема не совпали с обнаруженными Parquet/pickle и weak references; дополнительную выдачу нужно уточнить.
-Продуктовый этап пройден с максимальной оценкой **10/10 по скриншоту платформы**, переданному пользователем 18 октября; источник отражён в документе первого прогона.
-
-| Дата | Что необходимо | Статус/основание |
+| Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
-| До 06:00 МСК 18 октября, далее ежедневно | Рабочее решение в main выданного Gitea; отдельно запуск на ВМ | Main опубликован; HTTP/systemd и synthetic predict подтверждены пользователем; официальный API ожидается |
-| 19 октября | Первый технический checkpoint: реальный запуск, предсказания, validation-оценка на ручных метках, ограничения | Локальный data-run и AI-assisted reviewed-метрики есть; на ВМ установка/tests и synthetic HTTP smoke, независимый gold ещё не готов |
-| 21 октября | Сравнить rules с одним ML/LLM-вариантом на фиксированном split, если согласованы доступ и бюджет | Внутренний этап плана, **не подтверждённый внешний дедлайн** |
-| 23 октября | Комплект шести артефактов, согласованный охват/формат, воспроизводимость и интеграция в Gitea main через PR | Технический отбор по сообщению пользователя; время сдачи уточнить |
+| опубликованный технический baseline | Gitea `main` | `48b45dc` |
+| реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | ветка от `48b45dc` |
+| runtime schema | `0.1` | — |
+| rules | `rules-0.3.0-m2-policy` | — |
+| dictionaries | `manual-reviewed-brand-and-color-names-v2` | — |
 
-## 3. Что работает и что ещё не сделано
+GitHub и Gitea имели независимые истории. Актуальный код Gitea перенесён в
+отдельную GitHub-ветку без переписывания существующих `main`/`dev`.
 
-| Состояние | Возможности |
-| --- | --- |
-| Реализовано и проверено локально | Временный HTTP-адаптер и CLI; пакетная подготовка двух категорий; text-only граница; правила, Decimal-нормализация, raw evidence, отказы/конфликты, JSONL, manifests, синтетические тесты |
-| Реализован механизм, но результат ещё не получен | Evaluator ручной разметки; группы/split-manifest; исходные 120 заданий сохранены. Отдельно подготовлена полная AI-разметка и выборка для review; независимая оценка качества отсутствует |
-| Частично | Бренды/цвета ограничены ручными словарями; правила покрывают часть формулировок; группировка точных/нормализованных дублей есть, аудит близких дублей ещё нужен |
-| Реализовано в M1 с ограничениями | Явное model из title/поля «Модель:»; после исправлений на feedback-срезе 7 TP, 0 FP, 5 FN; независимая оценка ещё нужна |
-| Явно не реализовано | Калибровка, интервалы метрик, отдельная span-conditioned метрика числовой нормализации, ML/LLM-вызовы, обучение, автоматическая запись, UI/очередь review |
-| Проверено на Linux ВМ | Установка GoodsAI 0.1.0/PyArrow 26.0.0 на Python 3.12.15 и 18+3 tests; systemd enabled/active и HTTP smoke подтверждены; реальный data-run ещё не проверен |
-| Не проверено | Перезагрузка ВМ/официальный API-тест; официальный формат предсказаний; полный required-список/справочники; полный охват каталога |
-| Гипотезы | Правила → LLM для остатка; локальный encoder; расширение на другие категории. Презентационный каскад не является реализованной системой |
+## Реализовано
 
-Стек: Python `>=3.12`, локально проверен 3.12.6; версия пакета 0.1.0. Runtime-зависимость — PyArrow 26.0.0 для подготовки.
-`predict`/evaluator используют stdlib; DuckDB 1.5.6 нужен только исследовательским скриптам. Есть optional FastAPI/Uvicorn HTTP-адаптер (`.[serve]`); HTTP-тесты требуют `.[serve,test]`. Нет Spring, сервера БД, frontend, torch/transformers.
+- Python 3.12 package, CLI и временный FastAPI service;
+- text-only вход с запретом неизвестных и target-подобных полей;
+- смартфоны `761` и чайники `482`;
+- rules extraction бренда, явной модели, памяти, экрана, батареи, цвета,
+  мощности и объёма в соответствии со схемой категории;
+- normalizer для единиц, чисел, модели и aliases;
+- точные raw evidence spans и schema validation;
+- конфликт → abstain, кандидат → review;
+- атомарная запись predictions/manifest и блокировка writers;
+- run identity: hashes кода/конфига/входа/выхода, Git SHA и ресурсы;
+- синтетическое демо на шести сценариях;
+- evaluator с per-attribute метриками и coverage;
+- systemd unit и runbook для VM.
 
-## 4. Карта кодовой базы
+## Не реализовано
 
-Реальные директории: `src/goodsai/`, `tests/`, `scripts/research/`, `docs/research/`, `docs/product-stage/`; локальные данные/результаты — `data/`, `outputs/`, `logs/`, окружение — `.venv/`.
-Конфигурация находится в пакете: **`src/goodsai/baseline.json`**. Каталог `configs/` из старого плана не создан и для запуска не нужен.
+- реальный LLM или обученный encoder в основном inference path;
+- cost-aware router между правилами и моделями;
+- калиброванный confidence и `auto_accept`;
+- независимый human gold/test;
+- полная поддержка ноутбуков и новых категорий;
+- обработка непустых seller attributes;
+- финальный официальный API contract;
+- готовый release predictions-файл, доступный вместе с metrics/manifest;
+- финальная техническая презентация по фактическому результату.
 
-| Файл | Ответственность, вход → выход | Основные связи |
+## Данные и оценка
+
+Рабочий пилот содержит 10 324 SKU двух категорий. Реальные данные, reference и
+predictions хранятся локально и исключены из Git.
+
+Последний development-набор M2: 20 карточек, 120 полей, из них 83 present,
+32 absent и 5 ambiguous; 115 judged-пар. После policy fixes rules получили
+`69 TP / 0 FP / 14 FN`, `P=100%`, `R=83,1%`, `F1=90,8%`.
+
+Это AI-assisted human-reviewed development, просмотренный во время настройки.
+Он доказывает исправление известных примеров, но не качество на независимом
+test и не перенос на весь каталог.
+
+Более ранний reviewed-v2 validation: 12 карточек / 67 judged-пар,
+`P=96,7%`, `R=58,0%`, `F1=72,5%`. Выборка также мала и не полностью
+независима. Единый источник трактовки: [EVALUATION.md](EVALUATION.md).
+
+## Проверки
+
+Последний сохранённый отчёт команды для опубликованного функционала:
+
+- 82 tests на Windows/Python 3.12.6;
+- demo 6/6;
+- CLI/API parity на синтетических входах;
+- предыдущая версия сервиса запускалась на VM и отвечала на health/predict.
+
+Это исторический результат из ветки Gitea. Для текущей GitHub-ветки проверка
+документации выполняется отдельно; перед любым релизом нужен новый полный прогон
+на том же SHA, который пойдёт в Gitea.
+
+## Результат организаторского review
+
+По скриншотам первого технического прогона оценённые критерии дали 17,17/20.
+Неоценённый блок качества результата оставался пустым. Product checkpoint —
+10/10, но способ его включения в общий балл не описан.
+
+Организаторы подтвердили сильные стороны: работающий end-to-end baseline,
+модульность, тесты, JSONL output и документация. Основной долг:
+
+1. модельный/LLM слой в runtime;
+2. конфигурируемые решения и thresholds;
+3. готовые predictions и metrics, связанные с одним запуском;
+4. более простой воспроизводимый сценарий для пользователя;
+5. эксплуатационные проверки и явные fallback.
+
+Атомарная запись, явная model grammar и часть policy problems уже исправлены.
+Остальные пункты находятся в [TASKS.md](../TASKS.md).
+
+## Приоритеты
+
+### P0 — доказать результат
+
+1. Независимый blind human gold/test.
+2. Аудит split, дублей и leakage.
+3. Официальный predictions-файл + manifest + metrics.
+4. Вынести конфигурацию и подтвердить contract.
+5. Воспроизвести последний SHA на VM.
+6. Настроить безопасный GitHub → Gitea release.
+
+### P1 — добавить гибрид
+
+1. Подключить OpenAI-compatible LLM gateway за adapter.
+2. Сравнить rules, LLM-only и rules→LLM на frozen validation.
+3. Добавить общий relation verifier и budget guard.
+4. Проверить компактный encoder только при наличии достаточной разметки.
+
+### P2 — продуктовый контур
+
+1. Review UI с evidence и причинами.
+2. Active learning из проверенных исправлений.
+3. Seller/category quality dashboard и downstream A/B.
+
+## Риски
+
+| Риск | Текущее снижение | Следующее действие |
 | --- | --- | --- |
-| [pyproject.toml](../pyproject.toml), [__init__.py](../src/goodsai/__init__.py) | Установка, версия, ресурс JSON, entrypoint `goodsai`; исходники → Python-пакет | setuptools, CLI |
-| [baseline.json](../src/goodsai/baseline.json) | Версии rules/dictionary, seed, категории/атрибуты, aliases брендов/цветов → config dict | `load_config`, Rules, annotation |
-| [contracts.py](../src/goodsai/contracts.py) | `Product.from_dict`: JSON → строго text-only Product; `validate_prediction`: результат + config [+ Product] → проверка/ValueError | data, CLI, verifier, evaluator |
-| [demo.py](../src/goodsai/demo.py), [синтетические ресурсы](../src/goodsai/examples/synthetic/) | Встроенные вымышленные inputs → существующий predict → проверка ожиданий/evidence → predictions/manifest/summary; новый output-dir | CLI, validator, package data; `tests/test_demo.py` |
-| [data.py](../src/goodsai/data.py) | `prepare`: доверенная проекция + raw descriptions + inventory → pilot/provenance/manifests; JSONL I/O и атомарная замена отдельных файлов | PyArrow, Product, CLI |
-| [storage.py](../src/goodsai/storage.py) | Неблокирующие OS locks, уникальные tempfile, recoverable predictions/manifest, snapshot reader | data/CLI/evaluator/demo; tests/test_storage.py |
-| [text.py](../src/goodsai/text.py) | HTML-строка → видимый текст + карта исходных координат; исключает script/style/attrs/comments | Rules; HTMLParser |
-| [rules.py](../src/goodsai/rules.py) | `Rules.candidates(Product)` → Candidate со значением, единицей, span, score и rule_id; бренд/цвет/память/числовые характеристики | text, normalize, config |
-| [test_policy.py](../tests/test_policy.py) | Согласованные memory/brand/color на вымышленных карточках; пары, отрицательные случаи, HTML/evidence, CLI parity | Rules, Extractor; отчёт policy fixes |
-| [model_rules.py](../src/goodsai/model_rules.py) | Консервативные model spans: коммерческое имя/индекс в title, явное «Модель:»; только текст/схема | Rules; tests/test_model.py |
-| [compare_model_stage.py](../scripts/research/compare_model_stage.py) | Снимок baseline A, ablation B, M1 C; отдельный text-only input, метрики/Δ/SHA; validation только из frozen development | Локальные data/outputs, tests/test_model_comparison.py |
-| [prepare_m2.py](../scripts/research/prepare_m2.py), [review_m2.py](../scripts/research/review_m2.py) | Frozen отбор, family quarantine, metadata-only test, проверка SHA/evidence и сборка AI-черновика; без predictions | Локальные data/gold/e1/m2, tests/test_m2_preparation.py; протокол M2 |
-| [summarize_m2.py](../scripts/research/summarize_m2.py) | Срезы/диагностика frozen development predictions, coverage на всех парах, отдельные ambiguous-кандидаты; без нового predict | Локальные outputs, tests/test_m2_summary.py; сверка с canonical evaluator |
-| [normalize.py](../src/goodsai/normalize.py) | Строка числа + unit + attribute → каноническая десятичная строка; bounds, L/ml, W/kW, GB | Rules, contracts, verifier, evaluator |
-| [verify.py](../src/goodsai/verify.py) | `Extractor.predict(Product, run_id)` → полный объект предсказания; объединяет совпадающие значения, конфликтующие отвергает | Rules, contracts, normalize |
-| [annotation.py](../src/goodsai/annotation.py) | Pilot + отдельная provenance [+ EDA sample] → связанные группы, split-manifest, пустые задания, отчёт отбора | Product, data; extractor не вызывается |
-| [evaluate.py](../src/goodsai/evaluate.py) | Predictions + reviewed manual gold → TP/FP/FN, P/R/F1, coverage, срезы/score bins; без gold → N/A | contracts, normalize, data |
-| [runtime.py](../src/goodsai/runtime.py) | Config + текущий код/среда → hashes/git identity; процесс → peak RSS | CLI; Windows API / Unix resource |
-| [cli.py](../src/goodsai/cli.py) | `inventory`, `prepare`, `predict`, `annotate`, `evaluate`; аргументы/файлы → JSONL/JSON и exit code | Связывает перечисленные модули; inference идёт через Extractor |
-| [test_baseline.py](../tests/test_baseline.py) | 16 синтетических тестов правил, evidence, контрактов, evaluator, детерминизма | Не использует реальные данные как fixtures |
-| [test_data_and_annotation.py](../tests/test_data_and_annotation.py) | 2 теста подготовки и группировки, защита от target leakage/изменённого источника | Временные синтетические Parquet/JSONL |
+| галлюцинации | no evidence → reject | общий verifier для LLM |
+| завышенная метрика | provenance и честная пометка development | независимый test |
+| утечка target | строгий text-only contract | split/leakage audit |
+| стоимость LLM | вызовов сейчас нет | budget и cost metrics |
+| конфликт участников | task claim и один owner | PR review и интегратор |
+| расхождение репозиториев | отдельные work/release remotes | release manifest с source SHA |
+| секреты в истории | `.gitignore`, env-only | немедленная ротация показанных секретов |
 
-Исследовательские файлы не являются вторым runtime baseline:
+## Следующее решение команды
 
-| Файл | Когда нужен и что создаёт |
-| --- | --- |
-| [inspect_pickle.py](../scripts/research/inspect_pickle.py) | Первый read-only проход opcodes доверенного pickle → `outputs/eda/pickle_opcodes.json`, refs/SHA |
-| [profile_catalog.py](../scripts/research/profile_catalog.py) | Sparse `CatalogReader` + проверенный scan + `--trusted-pickle` → проекция каталога и агрегаты; частный CPython API, проверен на 3.12.6 |
-| [profile_parquet.py](../scripts/research/profile_parquet.py) | Полный Parquet audit при обоснованной необходимости → статистики и scratch DuckDB |
-| [profile_joins.py](../scripts/research/profile_joins.py) | Агрегаты/проекция/описания → join-профиль и локальная ограниченная выборка |
-| [requirements.txt](../scripts/research/requirements.txt), [test_catalog_reader.py](../scripts/research/test_catalog_reader.py) | Зависимости EDA отдельно; 3 синтетических теста sparse reader |
-
-## 5. Данные и артефакты
-
-Оригиналы находятся в `data/raw/`, суммарно 2 568 187 871 байт (~2,39 ГиБ). В Git их нет.
-
-| Источник | Подтверждённое содержание |
-| --- | --- |
-| `sku_desc.parquet` | 1 177 200 уникальных SKU, `sku_id/title/description`; 49,31% описаний с HTML |
-| `skus.pkl` | 546 069 товаров YML-подобного каталога, vendor/model/name/categories/param; 3 599 используемых категорий |
-| `query_clicks.parquet` | 30 991 350 строк, 332 753 SKU; запрос, позиция, цена, subject/seo ID; нет показов/timestamps/click_count |
-
-Связь — SKU: каталог↔описания 241 355; каталог↔кликовые SKU 241 661; описания↔кликовые SKU 158 158; все три файла 102 945.
-Клики не участвуют в E1 extractor. Семантика одной строки лога и возможность traffic-weighting требуют уточнения; CTR из этих полей не вычисляется.
-В каталоге 148 871 карточка с повторяющимися именами параметров; `param` иногда dict вместо list. Готовые параметры — слабые метки, не подтверждённый gold.
-Структурированная категория берётся из каталога, не угадывается по запросу. E1 поддерживает только ID `761` и `482`; имя категории не является ключом.
-В пилоте 4 244 SKU с описанием и 6 080 без. У 343 сопоставленных пилотных SKU названия источников различаются: основной title = `skus.name`, второй сохраняется в provenance с флагом `title_mismatch`.
-Полные схемы, распределения, проблемы и метод — в [EDA](research/dataset_findings.md); здесь исследование заново не выполнялось.
-
-Локальные производные файлы (все исключены из Git):
-
-```text
-data/raw/.local_inventory.json              размеры/SHA исходных копий
-outputs/eda/catalog_skus.parquet             доверенная проекция; params сохранены только для 5 категорий EDA
-outputs/eda/pickle_opcodes.json              проверка opcodes/ref/SHA для reader
-outputs/eda/catalog_profile.json             агрегаты каталога
-outputs/eda/parquet_profile.json             схемы/row groups/агрегаты
-outputs/eda/joins_profile.json               связи и диагностика
-outputs/eda/inspection_sample.json           реальные тексты; не публиковать
-outputs/eda/profile.duckdb                   scratch database
-data/processed/e1/pilot.jsonl                только разрешённый вход
-data/processed/e1/provenance.jsonl           второй title и служебные vendor/model/seller
-data/processed/e1/prepare_manifest.json      hashes, размеры срезов, время/RSS подготовки
-data/gold/e1/tasks.jsonl                     120 незаполненных заданий
-data/gold/e1/split_manifest.jsonl            SKU → группа → split
-data/gold/e1/annotation_manifest.json        метод/размеры/ограничения отбора
-data/gold/e1/ai/full.annotations.jsonl       исходный ai-full-v2, сохранён для истории
-data/gold/e1/ai/full.annotations.v3.jsonl    сохранённый ai-full-v3
-data/gold/e1/ai/full.annotations.v4.jsonl    актуальный ai-full-v4, 120 карточек / 720 решений
-data/gold/e1/ai/full.manifest.v4.json        hashes текущей версии и источников
-data/gold/e1/ai/review24.v4.md              текущая форма проверки с прежними номерами
-data/gold/e1/ai/disputes.v4.md              текущие 20 спорных меток
-data/gold/e1/ai/review.human-reviewed.v6.jsonl  22 полные проверки / 130 пар
-data/gold/e1/reviewed/reviewed-v2/              замороженный dev/validation reference
-outputs/evaluation/reviewed-v2/                метрики, ошибки, manifests
-data/gold/e1/ai/full.manifest.v3.json        hashes текущей версии и её исходников
-data/gold/e1/ai/review24.v3.md              сохранённая форма проверки v3
-data/gold/e1/ai/disputes.v3.md              сохранённые 25 спорных решений v3
-data/gold/e1/ai/review.human-reviewed.v4.jsonl  11 полных проверок / 75 пар
-data/gold/e1/ai/full.manifest.json           hashes, статистика и ограничения полного прохода
-data/gold/e1/ai/review24.md                  24 карточки для проверки пользователем
-data/gold/e1/ai/disputes.md                  все 33 спорных решения с текстами
-data/gold/e1/ai/pilot.human-reviewed.jsonl   две ранее проверенные development-карточки
-data/gold/e1/ai/review.human-reviewed.v2.jsonl  три полные development-карточки после R02–R06
-data/gold/e1/ai/review.round2.feedback.json  журнал подтверждений и вопросов R02–R06
-data/gold/e1/ai/review.human-reviewed.v3.jsonl  шесть полных карточек / 40 пар после R07–R12
-data/gold/e1/ai/review.round3.feedback.json  журнал подтверждений и вопросов R07–R12
-outputs/baseline/predictions.jsonl           10 324 результата
-outputs/baseline/predictions.manifest.json   code/config/input/output hashes, среда, счётчики
-outputs/baseline/predictions.repeat.jsonl    побайтная проверка повторного запуска
-outputs/baseline/metrics.json                N/A до ручной разметки
-```
-
-Также локально есть repeat-manifest и журналы запуска; это вспомогательные файлы, не вход extractor.
-В Git не отправлять весь `data/`, `outputs/`, `logs/`, `.venv/`, кеши, секреты и реальные примеры в fixtures. Старый `context/datasets` также исключён.
-Происхождение имеющегося pickle подтверждено пользователем; доверие не распространяется автоматически на другой файл. Не выполнять старые инструкции `git lfs pull` из архива продуктового этапа.
-
-## 6. Фактический pipeline и границы
-
-`доверенная проекция + raw descriptions → prepare → text-only Product → видимый текст/offset map → Rules → Decimal-нормализация → verifier → JSONL + manifest`.
-
-| Категория | Requested attributes | Не реализовано |
-| --- | --- | --- |
-| Смартфоны `761` | brand, model, storage_gb, ram_gb, screen_inches, battery_mah, color | model сложных имён/двойных брендов ограничен |
-| Чайники `482` | brand, model, capacity_l, power_w, color | словесная серия и технические коды неоднозначны |
-
-Rules используют явные фрагменты текста: `6/128GB`, контекст RAM/ROM, экран/дюймы, аккумулятор/мАч, объём/л, мощность/Вт, aliases цветов/брендов.
-Нормализация: Decimal, запятая/пробелы/NBSP; `1700 мл → 1.7 L`, `2,4 кВт → 2400 W`; числа остаются строками. TB и произвольные оттенки не поддержаны.
-Карта видимого HTML-текста переносит координаты в исходные поля; raw evidence может включать теги/entities между частями значения. Числа из href/script/style не используются.
-Одинаковые нормализованные кандидаты объединяются; несколько различных `(value, unit)` дают `conflicting_evidence`, выбор «первого ответа» запрещён.
-Нет кандидата, включая model → `not_found_by_rules`, а не доказанное отсутствие характеристики. `rule_not_implemented` относится к прежней версии.
-Все непустые ответы — `review`; нет автоматического принятия, реальной очереди проверки или записи в каталог.
-Confidence 0.75/0.8/0.85 — **эвристический score, не калиброванная вероятность**. Точное совпадение evidence доказывает источник, но не смысловую истинность.
-Усилить качество и безопасность можно только после оценки по независимым ручным меткам; текущий код не гарантирует отсутствие семантических ошибок.
-
-## 7. Контракт v0.1: что реально читает и пишет код
-
-UTF-8 JSONL: один JSON-объект на строку. `Product.from_dict` допускает только перечисленные поля:
-
-| Поле входа | Обязательность и смысл |
-| --- | --- |
-| schema_version | Обязательное, строка `"0.1"` |
-| sku_id | Обязательная непустая строка; дубли SKU останавливают predict |
-| title | Обязательная непустая после trim строка |
-| category_id | Строка либо null; при отсутствии читается как null и категория не поддерживается |
-| description | Необязательная строка/null, по умолчанию null |
-| seller_attributes | Необязательный список, в E1 разрешён только `[]` |
-| source_flags | Необязательный список строк, по умолчанию `[]`; prepare ставит missing_description/title_mismatch |
-
-Vendor/model/param/gold/clicks и любые другие поля в text-only записи не разрешены. Provenance-файл не подавать в predict.
-Выход всегда включает schema_version, run_id, sku_id, category_id, status, attributes. Для processed список соответствует порядку схемы, включая каждый отказ.
-Атрибут содержит attribute/value/unit/confidence/confidence_kind/decision/method/rule_id/evidence/reason_codes. Для чисел unit — GB/inch/mAh/L/W, для строк null.
-При abstain value/unit/confidence/evidence и rule_id равны null, reason_codes непуст. При кандидате decision=review, method=rule, confidence_kind=heuristic.
-Evidence: field=`title` или `description`, start/end — Unicode code points, zero-based/end-exclusive; `source[start:end] == text`.
-
-Ниже **синтетический** вход и полный результат `Extractor.predict(..., "doc-example")`, проверенные по текущему коду:
-
-```json
-{"schema_version":"0.1","sku_id":"demo-001","category_id":"482","title":"Электрочайник Tefal Demo","description":"Объём 1,7 л.","seller_attributes":[],"source_flags":[]}
-```
-
-```json
-{
-  "schema_version":"0.1", "run_id":"doc-example", "sku_id":"demo-001", "category_id":"482", "status":"processed",
-  "attributes":[
-    {"attribute":"brand","value":"Tefal","unit":null,"confidence":0.85,"confidence_kind":"heuristic","decision":"review","method":"rule","rule_id":"brand.explicit-title.v1","evidence":{"field":"title","start":14,"end":19,"text":"Tefal"},"reason_codes":[]},
-    {"attribute":"model","value":null,"unit":null,"confidence":null,"confidence_kind":"heuristic","decision":"abstain","method":"rule","rule_id":null,"evidence":null,"reason_codes":["not_found_by_rules"]},
-    {"attribute":"capacity_l","value":"1.7","unit":"L","confidence":0.8,"confidence_kind":"heuristic","decision":"review","method":"rule","rule_id":"capacity_l.explicit.v1","evidence":{"field":"description","start":6,"end":11,"text":"1,7 л"},"reason_codes":[]},
-    {"attribute":"power_w","value":null,"unit":null,"confidence":null,"confidence_kind":"heuristic","decision":"abstain","method":"rule","rule_id":null,"evidence":null,"reason_codes":["not_found_by_rules"]},
-    {"attribute":"color","value":null,"unit":null,"confidence":null,"confidence_kind":"heuristic","decision":"abstain","method":"rule","rule_id":null,"evidence":null,"reason_codes":["not_found_by_rules"]}
-  ]
-}
-```
-
-Статусы SKU: processed (допускает все abstain), unsupported_category (attributes=[]), invalid_input (attributes=[], input_line и reason_codes).
-При invalid_input категория null; если исходный ID не строка, выходной sku_id пуст. `error` допускается валидатором, но текущий CLI не превращает программные исключения в такие строки — запуск прекращается.
-Повреждённый JSONL, дубли, пустой вход или ошибка реализации останавливают запуск. Одиночные файлы заменяются атомарно; у predict/manifest есть журнал восстановления и проверяющий SHA reader. Это не одна атомарная операция над двумя файлами и не общая транзакция для всех артефактов prepare/demo.
-Evaluator принимает reviewed manual gold с annotator, тем же текстовым входом и всеми requested attributes. Present требует canonical value/unit и точного evidence; absent — null; ambiguous/unjudgeable исключаются со счётчиком.
-Wrong value = FP+FN; метрики считаются по канонической паре value/unit. Catalog weak labels не принимаются как manual gold; незаполненные задания дают N/A. Подробнее — [оценивание](research/evaluation.md).
-
-## 8. Установка, запуск и проверка
-
-Команды из корня проекта в PowerShell; установка пакета и полный pilot проверены в предыдущей итерации, тесты/CLI/формат повторно проверены при подготовке этого снимка.
-Не запускать prepare/annotate просто для чтения контекста: они обновляют локальные производные файлы; заполненную разметку сохранять отдельно от tasks.jsonl.
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -e .
-.\.venv\Scripts\python.exe -m goodsai.cli prepare
-.\.venv\Scripts\python.exe -m goodsai.cli predict --input data/processed/e1/pilot.jsonl --output outputs/baseline/predictions.jsonl
-.\.venv\Scripts\python.exe -m goodsai.cli annotate
-.\.venv\Scripts\python.exe -m goodsai.cli evaluate --predictions outputs/baseline/predictions.jsonl --gold data/gold/e1/tasks.jsonl --output outputs/baseline/metrics.json
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
-.\.venv\Scripts\python.exe -m unittest discover -s scripts/research -p 'test_*.py' -v
-```
-
-Команда с tasks.jsonl выше — историческая проверка pending=120. Для текущей оценки использовать отдельные `data/gold/e1/reviewed/reviewed-v2/{development,validation}.jsonl` и новый output-путь; команды — в [отчёте v2](research/baseline_evaluation_v2.md). Источник `review.human-reviewed.v6.jsonl` содержит 22 AI-assisted проверки, 10 development / 12 validation. Происхождение и excluded ambiguous/unjudgeable раскрываются отдельно; это не независимый gold. Контекстные гипотезы R10 не оцениваются как present. Полные AI-файлы v2/v3/v4 не принимаются evaluator как reviewed/manual.
-Отсутствующие inventory/проекцию готовить по [инструкции на другом компьютере](baseline.md#как-воспроизвести-на-другом-компьютере), без повторения всего click EDA.
-CLI `inventory` пишет новый fingerprint-файл в data/processed; это не доказательство официального происхождения. `--config` — глобальная опция **перед** подкомандой.
-Для чтения manifests без изменения данных: `Get-Content outputs/baseline/metrics.json` и `Get-Content outputs/baseline/predictions.manifest.json`.
-Для сравнения имеющихся результатов: `Get-FileHash outputs/baseline/predictions.jsonl,outputs/baseline/predictions.repeat.jsonl -Algorithm SHA256`.
-
-Полная read-only проверка SKU, schema и raw evidence уже существующего выхода:
-
-```powershell
-@'
-from pathlib import Path
-from goodsai.contracts import Product, load_config, validate_prediction
-from goodsai.data import read_jsonl
-products = {r['sku_id']: Product.from_dict(r) for r in read_jsonl(Path('data/processed/e1/pilot.jsonl'))}
-seen = set()
-for row in read_jsonl(Path('outputs/baseline/predictions.jsonl')):
-    assert row['sku_id'] not in seen
-    seen.add(row['sku_id'])
-    validate_prediction(row, load_config(), products[row['sku_id']])
-assert seen == set(products)
-print('Schema/evidence/SKU check passed:', len(seen))
-'@ | .\.venv\Scripts\python.exe -
-```
-
-Этот check не измеряет precision. На Linux заменить Windows python-path на `.venv/bin/python`; установка PyArrow wheel и синтетические CLI tests на ВМ уже прошли.
-На ВМ подтверждены checkout main `78b052e`, установка и tests; диск 64G/свободно 55G до установки. CPU/RAM известны только по прежнему сообщению (2 CPU/4 ГБ), отдельной проверки пока нет. HTTP/systemd впоследствии запущен пользователем; см. актуальное состояние в начале документа.
-
-## 9. Подтверждённые результаты E1
-
-Источники: фактические manifests, существующий JSONL и [подробный отчёт](baseline_results.md); новый тяжёлый эксперимент не запускался.
-
-| Показатель | Результат |
-| --- | --- |
-| Обработано | 10 324 SKU = 7 988 смартфонов + 2 336 чайников; все processed, invalid_input=0 |
-| Кандидаты | 31 627 непустых пар из 67 596 запрошенных; **все review** |
-| Карточки с ≥1 кандидатом / все abstain | 9 864 / 460 |
-| С описанием | Смартфоны: 3 056 SKU, 12 355/21 392 пар; чайники: 1 188 SKU, 2 654/5 940 пар |
-| Title-only | Смартфоны: 4 932 SKU, 15 763/34 524 пар; чайники: 1 148 SKU, 855/5 740 пар |
-| Тесты | 18 baseline + 3 reader, синтетические fixtures; проходят |
-| Воспроизводимость | Существующие полный выход и повтор побайтно одинаковы; run_id `8a72d1342ed8e7a6f13d` |
-| Локальный predict | 13,869 с; p50 0,526 мс / p95 4,955 мс на запись; peak working set 29,7 МиБ |
-| Отдельный prepare | 13,856 с; peak working set ~485 МиБ |
-| Качество | Текущий reviewed-v2: 12 validation-карточек / 67 judged, P=96,7%, R=58,0%, F1=72,5%; [отчёт](research/baseline_evaluation_v2.md). Reviewed-v1 и старый `outputs/baseline/metrics.json` с pending=120 сохранены как история |
-
-**Покрытие НЕ равно точности.** Рабочий extractor и точные spans не заменяют независимую ручную проверку.
-Это измерения Windows 11 / Python 3.12.6, не VM benchmark; время не является SLA. Полные hashes и определения таймеров — в отчёте/manifests.
-Manifests сохраняют старый commit + dirty status и отдельные SHA кода/config: один `cf16e59` не идентифицирует незакоммиченный baseline.
-
-## 10. Долг, приоритеты и задачи для параллельной работы
-
-На время проверки разметки Владом подготовлено отдельное [распределение задач команды](TEAM_TASKS.md): A — Linux-воспроизводимость, B — изолированный прототип model, C — аудит split и вопросы по требованиям. Это рабочее предложение на трёх остальных участников; принятие задач исполнителями и выполнение не подтверждены. Разметка и изменения общей схемы остаются у Влада с Codex.
-
-P0 — препятствует честной оценке/сдаче; P1 — следующий прирост качества; P2 — после измерений. Backlog ниже — **предложение, не назначение участников и не разрешение на VM/API**.
-Общие blockers P0: нет независимого gold и полной официальной схемы/формата интеграции. Baseline/demo и M1 опубликованы в main, пользователь подтвердил M1 SHA/HTTP на ВМ. R1 и публичная часть R2 закрыты, R3 проверен локально. В M2 подготовлены новый development и слепой резерв; следующие зависимости — человеческая проверка и измерение, затем M3. Передача реальных артефактов R2 остаётся открытой.
-Замеры H05 на доступной проверенной части выполнены, независимый reference H03 ещё не готов. Два исходных model FP диагностического validation разобраны в M1 boundary fix; этот срез теперь development_feedback. Цвета/бренды/числовой разбор не менялись. Confidence не калиброван; в M2 выполнен лексический near-duplicate аудит с quarantine, но семантическая независимость не доказана. ML/LLM-опыт остаётся подготовкой R7, не результатом M1/M2.
-
-| ID | Приоритет / задача | Зависимости | Где работать | Критерий готовности | Независимость |
-| --- | --- | --- | --- | --- | --- |
-| H01 | Выполнено: интеграция baseline в main | PR #2 merged, `b3b3d55`; состав и remote проверены | Git, этот статус | Команда создаёт новые ветки от актуального main; VM-публикация отдельно | Координатор; не начинать новые ветки от старого initial main |
-| H02 | P0: уточнить required fields, словари, формат и правила gateway | Ответы организаторов | docs/research, этот статус | Зафиксирован источник ответа; влияние на контракт согласовано | Можно параллельно, сообщения самостоятельно не отправлять |
-| H03 | P0: ручной dev/validation gold | Имеющиеся tasks; H02 при уточнении схемы | Локальный data/gold, evaluation guide | 120 заданий заполнены, часть проверена вторым человеком, split сохранён | Два участника по категориям, без новых изменений кода |
-| H04 | P0: аудит групп и резерв test | split-manifest, H03 | annotation.py, tests/test_data_and_annotation.py | Нет выявленных межsplit дублей/семейств; reviewed test заморожен отдельно | Независим от правил; общую схему не менять |
-| H05 | P0: получить validation-метрики и error analysis | H03 | evaluate.py, tests/test_baseline.py, отчёт | Реальные TP/FP/FN и P/R/F1 по категориям/атрибутам, честные знаменатели | QA отдельно от авторов правил |
-| H06 | P1: правила смартфонов и model | H05 + development-примеры | rules.py, baseline.json, tests/test_baseline.py | Консервативные spans, regression tests, измеренный Δ на validation | Реализовывать в своей ветке; координация с H07 на общих файлах |
-| H07 | P1: чайники, бренды и нормализация | H05; schema agreement | rules.py, normalize.py, baseline.json, tests | Исправлены подтверждённые FP/FN, нет подмены power/standby/объёма | Параллельно H06 по category-блокам; слияния последовательно |
-| H08 | P1: пороги/калибровка и интервалы | Достаточный H03/H05 | evaluate.py, verify.py, contracts.py | Score не выдан за probability; отдельная validation/test проверка, изменение decision согласовано | Зависит от gold; общий контракт — через согласование |
-| H09 | P0 подготовка / P1 интеграция: один ML/LLM-метод (R7) | H02/H05, разрешение доступа/бюджета | Текущий интерфейс Extractor + будущий согласованный адаптер | Тот же split/verifier; quality, FP, latency/tokens/cost; без выдуманного выигрыша | Проектирование/синтетические тесты сейчас; реальные вызовы после согласования данных/ресурса, оценка на reviewed reference |
-| H10 | P0: Linux/VM-воспроизводимость и финальные артефакты | H01/H02, отдельное разрешение VM | pyproject, CLI, README, документы сдачи | На реальной среде воспроизведён запуск; есть шесть согласованных артефактов | Deployment уже выполнен пользователем; далее комплект артефактов и официальный API |
-
-Предлагаемое распределение для четырёх человек:
-
-| Роль | Основной поток | Что согласовать с другими |
-| --- | --- | --- |
-| Участник 1: интеграция/данные | H01/H02, H04, подготовка H10 | Версии входа, общий контракт, порядок PR |
-| Участник 2: смартфоны | Своя часть H03, затем H06 | Разметку не утверждать единолично; изменения rules/config с участником 3 |
-| Участник 3: чайники/нормализация | Своя часть H03, затем H07 | Единицы и verifier должны оставаться общими |
-| Участник 4: QA/оценка | Независимая перепроверка H03, H05/H08; план H09 | Не подбирать правила по test; проверять результаты авторов правил |
-
-Все помогают с разметкой; финальный test проверяют независимо. Ближайший bottleneck — ручные метки и качество, не добавление инфраструктуры или тяжёлой модели.
-
-## 11. Совместная работа и передача изменений
-
-- Основной репозиторий сдачи — [Gitea команды](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project); архив GitHub — только происхождение продуктовых документов, не основная история.
-- Локальная разработка — Windows; итоговая проверка — Linux VM организаторов. Не путать локальный успешный прогон с проверкой VM.
-- Каждый работает в отдельной feature-ветке от согласованной актуальной базы; интеграция через PR. Не менять main, не делать force push, не переписывать чужую историю.
-- Baseline/research и текущие отчёты вошли в main через PR #2. Новую рабочую ветку создавать после fetch от актуального main. Незакоммиченные изменения и локальные data/outputs не передаются через Git.
-- Для текущей передачи документов разрешены commit и push в `feature/vlad-setup`; создание PR/merge остаётся отдельным действием. Команда может начать от согласованного commit этой ветки; после merge обновить общую базу.
-- До интеграции обязательны относящиеся тесты; для общих rules/contracts/normalize/verifier — весь baseline suite. Контракт и семантику canonical values не менять без согласования.
-- Не выполнять `git add -A` без проверки состава. Данные/секреты/разметку/predictions не коммитить; синтетические tests разрешены. Пароли вводятся только в локальном интерфейсе авторизации.
-- Не перезаписывать незакоммиченные файлы других участников. Для параллельных веток на одном компьютере использовать отдельные checkout/worktree по согласованной базе.
-- Новые сессии Codex начинают с этого статуса и [AGENTS.md](../AGENTS.md); далее читают только модуль своей задачи. Изменения без commit/push/PR остальным участникам могут быть недоступны.
-
-## 12. Как актуализировать этот документ
-
-Обновлять в том же PR после нового модуля, изменения контракта, новых измерений, выбора/замены модели, проверки VM или существенного архитектурного решения.
-Проверить фактические пути/CLI, статус реализации, метрики с источником/средой и открытый backlog; не копировать весь EDA или журнал работ.
-В шапке обновить дату, ветку, состояние и commit; при dirty-коде сослаться на manifest/SHA. Исторические результаты не выдавать за текущие без проверки версии.
-Автоматических hooks нет. При публикации baseline и контракты не менялись. Commit/push и PR/merge текущего релиза явно разрешены пользователем. Установка и 21 test на ВМ подтверждены пользовательским SSH-выводом; постоянный HTTP-сервис и реальный data-run ещё не подтверждены.
-
-## Проверка временного HTTP-адаптера (17 октября)
-
-Основание — новое уточнение администраторов о сервисе на 8000 на выходные.
-Код: `src/goodsai/api.py`; синтетические HTTP-тесты: `tests/test_api.py`;
-временный контракт и запуск: [HTTP runbook](runbooks/http_service.md).
-На локальном Windows/Python 3.12.6 прошли **25 baseline/data/HTTP + 3 reader
-tests**, без пропусков; `pip check` не нашёл конфликтов. Отдельный процесс
-Uvicorn действительно слушал localhost:8000: health=200, извлечение смартфона
-и чайника=200 с проверкой значений, ошибочный JSON=400. После smoke этот
-локальный процесс остановлен. Эти результаты не подтверждают запуск на ВМ.
-
-Правила, словари, единицы и decision не менялись. Все кандидаты остаются review.
-Зависимости сервера устанавливаются extras; CLI доступен отдельно. Добавление
-Python-модуля меняет будущий code hash CLI identity; замороженные отчёты,
-reference и predictions этим релизом не пересчитывались. Новый API пока
-не является спецификацией организаторов. На ВМ предстоят установка extras,
-HTTP-тесты, постоянный запуск и проверка доступности после выхода из SSH.
-
-По последующей диагностике подготовлен `deploy/systemd/goodsai.service`:
-user-service, bind 0.0.0.0:8000, Restart=on-failure. Проверены структура
-unit/пути/порт, ссылки документов, `git diff --check` и синтаксис Bash-блоков
-runbook через Git Bash `bash -n`. Это статические локальные проверки, не
-Linux systemd verification и не запуск unit на ВМ. Включение linger и
-установка предлагаются явными командами, без автоматического sudo.
-
-Разделы проверки HTTP-адаптера и подготовки unit выше фиксируют состояние
-на момент разработки 17 октября. Последующий запуск пользователем отражён
-в начале документа и в протоколе ВМ. После первого ревью реализованы R1,
-публичная часть R2 и R3; следующий функциональный этап описан в плане model.
+Не выбирать большую модель до готовности EVAL-001. Сначала получить честный
+gold и release artifact, затем измерить самый простой гибрид rules → fast LLM.
+Encoder добавлять, если эксперимент покажет пользу по качеству, цене или latency.
