@@ -1,0 +1,67 @@
+name: Эксперимент
+description: Сравнение метода, модели, порога или маршрута на фиксированной оценке
+title: "[EVAL-ID] Проверить гипотезу"
+labels:
+  - "type:evaluation"
+  - "status:ready"
+body:
+  - type: input
+    id: task_id
+    attributes:
+      label: Task ID
+      placeholder: EVAL-003
+    validations:
+      required: true
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Гипотеза
+      description: Какое изменение и на каком срезе ожидается.
+    validations:
+      required: true
+  - type: textarea
+    id: baseline
+    attributes:
+      label: Baseline и commit
+      description: Метод, Git SHA, config hash и текущие числа.
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Данные и split
+      description: Версия, hashes, происхождение gold, размер и защита от leakage.
+    validations:
+      required: true
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Метрики и срезы
+      description: Primary metric, guardrails, стоимость, latency и интервалы неопределённости.
+    validations:
+      required: true
+  - type: textarea
+    id: stop
+    attributes:
+      label: Критерий решения
+      description: Когда метод принимается, отклоняется или требует нового эксперимента.
+    validations:
+      required: true
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Артефакты
+      description: Manifest, predictions, metrics и отчёт без реальных карточек в Git.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Проверки дизайна
+      options:
+        - label: Test reserve не использовался для выбора метода и порогов.
+          required: true
+        - label: Источник gold и число карточек будут указаны рядом с метрикой.
+          required: true
+        - label: До запуска будет опубликован claim commit.
+          required: true

@@ -146,6 +146,7 @@ Windows/Python 3.12.6. После каждого нового изменения
 
 Новая работа начинается с [TASKS.md](TASKS.md): сначала задача переводится в
 `IN_PROGRESS` отдельным commit, затем меняется код. Подробный процесс —
+[docs/TASK_MANAGEMENT.md](docs/TASK_MANAGEMENT.md), совместная разработка —
 [CONTRIBUTING.md](CONTRIBUTING.md), выпуск — [docs/RELEASES.md](docs/RELEASES.md).
 
 ## Карта документации
@@ -153,6 +154,7 @@ Windows/Python 3.12.6. После каждого нового изменения
 | Файл | Назначение |
 | --- | --- |
 | [TASKS.md](TASKS.md) | очередь, владельцы, статусы и подробные подзадачи |
+| [docs/TASK_MANAGEMENT.md](docs/TASK_MANAGEMENT.md) | labels, Issue forms, claim commit, review и закрытие |
 | [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md) | актуальное техническое задание и критерии приёмки |
 | [RESEARCH.md](RESEARCH.md) | научные и open source основания решений |
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | что реально сделано и что ещё отсутствует |

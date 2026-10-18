@@ -21,6 +21,9 @@
 
 ## Жизненный цикл задачи
 
+Оперативная карточка находится в GitHub Issues, а владелец и claim commit — в
+`TASKS.md`. Полная схема labels и переходов: `docs/TASK_MANAGEMENT.md`.
+
 ```text
 BACKLOG → READY → IN_PROGRESS → REVIEW → DONE
                          ↘ BLOCKED

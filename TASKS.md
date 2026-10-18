@@ -3,6 +3,8 @@
 Этот файл — единая доска задач для людей и агентов. Перед изменением кода
 исполнитель сначала переводит одну задачу в `IN_PROGRESS`, указывает себя,
 ветку и дату, делает отдельный commit и публикует ветку в рабочем GitHub.
+GitHub Issues хранит обсуждение, labels и связь с PR; правила синхронизации
+двух досок описаны в `docs/TASK_MANAGEMENT.md`.
 
 ## Статусы
 
@@ -18,45 +20,53 @@
 | --- | --- |
 | `GOV` | процесс команды, роли и правила работы |
 | `ARCH` | архитектура и контракты |
+| `SYNC`, `ENV` | синхронизация репозиториев и окружение |
 | `DATA` | данные, подготовка и качество выборки |
 | `BASE` | правила и словари baseline |
 | `ML` | локальные модели и обучение |
 | `LLM` | интеграция LLM и контроль расходов |
 | `EVAL` | разметка, метрики и эксперименты |
 | `API` | CLI, API и пакетная обработка |
-| `QA` | тестирование и проверка отказоустойчивости |
+| `QA`, `VER` | тестирование, verifier и отказоустойчивость |
 | `OPS` | окружение, VM и наблюдаемость |
 | `DOCS` | документация |
-| `REL` | сборка и выпуск в Gitea |
-| `PRODUCT` | пользовательский сценарий и бизнес-метрики |
+| `REL`, `ART` | сборка, артефакты и выпуск в Gitea |
+| `PRODUCT`, `SPEC` | пользовательский сценарий, контракт и бизнес-метрики |
+| `CONF`, `ROUTE` | конфигурация и маршрутизация pipeline |
+| `ACTIVE` | active learning и цикл обратной связи |
 | `SEC` | секреты и безопасная работа с данными |
+
+Префикс ID сохраняет конкретную подсистему, а label `type:*` объединяет задачи
+по рабочей области. Например, `CONF-001` имеет `type:architecture`, а
+`ENV-001` — `type:ops`.
 
 ## Активная очередь
 
-| ID | P | Статус | Роль | Исполнитель | Ветка | Результат |
-| --- | --- | --- | --- | --- | --- | --- |
-| GOV-001 | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
-| GOV-002 | P0 | IN_PROGRESS | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
-| SYNC-001 | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
-| SEC-001 | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
-| ENV-001 | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
-| DATA-001 | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
-| EVAL-001 | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
-| EVAL-002 | P0 | READY | data/QA | — | — | аудит дублей и утечек между split |
-| ART-001 | P0 | READY | интегратор/аналитик | — | — | финальный predictions-файл, manifest и отчёт метрик |
-| CONF-001 | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
-| SPEC-001 | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
-| REL-001 | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
-| REL-002 | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
-| LLM-001 | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
-| LLM-002 | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
-| ROUTE-001 | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
-| VER-001 | P1 | READY | NLP/QA | — | — | проверка отрицаний, совместимости и чужих сущностей |
-| ML-001 | P1 | BLOCKED | ML engineer | — | — | компактный encoder только после baseline и gold; ждёт EVAL-001 |
-| API-001 | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
-| QA-001 | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
-| PRODUCT-001 | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
-| ACTIVE-001 | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
+| ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
+| GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | REVIEW | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
+| SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
+| SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
+| ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
+| DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
+| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
+| EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | READY | data/QA | — | — | аудит дублей и утечек между split |
+| ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | READY | интегратор/аналитик | — | — | финальный predictions-файл, manifest и отчёт метрик |
+| CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
+| SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
+| REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
+| REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
+| BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | READY | NLP/baseline | — | — | консервативный прототип извлечения модели товара |
+| LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
+| LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
+| ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
+| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P1 | READY | NLP/QA | — | — | проверка отрицаний, совместимости и чужих сущностей |
+| ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | BLOCKED | ML engineer | — | — | компактный encoder только после baseline и gold; ждёт EVAL-001 |
+| API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
+| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
+| PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
+| ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 
 ## Как взять задачу
 
@@ -114,6 +124,11 @@
 **Готово, когда:** участник может выбрать `READY`-задачу, назначить себя,
 опубликовать отдельный claim commit и пройти до review без устной координации;
 тип, приоритет и статус каждой активной задачи видны в GitHub.
+
+**Передано в review:** claim commit `d4e20e0`; GitHub Issue #1; создано 29
+labels, пять Issue forms и PR template; активные задачи заведены в Issues
+#2–#21 и связаны с таблицей. Из `TEAM_TASKS.md` отдельно восстановлена
+пропущенная задача `BASE-001`.
 
 ### SYNC-001 — рабочая база GitHub
 
@@ -276,6 +291,23 @@ Gitea fast-forward; divergence останавливает job, а старый G
 `legacy/github-main-before-gitea-sync-2026-10-19`; новый `main` создан из
 актуального Gitea commit и документации. Workflow run `39177817712` завершился
 успешно и fast-forward обновил Gitea. Secrets сохранены только в GitHub Actions.
+
+### BASE-001 — прототип извлечения модели товара
+
+**Шаги**
+
+1. Извлекать только явно указанное коммерческое имя или код модели.
+2. Не включать бренд, память, цвет и состояние товара.
+3. Использовать description только при подтверждённой связи с главным товаром.
+4. Сохранять точный raw evidence span, включая HTML/entities.
+5. Отказываться при нескольких кодах, чужой сущности и неоднозначной границе.
+6. Добавить synthetic cases для явной модели, отсутствия, повторного бренда,
+   памяти/цвета рядом, нескольких кодов и HTML-разрывов.
+7. Оставить прототип изолированным до review и независимого замера.
+
+**Готово, когда:** прототип запускается отдельно, имеет негативные проверки,
+точные offsets и список решений для интеграции; development и готовое поле
+`model` не выдаются за независимую оценку качества.
 
 ### LLM-001 — gateway adapter
 

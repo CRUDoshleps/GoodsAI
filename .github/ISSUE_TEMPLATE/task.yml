@@ -1,0 +1,112 @@
+name: Рабочая задача
+description: Функция, рефакторинг, данные, документация или инфраструктура
+title: "[TASK-ID] Краткий результат"
+labels:
+  - "status:ready"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issue описывает результат. Захват работы фиксируется отдельным commit в `TASKS.md` до реализации.
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Тип
+      description: После создания добавьте соответствующий label `type:*`.
+      options:
+        - governance
+        - architecture
+        - data
+        - baseline
+        - ml
+        - llm
+        - evaluation
+        - api
+        - qa
+        - ops
+        - docs
+        - product
+        - security
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Приоритет
+      options:
+        - P0 — блокирует сдачу, безопасность или основной сценарий
+        - P1 — ближайший этап
+        - P2 — после основного сценария
+        - P3 — опционально
+    validations:
+      required: true
+  - type: input
+    id: task_id
+    attributes:
+      label: Task ID
+      description: Существующий ID из `TASKS.md` или следующий ID своего типа.
+      placeholder: DATA-002
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Проблема
+      description: Что сейчас мешает пользователю, качеству или выпуску.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_result
+    attributes:
+      label: Ожидаемый результат
+      description: Какой проверяемый результат должен появиться в репозитории.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Подзадачи и границы
+      description: Конкретные шаги и то, что не входит в эту задачу.
+      placeholder: |
+        - [ ] Шаг 1
+        - [ ] Шаг 2
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Критерии приёмки
+      description: Наблюдаемые условия, по которым reviewer примет работу.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: План проверки
+      description: Команды, данные, split, негативные сценарии или ручная проверка.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Зависимости и блокеры
+      placeholder: Нет / EVAL-001 / нужен ответ организаторов
+  - type: textarea
+    id: risks
+    attributes:
+      label: Риски и данные
+      description: Контракты, миграции, реальные данные, gold, секреты и rollback.
+  - type: input
+    id: reviewer
+    attributes:
+      label: Нужный reviewer
+      placeholder: Роль или GitHub username
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Перед стартом
+      options:
+        - label: "Я создам ветку от `work/main` и сначала опубликую `chore(tasks): claim <ID>`."
+          required: true
+        - label: В Issue и commit не будут добавлены реальные данные, токены или пароли.
+          required: true
