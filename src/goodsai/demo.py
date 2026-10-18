@@ -9,7 +9,7 @@ import sys
 
 from goodsai.cli import predict
 from goodsai.contracts import Product, load_config, validate_prediction
-from goodsai.data import check_output, digest, read_jsonl, write_json
+from goodsai.data import check_output, digest, read_jsonl, read_predictions, write_json
 
 
 def _destination(output_dir: Path, examples) -> Path:
@@ -71,15 +71,15 @@ def run_demo(output_dir: Path) -> dict:
     expected = json.loads(expected_bytes)
     config = load_config()
     output = _destination(output_dir, examples)
-    # This reservation prevents two demo processes from sharing atomic_text's
-    # fixed temporary filename. Existing directories are never reused or deleted.
+    # The demo reserves an entirely new artifact directory; general writers also
+    # have their own destination locks and recoverable pair publication.
     output.mkdir(parents=True, exist_ok=False)
     input_path = output / "input.jsonl"
     prediction_path = output / "predictions.jsonl"
     input_path.write_bytes(source_bytes)
     report = predict(input_path, prediction_path, config)
     inputs = list(read_jsonl(input_path))
-    predictions = list(read_jsonl(prediction_path))
+    predictions = list(read_predictions(prediction_path))
     checks = _verify(inputs, predictions, expected, config)
     manifest_path = prediction_path.with_suffix(".manifest.json")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
