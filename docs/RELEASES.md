@@ -32,6 +32,20 @@ git push -u work HEAD
 PR направляется в `integration/current`. После review интегратор сливает его и
 ставит задачу в `DONE`. Gitea на этом этапе не меняется.
 
+## Автоматическое зеркало GitHub main → Gitea main
+
+Workflow `.github/workflows/mirror-main-to-gitea.yml` запускается после каждого
+push в GitHub `main` и при ручном `workflow_dispatch`. Он читает
+`GITEA_USERNAME` и `GITEA_PASSWORD` из GitHub Secrets, получает Gitea `main`,
+проверяет fast-forward и только после этого выполняет push.
+
+Workflow никогда не делает force push. Если в Gitea появился отдельный commit,
+job завершается ошибкой. Такой commit сначала нужно получить локально, проверить
+и включить в GitHub `main`, после чего перезапустить workflow.
+
+Смена или ротация Gitea credentials требует обновления GitHub Secrets. Значения
+нельзя записывать в YAML, remote URL, Actions logs и repository variables.
+
 ## Состав release candidate
 
 Release candidate — конкретный GitHub commit. Для него создаются:

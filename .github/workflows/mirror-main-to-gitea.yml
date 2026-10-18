@@ -1,0 +1,62 @@
+name: Mirror main to Gitea
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: mirror-main-to-gitea
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITEA_USERNAME: ${{ secrets.GITEA_USERNAME }}
+      GITEA_PASSWORD: ${{ secrets.GITEA_PASSWORD }}
+      GITEA_REPOSITORY: https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project.git
+    steps:
+      - name: Check out the complete GitHub history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fast-forward Gitea main
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${GITEA_USERNAME}" || -z "${GITEA_PASSWORD}" ]]; then
+            echo "::error::GITEA_USERNAME and GITEA_PASSWORD secrets are required"
+            exit 1
+          fi
+
+          askpass="${RUNNER_TEMP}/gitea-askpass.sh"
+          cat >"${askpass}" <<'EOF'
+          #!/usr/bin/env sh
+          case "$1" in
+            *sername*) printf '%s\n' "$GITEA_USERNAME" ;;
+            *assword*) printf '%s\n' "$GITEA_PASSWORD" ;;
+            *) exit 1 ;;
+          esac
+          EOF
+          chmod 700 "${askpass}"
+
+          export GIT_ASKPASS="${askpass}"
+          export GIT_TERMINAL_PROMPT=0
+
+          git remote add gitea "${GITEA_REPOSITORY}"
+          git fetch --no-tags gitea main
+
+          if ! git merge-base --is-ancestor refs/remotes/gitea/main "${GITHUB_SHA}"; then
+            echo "::error::Gitea main has commits absent from GitHub main. Sync them into GitHub before retrying."
+            exit 1
+          fi
+
+          git push gitea "${GITHUB_SHA}:refs/heads/main"
