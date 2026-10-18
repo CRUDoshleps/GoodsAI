@@ -7,8 +7,9 @@
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
 | опубликованный технический baseline | Gitea `main` | `48b45dc` |
-| рабочая интеграционная база | GitHub `main` | Gitea history + новая документация и mirror workflow |
+| рабочая интеграционная база | GitHub `main` | `7a7d47a` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
+| типизированная система задач | GitHub `gov/gov-002-task-system` | claim `d4e20e0`, Issue #1 |
 | runtime schema | `0.1` | — |
 | rules | `rules-0.3.0-m2-policy` | — |
 | dictionaries | `manual-reviewed-brand-and-color-names-v2` | — |
@@ -33,6 +34,8 @@ fast-forward публикуется в Gitea; divergence останавлива�
 - синтетическое демо на шести сценариях;
 - evaluator с per-attribute метриками и coverage;
 - systemd unit и runbook для VM.
+- GitHub labels по типу/приоритету/статусу, формы задач и проверяемый claim;
+- активный backlog перенесён в Issues #1–#21 и связан с `TASKS.md`.
 
 ## Не реализовано
 

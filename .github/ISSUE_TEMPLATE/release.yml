@@ -1,0 +1,59 @@
+name: Релиз
+description: Проверяемая публикация GitHub SHA в Gitea и на VM
+title: "[REL-ID] Выпустить версию"
+labels:
+  - "type:release"
+  - "status:ready"
+body:
+  - type: input
+    id: task_id
+    attributes:
+      label: Task ID
+      placeholder: REL-003
+    validations:
+      required: true
+  - type: input
+    id: source_sha
+    attributes:
+      label: Source GitHub SHA
+    validations:
+      required: true
+  - type: textarea
+    id: contents
+    attributes:
+      label: Состав релиза
+      description: Функции, fixes, schema/config changes и артефакты.
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Обязательные проверки
+      placeholder: |
+        - [ ] test report
+        - [ ] synthetic demo
+        - [ ] predictions/metrics manifest
+        - [ ] VM smoke test
+    validations:
+      required: true
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Manifest и артефакты
+      description: Пути, hashes, config hash и канал передачи.
+    validations:
+      required: true
+  - type: textarea
+    id: deployment
+    attributes:
+      label: Публикация и проверка
+      description: Gitea SHA, Actions run, VM SHA, health и время проверки.
+    validations:
+      required: true
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback
+      description: Предыдущий SHA и точная процедура возврата.
+    validations:
+      required: true

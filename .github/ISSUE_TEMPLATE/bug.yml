@@ -1,0 +1,69 @@
+name: Ошибка
+description: Воспроизводимый дефект, регрессия или сбой
+title: "[QA-ID] Краткое проявление ошибки"
+labels:
+  - "type:qa"
+  - "status:ready"
+body:
+  - type: input
+    id: task_id
+    attributes:
+      label: Task ID
+      placeholder: QA-002
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit или release
+      placeholder: Git SHA / tag
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Окружение
+      description: OS, Python, способ запуска и безопасные версии зависимостей.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Как воспроизвести
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ожидаемое поведение
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Фактическое поведение
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Безопасная диагностика
+      description: Exit code, обезличенный traceback или synthetic input. Не вставляйте реальные карточки и секреты.
+  - type: textarea
+    id: regression
+    attributes:
+      label: Регрессионная проверка
+      description: Как доказать исправление и отсутствие повторения.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Безопасность
+      options:
+        - label: В описании нет токенов, паролей и закрытых данных.
+          required: true

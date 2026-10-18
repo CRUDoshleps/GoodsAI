@@ -1,0 +1,46 @@
+name: Архитектурное решение
+description: Выбор контракта, схемы, технологии или политики до реализации
+title: "[ARCH-ID] Решить вопрос"
+labels:
+  - "type:architecture"
+  - "status:backlog"
+  - "needs:decision"
+body:
+  - type: input
+    id: task_id
+    attributes:
+      label: Task ID
+      placeholder: ARCH-001
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Контекст и ограничение
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Варианты
+      description: Для каждого варианта укажите качество, стоимость, сложность и путь отказа.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Основания
+      description: Измерения, документация, статья или воспроизводимый прототип.
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Предлагаемое решение
+      description: Можно оставить пустым до обсуждения.
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Последствия и rollback
+    validations:
+      required: true
