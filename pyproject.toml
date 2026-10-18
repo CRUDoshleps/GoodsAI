@@ -21,4 +21,4 @@ goodsai-serve = "goodsai.api:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-goodsai = ["baseline.json"]
+goodsai = ["baseline.json", "examples/synthetic/*.json", "examples/synthetic/*.jsonl"]
