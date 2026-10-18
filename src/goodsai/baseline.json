@@ -1,8 +1,10 @@
 {
   "schema_version": "0.1",
-  "rules_version": "rules-0.2.1-model-boundaries",
+  "rules_version": "rules-0.3.0-m2-policy",
   "model_brand_aliases": ["Galaxy Line"],
-  "dictionary_version": "manual-public-brand-and-color-names-v1",
+  "dictionary_version": "manual-reviewed-brand-and-color-names-v2",
+  "brand_subbrands": {"Xiaomi": ["Redmi"]},
+  "color_modifiers": {"prefix": ["Prestige", "Misty"], "suffix": ["Matte"]},
   "seed": "goodsai-e1-v1",
   "categories": {
     "761": ["brand", "model", "storage_gb", "ram_gb", "screen_inches", "battery_mah", "color"],
@@ -26,7 +28,9 @@
     "DEXP": ["Dexp"], "GALAXY": ["Galaxy"], "MAUNFELD": ["Maunfeld"],
     "Econ": ["Econ"], "Hyundai": ["Hyundai"], "Starwind": ["Starwind"],
     "Endever": ["Endever"], "Supra": ["Supra"], "Oursson": ["Oursson"],
-    "Haier": ["Haier"], "Hisense": ["Hisense"]
+    "Haier": ["Haier"], "Hisense": ["Hisense"],
+    "Galaxy Line": ["Galaxy Line"], "Sonnen": ["Sonnen"],
+    "Weissgauff": ["Weissgauff"], "Аксинья": ["Аксинья"]
   },
   "colors": {
     "черный": ["черный", "чёрный", "черная", "чёрная", "black"],
@@ -44,6 +48,14 @@
     "золотой": ["золотой", "золотистый", "gold"],
     "бежевый": ["бежевый", "бежевая", "beige"],
     "оранжевый": ["оранжевый", "оранжевая", "orange"],
-    "коричневый": ["коричневый", "коричневая", "brown"]
+    "коричневый": ["коричневый", "коричневая", "brown"],
+    "глубокий синий": ["глубокий синий", "deep blue"],
+    "бронзовый": ["бронзовый", "бронзовая", "бронзового", "bronze"],
+    "ультрамарин": ["ультрамарин", "ultramarine"],
+    "титановый": ["титановый", "титановая", "titanium"],
+    "лавандовый": ["лавандовый", "лавандовая", "lavender"],
+    "серо-зеленый": ["серо-зеленый", "серо-зелёный", "серо зеленый", "gray-green", "grey-green"],
+    "серебристо-голубой": ["серебристо-голубой", "серебристо голубой", "silver-blue", "Silverblue", "Titanium Silverblue"],
+    "серебристо-черный": ["серебристо-черный", "серебристо-чёрный", "серебристо черный", "silver-black"]
   }
 }

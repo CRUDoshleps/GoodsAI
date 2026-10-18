@@ -4,8 +4,8 @@ import re
 
 from goodsai.contracts import Product
 from goodsai.model_rules import ModelRules
-from goodsai.normalize import NUMBER, UNITS, model_name, number, numeric
-from goodsai.text import segments, visible_view
+from goodsai.normalize import NUMBER, UNITS, model_name, numeric
+from goodsai.text import visible_view
 
 
 @dataclass(frozen=True)
@@ -22,7 +22,7 @@ class Candidate:
 
 
 def bounded_alias(alias: str) -> str:
-    return r"(?<!\w)" + re.escape(alias) + r"(?!\w)"
+    return r"(?<!\w)" + re.escape(alias).replace(r"\ ", r"[^\S\n]+") + r"(?!\w)"
 
 
 def uncertain(text: str, start: int) -> bool:
@@ -50,7 +50,8 @@ class Rules:
             "capacity_l": re.compile(rf"(?<![\w.,])(?P<n>{NUMBER})\s*(?P<u>мл|ml|литр\w*|л|L)(?!\w)", re.I),
             "power_w": re.compile(rf"(?<![\w.,])(?P<n>{NUMBER})\s*(?P<u>кВт|kW|Вт|W)(?!\w)", re.I),
         }
-        self.pair = re.compile(r"(?<![\w/])(?P<ram>\d{1,3})\s*[/+]\s*(?P<rom>\d{2,4})\s*(?:GB|ГБ)(?!\w)", re.I)
+        self.pair = re.compile(r"(?<![\w/])(?P<ram>\d{1,3})(?:\s*(?:GB|ГБ))?\s*[/+]\s*"
+                               r"(?P<rom>\d{2,4})\s*(?:GB|ГБ)(?!\w)", re.I)
         self.roles = {
             "ram_gb": re.compile(r"оперативн\w*|\bОЗУ\b|\bRAM\b", re.I),
             "storage_gb": re.compile(r"встроенн\w*|постоянн\w*|\bROM\b|накопител\w*", re.I),
@@ -63,20 +64,51 @@ class Rules:
                          offset + match.start(), offset + match.end(), match.group(), score, rule)
 
     def brand(self, product: Product):
-        # The first explicit manufacturer in a title wins over model names such as Galaxy/Redmi.
+        # Prefer a configured adjacent subbrand, never a brand mentioned later
+        # in a comparison, compatibility phrase or another product name.
         matches = []
-        for offset, text in segments(product.title):
-            for canonical, pattern in self.aliases["brands"]:
-                if product.category_id == "761" and canonical == "GALAXY":
-                    continue  # A kettle manufacturer, but a model family in smartphone titles.
-                for m in pattern.finditer(text):
-                    if uncertain(text, m.start()) or re.search(r"\b(?:для|совместим\w*)\b", text[:m.start()], re.I):
-                        continue
-                    if offset + m.start() < 65:
-                        matches.append((offset + m.start(), -len(m.group()), canonical, offset, text, m))
+        text, positions = visible_view(product.title)
+        for canonical, pattern in self.aliases["brands"]:
+            if product.category_id == "761" and canonical in {"GALAXY", "Galaxy Line"}:
+                continue  # These kettle brands are not smartphone manufacturers.
+            for m in pattern.finditer(text):
+                if uncertain(text, m.start()) or re.search(r"\b(?:для|совместим\w*)\b", text[:m.start()], re.I):
+                    continue
+                if m.start() < 65:
+                    matches.append((m.start(), -len(m.group()), canonical, m))
         if matches:
-            _, _, canonical, offset, text, m = min(matches, key=lambda x: x[:2])
-            yield self.make("brand", canonical, "title", offset, text, m, "brand.explicit-title.v1", 0.85)
+            _, _, canonical, m = min(matches, key=lambda x: x[:2])
+            rule = "brand.explicit-title.v1"
+            children = self.config.get("brand_subbrands", {}).get(canonical, [])
+            adjacent = [item for item in matches if item[2] in children and item[0] >= m.end()
+                        and re.fullmatch(r"[^\S\n]+", text[m.end():item[0]])]
+            if adjacent:
+                _, _, canonical, m = min(adjacent, key=lambda x: x[:2])
+                rule = "brand.explicit-subbrand.v2"
+            first, last = positions[m.start()], positions[m.end() - 1]
+            if first is not None and last is not None and all(positions[m.start():m.end()]):
+                yield Candidate("brand", canonical, None, "title", first[0], last[1],
+                                product.title[first[0]:last[1]], 0.85, rule)
+
+    def color_evidence_span(self, text: str, start: int, end: int) -> tuple[int, int]:
+        """Keep approved marketing/texture words and adjacent generic labels.
+
+        These words are evidence only, never extra colors or inferred shades.
+        v0.1 can represent only one contiguous span in one input field.
+        """
+        modifiers = self.config.get("color_modifiers", {})
+        generic = r"многоцветн\w*|multicolou?red"
+        before = "|".join(re.escape(s) for s in modifiers.get("prefix", []))
+        after = "|".join(re.escape(s) for s in modifiers.get("suffix", []))
+        prefix = re.search(r"(?<!\w)(?:" + generic + ("|" + before if before else "")
+                           + r")(?:(?:[^\S\n])|[,(/-])+$", text[:start], re.I)
+        if prefix:
+            start = prefix.start()
+        suffix = re.match(r"(?:(?:[^\S\n])|[,)/-])+(?:" + generic + ("|" + after if after else "")
+                          + r")(?!\w)", text[end:], re.I)
+        if suffix:
+            end += suffix.end()
+        return start, end
 
     def colors(self, field: str, offset: int, text: str):
         found = [(canonical, m) for canonical, pattern in self.aliases["colors"]
@@ -86,14 +118,33 @@ class Rules:
                    and other.end() - other.start() > m.end() - m.start() for _, other in found):
                 continue  # Do not turn dark blue into two colors.
             prefix = text[max(0, m.start() - 20):m.start()]
-            if re.search(r"(?:\w+-|\b(?:темно|тёмно|светло|ярко|бледно|dark|light)\s+)$", prefix, re.I):
+            if re.search(r"(?:\w+-|\b(?:темно|тёмно|светло|ярко|бледно|глубок\w*|насыщенн\w*|dark|light|deep)\s+)$", prefix, re.I):
                 continue  # An unconfigured shade/compound is not the basic color.
             local = context(text, m.start(), m.end(), 30)
             if uncertain(text, m.start()) or re.search(r"подсветк|индикатор|упаковк|кнопк|шнур|ручк", local, re.I):
                 continue
             if field == "description" and not re.search(r"цвет\w*|корпус\w*", local, re.I):
                 continue
-            yield self.make("color", canonical, field, offset, text, m, "color.explicit.v1", 0.75)
+            if canonical == "титановый":
+                # A material word is not a color. Description needs a color
+                # label in the same clause; a bare title variant is allowed.
+                clause_start = max(text.rfind(char, 0, m.start()) for char in ".;\n") + 1
+                before = text[clause_start:m.start()][-35:]
+                if re.search(r"\b(?:материал\w*|material|из)\b", before, re.I):
+                    continue
+                if field == "description" and not re.search(r"\bцвет\w*", before, re.I):
+                    continue
+                if re.search(r"\b(?:корпус\w*|body|case)\b", before, re.I) and not re.search(r"\bцвет\w*", before, re.I):
+                    continue
+                if re.match(r"\s+(?:корпус\w*|сплав\w*|материал\w*)\b", text[m.end():], re.I):
+                    continue
+                following = re.match(r"[^\S\n]+([A-Za-zА-Яа-яЁё]+)", text[m.end():])
+                if (following and not re.fullmatch(r"многоцветн\w*|multicolou?red|Matte", following[1], re.I)
+                        and not any(other.start() == m.end() + following.start(1) for _, other in found)):
+                    continue  # Do not silently drop an unknown shade qualifier.
+            start, end = self.color_evidence_span(text, m.start(), m.end())
+            yield Candidate("color", canonical, None, field, offset + start, offset + end,
+                            text[start:end], 0.75, "color.explicit.v2")
 
     def memory_role(self, text: str, start: int, end: int) -> str | None:
         found = []
@@ -125,8 +176,6 @@ class Rules:
             if any(p.start() <= m.start() < p.end() for p in pairs) or uncertain(text, m.start()):
                 continue
             role = self.memory_role(text, m.start(), m.end())
-            if role is None and field == "title" and number(m["n"]) >= 32:
-                role = "storage_gb"
             if role not in {"ram_gb", "storage_gb"}:
                 continue
             try:

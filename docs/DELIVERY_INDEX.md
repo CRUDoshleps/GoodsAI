@@ -1,6 +1,12 @@
 # GoodsAI — индекс воспроизведения и сдачи
 
-18 октября 2026, demo из `feature/vlad-reproducible-demo` (main через PR #8),
+19 октября 2026: [policy fixes M2](research/m2_policy_fixes_results.md)
+реализованы в feature/vlad-m2-policy-fixes, rules-0.3.0-m2-policy,
+82 tests и demo 6/6 на Windows. M2 F1 90,8% — development, не holdout.
+Передача — через PR в main по разрешению пользователя; SHA/state проверять
+через Git/PR. Эта runtime-версия ещё не проверена на ВМ.
+
+История: demo из `feature/vlad-reproducible-demo` (main через PR #8),
 публикация outputs R3 из `feature/vlad-atomic-output`, пакет 0.1.0,
 контракт E1 v0.1; M1 с исправлениями — правила rules-0.2.1-model-boundaries.
 [Сравнение M1](research/model_stage_results.md) сохранено;
@@ -12,7 +18,8 @@ C P/R/F1 95,1/69,9/80,6%, 12 новых model TP без новых FP относ
 M2 не является ML/LLM-экспериментом или независимой оценкой; runtime не менялся.
 Индекс описывает фактически существующее
 и открытые пункты. Изменения передаются через указанные feature-ветки;
-фактический commit проверяется через Git. На ВМ эта demo-версия не устанавливалась.
+фактический commit проверяется через Git. Для опубликованного M2 пользователь
+показал на ВМ 69 tests OK / active / health ok; это не проверка новых policy fixes.
 Требования: [REQUIREMENTS_AND_DELIVERY](REQUIREMENTS_AND_DELIVERY.md).
 
 ## Шесть артефактов

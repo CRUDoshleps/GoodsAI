@@ -46,6 +46,17 @@ class ApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.json()["status"], "unsupported_category")
         self.assertEqual(response.json()["attributes"], [])
 
+    async def test_agreed_m2_policies_match_core(self):
+        product = self.product | {"title": "Xiaomi Redmi Nebula Q88 256GB Ultramarine"}
+        response = await self.client.post("/predict", json=product)
+        self.assertEqual(response.status_code, 200)
+        expected = Extractor(load_config()).predict(Product.from_dict(product), run_id="http-rules-v0")
+        self.assertEqual(response.json(), expected)
+        attrs = {a["attribute"]: a for a in response.json()["attributes"]}
+        self.assertEqual(attrs["brand"]["value"], "Redmi")
+        self.assertEqual(attrs["color"]["value"], "ультрамарин")
+        self.assertIsNone(attrs["storage_gb"]["value"])
+
     async def test_targets_and_invalid_products_rejected(self):
         for invalid in [dict(self.product, vendor="secret"),
                         dict(self.product, seller_attributes=[{"brand": "secret"}]),

@@ -46,7 +46,7 @@ class BaselineTests(unittest.TestCase):
         self.assertEqual(a["model"]["reason_codes"], ["not_found_by_rules"])
 
     def test_conflicting_memory_abstains(self):
-        a = self.attributes(self.product(title="Смартфон Samsung Test 256GB", description="Встроенная память 128 ГБ."))
+        a = self.attributes(self.product(title="Смартфон Samsung Test ROM 256GB", description="Встроенная память 128 ГБ."))
         self.assertEqual(a["storage_gb"]["decision"], "abstain")
         self.assertEqual(a["storage_gb"]["reason_codes"], ["conflicting_evidence"])
 
