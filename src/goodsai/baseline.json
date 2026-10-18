@@ -1,6 +1,7 @@
 {
   "schema_version": "0.1",
-  "rules_version": "rules-0.1.0",
+  "rules_version": "rules-0.2.1-model-boundaries",
+  "model_brand_aliases": ["Galaxy Line"],
   "dictionary_version": "manual-public-brand-and-color-names-v1",
   "seed": "goodsai-e1-v1",
   "categories": {

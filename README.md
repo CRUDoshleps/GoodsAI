@@ -84,15 +84,16 @@ JSONL означает: каждая строка — отдельный JSON-о
 
 | Синтетический сценарий | Ожидаемый результат |
 | --- | --- |
-| demo-phone | processed; Samsung, 256 GB, 8 GB RAM, 6.5 inch, 5000 mAh, черный |
-| demo-kettle | processed; Tefal, 1700 мл → 1.7 L, 2,2 кВт → 2200 W, белый |
+| demo-phone | processed; Samsung, model=Demo X82, 256 GB, 8 GB RAM, 6.5 inch, 5000 mAh, черный |
+| demo-kettle | processed; Tefal, model=KX-82, 1700 мл → 1.7 L, 2,2 кВт → 2200 W, белый |
 | demo-conflict | processed; storage_gb=null, abstain, conflicting_evidence |
 | demo-missing | processed; все запрошенные значения null/abstain |
 | demo-unknown | unsupported_category; attributes=[] |
 | demo-invalid | invalid_input; attributes=[]; строка 6 с title=42 нарушает контракт |
 
-Итого: **4 processed, 1 unsupported_category, 1 invalid_input**, 11 кандидатов
-review и 13 отказов abstain среди 24 запрошенных пар. `processed` означает,
+Итого: **4 processed, 1 unsupported_category, 1 invalid_input**, 13 кандидатов
+review и 11 отказов abstain среди 24 запрошенных пар. demo-phone извлекает
+model=Demo X82. `processed` означает,
 что карточка обработана, и не обещает наличия найденных значений. Невалидная
 карточка в демо намеренная; если исходы отличаются, команда завершится ошибкой.
 
@@ -107,7 +108,7 @@ review и 13 отказов abstain среди 24 запрошенных пар.
 на строку. Пример содержимого одной строки:
 
 ```json
-{"schema_version":"0.1","sku_id":"my-phone","category_id":"761","title":"Смартфон Samsung Demo 8/256GB черный","description":"Аккумулятор 5000 мАч.","seller_attributes":[]}
+{"schema_version":"0.1","sku_id":"my-phone","category_id":"761","title":"Смартфон Samsung Demo X82 8/256GB черный","description":"Аккумулятор 5000 мАч.","seller_attributes":[]}
 ```
 
 `sku_id` — твой строковый идентификатор, `category_id` — строка `761` для
@@ -140,16 +141,28 @@ invalid_input; проверяй status каждой строки, даже ес�
 
 ## Измеренное качество и комплект сдачи
 
-На реальном **AI-assisted human-reviewed** validation reviewed-v2:
+Первый инкремент `model` проверен локально в `feature/vlad-model-rules`.
+На **AI-assisted human-reviewed** validation reviewed-v2 после фиксации правил:
 
-| Карточки | Judged-пары | TP / FP / FN | Precision | Recall | micro-F1 |
-| ---: | ---: | --- | ---: | ---: | ---: |
-| 12 | 67 | 29 / 1 / 21 | 96,7% | 58,0% | 72,5% |
+| Вариант | Карточки | Judged-пары | TP / FP / FN | Precision | Recall | micro-F1 |
+| --- | ---: | ---: | --- | ---: | ---: | ---: |
+| Baseline до model | 12 | 67 | 29 / 1 / 21 | 96,7% | 58,0% | 72,5% |
+| M1: правила model | 12 | 67 | 35 / 3 / 15 | 92,1% | 70,0% | 79,5% |
+| M1: исправление границ | 12 | 67 | 36 / 1 / 14 | 97,3% | 72,0% | 82,8% |
+
+Первый M1 добавил две ошибки model; после разбора одна исправлена, вторая
+заменена отказом. **Последняя строка — результат на использованной обратной
+связи, а не независимый validation:** исправления учитывали найденные ошибки.
+Ранее правильные значения не потеряны на этих карточках. На development
+по-прежнему исправлены 8 из 9 model FN без новых FP. Это ограниченный
+review-only baseline; независимая оценка и расширенная проверка ещё нужны.
+[Исправления, сравнение с M1 и команды](docs/research/model_boundary_fix_results.md);
+[первоначальный M1](docs/research/model_stage_results.md) сохранён как история.
 
 Reference целиком содержит 22 полные проверки; development — ещё 10 карточек,
 57 judged-пар, он не включён в строку выше. Выборка малая и неслучайная;
 validation участвовал в обсуждении политики и не является независимым holdout.
-Эти исторические метрики не пересчитываются демо и не относятся ко всему каталогу.
+Эти метрики не пересчитываются демо и не относятся ко всему каталогу.
 Candidate coverage не равно precision; auto-accepted coverage текущего E1 — 0.
 
 Per-attribute/per-category P/R/F1, support, coverage и SHA:
@@ -236,10 +249,14 @@ Linux:
 .venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v
 ```
 
-Для текущей версии ожидаются 42 основных и 3 reader tests, включая отдельные
-процессы для конкуренции и принудительного завершения записи. Локально проверены
-Windows/Python 3.12.6, запуск демо из wheel в чистом окружении и вне репозитория.
-Эта новая demo-версия на Linux/ВМ ещё не проверялась и не устанавливалась.
+Для текущей версии проверены 59 основных tests на Windows/Python 3.12.6,
+включая отдельные процессы для конкуренции и принудительного завершения записи
+и запуск demo вне репозитория.
+Новые M1-тесты включают фиксацию кода, A/B/C ablation и синтетический validation;
+3 reader tests относятся к неизменённому исследовательскому reader и в M1 не
+перезапускались. Wheel текущего исправленного M1 собран и проверен через отдельный
+каталог установки и изолированный запуск demo вне checkout. Эта M1-версия
+на Linux/ВМ не проверялась и не устанавливалась.
 
 ## Для разработчиков
 
@@ -282,7 +299,7 @@ Windows/Python 3.12.6, запуск демо из wheel в чистом окру
   "schema_version": "0.1",
   "sku_id": "demo-phone",
   "category_id": "761",
-  "title": "Смартфон Samsung Demo 8/256GB черный",
+  "title": "Смартфон Samsung Demo X82 8/256GB черный",
   "description": "Диагональ экрана 6,5 дюйма; аккумулятор 5000 мАч.",
   "seller_attributes": [],
   "source_flags": []
@@ -296,7 +313,7 @@ Windows/Python 3.12.6, запуск демо из wheel в чистом окру
 ```json
 {
   "schema_version": "0.1",
-  "run_id": "7ea0515dfbe78d18542e",
+  "run_id": "eacb6e71074715490849",
   "sku_id": "demo-phone",
   "category_id": "761",
   "status": "processed",
@@ -320,17 +337,20 @@ Windows/Python 3.12.6, запуск демо из wheel в чистом окру
     },
     {
       "attribute": "model",
-      "value": null,
+      "value": "Demo X82",
       "unit": null,
-      "confidence": null,
+      "confidence": 0.8,
       "confidence_kind": "heuristic",
-      "decision": "abstain",
+      "decision": "review",
       "method": "rule",
-      "rule_id": null,
-      "evidence": null,
-      "reason_codes": [
-        "rule_not_implemented"
-      ]
+      "rule_id": "model.phone-title.v2",
+      "evidence": {
+        "field": "title",
+        "start": 17,
+        "end": 25,
+        "text": "Demo X82"
+      },
+      "reason_codes": []
     },
     {
       "attribute": "storage_gb",
@@ -343,8 +363,8 @@ Windows/Python 3.12.6, запуск демо из wheel в чистом окру
       "rule_id": "memory.title-pair.v1",
       "evidence": {
         "field": "title",
-        "start": 22,
-        "end": 29,
+        "start": 26,
+        "end": 33,
         "text": "8/256GB"
       },
       "reason_codes": []
@@ -360,8 +380,8 @@ Windows/Python 3.12.6, запуск демо из wheel в чистом окру
       "rule_id": "memory.title-pair.v1",
       "evidence": {
         "field": "title",
-        "start": 22,
-        "end": 29,
+        "start": 26,
+        "end": 33,
         "text": "8/256GB"
       },
       "reason_codes": []
@@ -411,8 +431,8 @@ Windows/Python 3.12.6, запуск демо из wheel в чистом окру
       "rule_id": "color.explicit.v1",
       "evidence": {
         "field": "title",
-        "start": 30,
-        "end": 36,
+        "start": 34,
+        "end": 40,
         "text": "черный"
       },
       "reason_codes": []
@@ -425,6 +445,9 @@ Windows/Python 3.12.6, запуск демо из wheel в чистом окру
 поле и точный raw-фрагмент с zero-based, end-exclusive offsets. `confidence`
 с `confidence_kind=heuristic` — инженерный score, **не вероятность**.
 Найденные значения остаются `review`; автоматического принятия нет.
-`model=null` с `rule_not_implemented` — известная граница текущего baseline.
+`model` извлекается из однозначных названий/индексов и явного поля «Модель:».
+Неясная граница имени даёт abstain с `not_found_by_rules`; разные явные
+модели дают `conflicting_evidence`. Неясные серии остаются в отказе;
+новые формы имён требуют проверки.
 При abstain value/unit/confidence/evidence равны null, причина — в reason_codes.
 Точный span доказывает источник текста, но не истинность характеристики.

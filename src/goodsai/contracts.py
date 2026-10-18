@@ -5,7 +5,8 @@ import json
 import math
 from pathlib import Path
 
-from goodsai.normalize import UNITS, numeric
+from goodsai.normalize import UNITS, model_name, numeric
+from goodsai.text import visible_span
 
 
 def load_config(path: str | None = None) -> dict:
@@ -75,7 +76,7 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None)
         if a.get("decision") != "review" or a.get("confidence_kind") != "heuristic":
             raise ValueError("Uncalibrated baseline can only return heuristic review candidates")
         score = a.get("confidence")
-        if not isinstance(score, (int, float)) or not math.isfinite(score) or not 0 <= score <= 1:
+        if type(score) not in (int, float) or not math.isfinite(score) or not 0 <= score <= 1:
             raise ValueError("Invalid heuristic score")
         if not isinstance(a.get("value"), str) or not a["value"]:
             raise ValueError("Candidate value must be a nonempty string")
@@ -90,5 +91,7 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None)
             raise ValueError("Invalid evidence")
         if product:
             source = getattr(product, e["field"]) or ""
-            if source[e["start"]:e["end"]] != e["text"]:
+            if e["end"] > len(source) or source[e["start"]:e["end"]] != e["text"]:
                 raise ValueError("Evidence does not match original text")
+            if a["attribute"] == "model" and model_name(visible_span(source, e["start"], e["end"])) != a["value"]:
+                raise ValueError("Model value is not the approved normalization of visible evidence")

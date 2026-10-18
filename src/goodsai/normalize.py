@@ -9,6 +9,11 @@ BOUNDS = {"storage_gb": (1, 4096), "ram_gb": (1, 128), "screen_inches": (3, 10.5
 NUMBER = r"\d{1,4}(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d{1,3})?"
 
 
+def model_name(visible: str) -> str:
+    """Only whitespace changes are approved for explicit commercial names."""
+    return " ".join(visible.split())
+
+
 def number(value: str) -> Decimal:
     cleaned = re.sub(r"[ \u00a0\u202f]", "", value).replace(",", ".")
     try:

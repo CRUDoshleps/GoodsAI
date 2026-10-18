@@ -27,8 +27,8 @@ class ApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("requestBody", schema["paths"]["/predict"]["post"])
 
     async def test_same_predictions_as_cli_core(self):
-        for category, title in [("761", "Samsung Example 8/256GB"),
-                                ("482", "Чайник Bosch Example 1,7 л 2200 Вт")]:
+        for category, title in [("761", "Samsung Orbit X82 8/256GB"),
+                                ("482", "Чайник Bosch KX-82 1,7 л 2200 Вт")]:
             with self.subTest(category=category):
                 self.product.update(category_id=category, title=title)
                 response = await self.client.post("/predict", json=self.product)
@@ -36,6 +36,8 @@ class ApiTests(unittest.IsolatedAsyncioTestCase):
                 expected = Extractor(load_config()).predict(Product.from_dict(self.product),
                                                            run_id="http-rules-v0")
                 self.assertEqual(response.json(), expected)
+                model = next(a for a in response.json()["attributes"] if a["attribute"] == "model")
+                self.assertEqual(model["value"], "Orbit X82" if category == "761" else "KX-82")
 
     async def test_unknown_category_is_domain_response(self):
         self.product["category_id"] = "unknown"

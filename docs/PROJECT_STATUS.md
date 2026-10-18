@@ -1,7 +1,12 @@
 # GoodsAI — состояние проекта и вход для команды
 
 Актуализировано: **18 октября 2026 года, Europe/Moscow**. Состояние: рабочий E1 baseline; заморожены 22 AI-assisted human-reviewed карточки в reviewed-v2, выполнена отдельная development/validation-оценка. Независимой gold/test-оценки ещё нет.
-Рабочий каталог: `C:\Users\vladn\projects\GoodsAI`; текущая ветка задачи R3: `feature/vlad-atomic-output`; базовый коммит настройки: `cf16e59` (`chore: initialize local development environment`).
+Рабочий каталог: `C:\Users\vladn\projects\GoodsAI`; ветка M1: `feature/vlad-model-rules`; база `5f77d81`, подготовлена публикация M1 с исправлениями границ. Фактический commit/состояние передачи проверять через Git и PR. Базовый коммит настройки: `cf16e59` (`chore: initialize local development environment`).
+Реализация M1 и исправления опубликованы коммитом `a3f254a` в feature-ветке;
+передача в main — [PR #10](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/10).
+Перед публикацией live Gitea подтвердила отсутствие новых коммитов/веток команды;
+перед merge эта проверка повторяется. Фактический merged state и итоговый SHA —
+в PR/Git, здесь не объявляется заранее. ВМ этим выпуском не обновлялась.
 **Baseline, EDA, тесты и актуальные отчёты опубликованы в Gitea main через [PR #2](https://git.hub.gigaschool.ru/tochka-sborki-2026-team-054/project/pulls/2), merge-коммит `b3b3d55d05a276aa1db3e333fee7cc24d1c6a139`.** В него вошли baseline `c3feee2`, handoff `5e6160e` и документационный релиз `5d41970`. Текущий HEAD, включая последующие изменения статуса, проверять через Git.
 Для следующего этапа используется новая ветка от актуального main; доступность её коммита проверять после push сравнением локального и удалённого SHA. Старая feature/vlad-setup слита в main; исторические упоминания ниже относятся к прежнему этапу.
 17 октября пользователь явно разрешил commit/push и интеграцию в main через PR. После push `5d41970` PR #2 обновлён и слит без принудительного merge; API подтвердил `merged=true`, fetch — `origin/main=b3b3d55`. Tree main совпал с проверенной feature-версией, baseline и документы присутствуют, Git-данные/секреты не добавлены. Рабочая feature-ветка затем fast-forward обновлена до merge-коммита; локальный main не переключался и история не переписывалась. Вкладка платформы «Последний push в Gitea» инструментально не проверена.
@@ -30,6 +35,30 @@ OS-блокировки и журнал восстановления predictions
 [восстановление output](runbooks/output_recovery.md). На Windows прошли **42+3 tests**,
 demo 6/6; POSIX/ВМ этого R3-релиза не проверены. Передача реальных predictions,
 проектирование verifier/policy и модельный этап остаются впереди.
+18 октября подготовлен [план функционального этапа model](research/model_extraction_stage_plan.md):
+сначала явная модель + минимальные проверки + измерение, затем расширение reference
+и реальный LLM fallback через выданный организаторами шлюз.
+Уточнение пользователя и скриншот 18 октября подтвердили Base URL,
+переменные OPENAI_BASE_URL/OPENAI_API_KEY на ВМ, список моделей/тарифов и
+дневной лимит 100 ₽. План скорректирован: шлюз — основной путь, локальные веса —
+резерв. Предложенный бюджет первого опыта до 10 ₽ ещё не потрачен агентом;
+работоспособность ключа и API не проверялась, секреты не читались.
+M1 реализован локально после согласования нормализации: явные model-правила,
+проверки кандидатов/видимого evidence, синтетические тесты и сравнение A/B/C.
+Development: TP/FP/FN 18/1/19 → 26/1/11, F1 64,3% → 81,3%; model 8 TP,
+0 FP, 1 FN. После фиксации кода validation: 29/1/21 → 35/3/15,
+F1 72,5% → 79,5%, precision **96,7% → 92,1%**: два новых model FP.
+Это сохранённая исходная версия: [отчёт M1](research/model_stage_results.md).
+Затем пользователь разрешил исправление двух ошибок: один случай исправлен,
+второй заменён отказом; прежних TP не потеряно. На использованном feedback-срезе
+36/1/14, P=97,3%, R=72,0%, F1=82,8%; model 7 TP / 0 FP / 5 FN.
+Development не ухудшился. Validation теперь явно используется как обратная
+связь разработки, не независимый holdout. [Отчёт исправлений](research/model_boundary_fix_results.md).
+Остальные атрибуты не изменились; baseline A совпал с историческими predictions
+на обоих срезах без учёта run_id. 59 tests прошли, demo 6/6, CLI/API parity
+проверена на обеих категориях. M2/M3, независимый test, LLM и изменение ВМ
+не выполнялись. Пользователь разрешил PR/публикацию при отсутствии новых веток
+или коммитов команды; проверка live Gitea обязательна перед merge.
 README дополнительно проверен по командам: Windows demo (6/6), просмотр JSONL/
 summary, batch своей карточки и Invoke-RestMethod health/predict к локальному
 серверу на 8000 выполнены успешно. Полный JSON соответствует коду; Bash-блоки
@@ -66,7 +95,7 @@ ExecStart на 0.0.0.0:8000, проверка Linger=yes прошла, health в
 
 **Текущая ручная часть — `review.human-reviewed.v6.jsonl`: 22 полные проверки / 130 пар (10 development, 12 validation).** В раунде 5 пользователь подтвердил R17/R19/R21/R22/R23; происхождение — `review.round5.feedback.json`, контрольные суммы — `review.manifest.v6.json`. Полный AI-набор v4 и прежний human-v5 не перезаписаны. R03/R04 остаются частичными: десятичное 1 TB = 1000 GB явно одобрено, универсальный GB default для RAM не утверждён, трактовка написания Tb отдельно не согласована. Голые числа и ошибочные единицы рекомендуется отправлять на review; в R19 объём остаётся unjudgeable, внешние литры не подставлены. Новая runtime-логика здесь не внедрялась.
 
-**Текущая оценка — [reviewed-v2](research/baseline_evaluation_v2.md)**: `data/gold/e1/reviewed/reviewed-v2/`, 10 development / 57 judged и 12 validation / 67 judged; исключены 5 ambiguous и 1 unjudgeable. Validation: TP=29, FP=1, FN=21; **P=96,7%, R=58,0%, F1=72,5%**. Development: TP=18, FP=1, FN=19; F1=64,3%. Изменился набор карточек, а не метод; сравнение с v1 не доказывает прирост/деградацию baseline. В development model объясняет 9 FN. Два оставшихся случая — локальный `outputs/evaluation/reviewed-v2/pending_review.md`. Данные/метрики/SKU остаются вне Git.
+**Исходная оценка baseline — [reviewed-v2](research/baseline_evaluation_v2.md)**: `data/gold/e1/reviewed/reviewed-v2/`, 10 development / 57 judged и 12 validation / 67 judged; исключены 5 ambiguous и 1 unjudgeable. Validation: TP=29, FP=1, FN=21; **P=96,7%, R=58,0%, F1=72,5%**. Development: TP=18, FP=1, FN=19; F1=64,3%. Изменился набор карточек, а не метод; сравнение с v1 не доказывает прирост/деградацию baseline. В development model объясняет 9 FN. Два оставшихся случая — локальный `outputs/evaluation/reviewed-v2/pending_review.md`. Данные/метрики/SKU остаются вне Git.
 
 История: этап [плана/промпта](research/next_stage_prompt.md) выполнен в [первой оценке и error analysis](research/first_baseline_evaluation.md). Сохранённый reviewed-v1: 9 development / 52 judged и 8 validation / 48 judged; validation F1=74,6%. Прежние 17 наборов меток в v2 не изменены. Обе версии — малые неслучайные AI-assisted выборки, validation участвовал в обсуждении политики, не независимый holdout.
 
@@ -101,7 +130,8 @@ GoodsAI решает кейс №3 М.Видео на хакатоне «Точ�
 | Реализовано и проверено локально | Временный HTTP-адаптер и CLI; пакетная подготовка двух категорий; text-only граница; правила, Decimal-нормализация, raw evidence, отказы/конфликты, JSONL, manifests, синтетические тесты |
 | Реализован механизм, но результат ещё не получен | Evaluator ручной разметки; группы/split-manifest; исходные 120 заданий сохранены. Отдельно подготовлена полная AI-разметка и выборка для review; независимая оценка качества отсутствует |
 | Частично | Бренды/цвета ограничены ручными словарями; правила покрывают часть формулировок; группировка точных/нормализованных дублей есть, аудит близких дублей ещё нужен |
-| Явно не реализовано | Извлечение `model`: всегда `abstain`; калибровка, интервалы метрик, отдельная span-conditioned метрика нормализации, ML/LLM-вызовы, обучение, автоматическая запись, UI/очередь review |
+| Реализовано в M1 с ограничениями | Явное model из title/поля «Модель:»; после исправлений на feedback-срезе 7 TP, 0 FP, 5 FN; независимая оценка ещё нужна |
+| Явно не реализовано | Калибровка, интервалы метрик, отдельная span-conditioned метрика числовой нормализации, ML/LLM-вызовы, обучение, автоматическая запись, UI/очередь review |
 | Проверено на Linux ВМ | Установка GoodsAI 0.1.0/PyArrow 26.0.0 на Python 3.12.15 и 18+3 tests; systemd enabled/active и HTTP smoke подтверждены; реальный data-run ещё не проверен |
 | Не проверено | Перезагрузка ВМ/официальный API-тест; официальный формат предсказаний; полный required-список/справочники; полный охват каталога |
 | Гипотезы | Правила → LLM для остатка; локальный encoder; расширение на другие категории. Презентационный каскад не является реализованной системой |
@@ -124,6 +154,8 @@ GoodsAI решает кейс №3 М.Видео на хакатоне «Точ�
 | [storage.py](../src/goodsai/storage.py) | Неблокирующие OS locks, уникальные tempfile, recoverable predictions/manifest, snapshot reader | data/CLI/evaluator/demo; tests/test_storage.py |
 | [text.py](../src/goodsai/text.py) | HTML-строка → видимый текст + карта исходных координат; исключает script/style/attrs/comments | Rules; HTMLParser |
 | [rules.py](../src/goodsai/rules.py) | `Rules.candidates(Product)` → Candidate со значением, единицей, span, score и rule_id; бренд/цвет/память/числовые характеристики | text, normalize, config |
+| [model_rules.py](../src/goodsai/model_rules.py) | Консервативные model spans: коммерческое имя/индекс в title, явное «Модель:»; только текст/схема | Rules; tests/test_model.py |
+| [compare_model_stage.py](../scripts/research/compare_model_stage.py) | Снимок baseline A, ablation B, M1 C; отдельный text-only input, метрики/Δ/SHA; validation только из frozen development | Локальные data/outputs, tests/test_model_comparison.py |
 | [normalize.py](../src/goodsai/normalize.py) | Строка числа + unit + attribute → каноническая десятичная строка; bounds, L/ml, W/kW, GB | Rules, contracts, verifier, evaluator |
 | [verify.py](../src/goodsai/verify.py) | `Extractor.predict(Product, run_id)` → полный объект предсказания; объединяет совпадающие значения, конфликтующие отвергает | Rules, contracts, normalize |
 | [annotation.py](../src/goodsai/annotation.py) | Pilot + отдельная provenance [+ EDA sample] → связанные группы, split-manifest, пустые задания, отчёт отбора | Product, data; extractor не вызывается |
@@ -214,14 +246,14 @@ outputs/baseline/metrics.json                N/A до ручной размет�
 
 | Категория | Requested attributes | Не реализовано |
 | --- | --- | --- |
-| Смартфоны `761` | brand, model, storage_gb, ram_gb, screen_inches, battery_mah, color | model всегда abstain |
-| Чайники `482` | brand, model, capacity_l, power_w, color | model всегда abstain |
+| Смартфоны `761` | brand, model, storage_gb, ram_gb, screen_inches, battery_mah, color | model сложных имён/двойных брендов ограничен |
+| Чайники `482` | brand, model, capacity_l, power_w, color | словесная серия и технические коды неоднозначны |
 
 Rules используют явные фрагменты текста: `6/128GB`, контекст RAM/ROM, экран/дюймы, аккумулятор/мАч, объём/л, мощность/Вт, aliases цветов/брендов.
 Нормализация: Decimal, запятая/пробелы/NBSP; `1700 мл → 1.7 L`, `2,4 кВт → 2400 W`; числа остаются строками. TB и произвольные оттенки не поддержаны.
 Карта видимого HTML-текста переносит координаты в исходные поля; raw evidence может включать теги/entities между частями значения. Числа из href/script/style не используются.
 Одинаковые нормализованные кандидаты объединяются; несколько различных `(value, unit)` дают `conflicting_evidence`, выбор «первого ответа» запрещён.
-Нет кандидата → `not_found_by_rules`, а не доказанное отсутствие характеристики. Нет model-правила → `rule_not_implemented`.
+Нет кандидата, включая model → `not_found_by_rules`, а не доказанное отсутствие характеристики. `rule_not_implemented` относится к прежней версии.
 Все непустые ответы — `review`; нет автоматического принятия, реальной очереди проверки или записи в каталог.
 Confidence 0.75/0.8/0.85 — **эвристический score, не калиброванная вероятность**. Точное совпадение evidence доказывает источник, но не смысловую истинность.
 Усилить качество и безопасность можно только после оценки по независимым ручным меткам; текущий код не гарантирует отсутствие семантических ошибок.
@@ -257,7 +289,7 @@ Evidence: field=`title` или `description`, start/end — Unicode code points,
   "schema_version":"0.1", "run_id":"doc-example", "sku_id":"demo-001", "category_id":"482", "status":"processed",
   "attributes":[
     {"attribute":"brand","value":"Tefal","unit":null,"confidence":0.85,"confidence_kind":"heuristic","decision":"review","method":"rule","rule_id":"brand.explicit-title.v1","evidence":{"field":"title","start":14,"end":19,"text":"Tefal"},"reason_codes":[]},
-    {"attribute":"model","value":null,"unit":null,"confidence":null,"confidence_kind":"heuristic","decision":"abstain","method":"rule","rule_id":null,"evidence":null,"reason_codes":["rule_not_implemented"]},
+    {"attribute":"model","value":null,"unit":null,"confidence":null,"confidence_kind":"heuristic","decision":"abstain","method":"rule","rule_id":null,"evidence":null,"reason_codes":["not_found_by_rules"]},
     {"attribute":"capacity_l","value":"1.7","unit":"L","confidence":0.8,"confidence_kind":"heuristic","decision":"review","method":"rule","rule_id":"capacity_l.explicit.v1","evidence":{"field":"description","start":6,"end":11,"text":"1,7 л"},"reason_codes":[]},
     {"attribute":"power_w","value":null,"unit":null,"confidence":null,"confidence_kind":"heuristic","decision":"abstain","method":"rule","rule_id":null,"evidence":null,"reason_codes":["not_found_by_rules"]},
     {"attribute":"color","value":null,"unit":null,"confidence":null,"confidence_kind":"heuristic","decision":"abstain","method":"rule","rule_id":null,"evidence":null,"reason_codes":["not_found_by_rules"]}
@@ -339,8 +371,8 @@ Manifests сохраняют старый commit + dirty status и отдель�
 На время проверки разметки Владом подготовлено отдельное [распределение задач команды](TEAM_TASKS.md): A — Linux-воспроизводимость, B — изолированный прототип model, C — аудит split и вопросы по требованиям. Это рабочее предложение на трёх остальных участников; принятие задач исполнителями и выполнение не подтверждены. Разметка и изменения общей схемы остаются у Влада с Codex.
 
 P0 — препятствует честной оценке/сдаче; P1 — следующий прирост качества; P2 — после измерений. Backlog ниже — **предложение, не назначение участников и не разрешение на VM/API**.
-Общие blockers P0: нет независимого gold и полной официальной схемы/формата интеграции. Интеграция baseline/demo в main и установка/синтетические tests прежней версии на Linux ВМ выполнены; сервис на 8000 запущен пользователем через systemd. R1 и публичная часть R2 закрыты, R3 проверен локально; следующие приоритеты — проектирование R4/R7 и извлечение model (R6), оставшаяся передача реальных артефактов R2.
-Замеры H05 на доступной проверенной части выполнены, полный независимый reference H03 ещё не готов. Долг P1: model отсутствует (9 development FN в v2), цвета/бренды и числовой разбор ограничены; confidence не калиброван, near-duplicates не проверены. ML/LLM-опыт повышен до P0 подготовки / P1 интеграции (R7); интервалы метрик и span-conditioned normalization-оценка остаются после расширения reference.
+Общие blockers P0: нет независимого gold и полной официальной схемы/формата интеграции. Интеграция baseline/demo в main и установка/синтетические tests прежней версии на Linux ВМ выполнены; сервис на 8000 запущен пользователем через systemd. R1 и публичная часть R2 закрыты, R3 проверен локально; M1 (часть R4 + R6) выполнен локально, выпуск требует разбора FP и расширенной проверки M2, затем M3 из плана model. Передача реальных артефактов R2 остаётся открытой.
+Замеры H05 на доступной проверенной части выполнены, полный независимый reference H03 ещё не готов. M1 исправил 8 development model FN, но выявил 2 новых model FP на диагностическом validation; следующий долг — границы имени и расширенная проверка M2 до выпуска. Цвета/бренды и числовой разбор в M1 не менялись; confidence не калиброван, near-duplicates не проверены. ML/LLM-опыт остаётся подготовкой R7, не результатом M1.
 
 | ID | Приоритет / задача | Зависимости | Где работать | Критерий готовности | Независимость |
 | --- | --- | --- | --- | --- | --- |
@@ -412,4 +444,5 @@ Linux systemd verification и не запуск unit на ВМ. Включени
 
 Разделы проверки HTTP-адаптера и подготовки unit выше фиксируют состояние
 на момент разработки 17 октября. Последующий запуск пользователем отражён
-в начале документа и в протоколе ВМ. План после первого ревью пока не реализован.
+в начале документа и в протоколе ВМ. После первого ревью реализованы R1,
+публичная часть R2 и R3; следующий функциональный этап описан в плане model.

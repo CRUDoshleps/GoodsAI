@@ -42,7 +42,8 @@ class BaselineTests(unittest.TestCase):
         a = self.attributes(self.product(description="Поддержка карты памяти microSD до 512 ГБ. Частота экрана 120 Гц."))
         self.assertIsNone(a["storage_gb"]["value"])
         self.assertIsNone(a["screen_inches"]["value"])
-        self.assertEqual(a["model"]["reason_codes"], ["rule_not_implemented"])
+        self.assertIsNone(a["model"]["value"])
+        self.assertEqual(a["model"]["reason_codes"], ["not_found_by_rules"])
 
     def test_conflicting_memory_abstains(self):
         a = self.attributes(self.product(title="Смартфон Samsung Test 256GB", description="Встроенная память 128 ГБ."))

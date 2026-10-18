@@ -2,7 +2,11 @@
 
 18 октября 2026, demo из `feature/vlad-reproducible-demo` (main через PR #8),
 публикация outputs R3 из `feature/vlad-atomic-output`, пакет 0.1.0,
-контракт E1 v0.1, правила rules-0.1.0. Индекс описывает фактически существующее
+контракт E1 v0.1; M1 с исправлениями — правила rules-0.2.1-model-boundaries.
+[Сравнение M1](research/model_stage_results.md) сохранено;
+[две ошибки обработаны](research/model_boundary_fix_results.md) без потери прежних TP
+на просмотренных карточках. Этот feedback не является независимой оценкой.
+Индекс описывает фактически существующее
 и открытые пункты. Изменения передаются через указанные feature-ветки;
 фактический commit проверяется через Git. На ВМ эта demo-версия не устанавливалась.
 Требования: [REQUIREMENTS_AND_DELIVERY](REQUIREMENTS_AND_DELIVERY.md).
@@ -11,7 +15,7 @@
 
 | Артефакт | Где / воспроизведение | Состояние |
 | --- | --- | --- |
-| 1. Воспроизводимый код/ноутбук | [src/goodsai](../src/goodsai/), [pyproject](../pyproject.toml), [tests](../tests/); установка и demo-команда в README | Rules CLI + временный HTTP работают; модельный этап не реализован |
+| 1. Воспроизводимый код/ноутбук | [src/goodsai](../src/goodsai/), [pyproject](../pyproject.toml), [tests](../tests/); установка и demo-команда в README | Rules CLI + временный HTTP работают, model извлекается правилами; ML/LLM ещё нет |
 | 2. README | [README](../README.md): установка Windows/Linux, одна команда демо, полный пример входа/выхода, HTTP и ограничения | Демо не требует raw/gold; установка из wheel проверяется отдельно от editable |
 | 3. EDA | [dataset_findings](research/dataset_findings.md), [baseline_results](baseline_results.md), [research scripts](../scripts/research/) | Сохранённый анализ и происхождение; сырые данные/проекция не передаются Git. Точный порядок получения проекции — в baseline.md, повторный полный EDA для демо не нужен |
 | 4. Pipeline | [baseline](baseline.md), [контракт](research/architecture_and_contract.md), [cli](../src/goodsai/cli.py), [extractor](../src/goodsai/verify.py), [API](../src/goodsai/api.py) | title/description → rules → нормализация → verifier → JSONL/JSON; seller_attributes только [] |
