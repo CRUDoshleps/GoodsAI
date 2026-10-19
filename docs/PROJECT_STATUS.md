@@ -72,7 +72,9 @@ relation verifier и BASE-003. 223 основных tests — OK на macOS/Pyth
 без config_version явно мигрируются; ошибки конфигурации дают fail-fast.
 Category ID связан с существующим rule-family через конфиг. Input/output
 schema 0.1, единицы, production defaults, review/abstain сохранены;
-LLM/auto_accept запрещены в текущем runtime.
+конфиг не включает LLM/auto_accept. После включения `main` с LLM-003 opt-in
+LLM-fallback использует те же `numeric_bounds`/`rule_limits`: значение вне
+настроенных границ даёт `llm_value_not_in_quote`, а не падение карточки.
 
 Проверка candidate на macOS / Python 3.14.8: 123 основных теста (15 новых),
 3 reader tests, demo 6/6. На 15 синтетических карточках сохранены прежние

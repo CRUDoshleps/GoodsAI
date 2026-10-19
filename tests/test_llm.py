@@ -102,6 +102,20 @@ class GroundingTests(unittest.TestCase):
                 self.assertEqual(a["reason_codes"], ["not_found_by_rules", reason])
                 self.assertEqual(extractor.report()["rejected"], {reason: 1})
 
+    def test_configured_bounds_reject_llm_values_instead_of_failing_the_card(self):
+        config = deepcopy(self.config)
+        config["numeric_bounds"]["battery_mah"] = [500, 4000]
+        config["numeric_bounds"]["storage_gb"] = [1, 128]
+        cases = [("battery_mah", "5000", "Ёмкость 5000 мА*ч"), ("storage_gb", "256", "8/256GB")]
+        for item in cases:
+            with self.subTest(item[0]):
+                extractor = LLMExtractor(config, FakeProvider(answer(item)), self.settings)
+                row = extractor.predict(PHONE, "same")
+                validate_prediction(row, config, PHONE)
+                a = attrs(row)[item[0]]
+                self.assertEqual((a["value"], a["decision"]), (None, "abstain"))
+                self.assertEqual(a["reason_codes"], ["not_found_by_rules", "llm_value_not_in_quote"])
+
     def test_unknown_attribute_extra_keys_and_resolved_fields_are_ignored(self):
         payload = json.dumps({"attributes": [
             {"attribute": "weight_g", "value": "200", "quote": "Смартфон"},

@@ -106,7 +106,8 @@ input/output `schema_version=0.1`. Полный профиль задаёт cate
 для CLI/API; неверный профиль отклоняется до output/listen. Единицы и грамматика
 остаются частью контракта. Production defaults прежние; изменение категории,
 scores или диапазонов требует review архитектора. Флаги LLM/auto_accept в этой
-версии обязаны быть `false`. Детали и legacy migration — `docs/CONFIGURATION.md`.
+версии обязаны быть `false`: конфиг их не включает, а opt-in LLM-fallback
+включается отдельно (`--llm`) и использует те же bounds и окна. Детали и legacy migration — `docs/CONFIGURATION.md`.
 
 Целевое решение выбирает самый дешёвый достаточный метод:
 

@@ -447,17 +447,20 @@ def _raw_span(positions, start: int, end: int):
     return mapping[0][0], mapping[-1][1]
 
 
-def _numeric_span(attr: str, text: str, qs: int, qe: int, wanted: Decimal):
+def _numeric_span(attr: str, text: str, qs: int, qe: int, wanted: Decimal, bounds: dict | None = None):
     window = text[qs:qe]
     if attr in {"ram_gb", "storage_gb"}:
         for m in PAIR.finditer(window):
             raw = m["ram"] if attr == "ram_gb" else m["rom"]
             if number(raw) == wanted:
-                return qs + m.start(), qs + m.end(), numeric(attr, raw, "GB")
+                try:
+                    return qs + m.start(), qs + m.end(), numeric(attr, raw, "GB", bounds)
+                except ValueError:
+                    return None  # Outside the configured bounds: reject, never crash the card.
     pattern = re.compile(rf"(?<![\w.,])(?P<n>{NUMBER})\s*(?P<u>{UNIT_PATTERNS[attr]})(?!\w)", re.I)
     for m in pattern.finditer(window):
         try:
-            value = numeric(attr, m["n"], m["u"])
+            value = numeric(attr, m["n"], m["u"], bounds)
         except ValueError:
             continue
         if Decimal(value) == wanted:
@@ -493,7 +496,7 @@ def ground(product: Product, attr: str, value, quote, config: dict) -> tuple[Can
             wanted = number(re.sub(r"[^\d.,\s  ]", "", value).strip() or value)
         except ValueError:
             return None, "llm_value_not_in_quote"
-        found = _numeric_span(attr, text, qs, qe, wanted)
+        found = _numeric_span(attr, text, qs, qe, wanted, config["numeric_bounds"])
         if not found:
             return None, "llm_value_not_in_quote"
         start, end, canonical = found
@@ -536,7 +539,7 @@ def ground(product: Product, attr: str, value, quote, config: dict) -> tuple[Can
             return None, "llm_value_not_in_schema"
     else:
         return None, "llm_unknown_attribute"
-    if uncertain(text, start):
+    if uncertain(text, start, config["rule_limits"]["uncertainty_prefix_chars"]):
         return None, "llm_uncertain_context"
     raw = _raw_span(positions, start, end)
     if raw is None:
@@ -544,7 +547,7 @@ def ground(product: Product, attr: str, value, quote, config: dict) -> tuple[Can
     candidate = Candidate(attr, canonical, UNITS.get(attr), field_name, raw[0], raw[1],
                           source[raw[0]:raw[1]], LLM_SCORE, "llm." + PROMPT_VERSION)
     try:
-        validate_candidate(candidate, product, config["categories"][product.category_id])
+        validate_candidate(candidate, product, config["categories"][product.category_id], config)
     except (ValueError, KeyError):
         return None, "llm_failed_verification"
     return candidate, None
@@ -585,8 +588,8 @@ class LLMExtractor:
     """Rules first; one grounded LLM request per card for unresolved attributes only."""
 
     def __init__(self, config: dict, provider: Provider, settings: LLMSettings):
-        self.config = config
         self.rules = Extractor(config)
+        self.config = self.rules.config  # Validated: grounding uses the same bounds and windows as rules.
         self.provider = provider
         self.settings = settings
         self.cache = ExactCache(settings.cache_dir) if settings.cache_dir else None
