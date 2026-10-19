@@ -51,7 +51,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | GOV-003 | [#34](https://github.com/CRUDoshleps/GoodsAI/issues/34) | P0 | DONE | product/аналитик/архитектор | Codex | `gov/gov-003-score-improvement-backlog` | Issues #35–#54 и критический путь по оценке чекпоинта |
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
-| ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | REVIEW | QA/MLOps | Codex (tunaIT) | `env/env-001-vm-quality-audit` | Linux 1d53dad: 119+3 tests, 2171 SKU; AI-reference P96,3/R70,3/F181,3; human quality N/A |
+| ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | DONE | QA/MLOps | Codex (tunaIT) | `env/env-001-vm-quality-audit` | Linux 1d53dad: 119+3 tests, 2171 SKU; AI-reference P96,3/R70,3/F181,3; human quality N/A |
 | BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | READY | NLP/baseline | — | — | Исправить grammar батареи мА*ч с exact evidence; synthetic failure подтверждён на VM |
 
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
@@ -82,6 +82,8 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
+| ENV-002 | [#41](https://github.com/CRUDoshleps/GoodsAI/issues/41) | P0 | REVIEW | MLOps/QA | Codex (e345ee) | `env/env-002-clean-run` | claims 7abe347/b136a67; 126 + 3 tests; clean clone, external JSONL, repeat OK; VM pending reviewer |
+
 | DOCS-002 | [#52](https://github.com/CRUDoshleps/GoodsAI/issues/52) | P1 | DONE | technical writer | Codex (e345ee) | `main` | PR #77 merged 1e922aa; author review по поручению пользователя; 135 + 3 tests, smoke/verify; mirror OK |
 | BASE-002 | [#64](https://github.com/CRUDoshleps/GoodsAI/issues/64) | P1 | DONE | NLP/baseline | Codex (e345ee) | `main` | PR #75 merged 61b9260; review fixes 0693d21; 135 + 3 tests; mirror OK; selector not integrated |
 
@@ -101,7 +103,6 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | EVAL-003 | [#38](https://github.com/CRUDoshleps/GoodsAI/issues/38) | P0 | BLOCKED | аналитик/разметчик | — | — | независимый blind-пакет доказательств качества; зависимости: EVAL-001, EVAL-002 |
 | EVAL-004 | [#39](https://github.com/CRUDoshleps/GoodsAI/issues/39) | P0 | BLOCKED | ML/аналитик | — | — | калибровка и безопасные auto-accept thresholds; зависимости: EVAL-003, CONF-001/002 |
 | EVAL-005 | [#40](https://github.com/CRUDoshleps/GoodsAI/issues/40) | P0 | BLOCKED | аналитик/ML/LLM | — | — | Pareto-сравнение качества, coverage, latency и цены; зависимости: EVAL-003, model stages |
-| ENV-002 | [#41](https://github.com/CRUDoshleps/GoodsAI/issues/41) | P0 | REVIEW | MLOps/QA | e345ee | `env/env-002-clean-run` | одна команда от clean clone до полного отчёта; зависимости: DOCS-001 |
 | REL-004 | [#42](https://github.com/CRUDoshleps/GoodsAI/issues/42) | P0 | BLOCKED | release engineer/QA | — | — | gate точного SHA и проверенных артефактов; зависимости: ART-003, ENV-002, QA-002 |
 | ARCH-001 | [#43](https://github.com/CRUDoshleps/GoodsAI/issues/43) | P1 | READY | архитектор | — | — | стабильные интерфейсы этапов pipeline; зависимости: SPEC-001, CONF-001 |
 | CONF-003 | [#44](https://github.com/CRUDoshleps/GoodsAI/issues/44) | P1 | BLOCKED | архитектор/NLP | — | — | versioned registry категорий и атрибутов; зависимости: ARCH-001, CONF-001/002 |

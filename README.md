@@ -58,6 +58,16 @@ py -3.12 -m venv .venv
 
 ## Пакетный прогноз
 
+Для проверки из чистого checkout одной командой, включая изолированное
+окружение, hash-locked зависимости, batch, API contract и artifact verification:
+
+```bash
+python3.12 scripts/release/clean_run.py --output-dir outputs/clean-first
+```
+
+Внешний JSONL передаётся через `--input`. Повтор команды проверяет сохранённые
+артефакты; ограничения OS/Python, отчёты и recovery — в [CLEAN_RUN](docs/CLEAN_RUN.md).
+
 Минимальная строка входного JSONL:
 
 ```json
