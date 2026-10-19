@@ -2,6 +2,28 @@
 
 Актуально на 19 октября 2026 года.
 
+## Интеграция PR автора e345ee — 19.10.2026
+
+[DONE] По поручению пользователя проверены и слиты PR #55, #63, #76, #72,
+#73 и #80. Конфликты TASKS/PROJECT_STATUS/config extras/source allowlist
+разрешены без потери владельцев, закрытых задач и независимых веток работы.
+В TASKS 64 уникальных ID; сохранены все 20 GOV-003 и 10 GOV-004 задач.
+GOV-003/GOV-004/ENV-001/ENV-002/QA-003 завершены; ML-001 остаётся REVIEW для
+независимой приёмки, хотя отдельный opt-in prototype уже доступен в main.
+
+Общий код прошёл 160 основных и 3 reader tests, pip check и isolated clean-run
+11 этапов; QA-003 nightly seed 20261020 прошёл 11/11 свойств. CI последнего
+feature head `47fabbd`: Ubuntu/Windows clean run, invariants и properties
+SUCCESS. Все шесть merge доставлены в Gitea fast-forward workflow;
+последний runtime/code merge — `468e35e`. Исторические delivery bytes сохранены.
+
+При интеграции добавлены проверка посторонних ML artifact files, UTF-8
+экспериментального CLI, игнор .venv-ml и включение public guides в source archive.
+Штатные CLI/API продолжают использовать rules; ML зависимости/веса не нужны
+для обычного пути. При этой интеграции не запускались реальные модели, новые
+quality experiments, приватный gold/test и VM deployment. Данные VM/ML в
+отдельных отчётах относятся к исходным историческим producer SHA.
+
 ## ML-001: opt-in гибрид — REVIEW
 
 Реализован отдельный экспериментальный `HybridExtractor`: rules + локальный
@@ -15,7 +37,7 @@ offline smoke прошёл при заблокированной сети. Defau
 остаются закрыты EVAL-001/004. Команды, ресурсы и ограничения:
 [EXPERIMENTAL_GLINER](EXPERIMENTAL_GLINER.md).
 
-## QA-003: генеративные проверки (ветка реализации)
+## QA-003: генеративные проверки — DONE
 
 Добавлены 11 Hypothesis properties для text-only input, JSONL, Unicode/HTML
 position maps, schema, numeric conversion, hidden facts и no-evidence-no-value.
@@ -26,7 +48,7 @@ type guards (включая evidence=null) и Decimal overflow при конве
 не независимая оценка качества. Запуск и ограничения:
 [FUZZ_TESTING.md](FUZZ_TESTING.md). Фактические результаты фиксируются в PR.
 
-## ENV-002: чистый запуск (ветка реализации)
+## ENV-002: чистый запуск — DONE
 
 `scripts/release/clean_run.py` создаёт отдельное окружение CPython 3.12,
 устанавливает 23 hash-locked distributions, проверяет `pip check`, demo,
@@ -36,7 +58,7 @@ type guards (включая evidence=null) и Decimal overflow при конве
 содержит этапы и exit codes без текстов карточек. P/R/F1 без gold — N/A.
 Описание, аудит pins и поддерживаемые OS: [CLEAN_RUN.md](CLEAN_RUN.md).
 Hosted Linux/Windows CI добавлен; VM организаторов и listening socket этой
-реализацией не подтверждены. Финальную приёмку выполняет reviewer ENV-002.
+реализацией не подтверждены; clean-run принят как локальная/hosted CI проверка.
 
 Последнее фактическое VM-подтверждение: [ENV-001, Linux-прогон и ошибки](reviews/2026-10-19_vm_quality_audit.md).
 На `1d53dad`: 119 основных + 3 reader tests, demo 6/6; 2171 SKU обработан,
@@ -93,7 +115,7 @@ Issues #64 и #52 закрыты после merge. VM, независимый go
 | --- | --- | --- |
 | действующий сервис VM в момент ENV-001 | checkout `~/project`, сервис не перезапускался | `48b45dc` |
 | последняя проверенная на Linux интеграционная база | изолированный clean checkout GitHub `main`, ENV-001 | `1d53dad` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, BASE-002 + DOCS-002 и mirror 19.10 | `1e922aa` |
+| последняя проверенная интеграционная база | GitHub / Gitea `main`, шесть PR и mirror 19.10 | `468e35e` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
