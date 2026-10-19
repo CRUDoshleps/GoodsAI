@@ -2,8 +2,11 @@
 
 Полный профиль по умолчанию — `src/goodsai/baseline.json`. `schema_version=0.1`
 задаёт прежний контракт карточки и предсказания; отдельный `config_version=1`
-задаёт структуру настроек. Новая версия конфигурации не включает LLM, не меняет
-единицы, решения, категории или значения scores по умолчанию.
+задаёт структуру настроек. Конфигурация не включает LLM, не меняет
+единицы, решения, категории или значения scores по умолчанию. Opt-in
+LLM-fallback (LLM-003) включается только флагом `--llm` или
+`GOODSAI_LLM_ENABLED=1` и проверяет ответы по тем же `numeric_bounds` и
+`rule_limits`, что и правила.
 
 ## Использование
 
@@ -50,7 +53,7 @@ HTTP-сервера. Окружение и файлы с ключами не ч�
 | `rule_scores` | Heuristic scores для brand, color, model, memory_pair, memory_context и quantity |
 | `rule_limits` | Размеры контекстных окон и отдельные ограничения записи RAM/ROM |
 | `runtime.api` | Размер HTTP body, concurrency uvicorn и keep-alive timeout |
-| `runtime.llm_enabled` | Только `false`: model adapter не реализован |
+| `runtime.llm_enabled` | Только `false`: зарезервировано; конфигурация не включает LLM-fallback, он включается флагом `--llm` / `GOODSAI_LLM_ENABLED=1` (см. [LLM](LLM.md)) |
 | `runtime.auto_accept_enabled` | Только `false`: калибровка отсутствует |
 | `brands`, `colors` и дополнительные словари | Существующие aliases, subbrands и модификаторы evidence |
 
@@ -78,7 +81,8 @@ concurrency/keep-alive — при запуске через `python -m goodsai.a
 Грамматика модели, регулярные выражения, скрытые HTML-теги и canonical unit names
 остаются кодом технического контракта. Новые алгоритмы, единицы и типы атрибутов
 по-прежнему требуют реализации и отдельного согласования. Model IDs не выносятся:
-в текущем inference нет ни encoder, ни LLM; их интерфейс относится к LLM/ML-задачам.
+модель LLM-fallback задаётся флагом `--llm-model` / `GOODSAI_LLM_MODEL`, encoder в
+inference нет; их интерфейс относится к LLM/ML-задачам.
 
 Новый category ID можно привязать к существующему семейству и подмножеству его
 атрибутов без изменения orchestration. Это не означает поддержку произвольного

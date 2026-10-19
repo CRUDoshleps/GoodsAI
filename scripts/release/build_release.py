@@ -22,7 +22,10 @@ REQUIRED = ("code", "readme", "eda", "pipeline", "predictions", "presentation")
 REFERENCE_KINDS = {"ai_assisted_reviewed_development", "development_feedback", "blind_human_reviewed"}
 SHA = re.compile(r"[a-f0-9]{64}\Z")
 PUBLIC_DOCS = {"README.md", "pyproject.toml", ".gitignore", "AGENTS.md", "CONTRIBUTING.md", "RESEARCH.md", "TASKS.md", "TECHNICAL_SPEC.md",
-               "docs/EXPERIMENTAL_GLINER.md",
+               "docs/EXPERIMENTAL_GLINER.md", "docs/LLM.md", ".env.example",
+               "docs/SILVER_EVALUATION.md", "docs/research/silver_evaluation_protocol.md",
+               "docs/research/silver_evaluation_results.md",
+               "reports/metrics.md", "reports/run_stats.json",
                "docs/FUZZ_TESTING.md",
                "requirements/clean-run.in", "requirements/clean-run.lock", "docs/CLEAN_RUN.md",
 

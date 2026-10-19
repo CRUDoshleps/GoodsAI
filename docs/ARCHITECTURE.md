@@ -22,7 +22,11 @@ flowchart LR
     I --> J[JSONL + manifest или JSON]
 ```
 
-В этом пути нет LLM и обученного encoder. Поле `method=model` в старых отчётах
+По умолчанию в этом пути нет LLM и обученного encoder. С флагом `--llm`
+(или `GOODSAI_LLM_ENABLED=1` в API) после правил пропуски `not_found_by_rules`
+одним запросом уходят в OpenAI-совместимый шлюз; ответ проходит grounding по
+цитате и тот же `validate_candidate`, итог — `method=llm`, `review`
+([LLM](LLM.md)). Поле `method=model` в старых отчётах
 обозначает rules grammar для явной модели товара, а не ML-модель.
 
 Отдельный [опциональный GLiNER prototype](EXPERIMENTAL_GLINER.md) доступен

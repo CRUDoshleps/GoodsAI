@@ -3,6 +3,7 @@ import argparse
 from collections import Counter, defaultdict
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 import time
@@ -17,21 +18,26 @@ from goodsai.storage import staged_prediction_pair
 from goodsai.verify import Extractor
 
 
-def predict(input_path: Path, output: Path, config: dict) -> dict:
+def predict(input_path: Path, output: Path, config: dict, llm=None) -> dict:
+    """Rules-only by default; ``llm`` is an opt-in ``goodsai.llm.LLMExtractor``."""
     output = output.resolve()
     check_output(output, input_path)
     check_output(output.with_suffix(".manifest.json"), input_path)
     with staged_prediction_pair(output) as (staged_output, staged_manifest):
-        report = _predict_staged(input_path, staged_output, staged_manifest, config)
+        report = _predict_staged(input_path, staged_output, staged_manifest, config, llm)
     return report
 
 
-def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path, config: dict) -> dict:
+def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path, config: dict, llm=None) -> dict:
     started = time.perf_counter()
     meta = identity(config)
     input_hash = digest(input_path)
-    run_id = hashlib.sha256((input_hash + meta["code_sha256"] + meta["config_sha256"]).encode()).hexdigest()[:20]
-    extractor = Extractor(config)
+    run_material = input_hash + meta["code_sha256"] + meta["config_sha256"]
+    if llm is not None:
+        # A different model, prompt or budget is a different run.
+        run_material += json.dumps(llm.settings.identity(), sort_keys=True)
+    run_id = hashlib.sha256(run_material.encode()).hexdigest()[:20]
+    extractor = llm if llm is not None else Extractor(config)
     seen = set()
     elapsed = []
     rows = errors = 0
@@ -39,6 +45,7 @@ def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path
     reasons = Counter()
     slices = defaultdict(Counter)
     statuses = Counter()
+    methods = Counter()
     with staged_output.open("w", encoding="utf-8", newline="\n") as stream:
         for line_no, row in enumerate(read_jsonl(input_path), 1):
             sku = row.get("sku_id")
@@ -67,6 +74,8 @@ def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path
                 for a in result["attributes"]:
                     counts[product.category_id + ":" + a["attribute"]].update(requested=1, predicted=int(a["value"] is not None))
                     reasons.update(a["reason_codes"])
+                    if a["value"] is not None:
+                        methods[a["method"]] += 1
             elapsed.append(time.perf_counter() - tick)
             statuses[result["status"]] += 1
             write_line(stream, result)
@@ -84,6 +93,11 @@ def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path
                      "slices": dict(slices), "status_counts": dict(statuses), "abstention_reasons": dict(reasons),
                      "llm_calls": 0, "quality_status": "not_evaluated_without_manual_gold",
                      "confidence_kind": "heuristic", "calibrated": False}
+    if llm is not None:
+        # Counts, tokens, cost and reason codes only: no card text, keys or endpoint.
+        report["llm"] = llm.report()
+        report["llm_calls"] = report["llm"]["calls"]
+        report["method_counts"] = dict(methods)
     write_json(staged_manifest, report)
     return report
 
@@ -103,6 +117,29 @@ def main(argv=None) -> int:
     p = sub.add_parser("predict")
     p.add_argument("--input", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--llm", action="store_true",
+                   help="Opt-in LLM fallback for attributes rules did not find; endpoint and key come from "
+                        "GOODSAI_LLM_BASE_URL / GOODSAI_LLM_API_KEY")
+    p.add_argument("--llm-model", default=os.environ.get("GOODSAI_LLM_MODEL"),
+                   help="Gateway model name (default: GOODSAI_LLM_MODEL)")
+    p.add_argument("--llm-max-calls", type=int, default=100, help="Hard per-run budget of real provider calls")
+    p.add_argument("--llm-daily-max-calls", type=int, default=300,
+                   help="Shared budget per Moscow day across runs using the same --llm-budget-file")
+    p.add_argument("--llm-budget-file", type=Path, default=Path("outputs/llm-budget/ledger.json"),
+                   help="Daily call ledger outside Git")
+    p.add_argument("--llm-cache-dir", type=Path, help="Exact-request cache outside Git, e.g. outputs/llm-cache")
+    p.add_argument("--llm-timeout", type=float, default=60.0)
+    p.add_argument("--llm-attempts", type=int, default=3, help="Attempts per request, retries included (1-5)")
+    p.add_argument("--llm-concurrency", type=int, default=2)
+    p.add_argument("--llm-price-input-per-1k", type=float, help="Price per 1000 prompt tokens; cost is N/A without it")
+    p.add_argument("--llm-price-output-per-1k", type=float, help="Price per 1000 completion tokens")
+    p.add_argument("--llm-json-mode", action="store_true",
+                   help="Ask the gateway for response_format=json_object; answers are validated either way")
+    p = sub.add_parser("llm-trace", help="One synthetic card through the live LLM route (counts against budgets)")
+    p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--llm-model", default=os.environ.get("GOODSAI_LLM_MODEL"))
+    p.add_argument("--llm-budget-file", type=Path, default=Path("outputs/llm-budget/ledger.json"))
+    p.add_argument("--llm-daily-max-calls", type=int, default=300)
     p = sub.add_parser("evaluate")
     p.add_argument("--predictions", type=Path, required=True)
     p.add_argument("--gold", type=Path)
@@ -123,7 +160,36 @@ def main(argv=None) -> int:
             result.update(elapsed_seconds=time.perf_counter() - started, peak_process_rss_bytes=peak_rss_bytes())
             write_json(args.output_dir / "prepare_manifest.json", result)
         elif args.command == "predict":
-            result = predict(args.input, args.output, config)
+            llm = None
+            if args.llm:
+                from goodsai.llm import LLMExtractor, LLMSettings, provider_from_env
+                if not args.llm_model:
+                    raise ValueError("--llm requires --llm-model or GOODSAI_LLM_MODEL")
+                settings = LLMSettings(
+                    model=args.llm_model, max_calls=args.llm_max_calls, timeout_seconds=args.llm_timeout,
+                    max_attempts=args.llm_attempts, concurrency=args.llm_concurrency,
+                    price_input_per_1k=args.llm_price_input_per_1k,
+                    price_output_per_1k=args.llm_price_output_per_1k,
+                    json_mode=args.llm_json_mode, cache_dir=args.llm_cache_dir,
+                    daily_max_calls=args.llm_daily_max_calls, budget_ledger=args.llm_budget_file)
+                llm = LLMExtractor(config, provider_from_env(settings), settings)
+            result = predict(args.input, args.output, config, llm)
+            if llm is not None and result["llm"]["disabled_reason"]:
+                print(f"goodsai: LLM fallback disabled during run: {result['llm']['disabled_reason']}; "
+                      "rule results are unchanged", file=sys.stderr)
+        elif args.command == "llm-trace":
+            from goodsai.llm import LLMExtractor, LLMSettings, provider_from_env, synthetic_trace
+            if not args.llm_model:
+                raise ValueError("llm-trace requires --llm-model or GOODSAI_LLM_MODEL")
+            check_output(args.output)
+            settings = LLMSettings(model=args.llm_model, max_calls=1, daily_max_calls=args.llm_daily_max_calls,
+                                   budget_ledger=args.llm_budget_file)
+            result = synthetic_trace(LLMExtractor(config, provider_from_env(settings), settings))
+            write_json(args.output, result)
+            if result["llm"]["calls"] != 1 or result["llm"]["failures"]:
+                print("goodsai: live LLM trace did not complete: "
+                      + ",".join(sorted(result["llm"]["failures"])), file=sys.stderr)
+                return 3
         elif args.command == "evaluate":
             check_output(args.output, args.predictions, *([args.gold] if args.gold else []))
             result = evaluate(args.predictions, args.gold, config)
