@@ -116,6 +116,19 @@ BASE-001 в TASKS всё ещё READY, хотя model rules реализован
 
 ## Проверки
 
+### VER-001: relation guard подготовлен на review, 19 октября
+
+Ветка `qa/ver-001-relation-verifier`, claim `9400302` от `37066be`.
+Общая проверка перед merge кандидатов отклоняет явные отрицания, совместимость,
+сравнения, комплект и характеристики аксессуара/другого объекта. Raw evidence
+проверяется до semantic filtering; v0.1, confidence и review/abstain сохранены.
+Реализация ещё не в main. [Отчёт](RELATION_VERIFIER.md), synthetic probes 8→0
+ложных извлечений при сохранении 10/10 положительных. Reviewed development:
+M2 69 TP/0 FP/14 FN и D21–D40 59 TP/0 FP/23 FN, до=после, 0 lost TP/new FP.
+Это не независимые метрики и не доказательство прироста качества каталога.
+Предсказания/разметка остаются private, test/LLM/VM не использовались.
+151 основной + 3 reader tests, demo 6/6 и pip check — OK на Windows/Python 3.12.6.
+
 Последний сохранённый отчёт команды для опубликованного функционала:
 
 - 82 tests на Windows/Python 3.12.6;

@@ -63,7 +63,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
-| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P1 | IN_PROGRESS | NLP/QA | urasha / Codex (сессия Влада) | `qa/ver-001-relation-verifier` | claim 19.10.2026; проверка отрицаний, совместимости и чужих сущностей |
+| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P1 | REVIEW | NLP/QA | urasha / Codex (сессия Влада) | `qa/ver-001-relation-verifier` | claim 9400302; relation guard; synthetic false accepts 8→0, 0 lost TP на двух development references |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | BLOCKED | ML engineer | — | — | компактный encoder только после baseline и gold; ждёт EVAL-001 |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
@@ -431,6 +431,13 @@ Gitea fast-forward; divergence останавливает job, а старый G
 безопасно работает при отключённой LLM.
 
 ### VER-001 — relation verifier
+
+19.10.2026: реализация на REVIEW, claim `9400302`, сессия Влада.
+[Результат и ограничения](docs/RELATION_VERIFIER.md). Общий candidate guard,
+без изменения v0.1 и extractor rules; на 20 synthetic probes ложные извлечения
+8→0, сохранены 10/10 положительных фактов. Два reviewed development по 20 карточек:
+M2 69 TP/0 FP/14 FN, D21–D40 59 TP/0 FP/23 FN, до=после, 0 lost TP/new FP.
+Это AI-assisted development, не independent test. Main/VM не обновлялись.
 
 **Шаги**
 
