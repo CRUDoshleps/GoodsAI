@@ -148,6 +148,45 @@ unavailable, P/R/F1 `null`. Состав файлов может быть comple
 сдачи требуют командного review. Manifest не подписан: SHA обнаруживают порчу,
 а не намеренную одновременную подмену manifest и файлов.
 
+## Подготовка реального development checkpoint
+
+ART-001 добавляет orchestrator `python -m scripts.release.prepare_delivery`.
+Нужны локальные неизменённые caches:
+
+- `data/processed/e1/{pilot.jsonl,prepare_manifest.json}`;
+- `data/gold/e1/{annotation_manifest.json,split_manifest.jsonl}`;
+- M2 v2 `family.manifest.jsonl`, `selection.summary.json` и reviewed development;
+- `outputs/eda/{catalog_profile,joins_profile,parquet_profile,pickle_opcodes}.json`
+  и существующая `catalog_skus.parquet`.
+
+На чистом candidate checkout:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.release.prepare_delivery --report-date 2026-10-19 --output-dir outputs/delivery/checkpoint-next
+```
+
+Дата — локальная дата отчёта, при новом checkpoint укажите актуальную.
+Исходные SHA сверяются с прежними manifests; проекция проверяется по SHA/footer,
+pickle не загружается. Закрытые и смешанные семейства исключаются **до**
+Product/predict; используются только unmixed development groups. Source/split/
+family metadata не попадают в extractor. Закрытые задания test не открываются.
+
+Выход: `development.input.jsonl`, `predictions.jsonl` и paired manifest,
+`reports/{eda.md,technical_slides.md,reviewed-metrics.json}`, `release-spec.json`,
+`preparation.manifest.json`, `bundle/` и `delivery-bundle.zip`. Сборка и verify
+выполняются внутри команды. Созданный ZIP содержит приватные тексты и reference,
+остаётся локально. Publishable агрегаты и Markdown-слайды отбираются отдельно.
+
+EDA-сводка берёт только разрешённые числовые агрегаты из caches, а не samples,
+seller IDs или target values. Слайды содержат измеренные результаты и оговорку
+AI-assisted development; это технический черновик checkpoint, не финальное
+оформление защиты. Исходные данные/старые outputs не перезаписываются.
+
+Producer SHA фиксируется в момент запуска. Если затем публикуются generated
+агрегаты новым docs commit, они продолжают ссылаться на исходный code candidate;
+это разные identities. Для повторения нужно checkout того SHA либо создать
+новый checkpoint на другом чистом HEAD с новыми manifests.
+
 ## Публикация и оставшаяся работа
 
 В private-сборке исходный input, predictions, reference, supplied metrics,
