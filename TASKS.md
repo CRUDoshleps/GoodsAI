@@ -53,7 +53,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | READY | data/QA | — | — | аудит дублей и утечек между split |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
-| CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
+| CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | IN_PROGRESS | архитектор | timur0o31 | `arch/conf-001-runtime-config` | 19.10.2026: конфигурация bounds/scores/limits, строгая валидация; defaults без изменения поведения |
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
@@ -297,6 +297,10 @@ split; test contents не использовались для настройки
 файлом и commit, а артефакт доступен организаторам.
 
 ### CONF-001 — конфигурация
+
+- Начато: 19.10.2026. Исполнитель: `timur0o31`.
+- Ветка: `arch/conf-001-runtime-config`; Issue: #9.
+- Claim публикуется отдельным commit до начала реализации.
 
 **Шаги**
 
