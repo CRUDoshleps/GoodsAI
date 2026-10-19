@@ -1,0 +1,39 @@
+name: Synthetic property tests
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Bounded profile'
+        type: choice
+        options: [quick, nightly]
+        default: quick
+      seed:
+        description: 'Integer seed for replay'
+        default: '20261019'
+  schedule:
+    - cron: '17 2 * * *'
+permissions:
+  contents: read
+jobs:
+  properties:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GOODSAI_FUZZ_PROFILE: ${{ github.event_name == 'schedule' && 'nightly' || inputs.profile || 'quick' }}
+      GOODSAI_FUZZ_SEED: ${{ inputs.seed || github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[serve,test,fuzz]'
+      - run: python -m pip check
+      - name: Generative properties with shrinking and recorded seed
+        run: python -m unittest discover -s tests/fuzz -v
+      - name: Main regression suite
+        run: python -m unittest discover -s tests -v
+      - name: Research reader regressions
+        run: python -m unittest discover -s scripts/research -p 'test_*.py' -v

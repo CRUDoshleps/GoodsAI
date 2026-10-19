@@ -58,6 +58,16 @@ py -3.12 -m venv .venv
 
 ## Пакетный прогноз
 
+Для проверки из чистого checkout одной командой, включая изолированное
+окружение, hash-locked зависимости, batch, API contract и artifact verification:
+
+```bash
+python3.12 scripts/release/clean_run.py --output-dir outputs/clean-first
+```
+
+Внешний JSONL передаётся через `--input`. Повтор команды проверяет сохранённые
+артефакты; ограничения OS/Python, отчёты и recovery — в [CLEAN_RUN](docs/CLEAN_RUN.md).
+
 Минимальная строка входного JSONL:
 
 ```json
@@ -92,6 +102,14 @@ py -3.12 -m venv .venv
 
 Для PowerShell заменяйте `.venv/bin/python` на `.\.venv\Scripts\python.exe`,
 многострочную Bash-команду вводите одной строкой.
+
+## Экспериментальный ML для пропущенного бренда
+
+Есть отдельный opt-in гибрид: правила → GLiNER для пропущенного однословного
+бренда → точное evidence → review. Основные CLI/API его не включают.
+На просмотренном development AI-reference он добавил 17 совпадений без новых
+несовпадений; независимое качество не установлено. Команды, веса, метрики,
+RAM и ограничения: [EXPERIMENTAL_GLINER](docs/EXPERIMENTAL_GLINER.md).
 
 ## HTTP API
 
@@ -175,6 +193,16 @@ API временный до публикации точной схемы орг�
 .venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v
 ```
 
+Генеративные проверки Unicode/HTML, schema, единиц и evidence запускаются
+отдельно после установки `.[fuzz]`:
+
+```bash
+.venv/bin/python -m unittest discover -s tests/fuzz -v
+```
+
+Profiles quick/nightly, seed, replay и найденные regression cases — в
+[FUZZ_TESTING](docs/FUZZ_TESTING.md).
+
 На опубликованном Gitea `main` команда ранее получила 82 проверки на
 Windows/Python 3.12.6. После каждого нового изменения проверки выполняются
 заново в своей среде; этот README не заменяет свежий test report.
@@ -242,6 +270,8 @@ frozen spec и полный проверенный bundle. Закрытые и �
 | [docs/SPAN_INDEX.md](docs/SPAN_INDEX.md) | внутренние исходные spans, limits и отдельный замер покрытия |
 | [docs/DATASET.md](docs/DATASET.md) | подготовка, ограничения и защита от утечки |
 | [docs/EVALUATION.md](docs/EVALUATION.md) | дизайн эксперимента, формулы и честные метрики |
+| [docs/HUMAN_GOLD.md](docs/HUMAN_GOLD.md) | blind human review, формы и проверки; gold требует двух людей и adjudication |
+| [docs/DEVELOPMENT_REVIEW.md](docs/DEVELOPMENT_REVIEW.md) | текущая AI-assisted партия D21–D40 для проверки Владом |
 | [docs/RESULTS.md](docs/RESULTS.md) | происхождение, snapshots и воспроизведение M1/M2 |
 | [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | трассировка требований и шести артефактов |
 | [docs/RUNBOOK.md](docs/RUNBOOK.md) | запуск, диагностика и восстановление |

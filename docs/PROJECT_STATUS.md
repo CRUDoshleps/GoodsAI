@@ -2,6 +2,73 @@
 
 Актуально на 19 октября 2026 года.
 
+## Интеграция PR автора e345ee — 19.10.2026
+
+[DONE] По поручению пользователя проверены и слиты PR #55, #63, #76, #72,
+#73 и #80. Конфликты TASKS/PROJECT_STATUS/config extras/source allowlist
+разрешены без потери владельцев, закрытых задач и независимых веток работы.
+В TASKS 64 уникальных ID; сохранены все 20 GOV-003 и 10 GOV-004 задач.
+GOV-003/GOV-004/ENV-001/ENV-002/QA-003 завершены; ML-001 остаётся REVIEW для
+независимой приёмки, хотя отдельный opt-in prototype уже доступен в main.
+
+Общий код прошёл 160 основных и 3 reader tests, pip check и isolated clean-run
+11 этапов; QA-003 nightly seed 20261020 прошёл 11/11 свойств. CI последнего
+feature head `47fabbd`: Ubuntu/Windows clean run, invariants и properties
+SUCCESS. Все шесть merge доставлены в Gitea fast-forward workflow;
+последний runtime/code merge — `468e35e`. Исторические delivery bytes сохранены.
+
+При интеграции добавлены проверка посторонних ML artifact files, UTF-8
+экспериментального CLI, игнор .venv-ml и включение public guides в source archive.
+Штатные CLI/API продолжают использовать rules; ML зависимости/веса не нужны
+для обычного пути. При этой интеграции не запускались реальные модели, новые
+quality experiments, приватный gold/test и VM deployment. Данные VM/ML в
+отдельных отчётах относятся к исходным историческим producer SHA.
+
+## ML-001: opt-in гибрид — REVIEW
+
+Реализован отдельный экспериментальный `HybridExtractor`: rules + локальный
+GLiNER только для пропущенного однословного бренда. Основной CLI/API не менялся.
+На ранее просмотренном development AI-reference: 80 карточек, 425 judged полей,
+TP/FP/FN 208/8/88 → 225/8/71, F1 81.25% → 85.07%. Метод доработан после анализа
+ошибок, поэтому это screening, не независимое подтверждение accuracy. Широкий
+brand/model fallback отвергнут из-за дополнительных FP относительно reference.
+146 + 3 tests и pip check прошли на VM; два runtime-повтора совпали, отдельный
+offline smoke прошёл при заблокированной сети. Default enable/auto_accept
+остаются закрыты EVAL-001/004. Команды, ресурсы и ограничения:
+[EXPERIMENTAL_GLINER](EXPERIMENTAL_GLINER.md).
+
+## QA-003: генеративные проверки — DONE
+
+Добавлены 11 Hypothesis properties для text-only input, JSONL, Unicode/HTML
+position maps, schema, numeric conversion, hidden facts и no-evidence-no-value.
+Quick/nightly profiles имеют ограничение размера/времени и явный seed;
+shrunk examples переносятся в основной regression suite. Исправлены contract
+type guards (включая evidence=null) и Decimal overflow при конвертации единиц.
+Валидный schema 0.1 и решения baseline не изменены. Это synthetic robustness,
+не независимая оценка качества. Запуск и ограничения:
+[FUZZ_TESTING.md](FUZZ_TESTING.md). Фактические результаты фиксируются в PR.
+
+## ENV-002: чистый запуск — DONE
+
+`scripts/release/clean_run.py` создаёт отдельное окружение CPython 3.12,
+устанавливает 23 hash-locked distributions, проверяет `pip check`, demo,
+внешний JSONL batch, exact evidence/manifest, API contract и synthetic bundle.
+Успешный повтор проверяет hashes и installed versions; failed attempts
+сохраняются, следующий запуск создаёт новую попытку. JSON/Markdown report
+содержит этапы и exit codes без текстов карточек. P/R/F1 без gold — N/A.
+Описание, аудит pins и поддерживаемые OS: [CLEAN_RUN.md](CLEAN_RUN.md).
+Hosted Linux/Windows CI добавлен; VM организаторов и listening socket этой
+реализацией не подтверждены; clean-run принят как локальная/hosted CI проверка.
+
+Последнее фактическое VM-подтверждение: [ENV-001, Linux-прогон и ошибки](reviews/2026-10-19_vm_quality_audit.md).
+На `1d53dad`: 119 основных + 3 reader tests, demo 6/6; 2171 SKU обработан,
+три повтора совпали с frozen `1754970` побайтно. Runtime/config hashes одинаковы.
+Согласие с диагностической AI-reference: P96,3/R70,3/F181,3 на 425 judged-парах
+из 480; 55 исключены. Это development, с исправлением сериализации reference
+после первого сравнения, не независимая human quality. Подтверждены synthetic
+пропуск `мА*ч` и ложный цвет из имени бренда; задачи #74 и #15 (P0).
+Все найденные значения всё ещё review, LLM в GoodsAI runtime не вызывается.
+
 ## DOCS-002: текст и доказательства — DONE
 
 [DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR
@@ -46,8 +113,9 @@ Issues #64 и #52 закрыты после merge. VM, независимый go
 
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
-| опубликованный runtime baseline | Gitea `main`, без ночных docs-only изменений | `48b45dc` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, BASE-002 + DOCS-002 и mirror 19.10 | `1e922aa` |
+| действующий сервис VM в момент ENV-001 | checkout `~/project`, сервис не перезапускался | `48b45dc` |
+| последняя проверенная на Linux интеграционная база | изолированный clean checkout GitHub `main`, ENV-001 | `1d53dad` |
+| последняя проверенная интеграционная база | GitHub / Gitea `main`, шесть PR и mirror 19.10 | `468e35e` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
@@ -224,6 +292,60 @@ commit, producer SHA остаётся указанным выше. Официа�
 
 ## Результат организаторского review
 
+### EVAL-001: подготовка human-review, итоговый gold не готов
+
+**Human feedback D21–D40 получен:** Влад явно подтвердил все неуказанные карточки/
+поля. Номер комментария про G уточнён как D27, память D25 подтверждена.
+Версионированный reviewed development сохраняет AI-assisted origin и
+independent_reference=false: 20 карточек/120 labels, 82 present / 27 absent /
+4 ambiguous / 7 unjudgeable, 109 judged / 11 excluded. Две ручные contextual
+коррекции единиц памяти D27 с сохранением raw evidence; глобальная политика
+единиц не менялась. Ошибка категории D24 подтверждена, в smartphone-схеме
+unjudgeable сохранён; часы не добавлены в schema. Конфликты D29/D31/D36 остаются
+ambiguous. Файл: `outputs/evaluation/development-review-20261019-human-v2/development.human-reviewed.jsonl`.
+P/R/F1 пока N/A, реальный prediction/evaluation не запускался; reserve закрыт.
+Влад согласовал направление обработки конфликтов: предложение исправленной
+категории с подтверждением человека, без автоматической замены исходной категории;
+рекомендации по единицам и неоднозначным model/color также приняты.
+Это ещё не runtime-функция. Реализация категории — ML-002 (#58), пока BLOCKED
+зависимостями и согласованием контракта; детали в DEVELOPMENT_REVIEW.md.
+Producer feedback `4349c39`: 137 основных + 3 reader tests и pip check — OK,
+4 human-reference файла byte-identical на повторе. Reviewed reference SHA:
+`9f8a2ef601bd76704551340cedfe0aef7c8d42677446044cb4dfe37b8ee443ae`.
+
+**Продолжение по решению Влада:** Issue #6 уточнён: сейчас выполняется
+[AI-assisted development D21–D40](DEVELOPMENT_REVIEW.md) с последующей проверкой
+Владом. Пул 800 unexposed development SKU, отобраны 20 разных семей / 120 полей,
+по 10 карточек категории и по 5 с/без description. Draft: 80 present / 27 absent /
+6 ambiguous / 7 unjudgeable; human-reviewed=0, все pending, P/R/F1=N/A,
+independent_reference=false. Source/test не раскрываются вне development-партии.
+Новый exposure ledger сохраняется рядом с draft и исключает эти семьи из будущих
+новых отборов через --seen. Старые задания/разметка/предсказания сохранены.
+Форма: `outputs/evaluation/development-review-20261019-v2-ai/development.review.md`.
+Producer `ffa35ca`: 134 основных + 3 reader tests, pip check — OK; 4 selection
+и 4 draft-файла byte-identical на повторе. Exact evidence и уникальность семей
+проверены; EVAL-002 verify подтверждает неизменность источников, freeze test
+остаётся approved=false. Текущий инкремент передан на REVIEW, не DONE.
+
+В `eval/eval-001-blind-human-gold` подготовлены [протокол](HUMAN_GOLD.md),
+[guideline](HUMAN_GOLD_GUIDELINES.md), offline HTML и команды
+prepare/materialize/check/reconcile/finalize. Claim `fab562f`, code `257fe1f`.
+128 основных + 3 reader tests, pip check, CLI/link/secret-pattern checks — OK;
+synthetic browser smoke подтвердил Unicode offsets/navigation/JSON download+import.
+
+Локальный `outputs/evaluation/eval-001-20261019-metadata/`: 40 карточек/240 полей,
+только metadata/blank labels, 6 файлов двух запусков byte-identical. Package ID
+`c2a18dfba7f9d23c2c913443f906ea3eba98adb9229aa9f437ae3e18f7c5cba0`.
+Неутверждённый freeze блокирует раскрытие; реальный HTML/тексты test не создавались,
+answers/gold/predictions отсутствуют, P/R/F1 и agreement N/A. Проверяемый candidate
+в template — `1d53dad` (rules-0.3.0-m2-policy), это предложение, не утверждённый freeze.
+
+Влад сообщил, что размечать будет один и раньше видел AI-assisted development.
+Это не автоматически exposure нового reserve, но не выполняет требование двух
+независимых людей. Будущий независимый подэтап ожидает разметчиков/adjudicator,
+решения о freeze и сбора ответов. Сам Issue #6 продолжен для AI-assisted development;
+такой набор не объявляется независимым test. Runtime/исходные данные/VM не менялись.
+
 ### EVAL-002: split/leakage audit — 19.10.2026
 
 Подготовлен [аудит E1 split](reviews/2026-10-19_eval-002_split_audit.md),
@@ -262,6 +384,23 @@ release gate. Blind human review готовить параллельно, test �
 По скриншотам первого технического прогона оценённые критерии дали 17,17/20.
 Неоценённый блок качества результата оставался пустым. Product checkpoint —
 10/10, но способ его включения в общий балл не описан.
+
+### Backlog по новой детализации оценки
+
+Платформа отдельно показывает продуктовый чекпоинт `10/10`, оценённые
+технические критерии `17,81/20`, пустой блок качества `—/5` и пока
+неоценённую финальную защиту `—/15`. Общий индикатор на странице равен
+`17,81/35`; правило объединения этапов не опубликовано, поэтому значения здесь
+не складываются самостоятельно.
+
+В `GOV-003` заведены ровно 20 новых задач
+[#35–#54](https://github.com/CRUDoshleps/GoodsAI/issues?q=is%3Aissue+is%3Aopen+created%3A2026-10-19),
+которые переводят текстовый feedback в проверяемые результаты. Наибольший
+приоритет имеют независимый пакет качества, калибровка auto-accept, чистый
+воспроизводимый запуск и release gate точного SHA. Архитектурные, операторские
+и презентационные задачи идут после их зависимостей. На момент создания плана реализация не была начата; актуальные статусы
+смотрите в TASKS.md. Критический путь находится в
+[плане улучшения оценки](reviews/2026-10-19_score_improvement_backlog.md).
 
 Организаторы подтвердили сильные стороны: работающий end-to-end baseline,
 модульность, тесты, JSONL output и документация. Основной долг:
