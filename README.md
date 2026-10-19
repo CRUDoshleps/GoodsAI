@@ -203,6 +203,10 @@ frozen spec и полный проверенный bundle. Закрытые и �
 независимая итоговая оценка. Папка должна быть новой. Prerequisites описаны в
 [инструкции сборки](docs/ARTIFACT_BUNDLE.md#подготовка-реального-development-checkpoint).
 
+Готовый [checkpoint 19.10.2026](docs/delivery/2026-10-19/README.md): EDA,
+метрики, PDF/Markdown-слайды, manifest и инструкция к локальному полному архиву.
+Реальный batch содержит 2198 development SKU; закрытые группы исключены.
+
 ## Репозитории и ветки
 
 - **GitHub `main`** — основная интеграционная ветка после review.

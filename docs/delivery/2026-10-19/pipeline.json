@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1",
+  "method": "rules_only",
+  "confidence_kind": "heuristic",
+  "decisions": [
+    "review",
+    "abstain"
+  ],
+  "config_sha256": "cb7285cb3b83d2584661d5ec8eb4a315d6581148a5c3b1f7d012a0998db19a2b",
+  "source_sha": "047e1ee4abc5e04b0c3d49da3bfab81760f4376f",
+  "code_sha256": "cbab1085742ac5c1a92b6d840c3f208927230ccf0ea4eafa6f4d46230fb6ca08",
+  "entrypoint": "python -m goodsai.cli --config public/pipeline/config.json predict",
+  "llm_calls": 0
+}
