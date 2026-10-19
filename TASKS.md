@@ -66,7 +66,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P1 | REVIEW | NLP/QA | urasha / Codex (сессия Влада) | `qa/ver-001-relation-verifier` | claim 9400302; relation guard; synthetic false accepts 8→0, 0 lost TP на двух development references |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | BLOCKED | ML engineer | — | — | компактный encoder только после baseline и gold; ждёт EVAL-001 |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
-| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
+| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | IN_PROGRESS | QA | Codex (tunaIT) | `qa/qa-001-hard-cases` | 19.10: expected-output synthetic adversarial suite; depends on #79/#86 for relation/unit fixes |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 | DOCS-002 | [#52](https://github.com/CRUDoshleps/GoodsAI/issues/52) | P1 | DONE | technical writer | Codex (e345ee) | `main` | PR #77 merged 1e922aa; author review по поручению пользователя; 135 + 3 tests, smoke/verify; mirror OK |
