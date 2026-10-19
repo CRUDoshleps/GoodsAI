@@ -185,6 +185,9 @@ API временный до публикации точной схемы орг�
 
 ## Проверки
 
+Контекстные отказы verifier, воспроизводимое сравнение и ограничения:
+[VER-001](docs/RELATION_VERIFIER.md) (подготовлено на review).
+
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v

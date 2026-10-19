@@ -547,6 +547,13 @@ Gitea fast-forward; divergence останавливает job, а старый G
 
 ### VER-001 — relation verifier
 
+19.10.2026: реализация на REVIEW, claim `9400302`, сессия Влада.
+[Результат и ограничения](docs/RELATION_VERIFIER.md). Общий candidate guard,
+без изменения v0.1 и extractor rules; на 20 synthetic probes ложные извлечения
+8→0, сохранены 10/10 положительных фактов. Два reviewed development по 20 карточек:
+M2 69 TP/0 FP/14 FN, D21–D40 59 TP/0 FP/23 FN, до=после, 0 lost TP/new FP.
+Это AI-assisted development, не independent test. Main/VM не обновлялись.
+
 **Шаги**
 
 1. Собрать отрицательные шаблоны: совместимость, аксессуар, комплект, negation.
