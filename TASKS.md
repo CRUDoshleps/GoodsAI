@@ -75,7 +75,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | REVIEW | NLP/QA | urasha | `qa/ver-001-relation-verifier` | проверка отрицаний, совместимости и чужих сущностей |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | Codex (tunaIT) | `main` | PR #80 merged 468e35e; opt-in prototype принят; default/human quality gate остаётся открыт |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
-| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
+| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | REVIEW | QA | Codex (tunaIT) | `qa/qa-001-hard-cases` | 21 strict probes: 20 pass, known #15 fails visibly; 162+3 tests; depends on #79/#86 |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 | QA-003 | [#47](https://github.com/CRUDoshleps/GoodsAI/issues/47) | P1 | DONE | QA | Codex (e345ee) | `main` | PR #73 merged ba392d6; mirror OK; 11 свойств quick/nightly; schema/Decimal regressions; CI OK |

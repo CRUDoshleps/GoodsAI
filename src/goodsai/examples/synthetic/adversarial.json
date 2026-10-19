@@ -1,0 +1,543 @@
+{
+  "version": "qa-001-v1",
+  "origin": "assistant-curated synthetic contract probes, not catalogue gold",
+  "cases": [
+    {
+      "id": "memory_pair",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-memory_pair",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901 8/256GB",
+        "description": null
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "ram_gb": {
+            "value": "8",
+            "unit": "GB",
+            "decision": "review",
+            "evidence": {
+              "field": "title",
+              "start": 24,
+              "end": 31,
+              "text": "8/256GB"
+            },
+            "reason_codes": []
+          },
+          "storage_gb": {
+            "value": "256",
+            "unit": "GB",
+            "decision": "review",
+            "evidence": {
+              "field": "title",
+              "start": 24,
+              "end": 31,
+              "text": "8/256GB"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "memory_roles",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-memory_roles",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "Оперативная память 8 ГБ; встроенная память 256 ГБ."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "ram_gb": {
+            "value": "8",
+            "unit": "GB",
+            "decision": "review",
+            "evidence": {
+              "field": "description",
+              "start": 19,
+              "end": 23,
+              "text": "8 ГБ"
+            },
+            "reason_codes": []
+          },
+          "storage_gb": {
+            "value": "256",
+            "unit": "GB",
+            "decision": "review",
+            "evidence": {
+              "field": "description",
+              "start": 43,
+              "end": 49,
+              "text": "256 ГБ"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "capacity_conversion",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-capacity_conversion",
+        "category_id": "482",
+        "title": "Чайник Bosch QA-902 1700 мл",
+        "description": null
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "capacity_l": {
+            "value": "1.7",
+            "unit": "L",
+            "decision": "review",
+            "evidence": {
+              "field": "title",
+              "start": 20,
+              "end": 27,
+              "text": "1700 мл"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "negated_capacity",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-negated_capacity",
+        "category_id": "482",
+        "title": "Чайник Bosch QA-902",
+        "description": "Объём не 1,7 л."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "capacity_l": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "not_found_by_rules"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "foreign_screen",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-foreign_screen",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "Совместим с телефоном: экран 6,3 дюйма."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "screen_inches": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "relation_foreign_entity"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "missing_battery",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-missing_battery",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "Описание без ёмкости."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "battery_mah": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "not_found_by_rules"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "power_range",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-power_range",
+        "category_id": "482",
+        "title": "Чайник Bosch QA-902",
+        "description": "Мощность от 1500 до 2200 Вт."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "power_w": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "not_found_by_rules"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "memory_card",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-memory_card",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "Карта памяти 256 ГБ."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "storage_gb": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "not_found_by_rules"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "cyrillic_alias",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-cyrillic_alias",
+        "category_id": "482",
+        "title": "Чайник Китфорт QA-902",
+        "description": null
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "brand": {
+            "value": "Kitfort",
+            "unit": null,
+            "decision": "review",
+            "evidence": {
+              "field": "title",
+              "start": 7,
+              "end": 14,
+              "text": "Китфорт"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "unknown_brand",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-unknown_brand",
+        "category_id": "761",
+        "title": "Смартфон Qorion QA-903",
+        "description": null
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "brand": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "not_found_by_rules"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "inline_model",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-inline_model",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-<b>901</b>",
+        "description": null
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "model": {
+            "value": "QA-901",
+            "unit": null,
+            "decision": "review",
+            "evidence": {
+              "field": "title",
+              "start": 17,
+              "end": 26,
+              "text": "QA-<b>901"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "html_screen",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-html_screen",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "😀 Экран <b>6,3</b>&nbsp;дюйма."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "screen_inches": {
+            "value": "6.3",
+            "unit": "inch",
+            "decision": "review",
+            "evidence": {
+              "field": "description",
+              "start": 11,
+              "end": 29,
+              "text": "6,3</b>&nbsp;дюйма"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "duplicate_color",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-duplicate_color",
+        "category_id": "761",
+        "title": "😀 Смартфон Samsung QA-901 black black",
+        "description": null
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "color": {
+            "value": "черный",
+            "unit": null,
+            "decision": "review",
+            "evidence": {
+              "field": "title",
+              "start": 26,
+              "end": 31,
+              "text": "black"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "memory_conflict",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-memory_conflict",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "Встроенная память 128 ГБ; встроенная память 256 ГБ."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "storage_gb": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "conflicting_evidence"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "bundle_battery",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-bundle_battery",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "В комплекте внешний аккумулятор 10000 мА*ч."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "battery_mah": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "relation_bundle_item"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "battery_star",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-battery_star",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "Батарея 5100 мА*ч."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "battery_mah": {
+            "value": "5100",
+            "unit": "mAh",
+            "decision": "review",
+            "evidence": {
+              "field": "description",
+              "start": 8,
+              "end": 17,
+              "text": "5100 мА*ч"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "invalid_targets",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-invalid_targets",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": null,
+        "vendor": "forbidden synthetic target"
+      },
+      "expected": {
+        "status": "invalid_input",
+        "attributes": {}
+      }
+    },
+    {
+      "id": "unsupported",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-unsupported",
+        "category_id": "unknown",
+        "title": "Неизвестный товар QA-904",
+        "description": null
+      },
+      "expected": {
+        "status": "unsupported_category",
+        "attributes": {}
+      }
+    },
+    {
+      "id": "duplicate_battery",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-duplicate_battery",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "Батарея 5100 мА*ч. Батарея 5100 мА*ч."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "battery_mah": {
+            "value": "5100",
+            "unit": "mAh",
+            "decision": "review",
+            "evidence": {
+              "field": "description",
+              "start": 8,
+              "end": 17,
+              "text": "5100 мА*ч"
+            },
+            "reason_codes": []
+          }
+        }
+      }
+    },
+    {
+      "id": "hidden_battery",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-hidden_battery",
+        "category_id": "761",
+        "title": "Смартфон Samsung QA-901",
+        "description": "<script>Батарея 5100 mAh</script>Батарея не указана."
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "battery_mah": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "not_found_by_rules"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "brand_is_not_color",
+      "input": {
+        "schema_version": "0.1",
+        "sku_id": "synthetic-brand_is_not_color",
+        "category_id": "482",
+        "title": "Электрочайник RED SOLUTION QA-905",
+        "description": null
+      },
+      "expected": {
+        "status": "processed",
+        "attributes": {
+          "color": {
+            "value": null,
+            "unit": null,
+            "decision": "abstain",
+            "evidence": null,
+            "reason_codes": [
+              "not_found_by_rules"
+            ]
+          }
+        }
+      },
+      "known_issue": 15
+    }
+  ]
+}
