@@ -93,7 +93,7 @@ def run(args):
             variants[name]["reason"] = "no_provider_calls_or_cache_hits_not_an_llm_quality_experiment"
     reasons = {"registry": "colleague_train_registry_not_integrated_on_frozen_population",
                "gliner": "local_weights_and_frozen_candidate_run_not_supplied",
-               "llm": "PR90_unmerged_live_gateway_and_candidate_artifacts_remain_on_VM"}
+               "llm": "live_gateway_trace_and_frozen_candidate_artifacts_remain_on_VM"}
     for name, reason in reasons.items():
         variants.setdefault(name, {"status": "not_run", "reason": reason})
     report["variants"] = variants
