@@ -10,7 +10,7 @@
 
 Итог: [метрики](../reports/metrics.md), [run stats](../reports/run_stats.json),
 [анализ и передача](research/silver_evaluation_results.md). Итоговый producer
-`47763c7`, приватный отчёт `outputs/evaluation/eval-006-baseline-final`.
+`f33e3fc`, приватный отчёт `outputs/evaluation/eval-006-integrated-baseline`.
 Числа из черновых v1/v2 mapping не являются итоговой оценкой.
 
 ## Подготовка данных

@@ -808,11 +808,11 @@
   "provenance": {
     "baseline_declared_sha": "977c5ed",
     "bundle_manifest_sha256": "c325664d36afe2a9fd73217d9515ffefe81b11bafd7bc736d3b8484eea88d9f6",
-    "predictions_sha256": "6d07a30120a64708d30c9ee52a77ba78b84ba485ad717394685c7ea726df742d",
+    "predictions_sha256": "a3e2c3deb394347b28340eaf7fa5a985e4f0a2416bb08ebc9104ddb139c19be9",
     "runtime": {
-      "code_sha256": "adb3c3e131e62faa52da5f5e8138bbbf0fd798a60d9eb4619c6f18ccfe199b39",
+      "code_sha256": "ea304b0e5f900a2e979c01923c4402c22a4b979dd124e13a2f40023f532238b4",
       "config_sha256": "cb7285cb3b83d2584661d5ec8eb4a315d6581148a5c3b1f7d012a0998db19a2b",
-      "git_commit": "47763c7dc6c7e051e006024d74829b7b57176fe1",
+      "git_commit": "f33e3fcd1487a3d82f8ed684ebfaa56d8220f6e4",
       "git_dirty": false,
       "platform": "Windows-11-10.0.26200-SP0",
       "python": "3.12.6"
@@ -835,10 +835,10 @@
   "reference_kind": "catalog_silver",
   "resources": {
     "cold": {
-      "cards_per_second_including_io": 708.9536716874123,
-      "elapsed_seconds": 4.2837777999957325,
-      "extractor_p50_ms": 1.1368999985279515,
-      "extractor_p95_ms": 3.8258999993558973,
+      "cards_per_second_including_io": 476.18566781800905,
+      "elapsed_seconds": 6.37776440000016,
+      "extractor_p50_ms": 1.2432000003173016,
+      "extractor_p95_ms": 6.372600000759121,
       "rows": 3037,
       "status_counts": {
         "processed": 3037
@@ -854,10 +854,10 @@
       "output_tokens": null
     },
     "warm": {
-      "cards_per_second_including_io": 704.7542601724763,
-      "elapsed_seconds": 4.30930349999835,
-      "extractor_p50_ms": 1.1503000059747137,
-      "extractor_p95_ms": 3.951599996071309,
+      "cards_per_second_including_io": 403.09547059378804,
+      "elapsed_seconds": 7.534195300002466,
+      "extractor_p50_ms": 1.7244000046048313,
+      "extractor_p95_ms": 6.960400001844391,
       "rows": 3037,
       "status_counts": {
         "processed": 3037
@@ -1798,7 +1798,7 @@
       "status": "not_run"
     },
     "llm": {
-      "reason": "PR90_unmerged_live_gateway_and_candidate_artifacts_remain_on_VM",
+      "reason": "live_gateway_trace_and_frozen_candidate_artifacts_remain_on_VM",
       "status": "not_run"
     },
     "registry": {
