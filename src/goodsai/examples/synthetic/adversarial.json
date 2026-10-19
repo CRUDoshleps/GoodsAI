@@ -390,7 +390,7 @@
         "sku_id": "synthetic-bundle_battery",
         "category_id": "761",
         "title": "Смартфон Samsung QA-901",
-        "description": "В комплекте внешний аккумулятор 5100 мА*ч."
+        "description": "В комплекте внешний аккумулятор 10000 мА*ч."
       },
       "expected": {
         "status": "processed",
