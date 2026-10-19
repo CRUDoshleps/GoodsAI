@@ -292,6 +292,60 @@ commit, producer SHA остаётся указанным выше. Официа�
 
 ## Результат организаторского review
 
+### EVAL-001: подготовка human-review, итоговый gold не готов
+
+**Human feedback D21–D40 получен:** Влад явно подтвердил все неуказанные карточки/
+поля. Номер комментария про G уточнён как D27, память D25 подтверждена.
+Версионированный reviewed development сохраняет AI-assisted origin и
+independent_reference=false: 20 карточек/120 labels, 82 present / 27 absent /
+4 ambiguous / 7 unjudgeable, 109 judged / 11 excluded. Две ручные contextual
+коррекции единиц памяти D27 с сохранением raw evidence; глобальная политика
+единиц не менялась. Ошибка категории D24 подтверждена, в smartphone-схеме
+unjudgeable сохранён; часы не добавлены в schema. Конфликты D29/D31/D36 остаются
+ambiguous. Файл: `outputs/evaluation/development-review-20261019-human-v2/development.human-reviewed.jsonl`.
+P/R/F1 пока N/A, реальный prediction/evaluation не запускался; reserve закрыт.
+Влад согласовал направление обработки конфликтов: предложение исправленной
+категории с подтверждением человека, без автоматической замены исходной категории;
+рекомендации по единицам и неоднозначным model/color также приняты.
+Это ещё не runtime-функция. Реализация категории — ML-002 (#58), пока BLOCKED
+зависимостями и согласованием контракта; детали в DEVELOPMENT_REVIEW.md.
+Producer feedback `4349c39`: 137 основных + 3 reader tests и pip check — OK,
+4 human-reference файла byte-identical на повторе. Reviewed reference SHA:
+`9f8a2ef601bd76704551340cedfe0aef7c8d42677446044cb4dfe37b8ee443ae`.
+
+**Продолжение по решению Влада:** Issue #6 уточнён: сейчас выполняется
+[AI-assisted development D21–D40](DEVELOPMENT_REVIEW.md) с последующей проверкой
+Владом. Пул 800 unexposed development SKU, отобраны 20 разных семей / 120 полей,
+по 10 карточек категории и по 5 с/без description. Draft: 80 present / 27 absent /
+6 ambiguous / 7 unjudgeable; human-reviewed=0, все pending, P/R/F1=N/A,
+independent_reference=false. Source/test не раскрываются вне development-партии.
+Новый exposure ledger сохраняется рядом с draft и исключает эти семьи из будущих
+новых отборов через --seen. Старые задания/разметка/предсказания сохранены.
+Форма: `outputs/evaluation/development-review-20261019-v2-ai/development.review.md`.
+Producer `ffa35ca`: 134 основных + 3 reader tests, pip check — OK; 4 selection
+и 4 draft-файла byte-identical на повторе. Exact evidence и уникальность семей
+проверены; EVAL-002 verify подтверждает неизменность источников, freeze test
+остаётся approved=false. Текущий инкремент передан на REVIEW, не DONE.
+
+В `eval/eval-001-blind-human-gold` подготовлены [протокол](HUMAN_GOLD.md),
+[guideline](HUMAN_GOLD_GUIDELINES.md), offline HTML и команды
+prepare/materialize/check/reconcile/finalize. Claim `fab562f`, code `257fe1f`.
+128 основных + 3 reader tests, pip check, CLI/link/secret-pattern checks — OK;
+synthetic browser smoke подтвердил Unicode offsets/navigation/JSON download+import.
+
+Локальный `outputs/evaluation/eval-001-20261019-metadata/`: 40 карточек/240 полей,
+только metadata/blank labels, 6 файлов двух запусков byte-identical. Package ID
+`c2a18dfba7f9d23c2c913443f906ea3eba98adb9229aa9f437ae3e18f7c5cba0`.
+Неутверждённый freeze блокирует раскрытие; реальный HTML/тексты test не создавались,
+answers/gold/predictions отсутствуют, P/R/F1 и agreement N/A. Проверяемый candidate
+в template — `1d53dad` (rules-0.3.0-m2-policy), это предложение, не утверждённый freeze.
+
+Влад сообщил, что размечать будет один и раньше видел AI-assisted development.
+Это не автоматически exposure нового reserve, но не выполняет требование двух
+независимых людей. Будущий независимый подэтап ожидает разметчиков/adjudicator,
+решения о freeze и сбора ответов. Сам Issue #6 продолжен для AI-assisted development;
+такой набор не объявляется независимым test. Runtime/исходные данные/VM не менялись.
+
 ### EVAL-002: split/leakage audit — 19.10.2026
 
 Подготовлен [аудит E1 split](reviews/2026-10-19_eval-002_split_audit.md),
