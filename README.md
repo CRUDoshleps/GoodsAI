@@ -176,6 +176,37 @@ API временный до публикации точной схемы орг�
 Windows/Python 3.12.6. После каждого нового изменения проверки выполняются
 заново в своей среде; этот README не заменяет свежий test report.
 
+## Сборка комплекта артефактов
+
+Проверка упаковки без датасетов (PowerShell, новый output-dir):
+
+```powershell
+.\.venv\Scripts\python.exe scripts/release/build_release.py smoke --output-dir outputs/release/smoke-next
+.\.venv\Scripts\python.exe scripts/release/build_release.py verify --bundle outputs/release/smoke-next
+```
+
+На Linux использовать `.venv/bin/python`. Ожидается `synthetic_smoke`, затем
+`verified`: это не финальная сдача. Сборка шести реальных артефактов по frozen
+spec, статусы incomplete/N/A и правила публикации — в
+[ARTIFACT_BUNDLE.md](docs/ARTIFACT_BUNDLE.md).
+
+Подготовка реальных development-артефактов из уже существующих локальных
+E1/EDA caches, на чистом Git checkout:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.release.prepare_delivery --report-date 2026-10-19 --output-dir outputs/delivery/checkpoint-next
+```
+
+Команда сохраняет predictions, reviewed M2-метрики, EDA-сводку, Markdown-слайды,
+frozen spec и полный проверенный bundle. Закрытые и смешанные test/validation
+семейства исключаются; это development checkpoint, не весь каталог и не
+независимая итоговая оценка. Папка должна быть новой. Prerequisites описаны в
+[инструкции сборки](docs/ARTIFACT_BUNDLE.md#подготовка-реального-development-checkpoint).
+
+Готовый [checkpoint 19.10.2026](docs/delivery/2026-10-19/README.md): EDA,
+метрики, PDF/Markdown-слайды, manifest и инструкция к локальному полному архиву.
+Реальный batch содержит 2198 development SKU; закрытые группы исключены.
+
 ## Репозитории и ветки
 
 - **GitHub `main`** — основная интеграционная ветка после review.
@@ -193,6 +224,10 @@ Windows/Python 3.12.6. После каждого нового изменения
 
 ## Карта документации
 
+Статусы результатов, источники цифр и оформление материалов проверяются по
+[CONTENT_STYLE](docs/CONTENT_STYLE.md); для слайдов есть отдельный
+[checklist защиты](docs/PRESENTATION_REVIEW.md).
+
 | Файл | Назначение |
 | --- | --- |
 | [TASKS.md](TASKS.md) | очередь, владельцы, статусы и подробные подзадачи |
@@ -201,12 +236,14 @@ Windows/Python 3.12.6. После каждого нового изменения
 | [RESEARCH.md](RESEARCH.md) | научные и open source основания решений |
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | что реально сделано и что ещё отсутствует |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | текущая и целевая архитектура гибридного pipeline |
+| [docs/SPAN_INDEX.md](docs/SPAN_INDEX.md) | внутренние исходные spans, limits и отдельный замер покрытия |
 | [docs/DATASET.md](docs/DATASET.md) | подготовка, ограничения и защита от утечки |
 | [docs/EVALUATION.md](docs/EVALUATION.md) | дизайн эксперимента, формулы и честные метрики |
 | [docs/RESULTS.md](docs/RESULTS.md) | происхождение, snapshots и воспроизведение M1/M2 |
 | [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | трассировка требований и шести артефактов |
 | [docs/RUNBOOK.md](docs/RUNBOOK.md) | запуск, диагностика и восстановление |
 | [docs/RELEASES.md](docs/RELEASES.md) | GitHub → Gitea → VM и чек-лист релиза |
+| [docs/ARTIFACT_BUNDLE.md](docs/ARTIFACT_BUNDLE.md) | offline-сборщик шести артефактов, hashes и проверка переноса |
 
 ## Границы текущей версии
 

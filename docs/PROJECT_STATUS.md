@@ -2,12 +2,52 @@
 
 Актуально на 19 октября 2026 года.
 
+## DOCS-002: текст и доказательства — DONE
+
+[DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR
+и [проверка презентации](PRESENTATION_REVIEW.md). Они разделяют DONE/PLAN/
+HYPOTHESIS, требуют источники claims и запрещают декоративные AI-визуалы.
+Текстовый аудит README, delivery report и Markdown-слайдов:
+[content audit](reviews/2026-10-19_docs-002_content_audit.md). Это редакционные
+правила, не автоматическая проверка истинности и не новая оценка качества.
+Исторические frozen artifacts и PDF не перезаписывались.
+
+## BASE-002: исходные spans — DONE
+
+[DONE] Принято в PR #75 (`61b9260`), зеркало Gitea проверено.
+Добавлен внутренний bounded SpanIndex с deterministic source/config identity,
+точными raw offsets и явными truncated/unavailable reasons. Неизвестные имена,
+числа, повторы и HTML/entities проверяются synthetic tests. Отдельный CLI
+измеряет exact candidate-set recall, время и traced Python memory на явно
+разрешённой span-разметке; raw text/SKU в report не выводятся. Synthetic fixture
+покрывает 6/6 reference spans. Runtime predictor и публичный schema не менялись;
+интеграция selector/LLM и реальное качество ещё не подтверждены.
+Контракт, ограничения и команды: [SPAN_INDEX.md](SPAN_INDEX.md).
+
+## Review и интеграция BASE-002 / DOCS-002
+
+По прямому поручению пользователя автор выполнил review и интеграцию.
+Критерии и решения ACCEPT записаны в [PR #75](https://github.com/CRUDoshleps/GoodsAI/pull/75)
+и [PR #77](https://github.com/CRUDoshleps/GoodsAI/pull/77). Это авторский review,
+не независимая разметка или подтверждение качества каталога.
+
+После review исправлены пересечения HTML comments/declarations в raw spans,
+проверка неизменности measurement input/reference и двусмысленность PLAN/REVIEW
+в style guide. Алгоритм SpanIndex — `span-index-2`. На совместном candidate
+`967108a` прошли 135 основных и 3 reader tests, pip check, demo 6/6, synthetic
+span fixture 6/6, bundle smoke/verify и local Markdown targets. Frozen delivery
+bytes не изменены. CI invariants прошёл для исправленного BASE-002 и совместного
+candidate; mirror workflow успешен для обоих merge SHA.
+
+Issues #64 и #52 закрыты после merge. VM, независимый gold/test, model calls,
+новая визуальная PDF-проверка и репетиция не выполнялись.
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
 | опубликованный runtime baseline | Gitea `main`, без ночных docs-only изменений | `48b45dc` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, fetch 19.10 | `0736753` |
+| последняя проверенная интеграционная база | GitHub / Gitea `main`, BASE-002 + DOCS-002 и mirror 19.10 | `1e922aa` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
@@ -46,8 +86,8 @@ fast-forward публикуется в Gitea; divergence останавлива�
 - полная поддержка ноутбуков и новых категорий;
 - обработка непустых seller attributes;
 - финальный официальный API contract;
-- готовый release predictions-файл, доступный вместе с metrics/manifest;
-- финальная техническая презентация по фактическому результату.
+- официальный полный predictions-файл, доставленный организаторам;
+- финальная презентация защиты (технический checkpoint PDF/Markdown подготовлен).
 
 ## Данные и оценка
 
@@ -108,7 +148,90 @@ LLM и VM не запускались. Linux-команды проверены �
 на Linux в рамках DOCS-001 не выполнялись. Сборщик шести артефактов — следующий
 инкремент; его наличие здесь не заявляется.
 
+### DOCS-001 опубликован; ART-003 подготовлен на review
+
+По разрешению Влада PR #31 слит в GitHub `main` (`55378f1`); mirror workflow
+успешен, Gitea `main` указывает на тот же SHA. DOCS-001 завершён.
+VM в этом шаге не обновлялась.
+
+Этап B реализован в feature `release/art-003-artifact-bundle`, claim `d49f300`,
+задача [ART-003 #32](https://github.com/CRUDoshleps/GoodsAI/issues/32).
+[Offline-сборщик](ARTIFACT_BUNDLE.md) принимает frozen spec, связывает шесть
+артефактов с кодом/конфигом/input/predictions/metrics, сообщает incomplete
+при mismatch/missing и проверяет hashes после переноса. Public smoke получает
+только встроенную синтетику; private-входы/gold/документы остаются локально.
+Без gold P/R/F1 N/A. Конфиг ограничен versioned rules config; новый LLM runtime
+потребует отдельного расширения, auto_accept не вводился.
+
+Windows / Python 3.12.6: **100 основных тестов** (18 новых release tests),
+3 reader tests, pip check — OK; smoke 6/6 и `verify` — OK. Локальные логи:
+`outputs/art-003-full-tests-final.log`; candidate bundle:
+`outputs/release/art-003-smoke-candidate/` (dirty candidate, не clean release).
+Полный synthetic fixture со всеми шестью компонентами проверен тестами;
+реальная техническая презентация и официальный dataset-wide release не созданы.
+
+Runtime, schema v0.1, правила и зависимости не менялись. Реальные данные,
+прежние gold/predictions/отчёты и резерв test не читались для новых предсказаний;
+полный EDA, pickle, LLM, расходы и deployment не выполнялись. Приватная сборка
+на реальном release candidate и Linux остаётся следующей проверкой ART-001/ENV-001.
+Нужные безопасные агрегаты/слайды можно отдельно подготовить к публикации в Gitea
+по разрешению Влада; автоматической публикации raw/gold/data нет.
+
+### ART-001: реальные development-артефакты подготовлены
+
+[Комплект checkpoint 19.10](delivery/2026-10-19/README.md) подготовлен на чистом
+code candidate `047e1ee4abc5e04b0c3d49da3bfab81760f4376f` в
+`release/art-001-prepared-delivery` (зависит от PR #33).
+
+- Реальный batch: 2198 development SKU (1527 смартфонов, 671 чайник), все processed.
+  Исключены 8126 прочих/защищённых/смешанных E1 SKU, включая все test_reserved;
+  полный каталог не предсказывался, закрытые задания не открывались.
+- M2 reviewed development: 69 TP / 0 FP / 14 FN, P100/R83,1/F190,8%,
+  тот же reference SHA и те же ограничения AI-assisted, не независимый test.
+- Candidate coverage на batch: 7953/14044 запрошенных пар (56,6%), не P/R/F1.
+- EDA-агрегаты восстановлены из caches без полного EDA/pickle. Исправлена
+  ошибка DATASET: каталог 546069 SKU; 148871 — SKU с дублирующимися названиями параметров.
+- Подготовлены технические Markdown-слайды и PDF (8 страниц, весь рендер просмотрен).
+  Это checkpoint, не финальная защита; PPTX не создавался.
+- Полный PDF-комплект: assemble complete → verify → ZIP → извлечение → verify.
+  В отдельном чистом worktree candidate без исходных caches из ZIP повторены
+  predict/evaluate: JSONL побайтно идентичен, метрики идентичны, git_dirty=false.
+
+108 основных + 3 reader tests и pip check — OK, Windows/Python 3.12.6.
+Оригинальные input/caches/reference/старые outputs проверены hashes до/после,
+не изменены. Runtime/схема/правила/зависимости не менялись. Не было LLM,
+калибровки, расходов API, независимой оценки или изменения VM.
+
+Локальный приватный архив: `outputs/delivery/art-001-20261019-v1/delivery-bundle-pdf.zip`,
+SHA `31690a5fdefe2f3ee7e9059f2855bdc526b87f19f264498e20709bb08b3dc9de`.
+В PR включаются только инструменты, агрегаты, checksums и слайды; raw/input/gold/
+predictions/архив в Git не добавлены. Публикационные документы — последующий
+commit, producer SHA остаётся указанным выше. Официальная полная сдача/доставка
+архива организаторам и итоговый blind gold остаются отдельными действиями.
+
 ## Результат организаторского review
+
+### EVAL-002: split/leakage audit — 19.10.2026
+
+Подготовлен [аудит E1 split](reviews/2026-10-19_eval-002_split_audit.md),
+[метод и CLI](SPLIT_AUDIT.md), ветка `eval/eval-002-split-leakage`, Issue #7.
+После согласования Владом PR #69 слит в GitHub main (`c49540f`), Issue #7 закрыт.
+Это принятие инструмента/результатов аудита, не независимый human gold и не
+автоматическая замена manifests в downstream-процессах. VM не обновлялась.
+Producer `62388ad`, clean Windows/Python 3.12.6. Исходные 10324 SKU содержат
+632 mixed семейных компонента; прежний original split целиком не является
+независимым. Отдельный `eval-002-quarantine-v1` сохраняет 3411 SKU
+(2198 development / 882 validation-feedback / 331 test_reserved), 6913 строк
+целиком исключены в консервативный карантин. В eligible нет обнаруженных
+межsplit-компонентов/exposed test-семейств. Validation остаётся development feedback.
+
+Действующий M2 v2 reserve: 40 SKU / 40 семейств, 0 выявленных проблем;
+тексты не выводились/не экспортировались, predictions не запускались, проверена
+пустота labels. Независимого human gold это не создаёт. Все 9 файлов двух чистых
+run побайтно совпали, verify и hashes входов — OK. 119 основных + 3 reader tests,
+pip check — OK. Старые split/gold/results не перезаписаны, runtime/VM не изменены.
+Локальные identities/fingerprints/нарушения в `outputs/evaluation/`, вне Git.
+Новый partition подключается явно после review, автоматической миграции нет.
 
 Обновление 19.10.2026: [аудит второго прогона и план](reviews/2026-10-19_second_run_plan.md).
 Сумма оценённых технических критериев выросла с 17,17 до **17,81/20** (+0,64).
@@ -140,8 +263,8 @@ release gate. Blind human review готовить параллельно, test �
 которые переводят текстовый feedback в проверяемые результаты. Наибольший
 приоритет имеют независимый пакет качества, калибровка auto-accept, чистый
 воспроизводимый запуск и release gate точного SHA. Архитектурные, операторские
-и презентационные задачи идут после их зависимостей. Реализация этих 20 задач
-не начата; их статусы и критический путь находятся в
+и презентационные задачи идут после их зависимостей. На момент создания плана реализация не была начата; актуальные статусы
+смотрите в TASKS.md. Критический путь находится в
 [плане улучшения оценки](reviews/2026-10-19_score_improvement_backlog.md).
 
 Организаторы подтвердили сильные стороны: работающий end-to-end baseline,
