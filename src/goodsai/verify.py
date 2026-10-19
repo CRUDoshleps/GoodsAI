@@ -8,6 +8,7 @@ from goodsai.config import validate_config
 from goodsai.normalize import BOUNDS, UNITS, model_name
 from goodsai.relation import RelationVerifier
 from goodsai.rules import Rules
+from goodsai.stages import CandidateSource
 from goodsai.text import visible_span
 
 
@@ -42,9 +43,9 @@ def validate_candidate(candidate, product: Product, requested: list[str], config
 
 
 class Extractor:
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, *, source: CandidateSource | None = None):
         self.config = validate_config(config)
-        self.rules = Rules(self.config)
+        self.rules = Rules(self.config) if source is None else source
 
     def predict(self, product: Product, run_id: str = "rules-v0") -> dict:
         requested = self.config["categories"].get(product.category_id)

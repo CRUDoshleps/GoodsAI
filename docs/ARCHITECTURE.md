@@ -183,3 +183,22 @@ flowchart LR
 изменением official API или переносом release-источника. Решение фиксируется
 в PR и в `docs/PROJECT_STATUS.md`; отдельный каталог ADR появится, когда таких
 решений станет больше трёх.
+
+## ARCH-001: внутренний контракт этапов v1
+
+[DONE — feature candidate] `goodsai.stages` задаёт неизменяемый Candidate,
+CandidateSource, CandidateGate и CategoryRegistry через typing.Protocol.
+Импорт Candidate из rules сохранён как alias. Extractor принимает явный
+keyword-only source для внедрения нового производителя кандидатов; CLI/API
+по умолчанию продолжают создавать Rules. Ни одна source не обходит structural,
+relation, conflict и output checks. Score остаётся heuristic/review.
+
+Это минимальный внутренний контракт для конфигурируемых категорий, не новый
+router, LLM adapter или официальный API. CategoryRegistry задаёт интерфейс;
+его data-driven реализация относится к CONF-003. Внешний E1 schema не изменён.
+Совместимость типизируется структурно, без runtime загрузки классов из конфига.
+
+[PLAN] SPEC-001 и CONF-002 остаются условиями принятия полного pipeline.
+Кандидат ARCH-001 стоит поверх CONF-001 и требует последовательного review.
+Проверки: tests/test_stages.py, синтетические source с неверным evidence,
+единицами, отрицанием и конфликтом; настоящие данные не открывались.
