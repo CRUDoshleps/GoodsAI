@@ -13,6 +13,26 @@
 Короткий список спорного — соседний `disputes.md`. Реальные тексты/разметка/списки
 SKU не публикуются в Git. Во всех 20 карточках / 120 полях human review пока pending.
 
+**Обновление после ответа Влада:** все D21–D40 просмотрены. Влад явно подтвердил
+неуказанные карточки и неуказанные атрибуты, а затем уточнил, что комментарий
+про `G` относится к D27; память D25 подтверждена без изменений. Новая версия:
+`outputs/evaluation/development-review-20261019-human-v2/development.human-reviewed.jsonl`.
+20 карточек/120 подтверждённых полей, AI-assisted origin сохранён,
+independent_reference=false. Draft выше — историческая версия до проверки.
+
+Изменены только два memory-label D27: RAM 12 GB / storage 512 GB, с raw evidence
+`12+512G` и provenance **manual_contextual_correction**. Это ручная трактовка
+пользователем именно этой карточки; общий алиас G→GB и runtime-правило не добавлены.
+В будущей оценке эти две пары нужно показывать отдельным provenance-срезом.
+D24 подтверждена как ошибка категории; семь unjudgeable в схеме смартфона
+сохранены. D29/storage, D31/model, D36/model+color остаются ambiguous.
+Итого 82 present / 27 absent / 4 ambiguous / 7 unjudgeable, 109 judged / 11 excluded.
+Изменение support связано с разметкой, не с улучшением extractor.
+
+P/R/F1 не считались: текущий ответ — human-review/provenance, не новый прогон
+метода. Старые draft/reference/results и reserve не заменены. Вопросы routing,
+одиночной памяти и подсказок LLM — предложения для отдельной реализации.
+
 Постоянные номера **D21–D40**, старые D01–D20 не меняются. Ответ можно присылать
 партиями по 5 карточек:
 
@@ -63,6 +83,18 @@ Linux: заменить executable на `.venv/bin/python`; Linux здесь н�
 Decisions — авторский private JSON с отдельным решением/цитатой/заметкой для
 каждого поля, не поставляемый в Git датасет. Код не придумывает их при запуске.
 Каждый output-dir новый, защищённые входы и артефакты сверяются по SHA.
+
+Версионирование явного feedback (private JSON содержит автора, hash draft,
+явное глобальное подтверждение, комментарии, уточнение номера и точечные overrides):
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.research.development_review feedback --draft-bundle outputs/evaluation/development-review-20261019-v2-ai --feedback outputs/evaluation/development-review-20261019-feedback-round1.json --output-dir outputs/evaluation/development-review-human-replay
+```
+
+Без явного confirm_all_existing_labels=true функция не повышает draft до reviewed.
+Hash исходного draft обязателен. Contextual corrections проходят те же canonical/
+exact evidence проверки; все исходные ответы и их происхождение сохраняются.
+Эта команда не запускает predictions/evaluator и не подтверждает независимость.
 
 Финальный bundle — `development-review-20261019-v2/`, draft — `...-v2-ai/`.
 Предварительные v1 сохранены; набор карточек тот же, v2 включает окончательные

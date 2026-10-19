@@ -153,6 +153,69 @@ def build(bundle, decisions_path, output):
     return {k: result[k] for k in ["cards", "pairs", "human_reviewed_cards", "label_statuses", "independent_reference"]}
 
 
+def record_feedback(draft_bundle, feedback_path, output):
+    """Version explicit human confirmations; never infer approval from silence."""
+    draft_bundle, feedback_path, output = Path(draft_bundle), Path(feedback_path), Path(output)
+    manifest = json.loads((draft_bundle / "draft.manifest.json").read_text(encoding="utf-8"))
+    for name, checksum in manifest["artifacts"].items():
+        require(Path(name).name == name and digest(draft_bundle / name) == checksum, "draft_artifact_changed")
+    draft_path = draft_bundle / "development.ai-draft.jsonl"
+    draft_sha, feedback_sha = digest(draft_path), digest(feedback_path)
+    feedback = json.loads(feedback_path.read_text(encoding="utf-8"))
+    require(feedback.get("source_draft_sha256") == draft_sha, "feedback_source_mismatch")
+    require(feedback.get("confirm_all_existing_labels") is True, "explicit_global_confirmation_required")
+    reviewer = feedback.get("reviewer")
+    require(isinstance(reviewer, str) and bool(reviewer.strip()) and reviewer.casefold() != "codex", "human_reviewer_required")
+    overrides = feedback.get("overrides", {})
+    require(isinstance(overrides, dict), "feedback_overrides_required")
+    comments = feedback.get("comments", {})
+    require(isinstance(comments, dict) and all(isinstance(v, str) for v in comments.values()), "invalid_feedback_comments")
+    tasks = list(read_jsonl(draft_path))
+    ids = {r["review_id"] for r in tasks}
+    require(len(ids) == len(tasks) and overrides.keys() <= ids, "feedback_identity_mismatch")
+    result, changes = [], []
+    for task in tasks:
+        rid = task["review_id"]
+        require(task["split"] == "development" and task["annotation_status"] == "draft"
+                and task["label_source"] == "ai_assisted", "ai_development_draft_required")
+        replacements = overrides.get(rid, {})
+        require(isinstance(replacements, dict) and replacements.keys() <= {a["attribute"] for a in task["attributes"]},
+                "feedback_attribute_mismatch")
+        labels = []
+        for label in task["attributes"]:
+            attr = label["attribute"]
+            if attr in replacements:
+                old = label
+                label = make_label(task, attr, replacements[attr])
+                changes.append({"review_id": rid, "attribute": attr,
+                    "before": {k: old[k] for k in ["status", "value", "unit"]},
+                    "after": {k: label[k] for k in ["status", "value", "unit"]}})
+            labels.append(label | {"human_review_status": "confirmed", "needs_discussion": False,
+                "label_origin": "manual_contextual_correction" if attr in replacements else "ai_draft_human_confirmed"})
+        result.append(task | {"attributes": labels, "annotation_status": "reviewed", "label_source": "manual",
+            "annotator": reviewer, "annotation_origin": "ai_assisted_human_reviewed", "ai_assisted": True,
+            "human_review_status": "complete", "independent_reference": False,
+            "human_review_notes": comments.get(rid, ""),
+            "source_ai_draft_sha256": draft_sha, "feedback_sha256": feedback_sha})
+    require(digest(draft_path) == draft_sha and digest(feedback_path) == feedback_sha, "review_source_changed")
+    require(not output.exists(), "new_output_directory_required")
+    output.mkdir(parents=True, exist_ok=False)
+    write_rows(output / "development.human-reviewed.jsonl", result)
+    (output / "human.feedback.json").write_bytes(feedback_path.read_bytes())
+    dump(output / "review.changes.json", {"changes": changes, "normalization_scope": "reviewed_cards_only_no_runtime_rule"})
+    report = {"status": "ai_assisted_human_reviewed_development", "cards": len(result),
+        "pairs": sum(len(r["attributes"]) for r in result), "pending_pairs": 0,
+        "label_statuses": dict(Counter(a["status"] for r in result for a in r["attributes"])),
+        "manual_contextual_corrections": len(changes), "independent_reference": False,
+        "precision": None, "recall": None, "f1": None, "predictions_used": False,
+        "source_draft_sha256": draft_sha, "feedback_sha256": feedback_sha,
+        "reference_sha256": digest(output / "development.human-reviewed.jsonl"),
+        "tool_sha256": digest(Path(__file__)),
+        "artifacts": {p.name: digest(p) for p in sorted(output.iterdir()) if p.is_file()}}
+    dump(output / "review.manifest.json", report)
+    return {k: report[k] for k in ["status", "cards", "pairs", "label_statuses", "manual_contextual_corrections", "independent_reference"]}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -164,10 +227,19 @@ def main():
     p.add_argument("--bundle", type=Path, required=True)
     p.add_argument("--decisions", type=Path, required=True)
     p.add_argument("--output-dir", type=Path, required=True)
+    p = sub.add_parser("feedback")
+    p.add_argument("--draft-bundle", type=Path, required=True)
+    p.add_argument("--feedback", type=Path, required=True)
+    p.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     try:
         require((ROOT / "outputs").resolve() in args.output_dir.resolve().parents, "output_must_be_private_outputs")
-        result = select(args.audit_bundle, args.output_dir, args.seen) if args.command == "select" else build(args.bundle, args.decisions, args.output_dir)
+        if args.command == "select":
+            result = select(args.audit_bundle, args.output_dir, args.seen)
+        elif args.command == "build":
+            result = build(args.bundle, args.decisions, args.output_dir)
+        else:
+            result = record_feedback(args.draft_bundle, args.feedback, args.output_dir)
     except (ValueError, OSError, KeyError, TypeError) as exc:
         code = str(exc) if type(exc) is ValueError and str(exc).replace("_", "").isalnum() else type(exc).__name__
         parser.exit(2, "development review: " + code + "\n")

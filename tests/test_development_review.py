@@ -131,6 +131,64 @@ class DevelopmentReviewTests(unittest.TestCase):
             second = {r["family_id"] for r in dev.read_jsonl(root / "two/selection.manifest.jsonl")}
             self.assertFalse(first & second)
 
+    def test_explicit_human_feedback_preserves_ai_origin_and_exact_witness(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            audit = fixture(root)
+            select(audit, root / "selected")
+            decisions(root / "selected", root / "decisions.json")
+            dev.build(root / "selected", root / "decisions.json", root / "draft")
+            draft = root / "draft/development.ai-draft.jsonl"
+            before = dev.digest(draft)
+            feedback = {"reviewer": "synthetic_reviewer", "confirm_all_existing_labels": True,
+                "source_draft_sha256": before,
+                "overrides": {"D21": {"brand": {"value": "Invented", "unit": None, "field": "title",
+                    "quote": "Invented", "note": "Explicit synthetic human correction."}}}}
+            dev.dump(root / "feedback.json", feedback)
+            report = dev.record_feedback(root / "draft", root / "feedback.json", root / "reviewed")
+            self.assertEqual(report["cards"], 20)
+            self.assertEqual(report["manual_contextual_corrections"], 1)
+            self.assertFalse(report["independent_reference"])
+            reviewed = list(dev.read_jsonl(root / "reviewed/development.human-reviewed.jsonl"))
+            self.assertTrue(all(r["label_source"] == "manual" and r["annotation_status"] == "reviewed"
+                                and r["ai_assisted"] and not r["independent_reference"] for r in reviewed))
+            first = reviewed[0]["attributes"][0]
+            self.assertEqual(first["label_origin"], "manual_contextual_correction")
+            e = first["evidence"]
+            self.assertEqual(reviewed[0][e["field"]][e["start"]:e["end"]], e["text"])
+            self.assertEqual(dev.digest(draft), before)
+
+    def test_feedback_never_assumes_silence_is_approval(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            audit = fixture(root)
+            select(audit, root / "selected")
+            decisions(root / "selected", root / "decisions.json")
+            dev.build(root / "selected", root / "decisions.json", root / "draft")
+            base = {"reviewer": "synthetic_reviewer", "source_draft_sha256": dev.digest(root / "draft/development.ai-draft.jsonl")}
+            dev.dump(root / "feedback.json", base)
+            with self.assertRaisesRegex(ValueError, "explicit_global_confirmation"):
+                dev.record_feedback(root / "draft", root / "feedback.json", root / "reviewed")
+            self.assertFalse((root / "reviewed").exists())
+
+    def test_feedback_source_and_unknown_attribute_fail_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            audit = fixture(root)
+            select(audit, root / "selected")
+            decisions(root / "selected", root / "decisions.json")
+            dev.build(root / "selected", root / "decisions.json", root / "draft")
+            base = {"reviewer": "synthetic_reviewer", "confirm_all_existing_labels": True,
+                    "source_draft_sha256": "wrong"}
+            dev.dump(root / "feedback.json", base)
+            with self.assertRaisesRegex(ValueError, "source_mismatch"):
+                dev.record_feedback(root / "draft", root / "feedback.json", root / "reviewed")
+            base["source_draft_sha256"] = dev.digest(root / "draft/development.ai-draft.jsonl")
+            base["overrides"] = {"D21": {"unknown_attr": {}}}
+            (root / "feedback.json").write_text(json.dumps(base))
+            with self.assertRaisesRegex(ValueError, "attribute_mismatch"):
+                dev.record_feedback(root / "draft", root / "feedback.json", root / "other")
+
 
 if __name__ == "__main__":
     unittest.main()
