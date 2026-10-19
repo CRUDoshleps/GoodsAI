@@ -44,13 +44,15 @@ class Product:
 
 
 def validate_prediction(row: dict, config: dict, product: Product | None = None) -> None:
-    if row.get("schema_version") != "0.1" or not isinstance(row.get("sku_id"), str):
+    if not isinstance(row, dict) or row.get("schema_version") != "0.1" or not isinstance(row.get("sku_id"), str):
         raise ValueError("Invalid prediction identity/schema")
-    if row.get("status") not in {"processed", "unsupported_category", "invalid_input", "error"}:
+    if not isinstance(row.get("status"), str) or row["status"] not in {"processed", "unsupported_category", "invalid_input", "error"}:
         raise ValueError("Invalid prediction status")
+    if row.get("category_id") is not None and not isinstance(row["category_id"], str):
+        raise ValueError("Invalid prediction category")
     expected = config["categories"].get(row.get("category_id"), [])
     attrs = row.get("attributes")
-    if not isinstance(attrs, list):
+    if not isinstance(attrs, list) or any(not isinstance(a, dict) for a in attrs):
         raise ValueError("attributes must be a list")
     if row["status"] == "processed" and (not expected or [a.get("attribute") for a in attrs] != expected):
         raise ValueError("Each requested attribute must occur exactly once, in schema order")
@@ -75,7 +77,8 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None)
         if a["attribute"] in UNITS and numeric(a["attribute"], a["value"], a["unit"], config.get("numeric_bounds")) != a["value"]:
             raise ValueError("Candidate number is not canonical")
         e = a.get("evidence", {})
-        if (e.get("field") not in {"title", "description"} or type(e.get("start")) is not int
+        if (not isinstance(e, dict) or not isinstance(e.get("field"), str)
+                or e["field"] not in {"title", "description"} or type(e.get("start")) is not int
                 or type(e.get("end")) is not int or not 0 <= e["start"] < e["end"]
                 or not isinstance(e.get("text"), str) or not e["text"]):
             raise ValueError("Invalid evidence")

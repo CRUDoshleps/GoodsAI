@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'">
+<title>GoodsAI — независимая ручная разметка</title>
+<style>
+body{font:16px system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px;color:#18212d;background:#f5f7fa}
+section{background:white;border:1px solid #d9e1ea;border-radius:8px;padding:16px;margin:16px 0}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f4f8;padding:12px;max-height:320px;overflow:auto}
+input,select,textarea,button{font:inherit;padding:7px;box-sizing:border-box}input,textarea{max-width:100%}
+textarea{width:100%;min-height:65px}button{cursor:pointer;margin:4px}label{display:block;margin:8px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.hint{font-size:14px;color:#536171}
+h2{font-size:20px}h3{margin:8px 0}#error{color:#9f1831;font-weight:600}nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+</style></head><body>
+<h1>Ручная разметка GoodsAI</h1>
+<p>Только исходные тексты. Не используйте ИИ, интернет, predictions и ответы коллег.
+Прочитайте guidelines.md. Сохраняйте JSON перед закрытием: автосохранения нет.</p>
+<p id="identity"></p>
+<nav><button id="prev">← Назад</button><select id="choose"></select><button id="next">Далее →</button>
+<button id="save">Скачать ответы JSON</button><label>Продолжить из JSON <input id="load" type="file" accept=".json"></label></nav>
+<p id="error" role="alert"></p><section><h2 id="title"></h2><pre id="source-title"></pre>
+<h3>Описание — исходный текст/HTML</h3><pre id="source-description"></pre></section>
+<div id="attributes"></div>
+<section><h2>Подтверждения разметчика</h2>
+<label><input type="checkbox" id="human_only"> Ответы заполнены человеком.</label>
+<label><input type="checkbox" id="no_predictions_or_ai"> Для этих карточек не использовал(а) ИИ, интернет или predictions.</label>
+<label><input type="checkbox" id="worked_independently"> Работал(а) независимо, не смотрел(а) ответы другого разметчика.</label>
+<p class="hint">Эти подтверждения не проверяют личность. Один заполненный пакет не является независимым gold.</p></section>
+<script id="payload" type="application/json">__PAYLOAD__</script>
+<script>
+const data=JSON.parse(document.getElementById('payload').textContent);
+const att=['human_only','no_predictions_or_ai','worked_independently'];
+const names={brand:'Бренд',model:'Модель',storage_gb:'Накопитель',ram_gb:'RAM',screen_inches:'Диагональ',battery_mah:'Батарея',color:'Цвет',power_w:'Мощность',capacity_l:'Объём'};
+let index=0,controls=[];
+const el=id=>document.getElementById(id);
+function node(tag,text,parent){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(parent)parent.append(n);return n;}
+function input(parent,label,value,type='text'){const l=node('label',label,parent),n=node('input',undefined,l);n.type=type;n.value=value??'';return n;}
+function select(parent,label,options,value){const l=node('label',label,parent),n=node('select',undefined,l);for(const [v,t] of options){const o=node('option',t,n);o.value=v;}n.value=value;return n;}
+function positions(source,quote){if(!quote)return [];let out=[],pos=0;while((pos=source.indexOf(quote,pos))!==-1){out.push(Array.from(source.slice(0,pos)).length);pos+=1;}return out;}
+function capture(){const t=data.tasks[index];t.attributes=controls.map(c=>{const present=c.status.value==='present';return {attribute:c.attribute,status:c.status.value,value:present?c.value.value:null,unit:present?(data.units[c.attribute]??null):null,evidence:present?{field:c.field.value,text:c.quote.value,start:c.start.value===''?null:Number(c.start.value)}:null,notes:c.notes.value};});}
+function render(){const t=data.tasks[index];el('choose').value=String(index);el('title').textContent=t.task_id+' · категория '+t.category_id;el('source-title').textContent=t.title;el('source-description').textContent=t.description??'[описание отсутствует]';el('attributes').replaceChildren();controls=[];
+for(const a of t.attributes){const s=node('section',undefined,el('attributes'));node('h3',(names[a.attribute]??a.attribute)+' · '+a.attribute+(data.units[a.attribute]?' ['+data.units[a.attribute]+']':''),s);const g=node('div',undefined,s);g.className='grid';
+const status=select(g,'Статус',[['unreviewed','Не размечено'],['present','Есть в тексте'],['absent','Нет сведений'],['ambiguous','Неоднозначно'],['unjudgeable','Оценить невозможно']],a.status);
+const value=input(g,'Каноническое значение',a.value),field=select(g,'Поле цитаты',[['title','Заголовок'],['description','Описание']],a.evidence?.field??'title');const quote=input(s,'Точная цитата из исходного текста',a.evidence?.text);quote.style.width='100%';const start=input(s,'Начальная позиция (необязательно при одном совпадении)',a.evidence?.start,'number');start.min='0';const hint=node('p','',s);hint.className='hint';const l=node('label','Заметка / причина неоднозначности',s),notes=node('textarea',undefined,l);notes.value=a.notes??'';
+const update=()=>{const p=positions(t[field.value]??'',quote.value);hint.textContent='Позиции совпадений (Unicode code points): '+(p.length?p.join(', '):'нет');};quote.oninput=update;field.onchange=update;update();controls.push({attribute:a.attribute,status,value,field,quote,start,notes});}
+el('prev').disabled=index===0;el('next').disabled=index===data.tasks.length-1;}
+el('identity').textContent='Разметчик: '+data.reviewer_id+' · слот '+data.slot+' · '+data.tasks.length+' карточек';
+data.tasks.forEach((t,i)=>{const o=node('option',t.task_id,el('choose'));o.value=String(i);});
+function go(i){capture();index=i;render();window.scrollTo(0,0);}
+el('prev').onclick=()=>go(Math.max(0,index-1));el('next').onclick=()=>go(Math.min(data.tasks.length-1,index+1));el('choose').onchange=e=>go(Number(e.target.value));
+el('save').onclick=()=>{capture();const response={package_id:data.package_id,slot:data.slot,reviewer_id:data.reviewer_id,attestation:Object.fromEntries(att.map(k=>[k,el(k).checked])),tasks:data.tasks.map(t=>({task_id:t.task_id,attributes:t.attributes}))};const url=URL.createObjectURL(new Blob([JSON.stringify(response,null,2)],{type:'application/json'}));const a=node('a');a.href=url;a.download='answers-'+data.slot+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+el('load').onchange=async e=>{try{const r=JSON.parse(await e.target.files[0].text());if(r.package_id!==data.package_id||r.slot!==data.slot||r.reviewer_id!==data.reviewer_id||!Array.isArray(r.tasks)||r.tasks.length!==data.tasks.length)throw Error('Другой пакет/разметчик или неполный набор');for(let i=0;i<data.tasks.length;i++){if(r.tasks[i].task_id!==data.tasks[i].task_id||JSON.stringify(r.tasks[i].attributes.map(a=>a.attribute))!==JSON.stringify(data.tasks[i].attributes.map(a=>a.attribute)))throw Error('Изменена схема заданий');}data.tasks.forEach((t,i)=>t.attributes=r.tasks[i].attributes);att.forEach(k=>el(k).checked=r.attestation?.[k]===true);render();el('error').textContent='';}catch(err){el('error').textContent='Не удалось загрузить: '+err.message;}};
+render();
+</script></body></html>

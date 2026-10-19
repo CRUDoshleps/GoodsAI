@@ -106,7 +106,7 @@ def validate_config(config: dict) -> dict:
         raise ValueError("Unsupported schema_version or config_version")
     for key in ("rules_version", "dictionary_version", "seed"):
         _string(config[key], key)
-    if "experiment_ablation" in config and config["experiment_ablation"] != "disable_model_generation_only":
+    if "experiment_ablation" in config and config["experiment_ablation"] not in {"disable_model_generation_only", "relation:before", "relation:after"}:
         raise ValueError("Unsupported experiment ablation")
 
     categories = config["categories"]

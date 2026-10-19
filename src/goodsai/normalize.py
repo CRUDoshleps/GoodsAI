@@ -1,5 +1,5 @@
 """Canonical decimal values. No guesses from product model knowledge."""
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, DecimalException, InvalidOperation
 import re
 from goodsai.config import default_bounds
 
@@ -28,10 +28,13 @@ def number(value: str) -> Decimal:
 def numeric(attribute: str, raw: str, raw_unit: str, bounds: dict | None = None) -> str:
     value = number(raw)
     unit = raw_unit.casefold().replace(" ", "")
-    if attribute == "capacity_l" and unit in {"мл", "ml"}:
-        value /= 1000
-    if attribute == "power_w" and unit in {"квт", "kw"}:
-        value *= 1000
+    try:
+        if attribute == "capacity_l" and unit in {"мл", "ml"}:
+            value /= 1000
+        if attribute == "power_w" and unit in {"квт", "kw"}:
+            value *= 1000
+    except DecimalException as exc:
+        raise ValueError("Invalid unit conversion") from exc
     low, high = (BOUNDS if bounds is None else bounds)[attribute]
     if not Decimal(str(low)) <= value <= Decimal(str(high)):
         raise ValueError("Outside category bounds")

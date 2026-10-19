@@ -106,6 +106,15 @@ AI-assisted и использование для разработки фикси
 
 ## Протокол эксперимента
 
+Для независимой разметки используется [human-review protocol](HUMAN_GOLD.md).
+Инструменты/пустые формы не являются gold; одиночная разметка и AI-assisted
+ответы не заменяют два независимых человеческих ответа с adjudication.
+
+Перед новым независимым sampling проверить [аудит split EVAL-002](SPLIT_AUDIT.md).
+Исходный E1 split и validation нельзя объявлять независимым holdout. Аудитор
+выпускает отдельный filtered partition + карантин без замены старых данных;
+blind reserve проверяется только алгоритмически по metadata/fingerprints.
+
 1. Зафиксировать commit, конфиг, prompts и входные hashes.
 2. Зафиксировать split и версию annotation guideline.
 3. Выполнить A/B на одинаковых парах и одном verifier.

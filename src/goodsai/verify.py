@@ -6,6 +6,7 @@ import math
 from goodsai.contracts import Product, validate_prediction
 from goodsai.config import validate_config
 from goodsai.normalize import BOUNDS, UNITS, model_name
+from goodsai.relation import RelationVerifier
 from goodsai.rules import Rules
 from goodsai.text import visible_span
 
@@ -54,9 +55,15 @@ class Extractor:
             validate_prediction(row, self.config, product)
             return row
         grouped = defaultdict(list)
+        rejected = defaultdict(set)
+        relations = RelationVerifier(product)
         for candidate in self.rules.candidates(product):
             validate_candidate(candidate, product, requested, self.config)
-            grouped[candidate.attribute].append(candidate)
+            reason = relations.reason(candidate)
+            if reason:
+                rejected[candidate.attribute].add(reason)
+            else:
+                grouped[candidate.attribute].append(candidate)
         for attr in requested:
             candidates = grouped[attr]
             values = {(c.value, c.unit) for c in candidates}
@@ -66,7 +73,7 @@ class Extractor:
             if len(values) > 1:
                 base["reason_codes"] = ["conflicting_evidence"]
             elif not candidates:
-                base["reason_codes"] = ["not_found_by_rules"]
+                base["reason_codes"] = sorted(rejected[attr]) or ["not_found_by_rules"]
             else:
                 c = min(candidates, key=lambda c: (-c.score, c.field != "title", c.start, c.rule_id))
                 base.update(value=c.value, unit=c.unit, confidence=c.score, decision="review",
