@@ -235,6 +235,7 @@ frozen spec и полный проверенный bundle. Закрытые и �
 | [docs/DATASET.md](docs/DATASET.md) | подготовка, ограничения и защита от утечки |
 | [docs/EVALUATION.md](docs/EVALUATION.md) | дизайн эксперимента, формулы и честные метрики |
 | [docs/HUMAN_GOLD.md](docs/HUMAN_GOLD.md) | blind human review, формы и проверки; gold требует двух людей и adjudication |
+| [docs/DEVELOPMENT_REVIEW.md](docs/DEVELOPMENT_REVIEW.md) | текущая AI-assisted партия D21–D40 для проверки Владом |
 | [docs/RESULTS.md](docs/RESULTS.md) | происхождение, snapshots и воспроизведение M1/M2 |
 | [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | трассировка требований и шести артефактов |
 | [docs/RUNBOOK.md](docs/RUNBOOK.md) | запуск, диагностика и восстановление |

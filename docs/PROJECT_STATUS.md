@@ -173,6 +173,15 @@ commit, producer SHA остаётся указанным выше. Официа�
 
 ### EVAL-001: подготовка human-review, итоговый gold не готов
 
+**Продолжение по решению Влада:** Issue #6 уточнён: сейчас выполняется
+[AI-assisted development D21–D40](DEVELOPMENT_REVIEW.md) с последующей проверкой
+Владом. Пул 800 unexposed development SKU, отобраны 20 разных семей / 120 полей,
+по 10 карточек категории и по 5 с/без description. Draft: 80 present / 27 absent /
+6 ambiguous / 7 unjudgeable; human-reviewed=0, все pending, P/R/F1=N/A,
+independent_reference=false. Source/test не раскрываются вне development-партии.
+Новый exposure ledger сохраняется рядом с draft и исключает эти семьи из будущих
+новых отборов через --seen. Старые задания/разметка/предсказания сохранены.
+
 В `eval/eval-001-blind-human-gold` подготовлены [протокол](HUMAN_GOLD.md),
 [guideline](HUMAN_GOLD_GUIDELINES.md), offline HTML и команды
 prepare/materialize/check/reconcile/finalize. Claim `fab562f`, code `257fe1f`.
@@ -188,9 +197,9 @@ answers/gold/predictions отсутствуют, P/R/F1 и agreement N/A. Про
 
 Влад сообщил, что размечать будет один и раньше видел AI-assisted development.
 Это не автоматически exposure нового reserve, но не выполняет требование двух
-независимых людей. Issue #6 остаётся BLOCKED до назначения разметчиков/adjudicator,
-решения о freeze и сбора ответов. AI-assisted development можно продолжать отдельно;
-такой набор не объявляется независимым test. Runtime/данные/VM не менялись.
+независимых людей. Будущий независимый подэтап ожидает разметчиков/adjudicator,
+решения о freeze и сбора ответов. Сам Issue #6 продолжен для AI-assisted development;
+такой набор не объявляется независимым test. Runtime/исходные данные/VM не менялись.
 
 ### EVAL-002: split/leakage audit — 19.10.2026
 
