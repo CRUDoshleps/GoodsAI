@@ -178,11 +178,14 @@ commit, producer SHA остаётся указанным выше. Официа�
 Версионированный reviewed development сохраняет AI-assisted origin и
 independent_reference=false: 20 карточек/120 labels, 82 present / 27 absent /
 4 ambiguous / 7 unjudgeable, 109 judged / 11 excluded. Две ручные contextual
-коррекции D27 — RAM 12 GB / storage 512 GB по raw `12+512G`; глобальная политика
+коррекции единиц памяти D27 с сохранением raw evidence; глобальная политика
 единиц не менялась. Ошибка категории D24 подтверждена, в smartphone-схеме
 unjudgeable сохранён; часы не добавлены в schema. Конфликты D29/D31/D36 остаются
 ambiguous. Файл: `outputs/evaluation/development-review-20261019-human-v2/development.human-reviewed.jsonl`.
 P/R/F1 пока N/A, реальный prediction/evaluation не запускался; reserve закрыт.
+Producer feedback `4349c39`: 137 основных + 3 reader tests и pip check — OK,
+4 human-reference файла byte-identical на повторе. Reviewed reference SHA:
+`9f8a2ef601bd76704551340cedfe0aef7c8d42677446044cb4dfe37b8ee443ae`.
 
 **Продолжение по решению Влада:** Issue #6 уточнён: сейчас выполняется
 [AI-assisted development D21–D40](DEVELOPMENT_REVIEW.md) с последующей проверкой
