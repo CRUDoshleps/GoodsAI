@@ -2,6 +2,7 @@
 import argparse
 import json
 import hashlib
+import shutil
 from pathlib import Path
 import sys
 
@@ -14,6 +15,7 @@ from goodsai.data import digest, read_jsonl, read_predictions
 from goodsai.silver_calibration import calibrate
 from goodsai.silver_evaluate import bootstrap, evaluate_rows
 from goodsai.silver_prepare import dump, verify_bundle, write_rows
+from goodsai.storage import prediction_snapshot
 
 
 def run(args):
@@ -52,6 +54,14 @@ def run(args):
         if not separator or not name or name in variants or name not in {"registry", "gliner", "llm", "control"}:
             raise ValueError("invalid_or_duplicate_candidate_name")
         path = Path(path)
+        captured = output / (name + ".predictions.jsonl")
+        # Keep a consistent immutable copy of both files under the existing
+        # storage lock. A producer cannot replace the manifest between identity
+        # validation and scoring and leave a mixed comparison in this report.
+        with prediction_snapshot(path) as verified:
+            shutil.copyfile(verified, captured)
+            shutil.copyfile(path.with_suffix(".manifest.json"), captured.with_suffix(".manifest.json"))
+        path = captured
         manifest_path = path.with_suffix(".manifest.json")
         candidate_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         configs = dict(item.split("=", 1) for item in args.candidate_config)

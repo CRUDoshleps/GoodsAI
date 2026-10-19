@@ -256,6 +256,16 @@ class CommandTests(unittest.TestCase):
             run(args)
             paired = json.loads((args.output_dir/"run_stats.json").read_text(encoding="utf-8"))
             self.assertEqual(paired["variants"]["control"]["paired_delta_vs_rules"]["intervals"]["f1"]["upper"], 0)
+            from goodsai.cli import predict
+            subset = root/"subset.jsonl"
+            predict(bundle/"llm_screening.input.jsonl", subset, config)
+            args.candidate = ["control="+str(subset)]
+            args.output_dir = root/"subset-paired"
+            run(args)
+            report = json.loads((args.output_dir/"run_stats.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["variants"]["control"]["cards"], 10)
+            self.assertEqual(report["variants"]["control"]["scope"], "preselected_development_screening")
+            self.assertEqual(report["variants"]["control"]["paired_delta_vs_rules"]["status"], "insufficient_groups")
             # Changing a frozen dataset must be rejected before inference.
             (bundle/"input.jsonl").write_text("{}\n")
             args.output_dir = root/"corrupt"
