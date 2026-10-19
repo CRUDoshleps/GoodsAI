@@ -53,6 +53,12 @@ Claim содержит дату начала и реальное имя/псев
 
 ### Передача в review
 
+Текст, claims и визуалы проверяются по [CONTENT_STYLE](docs/CONTENT_STYLE.md).
+Автор разделяет DONE/PLAN/HYPOTHESIS и связывает результат с commit/test/run
+или первичным источником. Презентации используют
+[PRESENTATION_REVIEW](docs/PRESENTATION_REVIEW.md); фактически непроверенные
+render/репетиция остаются not_checked.
+
 В PR должны быть:
 
 1. задача и ожидаемый эффект;

@@ -2,6 +2,16 @@
 
 Актуально на 19 октября 2026 года.
 
+## DOCS-002: текст и доказательства (ветка реализации)
+
+[DONE] В feature-ветке, статус REVIEW: подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR
+и [проверка презентации](PRESENTATION_REVIEW.md). Они разделяют DONE/PLAN/
+HYPOTHESIS, требуют источники claims и запрещают декоративные AI-визуалы.
+Текстовый аудит README, delivery report и Markdown-слайдов:
+[content audit](reviews/2026-10-19_docs-002_content_audit.md). Это редакционные
+правила, не автоматическая проверка истинности и не новая оценка качества.
+Исторические frozen artifacts и PDF не перезаписывались.
+
 ## BASE-002: исходные spans (ветка реализации)
 
 Добавлен внутренний bounded SpanIndex с deterministic source/config identity,
