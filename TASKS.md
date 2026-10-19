@@ -46,6 +46,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
+| GOV-005 | [#81](https://github.com/CRUDoshleps/GoodsAI/issues/81) | P0 | IN_PROGRESS | product/QA/интегратор | Codex (tunaIT) | `gov/gov-005-final-acceptance` | 19.10.2026: оформить очередь, зависимости и проверяемую приёмку пяти направлений |
 | GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | DONE | product/архитектор | Codex (tunaIT) | `gov/gov-004-runtime-improvement-tasks` | 10 новых задач, 6 уточнений приёмки, приоритеты и зависимости; PR #63 |
 
 | GOV-003 | [#34](https://github.com/CRUDoshleps/GoodsAI/issues/34) | P0 | DONE | product/аналитик/архитектор | Codex | `gov/gov-003-score-improvement-backlog` | Issues #35–#54 и критический путь по оценке чекпоинта |
