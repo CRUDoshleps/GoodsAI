@@ -52,7 +52,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
 | EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | READY | data/QA | — | — | аудит дублей и утечек между split |
-| ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | READY | интегратор/аналитик | — | — | финальный predictions-файл, manifest и отчёт метрик |
+| ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | IN_PROGRESS | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | реальные артефакты development, EDA и технический черновик |
 | CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
@@ -113,6 +113,24 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
   Документация — `docs/ARTIFACT_BUNDLE.md`; нет реальных новых predictions,
   финальных технических слайдов или независимой оценки. Это готовность инструмента,
   а не автоматическое закрытие ART-001 и шести артефактов сдачи.
+
+## Как передать результат
+
+## ART-001 — подготовка реальных артефактов текущего этапа
+
+- Начато 19.10.2026 по прямому запросу Влада завершить подготовку.
+- Ветка создана от `work/main=55378f1`, затем fast-forward включена зависимость
+  ART-003 `9cf8d2e` (PR #33 остаётся на review, main не меняется).
+- Scope: прогноз по разрешённым development-группам, reviewed M2-метрики,
+  EDA-агрегаты из имеющихся отчётов, Markdown-черновик технических слайдов,
+  frozen spec и полная offline-сборка с verify.
+- Исключить все защищённые test_reserved/family и остальные не-development
+  группы; не открывать test tasks и не выдавать ограниченный batch за весь каталог.
+- Реальные input/gold/predictions и полный комплект остаются локально;
+  в PR — инструменты, безопасные агрегаты и слайды. Нет LLM, pickle/полного EDA,
+  правок правил/контракта, расходов или VM deployment.
+- Сборка фиксируется на чистом code candidate; публикационные документы могут
+  быть последующим commit с явной ссылкой на producer SHA.
 
 ## Как передать результат
 
