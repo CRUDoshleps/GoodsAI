@@ -1,7 +1,8 @@
 """Opt-in evidence-first LLM fallback for attributes the rules did not find (LLM-003).
 
-Rules always run first. Only attributes that ended as ``not_found_by_rules`` are
-sent, in one request per card. A model answer is a *proposal*: it must quote
+Rules always run first. Only attributes that ended as ``not_found_by_rules`` and
+whose surface form is visible in the card (``has_signal``) are sent, in one
+request per card; cards without such gaps never reach the provider. A model answer is a *proposal*: it must quote
 the visible card text, the value must be derived from that quote by the same
 normalizer the rules use, and the candidate must pass ``validate_candidate``.
 Everything else is rejected with a reason code and counted. Accepted values are
@@ -273,6 +274,8 @@ class LLMStats:
     cards_seen: int = 0
     cards_routed: int = 0
     cards_without_gap: int = 0
+    cards_skipped_no_signal: int = 0
+    attributes_skipped_no_signal: int = 0
     calls: int = 0
     retries: int = 0
     cache_hits: int = 0
@@ -292,6 +295,8 @@ class LLMStats:
                 + self.completion_tokens / 1000 * settings.price_output_per_1k) if priced else None
         return {"enabled": True, **settings.identity(), "cards_seen": self.cards_seen,
                 "cards_routed": self.cards_routed, "cards_without_gap": self.cards_without_gap,
+                "cards_skipped_no_signal": self.cards_skipped_no_signal,
+                "attributes_skipped_no_signal": self.attributes_skipped_no_signal,
                 "calls": self.calls, "retries": self.retries, "cache_hits": self.cache_hits,
                 "prompt_tokens": self.prompt_tokens, "completion_tokens": self.completion_tokens,
                 "cost": cost, "cost_status": "priced" if priced else "n/a_price_unknown",
@@ -472,6 +477,37 @@ def ground(product: Product, attr: str, value, quote, config: dict) -> tuple[Can
     return candidate, None
 
 
+TITLE_TOKEN = re.compile(r"[^\W_][\w\-+/.]*", re.U)
+
+
+def has_signal(product: Product, attr: str, config: dict) -> bool:
+    """Cheap pre-router: could *any* answer for this attribute pass grounding?
+
+    The verifier only accepts a value that is visibly present in the card, so an
+    attribute whose surface form is absent cannot be filled by the model at all.
+    Such gaps are not sent; this saves calls without changing what can be accepted.
+    """
+    texts = [visible_view(product.title)[0]]
+    if product.description:
+        texts.append(visible_view(product.description)[0])
+    if attr in UNIT_PATTERNS:
+        number_unit = re.compile(rf"(?<![\w.,]){NUMBER}\s*(?:{UNIT_PATTERNS[attr]})(?!\w)", re.I)
+        if any(number_unit.search(t) for t in texts):
+            return True
+        return attr in {"ram_gb", "storage_gb"} and any(PAIR.search(t) for t in texts)
+    if attr == "color":
+        return any(re.search(bounded_alias(alias), t, re.I)
+                   for aliases in config.get("colors", {}).values() for alias in aliases for t in texts)
+    if attr in {"brand", "model"}:
+        # Brand and model are expected in the title; a title of generic words has nothing to quote.
+        tokens = [t for t in TITLE_TOKEN.findall(texts[0][:200]) if t.casefold() not in GENERIC_WORDS]
+        if attr == "brand":
+            return any(re.search(r"[^\W\d_]", t) for t in tokens)
+        return any(re.search(r"\d", t) and re.search(r"[^\W\d_]", t) or re.fullmatch(r"[A-Za-z][\w\-]+", t)
+                   for t in tokens)
+    return False
+
+
 class LLMExtractor:
     """Rules first; one grounded LLM request per card for unresolved attributes only."""
 
@@ -563,10 +599,21 @@ class LLMExtractor:
         if row["status"] != "processed":
             return row
         by_attr = {a["attribute"]: a for a in row["attributes"]}
-        gaps = [a["attribute"] for a in row["attributes"] if a["reason_codes"] == ["not_found_by_rules"]]
-        if not gaps:
+        open_gaps = [a["attribute"] for a in row["attributes"] if a["reason_codes"] == ["not_found_by_rules"]]
+        if not open_gaps:
             with self.lock:
                 self.stats.cards_without_gap += 1
+            return row
+        gaps = [attr for attr in open_gaps if has_signal(product, attr, self.config)]
+        for attr in open_gaps:
+            if attr not in gaps:
+                by_attr[attr]["reason_codes"].append("llm_skipped_no_signal")
+        with self.lock:
+            self.stats.attributes_skipped_no_signal += len(open_gaps) - len(gaps)
+            if not gaps:
+                self.stats.cards_skipped_no_signal += 1
+        if not gaps:
+            validate_prediction(row, self.config, product)
             return row
         with self.lock:
             self.stats.cards_routed += 1

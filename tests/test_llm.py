@@ -13,7 +13,7 @@ import urllib.error
 from goodsai import cli
 from goodsai.contracts import Product, load_config, validate_prediction
 from goodsai.llm import (LLMExtractor, LLMSettings, OpenAICompatibleProvider, ProviderError, ProviderResponse,
-                         cache_key, parse_proposals)
+                         cache_key, ground, has_signal, parse_proposals)
 from goodsai.verify import Extractor
 
 
@@ -118,8 +118,12 @@ class GroundingTests(unittest.TestCase):
 
     def test_color_outside_dictionary_and_conflicting_values(self):
         product = Product("sku-4", "761", "Смартфон Zorion QX-900", "Цвет корпуса: бирюзово-мятный.")
-        row, _, _ = self.run_one(product, answer(("color", "бирюзово-мятный", "бирюзово-мятный")))
-        self.assertIn("llm_value_not_in_schema", attrs(row)["color"]["reason_codes"])
+        self.assertEqual(ground(product, "color", "бирюзово-мятный", "бирюзово-мятный", self.config),
+                         (None, "llm_value_not_in_schema"))
+        row, _, provider = self.run_one(product, answer(("brand", "Zorion", "Смартфон Zorion")))
+        self.assertIn("llm_skipped_no_signal", attrs(row)["color"]["reason_codes"])
+        sent = json.loads(provider.messages[0][1]["content"])["requested_attributes"]
+        self.assertNotIn("color", [item["attribute"] for item in sent])
         row, _, _ = self.run_one(Product("sku-5", "482", "Чайник Vexa", "Потребляет 2200 Вт, в турборежиме 2400 Вт."),
                                  answer(("power_w", "2200", "Потребляет 2200 Вт"), ("power_w", "2400", "2400 Вт")))
         self.assertIn("conflicting_llm_evidence", attrs(row)["power_w"]["reason_codes"])
@@ -144,6 +148,45 @@ class GroundingTests(unittest.TestCase):
         row, extractor, _ = self.run_one(PHONE, "Вот ответ: бренд Zorion")
         self.assertIn("llm_malformed_json", attrs(row)["brand"]["reason_codes"])
         self.assertEqual(extractor.report()["calls"], 1)
+
+
+class RouterTests(unittest.TestCase):
+    """Only gaps whose surface form is visible can be grounded, so only they cost a call."""
+    def setUp(self):
+        self.config = load_config()
+
+    def test_card_without_any_signal_never_calls_provider(self):
+        product = Product("sku-r1", "482", "Электрочайник", "Удобный и надёжный.")
+        provider = FakeProvider(AssertionError("must not be called"))
+        extractor = LLMExtractor(self.config, provider, LLMSettings(model="m"))
+        row = extractor.predict(product)
+        validate_prediction(row, self.config, product)
+        self.assertEqual(provider.calls, 0)
+        report = extractor.report()
+        self.assertEqual((report["calls"], report["cards_routed"], report["cards_skipped_no_signal"]), (0, 0, 1))
+        for a in row["attributes"]:
+            if a["value"] is None:
+                self.assertEqual(a["reason_codes"], ["not_found_by_rules", "llm_skipped_no_signal"])
+
+    def test_only_signalled_gaps_are_requested(self):
+        product = Product("sku-r2", "482", "Электрочайник", "Потребляет 2200 Вт.")
+        provider = FakeProvider(answer(("power_w", "2200", "Потребляет 2200 Вт")))
+        extractor = LLMExtractor(self.config, provider, LLMSettings(model="m"))
+        row = extractor.predict(product)
+        sent = [item["attribute"] for item in json.loads(provider.messages[0][1]["content"])["requested_attributes"]]
+        self.assertEqual(sent, ["power_w"])
+        self.assertEqual(attrs(row)["power_w"]["method"], "llm")
+        self.assertGreater(extractor.report()["attributes_skipped_no_signal"], 0)
+
+    def test_signal_rules(self):
+        cases = [("battery_mah", "Ёмкость 5000 мА*ч", True), ("battery_mah", "Большая батарея", False),
+                 ("ram_gb", "Смартфон X 8/256GB", True), ("color", "Корпус черный", True),
+                 ("color", "Корпус бирюзово-мятный", False), ("brand", "Смартфон", False),
+                 ("brand", "Смартфон Zorion", True), ("model", "Смартфон Zorion", True),
+                 ("model", "смартфон хороший", False)]
+        for attr, text, expected in cases:
+            with self.subTest(attr=attr, text=text):
+                self.assertEqual(has_signal(Product("s", "761", text), attr, self.config), expected)
 
 
 class FailureTests(unittest.TestCase):
