@@ -183,6 +183,11 @@ independent_reference=false: 20 карточек/120 labels, 82 present / 27 abs
 unjudgeable сохранён; часы не добавлены в schema. Конфликты D29/D31/D36 остаются
 ambiguous. Файл: `outputs/evaluation/development-review-20261019-human-v2/development.human-reviewed.jsonl`.
 P/R/F1 пока N/A, реальный prediction/evaluation не запускался; reserve закрыт.
+Влад согласовал направление обработки конфликтов: предложение исправленной
+категории с подтверждением человека, без автоматической замены исходной категории;
+рекомендации по единицам и неоднозначным model/color также приняты.
+Это ещё не runtime-функция. Реализация категории — ML-002 (#58), пока BLOCKED
+зависимостями и согласованием контракта; детали в DEVELOPMENT_REVIEW.md.
 Producer feedback `4349c39`: 137 основных + 3 reader tests и pip check — OK,
 4 human-reference файла byte-identical на повторе. Reviewed reference SHA:
 `9f8a2ef601bd76704551340cedfe0aef7c8d42677446044cb4dfe37b8ee443ae`.
