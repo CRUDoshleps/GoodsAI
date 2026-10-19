@@ -46,6 +46,16 @@ class ApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.json()["status"], "unsupported_category")
         self.assertEqual(response.json()["attributes"], [])
 
+    async def test_relation_guard_matches_core(self):
+        product = self.product | {"description": "Совместим с телефоном: экран 6,3 дюйма."}
+        response = await self.client.post("/predict", json=product)
+        self.assertEqual(response.status_code, 200)
+        expected = Extractor(load_config()).predict(Product.from_dict(product), run_id="http-rules-v0")
+        self.assertEqual(response.json(), expected)
+        screen = next(a for a in response.json()["attributes"] if a["attribute"] == "screen_inches")
+        self.assertEqual(screen["reason_codes"], ["relation_foreign_entity"])
+        self.assertIsNone(screen["value"])
+
     async def test_agreed_m2_policies_match_core(self):
         product = self.product | {"title": "Xiaomi Redmi Nebula Q88 256GB Ultramarine"}
         response = await self.client.post("/predict", json=product)
