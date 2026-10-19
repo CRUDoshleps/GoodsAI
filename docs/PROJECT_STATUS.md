@@ -2,6 +2,19 @@
 
 Актуально на 19 октября 2026 года.
 
+
+## QA-001: synthetic adversarial suite — REVIEW
+
+Добавлены 21 versioned expected-output case и команда goodsai.adversarial через
+реальный batch predictor. Отчёт проверяет status, value/unit, decision/reason и
+точные evidence; повреждённая prediction/manifest пара не оценивается. Actual:
+20/21 passed, оставшийся RED SOLUTION/color дефект #15 явно FAILED, exit 1.
+Known issue не скрывается. 162 основных + 3 reader tests проходят; unit PASS
+не подменяет strict suite PASS. Dependency exceptions и silent abstain fault
+injection проверены. Concurrent/crash/recovery тесты переиспользованы из storage;
+provider timeout/budget N/A для отключённого route. Основано на #79/#86;
+качество каталога, human reference и test reserve не оценивались.
+
 ## DOCS-002: текст и доказательства — DONE
 
 [DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR

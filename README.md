@@ -165,6 +165,35 @@ API временный до публикации точной схемы орг�
 независимый test. Подробности: [результаты и provenance](docs/RESULTS.md),
 [правила оценки](docs/EVALUATION.md).
 
+## Сложные synthetic случаи
+
+```bash
+.venv/bin/python -m goodsai.adversarial --output-dir outputs/qa-hard-cases
+```
+
+Команда прогоняет 21 заранее описанный synthetic случай через настоящий batch:
+конфликты, memory roles/card, преобразование единиц, редкий alias/неизвестный
+бренд, отсутствие значения, чужая сущность, negation/range, HTML/entities/emoji,
+повтор цитаты, hidden text, неверный вход и неизвестная категория. У каждого
+случая в `examples/synthetic/adversarial.json` есть expected value/unit,
+evidence field/raw offsets/text, decision/reason либо domain status.
+
+Новый каталог содержит input, predictions/manifest и report.json с fingerprints.
+Exit 0 — все ожидания совпали, 1 — наблюдаемые регрессии (включая known issue),
+2 — ошибка самого прогона. Исключения backend не превращаются в abstain/успех;
+их payload не попадает в отчёт. Существующий каталог не перезаписывается.
+
+На ветке с VER-001/BASE-003: 20/21 совпадений, один открытый дефект #15 — цвет
+из бренда RED SOLUTION. Метка known_issue не подавляет failure и ненулевой exit.
+Это regression suite, не human gold или качество каталога. Unit tests проверяют
+harness и отсутствие новых нетрекированных failures; их PASS не означает,
+что strict regression suite уже весь зелёный. Изменение fixture требует review.
+
+Programming/dependency failure и corrupted predictions проверены fault injection
+в test_adversarial.py; API failures — в test_api.py; реальные child-process
+concurrency/crash/recovery — в test_storage.py. Provider budget/timeouts в
+default rules runtime неприменимы: route не реализован, это N/A, не PASS.
+
 ## Проверки
 
 Контекстные отказы verifier, воспроизводимое сравнение и ограничения:
