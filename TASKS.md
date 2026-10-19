@@ -63,7 +63,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | READY | архитектор | — | — | конфиг решений, LLM, бюджета и стоимости |
 | LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | READY | LLM/backend | — | — | evidence-first fallback через шлюз хакатона |
 | OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | READY | MLOps/security | — | — | безопасные логи и границы temp/pickle |
-| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | IN_PROGRESS | release/docs | Codex (tunaIT) | `artifacts/art-002-demo-kit` | 19.10: one-command demo metrics/report/hash kit, no catalogue quality claim |
+| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | REVIEW | release/docs | Codex (tunaIT) | `artifacts/art-002-demo-kit` | Demo kit: metrics/report + 6-file hashes + verify; 162+3 tests, 6/6 smoke; quality N/A |
 | QA-002 | [#29](https://github.com/CRUDoshleps/GoodsAI/issues/29) | P0 | READY | QA | — | — | регрессия полного review-remediation сценария |
 | REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | BLOCKED | интегратор | — | — | выпуск исправлений review; ждёт подзадачи |
 | ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | DONE | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
