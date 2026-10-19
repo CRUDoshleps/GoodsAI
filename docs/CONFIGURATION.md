@@ -121,3 +121,13 @@ Manifest уже содержит `config_sha256`: он рассчитывает�
 config hash в manifest и CLI/API parity с одним внешним профилем. Они не
 измеряют precision/recall на реальных товарах. Реальные данные, test reserve,
 внешние модели и VM в CONF-001 не используются.
+
+## Opt-in v2 registry
+
+[DONE — feature candidate] Помимо полного v1 принимается v2 с обязательным
+`category_registry` версии 1 и `category_profiles[id]="learned"`. Порядок выдачи задаётся списком
+config.categories; множество атрибутов должно точно совпадать с registry. Неизвестные поля,
+невалидные словари/единицы и недостаточно поддержанные templates отклоняются.
+Default baseline остаётся v1. Контракт, команды и ограничения:
+[CATEGORY_REGISTRY](CATEGORY_REGISTRY.md). Это не полная CONF-002, не
+калибровка и не подтверждение качества новых категорий.

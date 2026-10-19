@@ -161,3 +161,20 @@ blind reserve проверяется только алгоритмически �
 - значение LLM без точного evidence;
 - новая категория;
 - пустой или повреждённый вход.
+
+## Reference новых категорий (CONF-003 candidate)
+
+[DONE — feature candidate] В конфиге v2 enum-словарь ограничивает извлечение,
+но не допустимый набор human reference. Новое правильное значение из validation
+не должно вызывать ошибку evaluator или исчезать из знаменателя recall: если
+система его не нашла, это FN. Отдельная normalize_reference сохраняет такое
+значение, не расширяя обученный inference-словарь. Numeric canonical form и
+единицы по-прежнему проверяются. Default config и прежние категории не меняются.
+
+Явный hash-bound mapper и запуск `goodsai.registry_evaluation` описаны в
+[CATEGORY_REGISTRY](CATEGORY_REGISTRY.md). Несопоставленные target labels
+становятся unjudgeable; отчёт показывает excluded и judged/requested counts.
+P/R/F1 на сопоставленной части не выдаются за полноту всей новой схемы.
+Разрешён только весь заранее declared validation split, без train/test SKU.
+Pending/silver не переименовываются в reviewed manual. Сам факт успешного
+mapping/evaluate не доказывает независимость разметки и не разрешает auto_accept.

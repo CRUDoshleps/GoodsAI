@@ -103,7 +103,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | EVAL-005 | [#40](https://github.com/CRUDoshleps/GoodsAI/issues/40) | P0 | BLOCKED | аналитик/ML/LLM | — | — | Pareto-сравнение качества, coverage, latency и цены; зависимости: EVAL-003, model stages |
 | REL-004 | [#42](https://github.com/CRUDoshleps/GoodsAI/issues/42) | P0 | BLOCKED | release engineer/QA | — | — | gate точного SHA и проверенных артефактов; зависимости: ART-003, ENV-002, QA-002 |
 | ARCH-001 | [#43](https://github.com/CRUDoshleps/GoodsAI/issues/43) | P1 | IN_PROGRESS | архитектор | timur0o31 | `arch/arch-001-stage-interfaces` | 19.10.2026: published claim before implementation; stacked on CONF-001 e0b746f; interfaces candidate, SPEC-001 review required before integration |
-| CONF-003 | [#44](https://github.com/CRUDoshleps/GoodsAI/issues/44) | P1 | BLOCKED | архитектор/NLP | — | — | versioned registry категорий и атрибутов; зависимости: ARCH-001, CONF-001/002 |
+| CONF-003 | [#44](https://github.com/CRUDoshleps/GoodsAI/issues/44) | P1 | IN_PROGRESS | архитектор/NLP | timur0o31 | `arch/conf-003-train-registry` | 19.10.2026: по поручению Тимура — opt-in train-only registry candidate; stacked CONF-001 + ARCH-001; полная приёмка остаётся зависимой от SPEC-001/CONF-002 и разрешённого train split |
 | ROUTE-002 | [#45](https://github.com/CRUDoshleps/GoodsAI/issues/45) | P1 | BLOCKED | архитектор/QA | — | — | детерминированная fallback state machine; зависимости: ROUTE-001, LLM-003, VER-002 |
 | API-002 | [#46](https://github.com/CRUDoshleps/GoodsAI/issues/46) | P1 | BLOCKED | backend | — | — | идемпотентный batch с checkpoint и resume; зависимости: API-001, OPS-001 |
 | QA-004 | [#48](https://github.com/CRUDoshleps/GoodsAI/issues/48) | P1 | BLOCKED | QA/MLOps | — | — | concurrency и failure-injection отчёт; зависимости: API-002, ROUTE-002, OPS-001 |
@@ -689,3 +689,30 @@ auto_accept не меняются. Протокол и ограничения: [
 - BASE-002 готова к изолированному исполнению, остальные новые функции ждут перечисленных зависимостей.
 - Runtime, модели, test reserve, реальные данные и VM не менялись.
 - Дубликаты задач #35–#54 не создавались; PR #55 и чужие claims не изменены.
+
+## CONF-003: train-only feature candidate — 19.10.2026
+
+Исполнитель timur0o31; claim fef035b, ветка arch/conf-003-train-registry,
+база CONF-001 e0b746f + ARCH-001 e59c175 + upstream 977c5ed.
+[DONE — feature candidate] Конфиг v2 с registry v1, fill >=50%, train-only
+словари, key:value, пары и размеры с выученными ролями; общие verifier и
+CLI/API; 238 основных + 3 reader tests OK на macOS/Python 3.14.8. Default две категории и auto_accept/LLM off сохранены.
+[PLAN] Полная приёмка CONF-003 остаётся заблокированной разрешённым train/
+split/traffic, schema mapper, согласованием категорий и review. Реальные
+топ-30 и качество не подтверждены. GitHub PR/labels требуют публикации через
+доступный пользователю GitHub-интерфейс. До этого статус IN_PROGRESS,
+а не REVIEW/DONE. Подробности: docs/CATEGORY_REGISTRY.md.
+ARCH-001 также остаётся feature candidate с открытыми условиями принятия.
+
+### CONF-003: продолжение оценки; зависимость PR #92
+
+По поручению Тимура продолжается та же ветка arch/conf-003-train-registry.
+Добавлены явный hash-bound schema mapper и private validation report, при этом
+обязательные unlabelled поля остаются unjudgeable. Исправлен evaluator FN для
+правильного неизвестного train-словарю значения. Source-independent inference
+не получает reference/params. Это feature candidate, не реальные метрики;
+полная приёмка и independent quality gates не закрыты. Команды и ограничения:
+docs/CATEGORY_REGISTRY.md. По GitHub metadata PR #92 содержит CONF-001, а не CONF-003. Отдельные
+ARCH-001/CONF-003 PR через подключение не созданы (GitHub 403 FORBIDDEN).
+Review/merge и перевод задач в DONE не выполнялись. Проверки: 247 основных + 3 reader
+tests OK, macOS/Python 3.14.8; 9 evaluation tests OK на Python 3.12.14.

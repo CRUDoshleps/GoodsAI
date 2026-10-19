@@ -58,6 +58,47 @@ tests, fuzz, demo 6/6, `pip check` — Linux, Python 3.12. Живой synthetic 
 (`goodsai.cli llm-trace`) запускается на VM с ключом; качество маршрута не
 измерено и не заявляется. Подробности: [LLM](LLM.md).
 
+## CONF-003: передача на validation, зависимость от PR #92
+
+[DONE — feature candidate] Добавлен явный schema mapper и private validation
+runner поверх существующих predict/evaluate. Проверяются config/split hashes,
+полный frozen validation scope, text identity и точные manual evidence.
+Train/test и pending/silver reference отвергаются. Unmapped target labels →
+unjudgeable с видимым judged/requested denominator. Отчёт сортирует judged
+category/attribute slices по F1 и связывает файлы с run/code/config hashes.
+
+Исправлен воспроизведённый тестом дефект: правильное значение manual reference,
+которого нет в train-словаре, теперь даёт FN вместо ошибки/исключения.
+Inference-словарь не расширяется. Проверено: 247 основных + 3 reader tests
+OK (macOS/Python 3.14.8); 9 новых evaluation tests OK на CPython 3.12.14.
+Реальные данные, gold/test, LLM, VM и зависимости не менялись. Код и команды: [CATEGORY_REGISTRY](CATEGORY_REGISTRY.md).
+[PLAN] Реальные train/validation, schema mapping от команды, независимые
+метрики и приёмка по-прежнему отсутствуют. GitHub metadata подтверждает: PR #92 содержит только CONF-001, base main,
+head arch/conf-001-runtime-config. ARCH-001 и CONF-003 — отдельные ветки
+поверх этой зависимости; в diff PR #92 они не входят. Новые PR через
+подключение не созданы: GitHub отклонил создание с 403 FORBIDDEN.
+Merge и назначение reviewer этим изменением не выполняются.
+
+## Категории: новые feature candidates Тимура
+
+[DONE — feature candidate] CONF-001 совмещена с main 977c5ed (e0b746f),
+BASE-003 уже принята upstream. ARCH-001 добавляет внутренние stage interfaces
+(e59c175); source не может обойти общий verifier. CONF-003 — opt-in реестр
+из отдельного train с fill >=50%, словарями и изучением порядка чисел для
+пар и размеров. Default runtime сохраняет прежние две категории.
+
+[Доказательства] 30 вымышленных категорий / 120 train-карточек в synthetic
+демо, точные spans, конфликт/negation, split guards и CLI/API parity покрыты
+проверками. Итог: 238 основных + 3 reader tests OK (macOS/Python 3.14.8);
+на CPython 3.12.14 — 9 registry tests OK, один API test пропущен из-за
+отсутствия optional service dependencies. Windows/Linux VM не проверялись. Это не реальные top-30 и не оценка качества. Документ/команды:
+[CATEGORY_REGISTRY](CATEGORY_REGISTRY.md).
+
+[PLAN] Нужны разрешённые train/split/traffic, schema mapper, архитектурный
+review и измерение на frozen validation. CONF-002/SPEC-001 и полная приёмка
+ARCH-001/CONF-003 не объявлены завершёнными. Никакие private материалы,
+реальные данные, gold/test или PDF в Git не добавлялись.
+
 ## CONF-001 — кандидат конфигурации runtime
 
 [DONE — feature candidate] Совмещён с `main` 977c5ed: сохранены

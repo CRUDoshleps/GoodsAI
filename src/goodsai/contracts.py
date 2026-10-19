@@ -3,7 +3,8 @@ from dataclasses import dataclass
 import math
 
 from goodsai.config import load_config
-from goodsai.normalize import UNITS, model_name, numeric
+from goodsai.category_registry import Registry
+from goodsai.normalize import model_name
 from goodsai.text import visible_span
 
 
@@ -43,7 +44,8 @@ class Product:
                 "seller_attributes": [], "source_flags": list(self.source_flags)}
 
 
-def validate_prediction(row: dict, config: dict, product: Product | None = None) -> None:
+def validate_prediction(row: dict, config: dict, product: Product | None = None, *, registry=None) -> None:
+    registry = Registry(config) if registry is None else registry
     if not isinstance(row, dict) or row.get("schema_version") != "0.1" or not isinstance(row.get("sku_id"), str):
         raise ValueError("Invalid prediction identity/schema")
     if not isinstance(row.get("status"), str) or row["status"] not in {"processed", "unsupported_category", "invalid_input", "error"}:
@@ -72,9 +74,9 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None)
             raise ValueError("Invalid heuristic score")
         if not isinstance(a.get("value"), str) or not a["value"]:
             raise ValueError("Candidate value must be a nonempty string")
-        if a.get("unit") != UNITS.get(a["attribute"]):
+        if a.get("unit") != registry.unit(row.get("category_id"), a["attribute"]):
             raise ValueError("Candidate unit does not match schema")
-        if a["attribute"] in UNITS and numeric(a["attribute"], a["value"], a["unit"], config.get("numeric_bounds")) != a["value"]:
+        if registry.normalize(row.get("category_id"), a["attribute"], a["value"], a["unit"]) != a["value"]:
             raise ValueError("Candidate number is not canonical")
         e = a.get("evidence", {})
         if (not isinstance(e, dict) or not isinstance(e.get("field"), str)
@@ -86,5 +88,7 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None)
             source = getattr(product, e["field"]) or ""
             if e["end"] > len(source) or source[e["start"]:e["end"]] != e["text"]:
                 raise ValueError("Evidence does not match original text")
+            if registry.spec(product.category_id, a["attribute"]) and not registry.supported(product.category_id, a["attribute"], a["value"], visible_span(source, e["start"], e["end"])):
+                raise ValueError("Registry value is not supported by evidence grammar")
             if a["attribute"] == "model" and model_name(visible_span(source, e["start"], e["end"])) != a["value"]:
                 raise ValueError("Model value is not the approved normalization of visible evidence")

@@ -190,3 +190,17 @@ CandidateGate.reason(Candidate) возвращает reason или None. Categor
 определяет attributes/category, unit и normalize. Это Python-интерфейсы,
 не новые поля JSON и не разрешение произвольного кода из конфигурации.
 Любой внедрённый source проходит общие проверки до merge кандидатов.
+
+### Opt-in категорийный реестр (кандидат CONF-003)
+
+По поручению Тимура подготовлен отдельный train-only кандидат. Config v2
+явно содержит registry v1: category → ordered catalog_* IDs → name/kind/unit/
+train values/support и конечный набор изученных numeric templates. Внешняя
+форма E1 JSON 0.1 сохранена; Product по-прежнему принимает только text-only.
+Новые category/attribute IDs и units включаются только этим явным конфигом.
+Старые labels/evaluator не мигрируют автоматически: нужен schema mapper и
+архитектурное review. Default config v1 и его две категории не меняются.
+Политика остаётся heuristic review/abstain, LLM/auto_accept off.
+Контракт train-проекции, словарей, нормализации, evidence и границы поддержки
+описаны в [CATEGORY_REGISTRY](docs/CATEGORY_REGISTRY.md). Реальный train/split,
+независимые метрики и принятие расширения остаются отдельными условиями.
