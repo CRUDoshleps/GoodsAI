@@ -2,6 +2,19 @@
 
 Актуально на 19 октября 2026 года.
 
+## ML-001: opt-in гибрид — REVIEW
+
+Реализован отдельный экспериментальный `HybridExtractor`: rules + локальный
+GLiNER только для пропущенного однословного бренда. Основной CLI/API не менялся.
+На ранее просмотренном development AI-reference: 80 карточек, 425 judged полей,
+TP/FP/FN 208/8/88 → 225/8/71, F1 81.25% → 85.07%. Метод доработан после анализа
+ошибок, поэтому это screening, не независимое подтверждение accuracy. Широкий
+brand/model fallback отвергнут из-за дополнительных FP относительно reference.
+146 + 3 tests и pip check прошли на VM; два runtime-повтора совпали, отдельный
+offline smoke прошёл при заблокированной сети. Default enable/auto_accept
+остаются закрыты EVAL-001/004. Команды, ресурсы и ограничения:
+[EXPERIMENTAL_GLINER](EXPERIMENTAL_GLINER.md).
+
 ## DOCS-002: текст и доказательства — DONE
 
 [DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR

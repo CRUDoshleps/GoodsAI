@@ -64,7 +64,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
 | VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P1 | READY | NLP/QA | — | — | проверка отрицаний, совместимости и чужих сущностей |
-| ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | IN_PROGRESS | ML engineer | Codex (tunaIT) | `ml/ml-001-gliner-hybrid` | 19.10.2026: разрешён offline GLiNER experiment на frozen development; независимая приёмка перед default enable остаётся gate EVAL-001 |
+| ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | Codex (tunaIT) | `ml/ml-001-gliner-hybrid` | 19.10.2026: opt-in brand fallback; development AI-reference F1 81.25→85.07%, +17 TP, FP unchanged; 146+3 tests; default enable закрыт EVAL-001/004 |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
@@ -444,6 +444,12 @@ Gitea fast-forward; divergence останавливает job, а старый G
 **Готово, когда:** коварный набор QA-001 проходит, а recall loss раскрыт.
 
 ### ML-001 — компактный encoder
+
+19.10.2026: по поручению пользователя выполнен development screening и добавлен
+отдельный opt-in `HybridExtractor`; первый этап независимой приёмки ниже не
+пропущен для штатного включения. Широкий brand/model fallback отклонён; после
+development feedback сохранён только однословный brand. Основной CLI/API и
+auto_accept не меняются. Протокол и ограничения: [EXPERIMENTAL_GLINER](docs/EXPERIMENTAL_GLINER.md).
 
 **Шаги**
 
