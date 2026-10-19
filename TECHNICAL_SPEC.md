@@ -2,6 +2,12 @@
 
 Версия: 1.0, 19 октября 2026 года.
 
+Диагностическое дополнение EVAL-006: отдельный offline reference
+`catalog_silver`, [протокол](docs/research/silver_evaluation_protocol.md).
+Он не является human gold, не меняет API/CLI result v0.1 и runtime confidence.
+Catalog metadata/reference хранятся отдельно от Product; scores и пороги
+калибровки не включаются в runtime без отдельного архитектурного решения.
+
 ## 1. Цель
 
 Система получает текст карточки товара и заполняет обязательные характеристики.
