@@ -10,11 +10,12 @@
 
 1. NLP/baseline берёт свободную [BASE-003 #74](https://github.com/CRUDoshleps/GoodsAI/issues/74):
    grammar батареи `мА*ч` с exact evidence и контролем новых ошибок.
-2. Reviewer проверяет существующие [VER-001 #15](https://github.com/CRUDoshleps/GoodsAI/issues/15)
-   / [PR #79](https://github.com/CRUDoshleps/GoodsAI/pull/79) и
-   [ML-001 #16](https://github.com/CRUDoshleps/GoodsAI/issues/16)
-   / [PR #80](https://github.com/CRUDoshleps/GoodsAI/pull/80).
-   Review кода не доказывает независимое качество.
+2. Reviewer завершает оставшийся review [VER-001 #15](https://github.com/CRUDoshleps/GoodsAI/issues/15)
+   / [PR #79](https://github.com/CRUDoshleps/GoodsAI/pull/79).
+   [ML-001 #16](https://github.com/CRUDoshleps/GoodsAI/issues/16) /
+   [PR #80](https://github.com/CRUDoshleps/GoodsAI/pull/80) уже принят как opt-in
+   прототип: использовать его для независимого этапа, не повторяя code review.
+   Принятый код не доказывает независимое качество.
 3. Ответственный за [EVAL-001 #6](https://github.com/CRUDoshleps/GoodsAI/issues/6)
    назначает двух независимых человеческих разметчиков и adjudicator для
    незавершённого blind-подэтапа. Reviewed development D21–D40 не размечается
