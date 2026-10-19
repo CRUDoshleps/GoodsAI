@@ -83,7 +83,7 @@ def run(args):
             variants[name]["reason"] = "no_provider_calls_or_cache_hits_not_an_llm_quality_experiment"
     reasons = {"registry": "colleague_train_registry_not_integrated_on_frozen_population",
                "gliner": "local_weights_and_frozen_candidate_run_not_supplied",
-               "llm": "PR90_unmerged_real_data_gateway_calls_not_authorized"}
+               "llm": "PR90_unmerged_live_gateway_and_candidate_artifacts_remain_on_VM"}
     for name, reason in reasons.items():
         variants.setdefault(name, {"status": "not_run", "reason": reason})
     report["variants"] = variants
@@ -116,7 +116,9 @@ def public_usage(manifest):
     # Strict allowlist: provider URL/key, prompt/cache paths and raw responses
     # cannot flow into the public report, even from a colleague's manifest.
     return {"calls": manifest.get("llm_calls"), "compute_cost": None,
-        **{k: raw[k] for k in ["model", "prompt_version", "calls", "retries", "cache_hits", "input_tokens", "output_tokens", "cost", "cost_status", "failures", "rejected", "cards_routed"] if k in raw},
+        **{k: raw[k] for k in ["model", "prompt_version", "data_policy", "calls", "retries", "cache_hits", "cost", "cost_status", "failures", "rejected", "cards_routed", "cards_without_gap", "cards_skipped_no_signal", "attributes_skipped_no_signal", "attributes_requested", "proposals", "accepted", "accepted_by_attribute", "provider_seconds"] if k in raw},
+        "input_tokens": raw.get("input_tokens", raw.get("prompt_tokens")),
+        "output_tokens": raw.get("output_tokens", raw.get("completion_tokens")),
         "cost": raw.get("cost", 0 if manifest.get("llm_calls") == 0 else None)}
 
 

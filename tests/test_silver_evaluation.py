@@ -210,6 +210,14 @@ class CalibrationTests(unittest.TestCase):
 
 
 class CommandTests(unittest.TestCase):
+    def test_gleb_manifest_token_names_and_secret_allowlist(self):
+        from scripts.research.run_silver_evaluation import public_usage
+        usage = public_usage({"llm_calls": 3, "llm": {"prompt_tokens": 120, "completion_tokens": 34,
+            "retries": 1, "cost": .03, "base_url": "private", "api_key": "private", "messages": ["private"]}})
+        self.assertEqual(usage["input_tokens"], 120)
+        self.assertEqual(usage["output_tokens"], 34)
+        self.assertNotIn("private", json.dumps(usage))
+
     def test_end_to_end_repeat_candidate_and_public_privacy(self):
         from scripts.research.run_silver_evaluation import ROOT, run
         with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as tmp:

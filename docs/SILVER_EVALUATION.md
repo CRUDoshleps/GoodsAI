@@ -77,6 +77,13 @@ Traffic — число строк наблюдений на SKU. CI ресемп
 subset. Реальные карточки нельзя посылать шлюзу без решения команды о данных
 и бюджете. PR #90 существует как opt-in route; этот PR его не сливает.
 
+При повторной проверке Глеб обновил PR до `3c1e1cb`: в нём записано решение
+`llm-data-policy-2026-10-19`, лимиты 100 calls/run, 300/day, concurrency 2;
+добавлен synthetic live trace. Ключи и живые артефакты остаются на VM.
+Формат его `prompt_tokens`/`completion_tokens` поддержан отчётом. Здесь внешних
+вызовов нет; запуск 200 screening-карточек согласуется с фактическим общим
+дневным остатком и routing, а не разрешает 200 запросов поверх лимита.
+
 ```bash
 python scripts/research/run_silver_evaluation.py --bundle outputs/evaluation/eval-006-silver-v3 --output-dir outputs/evaluation/eval-006-comparison-v1 --candidate llm=outputs/approved-llm-run/predictions.jsonl
 ```
