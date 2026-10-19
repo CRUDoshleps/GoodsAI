@@ -81,3 +81,26 @@ SHA ledgers фиксируются в selection policy. Нельзя менят�
 
 Runtime, категории, confidence/decision, правила, зависимости и VM не меняются.
 Обращений к model gateway/внешним API для карточек и новых расходов нет.
+
+## Выполненные проверки
+
+Producer инструментов: `ffa35ca`. Windows / Python 3.12.6: **134 основных теста**
+(6 новых development-review tests), 3 reader tests, pip check, CLI/link/
+secret-pattern checks и git diff --check — OK. Проверены family-level exposure
+gate до Product/signals, stratification, стабильные номера, отсутствие принудительных
+замен, неверные цитаты, tampering и исключение новых просмотров следующего раунда.
+
+Финальный select и replay дали побайтно одинаковые 4 selection-файла. Четыре
+draft-артефакта (JSONL, review, disputes, exposure) также byte-identical; private
+draft manifests различаются путём к replay bundle и не объявляются идентичными.
+Все 80 present evidence совпадают с raw source; 20 families уникальны.
+Повторный EVAL-002 verify подтвердил сохранение источников; reserve freeze всё
+ещё approved=false. Gold, agreement людей и новые метрики extractor не созданы.
+
+| Локальный артефакт | SHA-256 |
+| --- | --- |
+| `selection.policy.json` | `c24c03cf66e21e3b31f0844aa59a79983a7be43c483ac8576dcb7f91c22bb917` |
+| `selection.summary.json` | `2a1738265174d8347108cc9293233403c2ee185e6ffb478bdf200280bc28b1a4` |
+| `draft.manifest.json` | `224f5110524ac782686915cccfaeb43e9227cca28bc29766a4a22a638a19b438` |
+| `development.ai-draft.jsonl` | `5d1c039f897e0b8d5d61bdb70752ac4a4bcf76a6c025534fa0ef210672d873c8` |
+| `exposure.manifest.jsonl` | `ab017344d46437c26f7f81bc002fcdbc51559d91919c716ff24fce0ff83bfb3c` |

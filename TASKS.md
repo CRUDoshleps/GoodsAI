@@ -50,7 +50,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
-| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | IN_PROGRESS | аналитик/разметчик | urasha / Codex (сессия Влада) | `eval/eval-001-blind-human-gold` | согласован AI-assisted development этап; независимый test отдельно pending |
+| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | REVIEW | аналитик/разметчик | urasha / Codex (сессия Влада) | `eval/eval-001-blind-human-gold` | D21–D40 AI-draft готов; ожидает проверки Владом; independent test pending |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
 | CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
@@ -258,6 +258,11 @@ AI-assisted draft с последующей проверкой Владом, к�
 Сохранить independent-reference=false, без новых P/R/F1 до human-подтверждения.
 Предыдущее требование двух людей относится к будущей независимой оценке, а не к
 этому development-инкременту. Issue #6 не закрывать только подготовкой draft.
+Development tooling `ffa35ca`: 20 карточек/120 полей, 0 human-reviewed; форма
+`outputs/evaluation/development-review-20261019-v2-ai/development.review.md`.
+134 основных + 3 reader tests — OK; replay selection/draft deterministic,
+EVAL-002 sources unchanged, reserve закрыт. REVIEW текущего инкремента — проверка
+draft Владом и code review; независимая оценка остаётся незавершённой.
 
 Claim `fab562f`, инструменты `257fe1f`, 19.10.2026. [Протокол](docs/HUMAN_GOLD.md),
 [инструкция](docs/HUMAN_GOLD_GUIDELINES.md). 128 основных + 3 reader tests — OK;

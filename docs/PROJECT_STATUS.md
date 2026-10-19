@@ -181,6 +181,11 @@ commit, producer SHA остаётся указанным выше. Официа�
 independent_reference=false. Source/test не раскрываются вне development-партии.
 Новый exposure ledger сохраняется рядом с draft и исключает эти семьи из будущих
 новых отборов через --seen. Старые задания/разметка/предсказания сохранены.
+Форма: `outputs/evaluation/development-review-20261019-v2-ai/development.review.md`.
+Producer `ffa35ca`: 134 основных + 3 reader tests, pip check — OK; 4 selection
+и 4 draft-файла byte-identical на повторе. Exact evidence и уникальность семей
+проверены; EVAL-002 verify подтверждает неизменность источников, freeze test
+остаётся approved=false. Текущий инкремент передан на REVIEW, не DONE.
 
 В `eval/eval-001-blind-human-gold` подготовлены [протокол](HUMAN_GOLD.md),
 [guideline](HUMAN_GOLD_GUIDELINES.md), offline HTML и команды
