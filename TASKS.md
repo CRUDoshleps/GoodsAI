@@ -48,7 +48,8 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
-| ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | IN_PROGRESS | QA/MLOps | Codex (tunaIT) | `env/env-001-vm-quality-audit` | 19.10.2026: запуск на VM, метрики и анализ ошибок на frozen main |
+| ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | REVIEW | QA/MLOps | Codex (tunaIT) | `env/env-001-vm-quality-audit` | Linux 1d53dad: 119+3 tests, 2171 SKU; AI-reference P96,3/R70,3/F181,3; human quality N/A |
+| BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | READY | NLP/baseline | — | — | Исправить grammar батареи мА*ч с exact evidence; synthetic failure подтверждён на VM |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
 | EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
@@ -59,11 +60,11 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
 | DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | DONE | technical writer | Codex (сессия Влада) | `docs/docs-001-reproducible-instructions` | PR #31 merge `55378f1`, зеркало Gitea успешно |
 | ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | REVIEW | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
-| BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | READY | NLP/baseline | — | — | консервативный прототип извлечения модели товара |
+| BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | READY | NLP/baseline | — | — | Доработать существующее извлечение модели: разбор FN, без второго прототипа; #10 задаёт equivalence |
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
-| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P1 | READY | NLP/QA | — | — | проверка отрицаний, совместимости и чужих сущностей |
+| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | READY | NLP/QA | — | — | Устранить ложный цвет из имени бренда; отрицания, совместимость и чужие сущности; VM regression подтверждён |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | BLOCKED | ML engineer | — | — | компактный encoder только после baseline и gold; ждёт EVAL-001 |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
@@ -222,6 +223,19 @@ labels, пять Issue forms и PR template; активные задачи за�
 **Готово, когда:** открытые значения отозваны, секретов нет в Git и логах.
 
 ### ENV-001 — воспроизводимость VM
+
+Результат 19.10.2026: [Linux-протокол и диагностика](docs/reviews/2026-10-19_vm_quality_audit.md).
+Claim `3001fee`, ветка `env/env-001-vm-quality-audit`, владелец Codex (tunaIT).
+На clean `1d53dad`: 119 + 3 tests, pip check, demo 6/6; frozen runtime HTTP
+64/64; 2171 SKU, три повтора идентичны frozen `1754970`. Действующий сервис
+не перезапускался; оригинальный checkout `48b45dc` сохранён для rollback.
+Штатный inventory требует лишний clicks: clean real-data путь имеет blocker
+#5, применён отдельно описанный inventory двух настоящих источников.
+AI-reference P96,3/R70,3/F181,3 — не human accuracy: 425/480 judged,
+canonicalization исправлена после первого сравнения, test не использовался.
+Создана BASE-003 #74 READY/P0; VER-001 #15 повышена до P0; уточнены
+#5/#6/#10/#17/#21/#25/#38. Runtime fixes и независимый gold не выполнены.
+REVIEW означает готовность протокола аудита, не снятие release blockers.
 
 **Шаги**
 

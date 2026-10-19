@@ -2,12 +2,21 @@
 
 Актуально на 19 октября 2026 года.
 
+Последнее фактическое VM-подтверждение: [ENV-001, Linux-прогон и ошибки](reviews/2026-10-19_vm_quality_audit.md).
+На `1d53dad`: 119 основных + 3 reader tests, demo 6/6; 2171 SKU обработан,
+три повтора совпали с frozen `1754970` побайтно. Runtime/config hashes одинаковы.
+Согласие с диагностической AI-reference: P96,3/R70,3/F181,3 на 425 judged-парах
+из 480; 55 исключены. Это development, с исправлением сериализации reference
+после первого сравнения, не независимая human quality. Подтверждены synthetic
+пропуск `мА*ч` и ложный цвет из имени бренда; задачи #74 и #15 (P0).
+Все найденные значения всё ещё review, LLM в GoodsAI runtime не вызывается.
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
-| опубликованный runtime baseline | Gitea `main`, без ночных docs-only изменений | `48b45dc` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, DOCS-001 merge и mirror 19.10 | `55378f1` |
+| действующий сервис VM в момент ENV-001 | checkout `~/project`, сервис не перезапускался | `48b45dc` |
+| последняя проверенная на Linux интеграционная база | изолированный clean checkout GitHub `main`, ENV-001 | `1d53dad` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
