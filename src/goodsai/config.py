@@ -101,13 +101,18 @@ def validate_config(config: dict) -> dict:
         for key in POLICY_KEYS:
             config[key] = deepcopy(defaults[key])
         config["category_profiles"] = {key: defaults["category_profiles"].get(key) for key in config["categories"]} if isinstance(config["categories"], dict) else {}
-    _keys(config, required_legacy | POLICY_KEYS, LEGACY_KEYS - required_legacy)
-    if config["schema_version"] != "0.1" or config["config_version"] != "1":
+    _keys(config, required_legacy | POLICY_KEYS | ({"category_registry"} if config.get("config_version") == "2" else set()), LEGACY_KEYS - required_legacy)
+    if config["schema_version"] != "0.1" or not isinstance(config["config_version"], str) or config["config_version"] not in {"1", "2"}:
         raise ValueError("Unsupported schema_version or config_version")
     for key in ("rules_version", "dictionary_version", "seed"):
         _string(config[key], key)
     if "experiment_ablation" in config and config["experiment_ablation"] not in {"disable_model_generation_only", "relation:before", "relation:after"}:
         raise ValueError("Unsupported experiment ablation")
+
+    learned = {}
+    if config["config_version"] == "2":
+        from goodsai.category_registry import validate_registry
+        learned = validate_registry(config["category_registry"])["categories"]
 
     categories = config["categories"]
     if not isinstance(categories, dict) or not categories:
@@ -118,10 +123,18 @@ def validate_config(config: dict) -> dict:
         "smartphone": ATTRIBUTES - {"capacity_l", "power_w"},
         "kettle": {"brand", "model", "color", "capacity_l", "power_w"},
     }
+    if set(learned) - set(categories):
+        raise ValueError("Registry contains an unconfigured category")
     for category, attributes in categories.items():
         _string(category, "category ID")
         _strings(attributes, "category attributes", nonempty=True)
         profile = profiles[category]
+        if profile == "learned" and category in learned:
+            if set(attributes) != set(learned[category]["attributes"]):
+                raise ValueError("Registry and configured attributes differ")
+            continue
+        if category in learned:
+            raise ValueError("Registry category must use learned profile")
         if not isinstance(profile, str) or profile not in profile_attributes or set(attributes) - profile_attributes[profile]:
             raise ValueError("Unsupported category profile or attributes")
 

@@ -688,3 +688,17 @@ auto_accept не меняются. Протокол и ограничения: [
 - BASE-002 готова к изолированному исполнению, остальные новые функции ждут перечисленных зависимостей.
 - Runtime, модели, test reserve, реальные данные и VM не менялись.
 - Дубликаты задач #35–#54 не создавались; PR #55 и чужие claims не изменены.
+
+## CONF-003: train-only feature candidate — 19.10.2026
+
+Исполнитель timur0o31; claim fef035b, ветка arch/conf-003-train-registry,
+база CONF-001 e0b746f + ARCH-001 e59c175 + upstream 977c5ed.
+[DONE — feature candidate] Конфиг v2 с registry v1, fill >=50%, train-only
+словари, key:value, пары и размеры с выученными ролями; общие verifier и
+CLI/API; 238 основных + 3 reader tests OK на macOS/Python 3.14.8. Default две категории и auto_accept/LLM off сохранены.
+[PLAN] Полная приёмка CONF-003 остаётся заблокированной разрешённым train/
+split/traffic, schema mapper, согласованием категорий и review. Реальные
+топ-30 и качество не подтверждены. GitHub PR/labels требуют публикации через
+доступный пользователю GitHub-интерфейс. До этого статус IN_PROGRESS,
+а не REVIEW/DONE. Подробности: docs/CATEGORY_REGISTRY.md.
+ARCH-001 также остаётся feature candidate с открытыми условиями принятия.

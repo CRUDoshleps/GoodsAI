@@ -34,6 +34,8 @@ class Rules:
         self.scores = config["rule_scores"]
         self.limits = config["rule_limits"]
         self.bounds = config["numeric_bounds"]
+        from goodsai.category_registry import LearnedRules
+        self.learned = LearnedRules(config)
         self.model_rules = ModelRules(config)
         self.aliases = {}
         for kind in ["brands", "colors"]:
@@ -229,6 +231,9 @@ class Rules:
                             fragment, self.scores["model"], rule)
 
     def candidates(self, product: Product):
+        if self.profile(product) == "learned":
+            yield from self.learned.candidates(product)
+            return
         if "brand" in self.config["categories"][product.category_id]:
             yield from self.brand(product)
         for field in ["title", "description"]:

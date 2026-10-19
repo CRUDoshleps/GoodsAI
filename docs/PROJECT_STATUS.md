@@ -2,6 +2,26 @@
 
 Актуально на 19 октября 2026 года.
 
+## Категории: новые feature candidates Тимура
+
+[DONE — feature candidate] CONF-001 совмещена с main 977c5ed (e0b746f),
+BASE-003 уже принята upstream. ARCH-001 добавляет внутренние stage interfaces
+(e59c175); source не может обойти общий verifier. CONF-003 — opt-in реестр
+из отдельного train с fill >=50%, словарями и изучением порядка чисел для
+пар и размеров. Default runtime сохраняет прежние две категории.
+
+[Доказательства] 30 вымышленных категорий / 120 train-карточек в synthetic
+демо, точные spans, конфликт/negation, split guards и CLI/API parity покрыты
+проверками. Итог: 238 основных + 3 reader tests OK (macOS/Python 3.14.8);
+на CPython 3.12.14 — 9 registry tests OK, один API test пропущен из-за
+отсутствия optional service dependencies. Windows/Linux VM не проверялись. Это не реальные top-30 и не оценка качества. Документ/команды:
+[CATEGORY_REGISTRY](CATEGORY_REGISTRY.md).
+
+[PLAN] Нужны разрешённые train/split/traffic, schema mapper, архитектурный
+review и измерение на frozen validation. CONF-002/SPEC-001 и полная приёмка
+ARCH-001/CONF-003 не объявлены завершёнными. Никакие private материалы,
+реальные данные, gold/test или PDF в Git не добавлялись.
+
 ## CONF-001 — кандидат конфигурации runtime
 
 [DONE — feature candidate] Совмещён с `main` 977c5ed: сохранены

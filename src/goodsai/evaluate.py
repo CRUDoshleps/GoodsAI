@@ -4,7 +4,7 @@ from pathlib import Path
 
 from goodsai.contracts import Product, validate_prediction
 from goodsai.data import read_jsonl, read_predictions
-from goodsai.normalize import UNITS, numeric
+from goodsai.category_registry import Registry
 
 
 def ratio(a, b):
@@ -22,6 +22,7 @@ def metrics(c: Counter) -> dict:
 
 
 def evaluate(predictions: Path, gold: Path | None, config: dict) -> dict:
+    registry = Registry(config)
     if gold is None or not gold.exists():
         return {"evaluation_status": "unavailable", "reason": "manual_gold_missing",
                 "precision": None, "recall": None, "f1": None,
@@ -73,9 +74,9 @@ def evaluate(predictions: Path, gold: Path | None, config: dict) -> dict:
             if status == "present":
                 if not isinstance(label.get("value"), str) or not label["value"]:
                     raise ValueError("Present gold requires a canonical value")
-                if label.get("unit") != UNITS.get(attr):
+                if label.get("unit") != registry.unit(product.category_id, attr):
                     raise ValueError("Gold unit does not match category schema")
-                if attr in UNITS and numeric(attr, label["value"], label["unit"], config.get("numeric_bounds")) != label["value"]:
+                if registry.normalize(product.category_id, attr, label["value"], label.get("unit")) != label["value"]:
                     raise ValueError("Gold numeric value is not canonical")
                 evidence = label.get("evidence") or {}
                 if (evidence.get("field") not in {"title", "description"}
