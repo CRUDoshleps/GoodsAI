@@ -1,11 +1,11 @@
 """Canonical decimal values. No guesses from product model knowledge."""
 from decimal import Decimal, InvalidOperation
 import re
+from goodsai.config import default_bounds
 
 UNITS = {"storage_gb": "GB", "ram_gb": "GB", "screen_inches": "inch",
          "battery_mah": "mAh", "capacity_l": "L", "power_w": "W"}
-BOUNDS = {"storage_gb": (1, 4096), "ram_gb": (1, 128), "screen_inches": (3, 10.5),
-          "battery_mah": (500, 30000), "capacity_l": (0.1, 10), "power_w": (100, 5000)}
+BOUNDS = default_bounds()  # Compatibility default; custom inference passes its own bounds.
 NUMBER = r"\d{1,4}(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d{1,3})?"
 
 
@@ -25,14 +25,14 @@ def number(value: str) -> Decimal:
     return result
 
 
-def numeric(attribute: str, raw: str, raw_unit: str) -> str:
+def numeric(attribute: str, raw: str, raw_unit: str, bounds: dict | None = None) -> str:
     value = number(raw)
     unit = raw_unit.casefold().replace(" ", "")
     if attribute == "capacity_l" and unit in {"мл", "ml"}:
         value /= 1000
     if attribute == "power_w" and unit in {"квт", "kw"}:
         value *= 1000
-    low, high = BOUNDS[attribute]
+    low, high = (BOUNDS if bounds is None else bounds)[attribute]
     if not Decimal(str(low)) <= value <= Decimal(str(high)):
         raise ValueError("Outside category bounds")
     if attribute in {"storage_gb", "ram_gb", "battery_mah"} and value != value.to_integral_value():

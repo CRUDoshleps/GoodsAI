@@ -94,6 +94,14 @@ batch не останавливает остальные строки и пол�
 
 ### FR-5. Маршрутизация
 
+Конфигурация CONF-001 имеет отдельную версию `config_version=1` при неизменном
+input/output `schema_version=0.1`. Полный профиль задаёт category→rule-family,
+числовые bounds, heuristic scores, контекстные окна и API limits. Loader общий
+для CLI/API; неверный профиль отклоняется до output/listen. Единицы и грамматика
+остаются частью контракта. Production defaults прежние; изменение категории,
+scores или диапазонов требует review архитектора. Флаги LLM/auto_accept в этой
+версии обязаны быть `false`. Детали и legacy migration — `docs/CONFIGURATION.md`.
+
 Целевое решение выбирает самый дешёвый достаточный метод:
 
 1. rules для точных шаблонов;

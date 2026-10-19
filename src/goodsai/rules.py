@@ -3,6 +3,7 @@ from dataclasses import dataclass, replace
 import re
 
 from goodsai.contracts import Product
+from goodsai.config import default_limits
 from goodsai.model_rules import ModelRules
 from goodsai.normalize import NUMBER, UNITS, model_name, numeric
 from goodsai.text import visible_view
@@ -25,19 +26,24 @@ def bounded_alias(alias: str) -> str:
     return r"(?<!\w)" + re.escape(alias).replace(r"\ ", r"[^\S\n]+") + r"(?!\w)"
 
 
-def uncertain(text: str, start: int) -> bool:
-    prefix = text[max(0, start - 35):start]
+def uncertain(text: str, start: int, prefix_chars: int | None = None) -> bool:
+    prefix_chars = default_limits()["uncertainty_prefix_chars"] if prefix_chars is None else prefix_chars
+    prefix = text[max(0, start - prefix_chars):start]
     return bool(re.search(r"(?:\d\s*[-–—]|\b(?:от|до|около|примерно|менее|более)|"
                           r"\b(?:не|нет|без)(?:\s+\w+){0,2})\s*$", prefix, re.I))
 
 
-def context(text: str, start: int, end: int, radius: int = 45) -> str:
+def context(text: str, start: int, end: int, radius: int | None = None) -> str:
+    radius = default_limits()["context_radius_chars"] if radius is None else radius
     return text[max(0, start - radius):min(len(text), end + radius)]
 
 
 class Rules:
     def __init__(self, config: dict):
         self.config = config
+        self.scores = config["rule_scores"]
+        self.limits = config["rule_limits"]
+        self.bounds = config["numeric_bounds"]
         self.model_rules = ModelRules(config)
         self.aliases = {}
         for kind in ["brands", "colors"]:
@@ -58,10 +64,15 @@ class Rules:
             "card": re.compile(r"карт\w*\s+памят\w*|micro\s*SD|SDXC|SDHC", re.I),
         }
 
-    @staticmethod
-    def make(attribute, value, field, offset, text, match, rule, score=0.8):
+    def make(self, attribute, value, field, offset, text, match, rule, score_key):
         return Candidate(attribute, value, UNITS.get(attribute), field,
-                         offset + match.start(), offset + match.end(), match.group(), score, rule)
+                         offset + match.start(), offset + match.end(), match.group(), self.scores[score_key], rule)
+
+    def uncertain(self, text, start):
+        return uncertain(text, start, self.limits["uncertainty_prefix_chars"])
+
+    def profile(self, product):
+        return self.config["category_profiles"][product.category_id]
 
     def brand(self, product: Product):
         # Prefer a configured adjacent subbrand, never a brand mentioned later
@@ -69,12 +80,12 @@ class Rules:
         matches = []
         text, positions = visible_view(product.title)
         for canonical, pattern in self.aliases["brands"]:
-            if product.category_id == "761" and canonical in {"GALAXY", "Galaxy Line"}:
+            if self.profile(product) == "smartphone" and canonical in {"GALAXY", "Galaxy Line"}:
                 continue  # These kettle brands are not smartphone manufacturers.
             for m in pattern.finditer(text):
-                if uncertain(text, m.start()) or re.search(r"\b(?:для|совместим\w*)\b", text[:m.start()], re.I):
+                if self.uncertain(text, m.start()) or re.search(r"\b(?:для|совместим\w*)\b", text[:m.start()], re.I):
                     continue
-                if m.start() < 65:
+                if m.start() < self.limits["brand_prefix_chars"]:
                     matches.append((m.start(), -len(m.group()), canonical, m))
         if matches:
             _, _, canonical, m = min(matches, key=lambda x: x[:2])
@@ -88,7 +99,7 @@ class Rules:
             first, last = positions[m.start()], positions[m.end() - 1]
             if first is not None and last is not None and all(positions[m.start():m.end()]):
                 yield Candidate("brand", canonical, None, "title", first[0], last[1],
-                                product.title[first[0]:last[1]], 0.85, rule)
+                                product.title[first[0]:last[1]], self.scores["brand"], rule)
 
     def color_evidence_span(self, text: str, start: int, end: int) -> tuple[int, int]:
         """Keep approved marketing/texture words and adjacent generic labels.
@@ -117,11 +128,11 @@ class Rules:
             if any(other.start() <= m.start() and other.end() >= m.end()
                    and other.end() - other.start() > m.end() - m.start() for _, other in found):
                 continue  # Do not turn dark blue into two colors.
-            prefix = text[max(0, m.start() - 20):m.start()]
+            prefix = text[max(0, m.start() - self.limits["color_prefix_chars"]):m.start()]
             if re.search(r"(?:\w+-|\b(?:темно|тёмно|светло|ярко|бледно|глубок\w*|насыщенн\w*|dark|light|deep)\s+)$", prefix, re.I):
                 continue  # An unconfigured shade/compound is not the basic color.
-            local = context(text, m.start(), m.end(), 30)
-            if uncertain(text, m.start()) or re.search(r"подсветк|индикатор|упаковк|кнопк|шнур|ручк", local, re.I):
+            local = context(text, m.start(), m.end(), self.limits["color_context_radius_chars"])
+            if self.uncertain(text, m.start()) or re.search(r"подсветк|индикатор|упаковк|кнопк|шнур|ручк", local, re.I):
                 continue
             if field == "description" and not re.search(r"цвет\w*|корпус\w*", local, re.I):
                 continue
@@ -129,7 +140,7 @@ class Rules:
                 # A material word is not a color. Description needs a color
                 # label in the same clause; a bare title variant is allowed.
                 clause_start = max(text.rfind(char, 0, m.start()) for char in ".;\n") + 1
-                before = text[clause_start:m.start()][-35:]
+                before = text[clause_start:m.start()][-self.limits["material_prefix_chars"]:]
                 if re.search(r"\b(?:материал\w*|material|из)\b", before, re.I):
                     continue
                 if field == "description" and not re.search(r"\bцвет\w*", before, re.I):
@@ -144,14 +155,14 @@ class Rules:
                     continue  # Do not silently drop an unknown shade qualifier.
             start, end = self.color_evidence_span(text, m.start(), m.end())
             yield Candidate("color", canonical, None, field, offset + start, offset + end,
-                            text[start:end], 0.75, "color.explicit.v2")
+                            text[start:end], self.scores["color"], "color.explicit.v2")
 
     def memory_role(self, text: str, start: int, end: int) -> str | None:
         found = []
         for role, pattern in self.roles.items():
             for m in pattern.finditer(text):
                 distance = start - m.end() if m.end() <= start else m.start() - end
-                if 0 <= distance <= 45:
+                if 0 <= distance <= self.limits["memory_role_distance_chars"]:
                     between = text[m.end():start] if m.end() <= start else text[end:m.start()]
                     if not re.search(r"[.!?;\n]", between):
                         found.append((distance, role))
@@ -165,32 +176,38 @@ class Rules:
     def memory(self, field: str, offset: int, text: str):
         pairs = list(self.pair.finditer(text)) if field == "title" else []
         for m in pairs:
-            if uncertain(text, m.start()):
+            if self.uncertain(text, m.start()):
                 continue
             ram, rom = int(m["ram"]), int(m["rom"])
-            if not 1 <= ram <= 64 or not 16 <= rom <= 4096 or ram >= rom:
+            ram_min, ram_max = self.limits["memory_pair_ram_bounds"]
+            rom_min, rom_max = self.limits["memory_pair_storage_bounds"]
+            if not ram_min <= ram <= ram_max or not rom_min <= rom <= rom_max or ram >= rom:
                 continue
             for attr, value in [("ram_gb", ram), ("storage_gb", rom)]:
-                yield self.make(attr, str(value), field, offset, text, m, "memory.title-pair.v1", 0.8)
+                try:
+                    normalized = numeric(attr, str(value), "GB", self.bounds)
+                except ValueError:
+                    continue
+                yield self.make(attr, normalized, field, offset, text, m, "memory.title-pair.v1", "memory_pair")
         for m in self.patterns["memory"].finditer(text):
-            if any(p.start() <= m.start() < p.end() for p in pairs) or uncertain(text, m.start()):
+            if any(p.start() <= m.start() < p.end() for p in pairs) or self.uncertain(text, m.start()):
                 continue
             role = self.memory_role(text, m.start(), m.end())
             if role not in {"ram_gb", "storage_gb"}:
                 continue
             try:
-                value = numeric(role, m["n"], m["u"])
+                value = numeric(role, m["n"], m["u"], self.bounds)
             except ValueError:
                 continue
-            yield self.make(role, value, field, offset, text, m, "memory.context.v1", 0.8)
+            yield self.make(role, value, field, offset, text, m, "memory.context.v1", "memory_context")
 
     def quantities(self, product: Product, field: str, offset: int, text: str):
-        attributes = (["screen_inches", "battery_mah"] if product.category_id == "761"
+        attributes = (["screen_inches", "battery_mah"] if self.profile(product) == "smartphone"
                       else ["capacity_l", "power_w"])
         for attr in attributes:
             for m in self.patterns[attr].finditer(text):
-                local = context(text, m.start(), m.end())
-                if uncertain(text, m.start()):
+                local = context(text, m.start(), m.end(), self.limits["context_radius_chars"])
+                if self.uncertain(text, m.start()):
                     continue
                 if attr == "screen_inches":
                     if re.search(r"дополнител\w*\s+экран|развернут|развёрнут", local, re.I):
@@ -210,28 +227,31 @@ class Rules:
                     if field != "title" and not re.search(r"мощност|нагревател", local, re.I):
                         continue
                 try:
-                    value = numeric(attr, m["n"], m["u"])
+                    value = numeric(attr, m["n"], m["u"], self.bounds)
                 except ValueError:
                     continue
-                yield self.make(attr, value, field, offset, text, m, attr + ".explicit.v1", 0.8)
+                yield self.make(attr, value, field, offset, text, m, attr + ".explicit.v1", "quantity")
 
     def models(self, product: Product, field: str, text: str):
         for start, end, rule in self.model_rules.spans(product.category_id, field, text):
             fragment = text[start:end]
             yield Candidate("model", model_name(fragment), None, field, start, end,
-                            fragment, 0.8, rule)
+                            fragment, self.scores["model"], rule)
 
     def candidates(self, product: Product):
-        yield from self.brand(product)
+        if "brand" in self.config["categories"][product.category_id]:
+            yield from self.brand(product)
         for field in ["title", "description"]:
             source = getattr(product, field) or ""
             text, positions = visible_view(source)
             found = list(self.colors(field, 0, text))
             found.extend(self.models(product, field, text))
-            if product.category_id == "761":
+            if self.profile(product) == "smartphone":
                 found.extend(self.memory(field, 0, text))
             found.extend(self.quantities(product, field, 0, text))
             for candidate in found:
+                if candidate.attribute not in self.config["categories"][product.category_id]:
+                    continue
                 first, last = positions[candidate.start], positions[candidate.end - 1]
                 if first is None or last is None:
                     continue

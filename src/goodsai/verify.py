@@ -4,12 +4,13 @@ from decimal import Decimal, InvalidOperation
 import math
 
 from goodsai.contracts import Product, validate_prediction
+from goodsai.config import validate_config
 from goodsai.normalize import BOUNDS, UNITS, model_name
 from goodsai.rules import Rules
 from goodsai.text import visible_span
 
 
-def validate_candidate(candidate, product: Product, requested: list[str]) -> None:
+def validate_candidate(candidate, product: Product, requested: list[str], config: dict | None = None) -> None:
     """Validate internal rule candidates before field access and merging."""
     if not isinstance(candidate.attribute, str) or candidate.attribute not in requested:
         raise ValueError("Rule returned an attribute outside category schema")
@@ -28,8 +29,9 @@ def validate_candidate(candidate, product: Product, requested: list[str]) -> Non
         raise ValueError("Rule violated raw evidence invariant")
     if candidate.attribute == "model" and model_name(visible_span(source, candidate.start, candidate.end)) != candidate.value:
         raise ValueError("Model value is not derived from visible evidence")
-    if candidate.attribute in BOUNDS:
-        low, high = BOUNDS[candidate.attribute]
+    bounds = config["numeric_bounds"] if config is not None else BOUNDS
+    if candidate.attribute in bounds:
+        low, high = bounds[candidate.attribute]
         try:
             value = Decimal(candidate.value)
             if not value.is_finite() or not Decimal(str(low)) <= value <= Decimal(str(high)):
@@ -40,8 +42,8 @@ def validate_candidate(candidate, product: Product, requested: list[str]) -> Non
 
 class Extractor:
     def __init__(self, config: dict):
-        self.config = config
-        self.rules = Rules(config)
+        self.config = validate_config(config)
+        self.rules = Rules(self.config)
 
     def predict(self, product: Product, run_id: str = "rules-v0") -> dict:
         requested = self.config["categories"].get(product.category_id)
@@ -53,7 +55,7 @@ class Extractor:
             return row
         grouped = defaultdict(list)
         for candidate in self.rules.candidates(product):
-            validate_candidate(candidate, product, requested)
+            validate_candidate(candidate, product, requested, self.config)
             grouped[candidate.attribute].append(candidate)
         for attr in requested:
             candidates = grouped[attr]

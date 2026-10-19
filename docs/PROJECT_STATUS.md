@@ -2,6 +2,24 @@
 
 Актуально на 19 октября 2026 года.
 
+## CONF-001 — кандидат конфигурации runtime
+
+Ветка `arch/conf-001-runtime-config`, claim `3cb7560`, исполнитель `timur0o31`.
+Добавлен полный профиль `config_version=1`: bounds, heuristic scores, окна
+правил и API limits. CLI/API используют общий strict loader, старые профили
+без config_version явно мигрируются; ошибки конфигурации дают fail-fast.
+Category ID связан с существующим rule-family через конфиг. Input/output
+schema 0.1, единицы, production defaults, review/abstain сохранены;
+LLM/auto_accept запрещены в текущем runtime.
+
+Проверка candidate на macOS / Python 3.14.8: 123 основных теста (15 новых),
+3 reader tests, demo 6/6. На 15 синтетических карточках сохранены прежние
+values/units/confidence/evidence/decisions; run identity закономерно меняется.
+Это не независимое измерение качества и не обновление VM. Реальные данные,
+gold/test reserve, внешние модели и зависимости не менялись. Детали и команды:
+[CONFIGURATION.md](CONFIGURATION.md). До merge результат относится к этой
+feature-ветке, не к опубликованному release.
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |

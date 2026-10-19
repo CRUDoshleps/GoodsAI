@@ -301,6 +301,12 @@ split; test contents не использовались для настройки
 - Начато: 19.10.2026. Исполнитель: `timur0o31`.
 - Ветка: `arch/conf-001-runtime-config`; Issue: #9.
 - Claim публикуется отдельным commit до начала реализации.
+- Claim опубликован: `3cb7560`. Реализация: versioned runtime config, strict
+  loader, общие bounds/scores/windows для rules/verifier и CLI/API.
+- Проверки macOS/Python 3.14.8: 123 + 3 tests, demo 6/6; 15 synthetic
+  before/after предсказаний совпали по значениям, evidence и решениям.
+- LLM/auto_accept выключены. Реальные данные, независимый test, VM и
+  зависимости не менялись; документация: `docs/CONFIGURATION.md`.
 
 **Шаги**
 

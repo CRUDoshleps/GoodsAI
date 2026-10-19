@@ -1,20 +1,10 @@
 """Strict text-only boundary and output invariants, independent of data loaders."""
 from dataclasses import dataclass
-from importlib.resources import files
-import json
 import math
-from pathlib import Path
 
+from goodsai.config import load_config
 from goodsai.normalize import UNITS, model_name, numeric
 from goodsai.text import visible_span
-
-
-def load_config(path: str | None = None) -> dict:
-    text = Path(path).read_text(encoding="utf-8") if path else files("goodsai").joinpath("baseline.json").read_text(encoding="utf-8")
-    config = json.loads(text)
-    if config.get("schema_version") != "0.1" or not config.get("categories"):
-        raise ValueError("Unsupported configuration")
-    return config
 
 
 @dataclass(frozen=True)
@@ -82,7 +72,7 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None)
             raise ValueError("Candidate value must be a nonempty string")
         if a.get("unit") != UNITS.get(a["attribute"]):
             raise ValueError("Candidate unit does not match schema")
-        if a["attribute"] in UNITS and numeric(a["attribute"], a["value"], a["unit"]) != a["value"]:
+        if a["attribute"] in UNITS and numeric(a["attribute"], a["value"], a["unit"], config.get("numeric_bounds")) != a["value"]:
             raise ValueError("Candidate number is not canonical")
         e = a.get("evidence", {})
         if (e.get("field") not in {"title", "description"} or type(e.get("start")) is not int
