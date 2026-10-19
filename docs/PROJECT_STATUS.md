@@ -7,7 +7,7 @@
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
 | опубликованный runtime baseline | Gitea `main`, без ночных docs-only изменений | `48b45dc` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, fetch 19.10 | `0736753` |
+| последняя проверенная интеграционная база | GitHub / Gitea `main`, DOCS-001 merge и mirror 19.10 | `55378f1` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
@@ -107,6 +107,35 @@ inventory path, выбор Python и разделение demo/real evaluation; 
 LLM и VM не запускались. Linux-команды проверены по CLI/исходникам, но
 на Linux в рамках DOCS-001 не выполнялись. Сборщик шести артефактов — следующий
 инкремент; его наличие здесь не заявляется.
+
+### DOCS-001 опубликован; ART-003 подготовлен на review
+
+По разрешению Влада PR #31 слит в GitHub `main` (`55378f1`); mirror workflow
+успешен, Gitea `main` указывает на тот же SHA. DOCS-001 завершён.
+VM в этом шаге не обновлялась.
+
+Этап B реализован в feature `release/art-003-artifact-bundle`, claim `d49f300`,
+задача [ART-003 #32](https://github.com/CRUDoshleps/GoodsAI/issues/32).
+[Offline-сборщик](ARTIFACT_BUNDLE.md) принимает frozen spec, связывает шесть
+артефактов с кодом/конфигом/input/predictions/metrics, сообщает incomplete
+при mismatch/missing и проверяет hashes после переноса. Public smoke получает
+только встроенную синтетику; private-входы/gold/документы остаются локально.
+Без gold P/R/F1 N/A. Конфиг ограничен versioned rules config; новый LLM runtime
+потребует отдельного расширения, auto_accept не вводился.
+
+Windows / Python 3.12.6: **100 основных тестов** (18 новых release tests),
+3 reader tests, pip check — OK; smoke 6/6 и `verify` — OK. Локальные логи:
+`outputs/art-003-full-tests-final.log`; candidate bundle:
+`outputs/release/art-003-smoke-candidate/` (dirty candidate, не clean release).
+Полный synthetic fixture со всеми шестью компонентами проверен тестами;
+реальная техническая презентация и официальный dataset-wide release не созданы.
+
+Runtime, schema v0.1, правила и зависимости не менялись. Реальные данные,
+прежние gold/predictions/отчёты и резерв test не читались для новых предсказаний;
+полный EDA, pickle, LLM, расходы и deployment не выполнялись. Приватная сборка
+на реальном release candidate и Linux остаётся следующей проверкой ART-001/ENV-001.
+Нужные безопасные агрегаты/слайды можно отдельно подготовить к публикации в Gitea
+по разрешению Влада; автоматической публикации raw/gold/data нет.
 
 ## Результат организаторского review
 

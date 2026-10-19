@@ -46,6 +46,12 @@ job завершается ошибкой. Такой commit сначала ну
 
 ## Состав release candidate
 
+Проверяемую локальную сборку выполняет
+[scripts/release/build_release.py](../scripts/release/build_release.py).
+Команды smoke/assemble/verify и frozen spec — в [ARTIFACT_BUNDLE.md](ARTIFACT_BUNDLE.md).
+Сборщик не заменяет preflight, review и deployment, не создаёт недостающие
+EDA/презентацию и не выполняет автоматический push приватных данных.
+
 Release candidate — конкретный GitHub commit. Для него создаются:
 
 - source SHA и clean-tree proof;

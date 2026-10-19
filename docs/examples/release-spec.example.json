@@ -1,0 +1,9 @@
+{
+  "spec_version": "1",
+  "source_commit": "REPLACE_WITH_FULL_GIT_HEAD",
+  "config": {"path": "src/goodsai/baseline.json", "sha256": "REPLACE_WITH_SHA256"},
+  "input": {"path": "data/processed/e1/pilot.jsonl", "sha256": "REPLACE_WITH_SHA256"},
+  "predictions": {"path": "outputs/release-inputs/predictions.jsonl", "sha256": "REPLACE_WITH_SHA256"},
+  "eda": {"path": "outputs/release-inputs/eda.md", "sha256": "REPLACE_WITH_SHA256"},
+  "presentation": {"path": "outputs/release-inputs/technical-slides.pdf", "sha256": "REPLACE_WITH_SHA256"}
+}
