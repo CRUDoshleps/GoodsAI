@@ -12,12 +12,15 @@
 | Prediction | Gold | Класс |
 | --- | --- | --- |
 | правильное значение | present | TP |
-| неверное/неподтверждённое значение | present/absent | FP |
+| неверное значение вместо правильного | present | FP + FN |
+| значение при отсутствии характеристики | absent | FP |
 | abstain/нет значения | present | FN |
 | abstain | absent | TN, отдельно от P/R/F1 |
 
-Evidence считается правильным, если raw span совпадает с источником и
-семантически подтверждает именно этот атрибут основного товара.
+Exact evidence проверяется программно по исходному полю и offsets. Семантическую
+связь с атрибутом основного товара оценивает reviewer; совпавший span сам по себе
+её не доказывает. Evaluator сопоставляет canonical value+unit с reviewed reference;
+отдельной полной семантической метрики evidence сейчас нет.
 
 ## Формулы
 
@@ -29,12 +32,16 @@ Coverage  = predicted_required_pairs / all_required_pairs
 ```
 
 Micro-метрика суммирует пары. Macro сначала считает показатель по полю или
-категории и усредняет. Публикуются обе, потому что micro скрывает редкие поля.
+категории и усредняет. Текущий evaluator выдаёт micro, per-attribute/category,
+category×attribute и macro_attribute_f1; отдельный macro-category не реализован.
+В evaluator candidate coverage считается по **judged** парам. Покрытие по всем
+запрошенным парам из prediction manifest показывается отдельно; ambiguous/
+unjudgeable и кандидаты на них не исчезают из диагностического отчёта.
 
 Для решений:
 
 ```text
-AutoAcceptPrecision = correct_auto_accept / all_auto_accept
+AutoAcceptPrecision = correct_auto_accept / all_auto_accept  # N/A сейчас: auto_accept нет
 ReviewRate          = review_pairs / required_pairs
 AbstainRate         = abstain_pairs / required_pairs
 EvidenceExactRate   = exact_evidence / predicted_pairs
@@ -47,6 +54,10 @@ CostPer1000 = 1000 * inference_cost / cards
 LLMShare    = cards_with_llm_call / cards
 Throughput  = cards / elapsed_seconds
 ```
+
+ReviewRate, EvidenceExactRate и CostPer1000 выше — определения для отчётности,
+не обещание отдельных готовых полей evaluator. Сейчас вызовов моделей нет,
+API-расход равен нулю; стоимость compute в рублях не измерена.
 
 ## Обязательные срезы
 
@@ -66,13 +77,17 @@ Throughput  = cards / elapsed_seconds
 
 | Набор | Cards / judged | TP / FP / FN | P / R / F1 | Ограничение |
 | --- | ---: | ---: | ---: | --- |
-| reviewed-v2 validation | 12 / 67 | сохранено в старом отчёте | 96,7 / 58,0 / 72,5% | AI-assisted, малая выборка |
+| reviewed-v2, исторический baseline | 12 / 67 | 29 / 1 / 21 | 96,7 / 58,0 / 72,5% | теперь development_feedback, не holdout |
 | M2 до policy fixes | 20 / 115 | 58 / 3 / 25 | 95,1 / 69,9 / 80,6% | development, использовался для решений |
 | M2 после policy fixes | 20 / 115 | 69 / 0 / 14 | 100 / 83,1 / 90,8% | тот же development, не независимый test |
 
 M2 содержит 120 полей: 83 present, 32 absent, 5 ambiguous. В P/R/F1 входят
 115 judged решений. Улучшение после просмотра ошибок показывает, что fixes
 работают на этом development, но не оценивает перенос на новые карточки.
+Полная последовательность M1/M2, per-attribute/category таблицы, SHA reference,
+snapshots и команды — в [RESULTS.md](RESULTS.md). Сам факт
+`evaluation_status=manual_reference` не означает независимость: происхождение
+AI-assisted и использование для разработки фиксируются отдельно.
 
 ## Организаторский прогон 18 октября
 
