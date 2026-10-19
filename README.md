@@ -179,6 +179,16 @@ API временный до публикации точной схемы орг�
 
 ## Оценка
 
+Оценка baseline по каталогу, offline-калибровка и передача результатов коллег:
+[инструкция EVAL-006](docs/SILVER_EVALUATION.md). Это диагностика по шумному
+reference, независимое качество пока не подтверждено.
+
+Результат на 3037 development/feedback карточках: agreement P 94,65%,
+R 63,02%, F1 75,67%, supported recall 75,75%. Полные знаменатели и ограничения:
+[метрики](reports/metrics.md), [run stats](reports/run_stats.json),
+[выводы](docs/research/silver_evaluation_results.md). С результатами ручной
+разметки ниже эти числа напрямую не сравниваются.
+
 Без gold можно получить только отчёт `N/A`:
 
 ```bash
