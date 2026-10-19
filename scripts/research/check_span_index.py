@@ -42,6 +42,8 @@ def reference_records(path):
 
 def measure(input_path, reference_path=None, config=None):
     config = config or SpanConfig()
+    input_hash = digest(input_path)
+    reference_hash = digest(reference_path) if reference_path else None
     references, kind = reference_records(reference_path)
     seen = set()
     statuses = Counter()
@@ -75,6 +77,9 @@ def measure(input_path, reference_path=None, config=None):
         matched += len(expected & candidates)
     if not seen or set(references) - seen:
         raise ValueError("Empty input or reference SKU absent from input")
+    if (digest(input_path) != input_hash
+            or reference_path and digest(reference_path) != reference_hash):
+        raise ValueError("Input/reference changed during measurement")
     try:
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"], stderr=subprocess.DEVNULL, text=True).strip()
         dirty = bool(subprocess.check_output(["git", "status", "--porcelain"], stderr=subprocess.DEVNULL).strip())
@@ -85,8 +90,8 @@ def measure(input_path, reference_path=None, config=None):
     return {"report_version": "1", "algorithm_version": ALGORITHM_VERSION, "git_commit": commit, "git_dirty": dirty,
             "generator_sha256": digest(Path(generator.__file__)), "mapping_sha256": digest(Path(mapping.__file__)),
             "measurement_sha256": digest(Path(__file__)), "config": asdict(config),
-            "config_sha256": fingerprint(asdict(config)), "input_sha256": digest(input_path),
-            "reference_sha256": digest(reference_path) if reference_path else None,
+            "config_sha256": fingerprint(asdict(config)), "input_sha256": input_hash,
+            "reference_sha256": reference_hash,
             "reference_kind": kind, "rows": len(seen), "status_counts": dict(statuses), "reason_counts": dict(reasons),
             "span_count": total_spans, "build_seconds_with_tracemalloc": seconds,
             "peak_traced_python_bytes": peak, "reference_spans": labelled, "matched_spans": matched,

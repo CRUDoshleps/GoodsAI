@@ -7,12 +7,28 @@ import unicodedata
 
 from goodsai.contracts import Product
 from goodsai.normalize import NUMBER
-from goodsai.text import visible_view
+from goodsai.text import VisibleText
 
-ALGORITHM_VERSION = "span-index-1"
+ALGORITHM_VERSION = "span-index-2"
 TOKEN = re.compile(r"\w+(?:[-./+]\w+)*", re.UNICODE)
 NUMERIC = re.compile(rf"(?<!\w){NUMBER}(?:\s*(?:[/+]\s*{NUMBER}))?"
                      r"(?:[^\S\n]*(?:GB|ГБ|mAh|м[аa][*·⋅\s]*ч|кВт|kW|Вт|W|ml|мл|л|L|inch|дюйм\w*|[\"″]))?(?!\w)", re.I)
+
+
+class IndexText(VisibleText):
+    """Reuse raw mapping without wrapping non-visible comments/declarations in windows."""
+    def handle_comment(self, data):
+        self.boundary()
+
+    def handle_decl(self, decl):
+        self.boundary()
+
+
+def visible_view(source):
+    parser = IndexText(source)
+    parser.feed(source)
+    parser.close()
+    return "".join(text for text, _ in parser.parts), [pos for _, positions in parser.parts for pos in positions]
 
 
 def fingerprint(value):

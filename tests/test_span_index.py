@@ -71,6 +71,14 @@ class SpanIndexTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             index.resolve("unknown", product)
 
+    def test_comments_and_declarations_cannot_enter_joined_raw_spans(self):
+        for separator in ["<!-- Secret 5100 mAh -->", "<!DOCTYPE html>"]:
+            product = self.product("Zorion" + separator + " QX-900")
+            index = build_span_index(product)
+            self.assertIn("Zorion", {e.surface for e in index.entries})
+            self.assertIn("QX-900", {e.surface for e in index.entries})
+            self.assertFalse(any(separator in e.surface or "Secret" in e.surface for e in index.entries))
+
     def test_size_count_window_and_length_limits_are_explicit(self):
         product = self.product("one two three four")
         for config, reason in [(SpanConfig(max_source_chars=3), "source_length_limit"),

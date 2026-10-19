@@ -3,14 +3,40 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from scripts.research.check_span_index import measure
-from goodsai.span_index import SpanConfig
+from goodsai.span_index import SpanConfig, build_span_index
 
 FIXTURES = Path(__file__).parent / "fixtures/span_index"
 
 
 class SpanMeasurementTests(unittest.TestCase):
+    def test_mutating_source_or_reference_cannot_publish_misleading_hashes(self):
+        for changed in ("input", "reference"):
+            with self.subTest(changed=changed), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                source = root / "input.jsonl"
+                reference = root / "reference.json"
+                source.write_bytes((FIXTURES / "products.jsonl").read_bytes())
+                reference.write_bytes((FIXTURES / "reference.json").read_bytes())
+                mutated = False
+
+                def change_after_build(product, config):
+                    nonlocal mutated
+                    result = build_span_index(product, config)
+                    if not mutated:
+                        target = source if changed == "input" else reference
+                        original = target.read_bytes()
+                        target.write_bytes(original.replace(b"Zorion", b"Zorian", 1) if changed == "input"
+                                           else original + b" ")
+                        mutated = True
+                    return result
+
+                with patch("scripts.research.check_span_index.build_span_index", side_effect=change_after_build):
+                    with self.assertRaisesRegex(ValueError, "changed during measurement"):
+                        measure(source, reference)
+
     def test_frozen_synthetic_offsets_resources_and_safe_aggregate_report(self):
         report = measure(FIXTURES / "products.jsonl", FIXTURES / "reference.json")
         self.assertEqual((report["rows"], report["reference_spans"], report["matched_spans"]), (3, 6, 6))

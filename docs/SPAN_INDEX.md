@@ -29,7 +29,9 @@ Offsets — индексы Python Unicode code points, end исключител�
 байтовые координаты и не JavaScript UTF-16. Для каждой entry выполняется
 `source[start:end] == surface`. HTML/entities используют текущую visible→raw
 карту; raw surface может включать исходную inline-разметку. Нельзя выбирать
-половину entity, скрытый текст или span через block/hidden boundary.
+половину entity или span через block/script/style/template/noscript boundary.
+HTML comments и declarations также разрывают окна. CSS и атрибуты вроде
+`hidden` не интерпретируются: индекс не является browser renderer.
 
 Source hash включает оба неизменённых поля с различением null/пустой строки;
 SKU/category/служебные flags в него не входят. Hash вычисляется порциями без
@@ -42,7 +44,7 @@ version/source/config. Span ID включает index ID, field и коорди�
 
 ## Генерация и ограничения
 
-Алгоритм `span-index-1` обходит title, затем description. В каждом поле сначала
+Алгоритм `span-index-2` обходит title, затем description. В каждом поле сначала
 числовые spans, затем token windows, максимум W токенов. Есть варианты
 неизвестных названий и кодов; brand dictionary не используется. Отрицание
 сохраняется в исходном тексте и может входить в span. Это материал для общего
@@ -95,7 +97,8 @@ peak traced Python bytes. Последний показатель не раве�
 всю память процесса. В публичных aggregates нет SKU, raw text, entries или
 evidence. Recall = matched exact field/start/end / все reference spans;
 truncated/unavailable случаи не выкидываются из знаменателя. Без reference
-recall=null. Целевой output должен быть новым.
+recall=null. Input/reference hashes сверяются до и после прохода; изменение
+файлов отменяет замер. Целевой output должен быть новым.
 
 Synthetic fixture даёт 6/6 exact spans. Это проверка механики; precision,
 end-to-end F1, candidate recall реального каталога и качество будущей LLM
@@ -108,7 +111,7 @@ end-to-end F1, candidate recall реального каталога и каче�
 python -m unittest discover -s tests -p 'test_span_index*.py' -v
 ```
 
-14 tests проверяют identity, все limits, отсутствие ближайшего lookup,
+16 tests проверяют identity, все limits, отсутствие ближайшего lookup,
 повторы, кириллицу/emoji/combining marks, inline HTML/entities, скрытые блоки,
 отрицание, null description, неизвестное название, source длиной 60000
 символов, отсутствие изменений prediction и безопасный measurement report.
