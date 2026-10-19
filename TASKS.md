@@ -64,7 +64,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
 | VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P1 | READY | NLP/QA | — | — | проверка отрицаний, совместимости и чужих сущностей |
-| ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | BLOCKED | ML engineer | — | — | компактный encoder только после baseline и gold; ждёт EVAL-001 |
+| ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | IN_PROGRESS | ML engineer | Codex (tunaIT) | `ml/ml-001-gliner-hybrid` | 19.10.2026: разрешён offline GLiNER experiment на frozen development; независимая приёмка перед default enable остаётся gate EVAL-001 |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
