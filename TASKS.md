@@ -58,7 +58,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | BLOCKED | аналитик/разметчик | urasha / Codex (сессия Влада) | `main` | PR #71 принят; independent human gold/test не выполнен, нужны независимые разметчики |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
-| CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | IN_PROGRESS | архитектор | timur0o31 | — | вынести пороги, модели и схемы категорий в конфигурацию |
+| CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | IN_PROGRESS | архитектор | timur0o31 | `arch/conf-001-runtime-config` | 19.10.2026: конфигурация bounds/scores/limits, строгая валидация; defaults без изменения поведения |
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
@@ -468,6 +468,16 @@ split; test contents не использовались для настройки
 файлом и commit, а артефакт доступен организаторам.
 
 ### CONF-001 — конфигурация
+
+- Начато: 19.10.2026. Исполнитель: `timur0o31`.
+- Ветка: `arch/conf-001-runtime-config`; Issue: #9.
+- Claim публикуется отдельным commit до начала реализации.
+- Claim опубликован: `3cb7560`. Реализация: versioned runtime config, strict
+  loader, общие bounds/scores/windows для rules/verifier и CLI/API.
+- Проверки macOS/Python 3.14.8: 123 + 3 tests, demo 6/6; 15 synthetic
+  before/after предсказаний совпали по значениям, evidence и решениям.
+- LLM/auto_accept выключены. Реальные данные, независимый test, VM и
+  зависимости не менялись; документация: `docs/CONFIGURATION.md`.
 
 **Шаги**
 

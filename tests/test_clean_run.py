@@ -85,11 +85,11 @@ class CleanRunTests(unittest.TestCase):
             with patch.object(runner.sys, "version_info", (3, 11)):
                 with self.assertRaisesRegex(ValueError, "3.12"):
                     runner.preflight(output, output)
-            with patch.object(runner.platform, "system", return_value="Linux"), \
+            with patch.object(runner.sys, "version_info", (3, 12)), patch.object(runner.platform, "system", return_value="Linux"), \
                     patch.object(runner.platform, "machine", return_value="x86_64"), patch.object(runner, "git", return_value="dirty"):
                 with self.assertRaisesRegex(ValueError, "clean checkout"):
                     runner.preflight(output, output)
-            with patch.object(runner.platform, "system", return_value="Linux"), \
+            with patch.object(runner.sys, "version_info", (3, 12)), patch.object(runner.platform, "system", return_value="Linux"), \
                     patch.object(runner.platform, "machine", return_value="x86_64"), patch.object(runner, "git", return_value=""), \
                     patch.object(runner.shutil, "disk_usage", return_value=shutil_usage()):
                 with self.assertRaisesRegex(ValueError, "512 MiB"):

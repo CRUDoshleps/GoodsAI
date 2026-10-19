@@ -57,5 +57,70 @@
     "серо-зеленый": ["серо-зеленый", "серо-зелёный", "серо зеленый", "gray-green", "grey-green"],
     "серебристо-голубой": ["серебристо-голубой", "серебристо голубой", "silver-blue", "Silverblue", "Titanium Silverblue"],
     "серебристо-черный": ["серебристо-черный", "серебристо-чёрный", "серебристо черный", "silver-black"]
+  },
+  "config_version": "1",
+  "category_profiles": {
+    "761": "smartphone",
+    "482": "kettle"
+  },
+  "numeric_bounds": {
+    "storage_gb": [
+      1,
+      4096
+    ],
+    "ram_gb": [
+      1,
+      128
+    ],
+    "screen_inches": [
+      3,
+      10.5
+    ],
+    "battery_mah": [
+      500,
+      30000
+    ],
+    "capacity_l": [
+      0.1,
+      10
+    ],
+    "power_w": [
+      100,
+      5000
+    ]
+  },
+  "rule_scores": {
+    "brand": 0.85,
+    "color": 0.75,
+    "model": 0.8,
+    "memory_pair": 0.8,
+    "memory_context": 0.8,
+    "quantity": 0.8
+  },
+  "rule_limits": {
+    "brand_prefix_chars": 65,
+    "uncertainty_prefix_chars": 35,
+    "context_radius_chars": 45,
+    "color_context_radius_chars": 30,
+    "color_prefix_chars": 20,
+    "material_prefix_chars": 35,
+    "memory_role_distance_chars": 45,
+    "memory_pair_ram_bounds": [
+      1,
+      64
+    ],
+    "memory_pair_storage_bounds": [
+      16,
+      4096
+    ]
+  },
+  "runtime": {
+    "llm_enabled": false,
+    "auto_accept_enabled": false,
+    "api": {
+      "max_body_bytes": 131072,
+      "limit_concurrency": 32,
+      "timeout_keep_alive_seconds": 5
+    }
   }
 }

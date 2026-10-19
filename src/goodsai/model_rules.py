@@ -23,6 +23,7 @@ STATE = re.compile(r"(?:восстановленный|рабочий|новый
 
 class ModelRules:
     def __init__(self, config: dict):
+        self.profiles = config["category_profiles"]
         # Reuse public manufacturer/color spellings only to locate boundaries.
         self.brands = sorted({a for aliases in config["brands"].values() for a in aliases}, key=len, reverse=True)
         self.phone_brands = sorted({a for name, aliases in config["brands"].items()
@@ -88,8 +89,8 @@ class ModelRules:
                     or re.search(r"\b(?:тип|type|артикул|неизвестн\w*|указан\w*)\b", fragment, re.I)):
                 continue
             # Strip an explicitly repeated brand, never derive a missing brand.
-            brands = self.phone_brands if category == "761" else self.model_brands
-            brand_end = self.brand_end(fragment, brands, repeated=category == "761")
+            brands = self.phone_brands if self.profiles[category] == "smartphone" else self.model_brands
+            brand_end = self.brand_end(fragment, brands, repeated=self.profiles[category] == "smartphone")
             if brand_end:
                 start += brand_end
             if start < end:
@@ -101,7 +102,7 @@ class ModelRules:
         descriptor = DESCRIPTOR.match(text)
         begin = descriptor.end() if descriptor else len(text) - len(text.lstrip())
         body = text[begin:]
-        if category == "761":
+        if self.profiles[category] == "smartphone":
             brand_end = self.brand_end(body, self.phone_brands, repeated=True)
             if brand_end is None:
                 return
@@ -115,7 +116,7 @@ class ModelRules:
                     or QUANTITY.fullmatch(fragment) or not self.tail_is_boundary(text[m.end():])):
                 return
             yield begin, m.end(), "model.phone-title.v2"
-        elif category == "482" and descriptor:
+        elif self.profiles[category] == "kettle" and descriptor:
             # A manufacturer phrase followed by exactly one unambiguous index.
             matches = list(KETTLE_CODE.finditer(body))
             if len(matches) != 1:

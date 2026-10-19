@@ -75,7 +75,7 @@ def evaluate(predictions: Path, gold: Path | None, config: dict) -> dict:
                     raise ValueError("Present gold requires a canonical value")
                 if label.get("unit") != UNITS.get(attr):
                     raise ValueError("Gold unit does not match category schema")
-                if attr in UNITS and numeric(attr, label["value"], label["unit"]) != label["value"]:
+                if attr in UNITS and numeric(attr, label["value"], label["unit"], config.get("numeric_bounds")) != label["value"]:
                     raise ValueError("Gold numeric value is not canonical")
                 evidence = label.get("evidence") or {}
                 if (evidence.get("field") not in {"title", "description"}

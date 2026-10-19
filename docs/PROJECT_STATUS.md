@@ -58,6 +58,32 @@ tests, fuzz, demo 6/6, `pip check` — Linux, Python 3.12. Живой synthetic 
 (`goodsai.cli llm-trace`) запускается на VM с ключом; качество маршрута не
 измерено и не заявляется. Подробности: [LLM](LLM.md).
 
+## CONF-001 — кандидат конфигурации runtime
+
+[DONE — feature candidate] Совмещён с `main` 977c5ed: сохранены
+relation verifier и BASE-003. 223 основных tests — OK на macOS/Python 3.14.8.
+Тест preflight изолирует версию Python для проверок disk/dirty; worker ablation
+получает разрешённые identity tags, не переключающие runtime policy.
+Не выполнены независимая приёмка, VM deploy и merge.
+
+Ветка `arch/conf-001-runtime-config`, claim `3cb7560`, исполнитель `timur0o31`.
+Добавлен полный профиль `config_version=1`: bounds, heuristic scores, окна
+правил и API limits. CLI/API используют общий strict loader, старые профили
+без config_version явно мигрируются; ошибки конфигурации дают fail-fast.
+Category ID связан с существующим rule-family через конфиг. Input/output
+schema 0.1, единицы, production defaults, review/abstain сохранены;
+конфиг не включает LLM/auto_accept. После включения `main` с LLM-003 opt-in
+LLM-fallback использует те же `numeric_bounds`/`rule_limits`: значение вне
+настроенных границ даёт `llm_value_not_in_quote`, а не падение карточки.
+
+Проверка candidate на macOS / Python 3.14.8: 123 основных теста (15 новых),
+3 reader tests, demo 6/6. На 15 синтетических карточках сохранены прежние
+values/units/confidence/evidence/decisions; run identity закономерно меняется.
+Это не независимое измерение качества и не обновление VM. Реальные данные,
+gold/test reserve, внешние модели и зависимости не менялись. Детали и команды:
+[CONFIGURATION.md](CONFIGURATION.md). До merge результат относится к этой
+feature-ветке, не к опубликованному release.
+
 ## Интеграция всех открытых PR — 19.10.2026
 
 По поручению владельца приняты #71, #79, #85, #86, #87 и #88.

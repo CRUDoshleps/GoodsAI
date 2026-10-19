@@ -11,9 +11,10 @@ from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException
 
 from goodsai.contracts import Product, load_config
+from goodsai.config import default_api_limits
 from goodsai.verify import Extractor
 
-MAX_BODY_BYTES = 128 * 1024
+MAX_BODY_BYTES = default_api_limits()["max_body_bytes"]  # Backward-compatible default export.
 LOGGER = logging.getLogger(__name__)
 
 
@@ -21,9 +22,10 @@ def error(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse({"error": {"code": code, "message": message}}, status_code=status)
 
 
-def create_app() -> FastAPI:
+def create_app(config_path: str | None = None) -> FastAPI:
     # Fail before listening if the packaged configuration cannot be loaded.
-    config = load_config()
+    config = load_config(config_path)
+    api_limits = config["runtime"]["api"]
     extractor = Extractor(config)
     llm = None
     run_id = "http-rules-v0"
@@ -39,6 +41,7 @@ def create_app() -> FastAPI:
         extractor, run_id = llm, "http-rules-llm-v0"
     app = FastAPI(title="GoodsAI provisional API", version="0.1.0",
                   description="Temporary weekend API. Organizer endpoints are pending.")
+    app.state.goodsai_config = config
 
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException):
@@ -77,8 +80,10 @@ def create_app() -> FastAPI:
             return error(415, "unsupported_media_type", "Use application/json")
         body = bytearray()
         async for chunk in request.stream():
-            if len(body) + len(chunk) > MAX_BODY_BYTES:
-                return error(413, "request_too_large", "Maximum request body is 128 KiB")
+            if len(body) + len(chunk) > api_limits["max_body_bytes"]:
+                limit = api_limits["max_body_bytes"]
+                label = f"{limit // 1024} KiB" if limit % 1024 == 0 else f"{limit} bytes"
+                return error(413, "request_too_large", f"Maximum request body is {label}")
             body.extend(chunk)
         try:
             # Strict UTF-8 JSON; reject NaN/Infinity rather than accepting non-JSON values.
@@ -106,10 +111,18 @@ def main():
     parser = argparse.ArgumentParser(description="Run the provisional GoodsAI HTTP API")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--config", help="Versioned JSON configuration; same format as CLI --config")
     args = parser.parse_args()
+    # Validate before starting the server; never start with a partial/bad profile.
+    try:
+        app = create_app(args.config)
+    except (ValueError, OSError) as exc:
+        parser.error(str(exc))
+    api_limits = app.state.goodsai_config["runtime"]["api"]
     import uvicorn
-    uvicorn.run(create_app(), host=args.host, port=args.port, access_log=False,
-                limit_concurrency=32, timeout_keep_alive=5)
+    uvicorn.run(app, host=args.host, port=args.port, access_log=False,
+                limit_concurrency=api_limits["limit_concurrency"],
+                timeout_keep_alive=api_limits["timeout_keep_alive_seconds"])
 
 
 if __name__ == "__main__":
