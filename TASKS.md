@@ -69,8 +69,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
-
-| ENV-002 | [#41](https://github.com/CRUDoshleps/GoodsAI/issues/41) | P0 | IN_PROGRESS | MLOps/QA | Codex (e345ee) | `env/env-002-clean-run` | 2026-10-19: clean-run runner, claim до реализации |
+| ENV-002 | [#41](https://github.com/CRUDoshleps/GoodsAI/issues/41) | P0 | REVIEW | MLOps/QA | Codex (e345ee) | `env/env-002-clean-run` | claims 7abe347/b136a67; 126 + 3 tests; clean clone, external JSONL, repeat OK; VM pending reviewer |
 
 ## Как взять задачу
 

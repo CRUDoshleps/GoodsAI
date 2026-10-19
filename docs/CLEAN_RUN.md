@@ -104,3 +104,9 @@ clean-run на матрице OS до принятия обновления. О�
 конкурирующий процесс, timeout, dirty source, свободное место и безопасный
 failure report. Проверка на VM организаторов остаётся частью ENV-001; её
 нельзя объявлять пройденной по результату на ноутбуке или hosted CI VM.
+
+Локально на macOS arm64 / CPython 3.12.13, commit `88590a7`: 126 основных
+тестов и 3 reader tests прошли. Отдельный полный clone: synthetic clean-run
+11/11 этапов, 6/6 demo, внешний созданный отдельно JSONL с одним SKU и
+идемпотентный повтор прошли; все `llm_calls=0`, quality N/A. Протокол
+сохранён в ignored `outputs/clean-clone/report.json` этого clone.
