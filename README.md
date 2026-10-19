@@ -51,10 +51,24 @@ py -3.12 -m venv .venv
 в [RUNBOOK](docs/RUNBOOK.md). Активация окружения не требуется.
 
 Демо создаёт в `outputs/demo-first-run/` `input.jsonl`, `predictions.jsonl`,
-`predictions.manifest.json` и `summary.json`. В stdout и summary ожидаются
+`predictions.manifest.json`, `summary.json`, `metrics.json`, `report.md` и
+`artifacts.json` с hashes шести файлов. В stdout и summary ожидаются
 `checks_passed=6`, `checks_total=6`, `rows=6`, `llm_calls=0`.
 Повторять с **новым** `--output-dir`: существующий каталог не перезаписывается.
 Это проверка сквозного сценария, а не P/R/F1 на реальном каталоге.
+`report.md` показывает значения, evidence locations, причины abstain и доли
+review/abstain; `metrics.json` сохраняет quality=N/A без manual reference,
+нулевые API calls/cost и неизвестную стоимость compute. Synthetic checks и
+candidate coverage не являются точностью извлечения.
+
+Проверка существующего комплекта не запускает predictor и не меняет файлы:
+
+```bash
+.venv/bin/python -m goodsai.demo --verify-dir outputs/demo-first-run
+```
+
+Изменённый/отсутствующий файл, посторонний path в manifest и разные run ID
+отклоняются. Это локальный demo-комплект, не финальный release bundle.
 
 ## Пакетный прогноз
 

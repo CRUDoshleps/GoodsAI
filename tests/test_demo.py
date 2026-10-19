@@ -12,10 +12,32 @@ from unittest.mock import patch
 from goodsai.cli import predict
 from goodsai.contracts import load_config
 from goodsai.data import digest, read_jsonl, write_json, write_line
-from goodsai.demo import main, run_demo
+from goodsai.demo import main, run_demo, verify_demo_kit
 
 
 class DemoTests(unittest.TestCase):
+    def test_complete_kit_has_metrics_report_and_verified_hashes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'kit';summary=run_demo(output)
+            self.assertEqual(verify_demo_kit(output)['verified_files'],6)
+            metrics=json.loads((output/'metrics.json').read_text())
+            self.assertEqual(metrics['run_id'],summary['run_id'])
+            self.assertEqual(metrics['candidate_coverage'],13/24)
+            self.assertEqual(metrics['quality']['evaluation_status'],'unavailable')
+            self.assertEqual(metrics['api_cost_rub'],0)
+            self.assertIsNone(metrics['compute_cost_rub'])
+            self.assertIn('N/A',(output/'report.md').read_text())
+
+    def test_verifier_rejects_tamper_and_unsafe_manifest_paths(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'kit';run_demo(output)
+            (output/'report.md').write_text('corrupted')
+            with self.assertRaisesRegex(ValueError,'mismatch'):verify_demo_kit(output)
+            manifest=json.loads((output/'artifacts.json').read_text())
+            manifest['files']['../outside']=manifest['files'].pop('report.md')
+            (output/'artifacts.json').write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(ValueError,'manifest'):verify_demo_kit(output)
+
     def test_artifacts_match_real_predict_and_are_reproducible(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

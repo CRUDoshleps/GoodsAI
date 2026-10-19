@@ -2,6 +2,18 @@
 
 Актуально на 19 октября 2026 года.
 
+## ART-002: читаемый demo-комплект — REVIEW
+
+Одна команда goodsai.demo создаёт input, predictions/manifest, summary, metrics,
+report.md и artifacts.json с hashes шести файлов. Verify проверяет hashes,
+размеры, whitelist paths и общий run ID без повторного inference. На synthetic
+demo: 6/6 checks, review 13/24, abstain 11/24, API calls/cost 0; P/R/F1 N/A,
+compute cost N/A. Это не качество каталога и не финальный release bundle.
+162 основных + 3 reader tests, pip check и фактический CLI create/verify прошли.
+Прежний каталог не перезаписывается; corrupt predictions не дают success summary.
+Команды и границы — в README, раздел «Быстрый запуск».
+
+
 ## Интеграционный кандидат #74/#18
 
 Эта ветка включает VER-001 (#79), battery units (#86) и QA suite (#88).

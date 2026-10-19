@@ -10,6 +10,75 @@ import sys
 from goodsai.cli import predict
 from goodsai.contracts import Product, load_config, validate_prediction
 from goodsai.data import check_output, digest, read_jsonl, read_predictions, write_json
+from goodsai.evaluate import evaluate
+
+KIT_FILES = {"input.jsonl", "predictions.jsonl", "predictions.manifest.json",
+             "summary.json", "metrics.json", "report.md"}
+
+
+def verify_demo_kit(output: Path) -> dict:
+    output = output.resolve()
+    manifest = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    if (not isinstance(manifest,dict) or not isinstance(manifest.get('files'),dict)
+            or not isinstance(manifest.get('run_id'),str) or not manifest['run_id']
+            or manifest.get("scope") != "synthetic_smoke_only_not_catalog_quality"
+            or set(manifest.get("files", {})) != KIT_FILES):
+        raise ValueError("Invalid demo kit manifest")
+    for name, record in manifest["files"].items():
+        if (not isinstance(record,dict) or set(record)!={'sha256','bytes'}
+                or not isinstance(record['sha256'],str) or len(record['sha256'])!=64
+                or any(c not in '0123456789abcdef' for c in record['sha256'])
+                or type(record['bytes']) is not int or record['bytes']<0):
+            raise ValueError('Invalid demo kit file record')
+        path = output / name
+        if (path.is_symlink() or not path.is_file() or digest(path) != record.get("sha256")
+                or path.stat().st_size != record.get("bytes")):
+            raise ValueError("Demo kit artifact mismatch")
+    for name in ("summary.json", "metrics.json", "predictions.manifest.json"):
+        if json.loads((output/name).read_text(encoding="utf-8")).get("run_id") != manifest.get("run_id"):
+            raise ValueError("Demo kit run identity mismatch")
+    return {"status":"verified", "scope":manifest["scope"], "run_id":manifest["run_id"],
+            "verified_files":len(KIT_FILES)}
+
+
+def _finish_kit(output, summary, predictions, config):
+    decisions = summary["decision_counts"]
+    requested = sum(decisions.values())
+    metric = {"scope":summary["quality_status"], "run_id":summary["run_id"],
+              "synthetic_checks":{"passed":summary["checks_passed"],"total":summary["checks_total"]},
+              "requested_pairs":requested,"review_pairs":decisions.get("review",0),
+              "abstain_pairs":decisions.get("abstain",0),
+              "candidate_coverage":decisions.get("review",0)/requested if requested else None,
+              "quality":evaluate(output/"predictions.jsonl",None,config),
+              "llm_calls":summary["llm_calls"],"api_cost_rub":0,"compute_cost_rub":None}
+    write_json(output/"metrics.json",metric)
+    lines = ["# GoodsAI: synthetic demo", "", "Contract smoke only. Catalogue precision/recall/F1: N/A.",
+             "", f"Run ID: `{summary['run_id']}`", "",
+             f"Checks: {summary['checks_passed']}/{summary['checks_total']}. "
+             f"Review: {metric['review_pairs']}/{requested}. Abstain: {metric['abstain_pairs']}/{requested}.",
+             "API calls/cost: 0 / 0 RUB. Compute cost: N/A (not measured).", "",
+             "| Case | Attribute | Value / unit | Decision | Evidence location / reason |",
+             "| --- | --- | --- | --- | --- |"]
+    def cell(value):
+        return str(value).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;').replace('|','\\|').replace('\n',' ')
+    for row in predictions:
+        if not row['attributes']:
+            lines.append(f"| {cell(row['sku_id'])} | — | — | {cell(row['status'])} | — |")
+        for attr in row['attributes']:
+            evidence = attr['evidence']
+            location = (f"{evidence['field']}[{evidence['start']}:{evidence['end']}]" if evidence
+                        else ', '.join(attr['reason_codes']))
+            value = (attr['value']+' '+(attr['unit'] or '')).strip() if attr['value'] is not None else '—'
+            lines.append('| '+' | '.join(cell(v) for v in [row['sku_id'],attr['attribute'],value,attr['decision'],location])+' |')
+    (output/'report.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+    for name in ('metrics.json','report.md'):
+        path=output/name
+        summary['artifacts'][name]={'path':name,'sha256':digest(path),'bytes':path.stat().st_size}
+    write_json(output/"summary.json",summary)
+    write_json(output/'artifacts.json',{"scope":summary['quality_status'],"run_id":summary['run_id'],
+               "files":{name:{"sha256":digest(output/name),"bytes":(output/name).stat().st_size}
+                        for name in sorted(KIT_FILES)}})
+    verify_demo_kit(output)
 
 
 def _destination(output_dir: Path, examples) -> Path:
@@ -108,17 +177,19 @@ def run_demo(output_dir: Path) -> dict:
         "artifacts": artifacts}
     # A summary is published only after every check passes. Failed runs keep
     # their new directory for diagnosis; choose another directory for a retry.
-    write_json(output / "summary.json", summary)
+    _finish_kit(output, summary, predictions, config)
     return summary
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Generate and verify synthetic GoodsAI demo artifacts")
-    parser.add_argument("--output-dir", type=Path, default=Path("outputs/demo"),
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--output-dir", type=Path, default=None,
                         help="New directory only (default: outputs/demo)")
+    group.add_argument("--verify-dir",type=Path,help="Verify an existing synthetic demo kit")
     args = parser.parse_args(argv)
     try:
-        result = run_demo(args.output_dir)
+        result = verify_demo_kit(args.verify_dir) if args.verify_dir else run_demo(args.output_dir or Path('outputs/demo'))
     except FileExistsError:
         print("goodsai demo: output directory already exists; choose a new --output-dir", file=sys.stderr)
         return 2
