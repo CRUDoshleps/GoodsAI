@@ -168,7 +168,7 @@ merged; независимый прогон конкретного candidate SHA
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат / блокер |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ENV-003 | [#82](https://github.com/CRUDoshleps/GoodsAI/issues/82) | P0 | BLOCKED | независимый QA/MLOps | Codex (tunaIT), технический прогон | `gov/gov-005-final-acceptance` | SHA 3ad28e4: VM 11/11, 160+3 tests, HTTP 22/22, repeat equal; НЕ финальная приёмка: нет независимого исполнителя/официального API, дефекты #74/#15 |
-| QA-005 | [#83](https://github.com/CRUDoshleps/GoodsAI/issues/83) | P1 | IN_PROGRESS | независимый QA/product | Codex (tunaIT), readiness audit | `gov/gov-005-final-acceptance` | 19.10: подготовить протокол readiness и точный блокер; UI rehearsal не заявляется без #19 |
+| QA-005 | [#83](https://github.com/CRUDoshleps/GoodsAI/issues/83) | P1 | BLOCKED | независимый QA/product | Codex (tunaIT), readiness audit | `gov/gov-005-final-acceptance` | Producer 3ad28e4: root JSON, routes / /health /predict; UI/save/reload/export отсутствуют; rehearsal NOT RUN; ждёт #19/#17/#37 и независимого участника |
 
 Этап A EVAL-005 #40: правила против узкого GLiNER из PR #80 на независимых
 данных #6/#38; не ждёт отсутствующую LLM или полный router. Широкая матрица
