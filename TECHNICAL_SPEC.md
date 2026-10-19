@@ -2,6 +2,12 @@
 
 Версия: 1.0, 19 октября 2026 года.
 
+Диагностическое дополнение EVAL-006: отдельный offline reference
+`catalog_silver`, [протокол](docs/research/silver_evaluation_protocol.md).
+Он не является human gold, не меняет API/CLI result v0.1 и runtime confidence.
+Catalog metadata/reference хранятся отдельно от Product; scores и пороги
+калибровки не включаются в runtime без отдельного архитектурного решения.
+
 ## 1. Цель
 
 Система получает текст карточки товара и заполняет обязательные характеристики.
@@ -100,7 +106,8 @@ input/output `schema_version=0.1`. Полный профиль задаёт cate
 для CLI/API; неверный профиль отклоняется до output/listen. Единицы и грамматика
 остаются частью контракта. Production defaults прежние; изменение категории,
 scores или диапазонов требует review архитектора. Флаги LLM/auto_accept в этой
-версии обязаны быть `false`. Детали и legacy migration — `docs/CONFIGURATION.md`.
+версии обязаны быть `false`: конфиг их не включает, а opt-in LLM-fallback
+включается отдельно (`--llm`) и использует те же bounds и окна. Детали и legacy migration — `docs/CONFIGURATION.md`.
 
 Целевое решение выбирает самый дешёвый достаточный метод:
 

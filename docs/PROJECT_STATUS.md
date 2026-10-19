@@ -2,6 +2,62 @@
 
 Актуально на 19 октября 2026 года.
 
+## EVAL-006: catalog-silver diagnostics — DONE
+
+По поручению Владислава PR #95 принят в main `5711949`; Issue #91 закрыт.
+Четыре GitHub checks головы `bd7cd51` SUCCESS; конфликтов и замечаний review
+не было. Автопубликация Gitea: mirror run 39313644701 SUCCESS. Это приёмка
+инструментов диагностики; независимая разметка и качество моделей не подтверждены.
+
+Claim `f04abec`, ветка `eval/eval-006-silver-diagnostics`, Issue #91.
+Producer итогового измерения `f33e3fc` после включения main `62898fb`
+с LLM-003 коллеги. Наши изменения не меняют runtime актуального main.
+Добавлены отдельные подготовка noisy reference, support matcher,
+evaluator с family-bootstrap и traffic, offline logistic/Platt и парное
+сравнение полного input либо фиксированного development subset.
+
+3037 карточек / 1270 семейств, закрытый reserve 40 не предсказывался.
+Agreement: 7522 TP / 425 FP / 4413 FN, P 94,65%, R 63,02%, F1 75,67%;
+supported recall 75,75%, coverage 54,31%. Это **не human quality**.
+Range buckets каталога проверяются как ограничения exact reference;
+старые результаты mapping не перезаписаны. Offline Brier 0,06575 → 0,03870,
+но Platt не лучше fitted logistic 0,03865; auto_accept запрещён.
+
+266 основных tests и 3 reader tests прошли; demo 6/6, clean-run 11/11,
+pip check OK. Strict adversarial по-прежнему 20/21, exit 1, известный #15.
+Support human audit и независимый gold остаются pending/BLOCKED.
+PR Глеба #90 проверен повторно на `3c1e1cb`, token names поддержаны;
+живые registry/GLiNER/LLM predictions для frozen comparison не предоставлены,
+варианты not_run. 3037 predictions до/после включения main совпали, кроме run_id.
+PR #90 слит коллегой; EVAL-006 принят через PR #95 и опубликован в Gitea.
+Внешних модельных вызовов, расходов и deploy в этой задаче не было.
+
+[Инструкция](SILVER_EVALUATION.md), [публичные метрики](../reports/metrics.md),
+[результаты и передача](research/silver_evaluation_results.md).
+
+## LLM-003: opt-in LLM-fallback — REVIEW
+
+Ветка `llm/llm-003-evidence-first-fallback`, владелец Глеб Алферов.
+`goodsai.llm` добавляет к правилам один запрос на карточку для атрибутов
+`not_found_by_rules`, если в видимом тексте есть сигнал для этого атрибута
+(pre-router без вызова модели). Ответ принимается только при цитате из видимого текста,
+значении, выведенном из цитаты общим нормализатором, и прохождении
+`validate_candidate`; итог `method=llm`, `review`, эвристический score 0.6.
+Бюджет вызовов, ограниченные повторы с `Retry-After`, circuit breaker, точный
+кэш, отдельные reason codes для 429/5xx/timeout/ключа/бюджета, учёт токенов и
+стоимости в manifest. Включается флагом `--llm` или `GOODSAI_LLM_ENABLED=1`;
+без него вывод и manifest прежние.
+
+Политика данных и бюджета принята владельцем 19.10.2026
+(`llm-data-policy-2026-10-19`): только HTTPS-шлюз организаторов, видимый текст
+без SKU и меток, закрытый test не отправляется, 100 вызовов на запуск и 300 в
+сутки по общему журналу; всё проверяется кодом.
+
+Проверено: 245 основных тестов (37 новых с поддельным провайдером), 3 reader
+tests, fuzz, demo 6/6, `pip check` — Linux, Python 3.12. Живой synthetic trace
+(`goodsai.cli llm-trace`) запускается на VM с ключом; качество маршрута не
+измерено и не заявляется. Подробности: [LLM](LLM.md).
+
 ## CONF-003: передача на validation, зависимость от PR #92
 
 [DONE — feature candidate] Добавлен явный schema mapper и private validation
@@ -57,7 +113,9 @@ relation verifier и BASE-003. 223 основных tests — OK на macOS/Pyth
 без config_version явно мигрируются; ошибки конфигурации дают fail-fast.
 Category ID связан с существующим rule-family через конфиг. Input/output
 schema 0.1, единицы, production defaults, review/abstain сохранены;
-LLM/auto_accept запрещены в текущем runtime.
+конфиг не включает LLM/auto_accept. После включения `main` с LLM-003 opt-in
+LLM-fallback использует те же `numeric_bounds`/`rule_limits`: значение вне
+настроенных границ даёт `llm_value_not_in_quote`, а не падение карточки.
 
 Проверка candidate на macOS / Python 3.14.8: 123 основных теста (15 новых),
 3 reader tests, demo 6/6. На 15 синтетических карточках сохранены прежние
@@ -267,7 +325,7 @@ fast-forward публикуется в Gitea; divergence останавлива�
 
 ## Не реализовано
 
-- реальный LLM или обученный encoder в основном inference path;
+- LLM в inference path по умолчанию (есть opt-in маршрут LLM-003, не измерен) и обученный encoder;
 - cost-aware router между правилами и моделями;
 - калиброванный confidence и `auto_accept`;
 - независимый human gold/test;

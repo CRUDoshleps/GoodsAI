@@ -1,5 +1,14 @@
 # Оценка качества, стоимости и надёжности
 
+## Отдельная диагностика по каталогу
+
+EVAL-006 добавляет [catalog-silver evaluation](SILVER_EVALUATION.md) с отдельным
+reference kind и [протоколом](research/silver_evaluation_protocol.md).
+Это согласованность с шумными параметрами, не независимое качество.
+Ручной evaluator сохраняет требования к human reference. Silver не снимает
+блокеры gold/test и не разрешает auto_accept. Offline-калибровка сохраняет
+runtime heuristic confidence и review/abstain.
+
 ## Единица оценки
 
 Основная единица — пара `(SKU, attribute)`. Для каждой пары gold определяет,

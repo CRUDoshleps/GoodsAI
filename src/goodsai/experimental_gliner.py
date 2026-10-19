@@ -117,7 +117,7 @@ def brand_candidates(product, config, entities):
                 break
         candidate = Candidate('brand', value, None, 'title', raw_start, raw_end,
                               product.title[raw_start:raw_end], float(score), POLICY)
-        validate_candidate(candidate, product, config['categories'][product.category_id])
+        validate_candidate(candidate, product, config['categories'][product.category_id], config)
         candidates.append(candidate)
     return candidates
 
