@@ -182,3 +182,11 @@ MVP готов, когда:
 - обучение большой языковой модели с нуля;
 - поддержка всех категорий без отдельной проверки;
 - `auto_accept` на основе некалиброванного score.
+
+### Внутренний stage contract v1 (кандидат ARCH-001)
+
+CandidateSource.candidates(Product) возвращает Iterable[Candidate];
+CandidateGate.reason(Candidate) возвращает reason или None. CategoryRegistry
+определяет attributes/category, unit и normalize. Это Python-интерфейсы,
+не новые поля JSON и не разрешение произвольного кода из конфигурации.
+Любой внедрённый source проходит общие проверки до merge кандидатов.

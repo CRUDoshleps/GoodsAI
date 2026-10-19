@@ -1,5 +1,5 @@
 """Category-specific span rules; all evidence comes from visible input text."""
-from dataclasses import dataclass, replace
+from dataclasses import replace
 import re
 
 from goodsai.contracts import Product
@@ -9,17 +9,7 @@ from goodsai.normalize import NUMBER, UNITS, model_name, numeric
 from goodsai.text import visible_view
 
 
-@dataclass(frozen=True)
-class Candidate:
-    attribute: str
-    value: str
-    unit: str | None
-    field: str
-    start: int
-    end: int
-    text: str
-    score: float
-    rule_id: str
+from goodsai.stages import Candidate
 
 
 def bounded_alias(alias: str) -> str:
