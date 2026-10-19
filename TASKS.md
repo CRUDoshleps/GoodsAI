@@ -69,7 +69,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
-| QA-003 | [#47](https://github.com/CRUDoshleps/GoodsAI/issues/47) | P1 | IN_PROGRESS | QA | Codex (e345ee) | `qa/qa-003-generative-invariants` | 2026-10-19: property/fuzz suite, claim до реализации |
+| QA-003 | [#47](https://github.com/CRUDoshleps/GoodsAI/issues/47) | P1 | REVIEW | QA | Codex (e345ee) | `qa/qa-003-generative-invariants` | claim a888256; 125 + 3 tests; 11 quick/nightly properties; evidence/type/Decimal fixes |
 
 ## Как взять задачу
 

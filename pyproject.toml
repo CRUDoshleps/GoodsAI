@@ -12,6 +12,7 @@ dependencies = ["pyarrow==26.0.0"]
 [project.optional-dependencies]
 serve = ["fastapi==0.143.3", "uvicorn==0.54.0"]
 test = ["httpx==0.28.1"]
+fuzz = ["hypothesis==6.170.1"]
 
 [project.scripts]
 goodsai = "goodsai.cli:main"
