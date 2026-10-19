@@ -93,7 +93,6 @@ Issues #64 и #52 закрыты после merge. VM, независимый go
 | --- | --- | --- |
 | действующий сервис VM в момент ENV-001 | checkout `~/project`, сервис не перезапускался | `48b45dc` |
 | последняя проверенная на Linux интеграционная база | изолированный clean checkout GitHub `main`, ENV-001 | `1d53dad` |
-
 | последняя проверенная интеграционная база | GitHub / Gitea `main`, BASE-002 + DOCS-002 и mirror 19.10 | `1e922aa` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
