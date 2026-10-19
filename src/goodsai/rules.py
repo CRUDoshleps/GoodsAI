@@ -46,7 +46,7 @@ class Rules:
         self.patterns = {
             "memory": re.compile(rf"(?<![\w.,])(?P<n>{NUMBER})\s*(?P<u>GB|ГБ)(?!\w)", re.I),
             "screen_inches": re.compile(rf"(?<![\w.,])(?P<n>{NUMBER})\s*(?P<u>дюйм\w*|inches?\b|[\"″])", re.I),
-            "battery_mah": re.compile(rf"(?<![\w.,])(?P<n>{NUMBER})\s*(?P<u>м[аa]\s*(?:[*·⋅]\s*)?ч|mAh)(?!\w)", re.I),
+            "battery_mah": re.compile(rf"(?<![\w.,])(?P<n>(?:{NUMBER}|\d{{5}}))\s*(?P<u>м[аa]\s*(?:[*·⋅]\s*)?ч|mAh)(?!\w)", re.I),
             "capacity_l": re.compile(rf"(?<![\w.,])(?P<n>{NUMBER})\s*(?P<u>мл|ml|литр\w*|л|L)(?!\w)", re.I),
             "power_w": re.compile(rf"(?<![\w.,])(?P<n>{NUMBER})\s*(?P<u>кВт|kW|Вт|W)(?!\w)", re.I),
         }

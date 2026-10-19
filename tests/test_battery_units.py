@@ -28,6 +28,12 @@ class BatteryUnitsTests(unittest.TestCase):
                 self.assertEqual(e['text'],'5100 '+unit)
                 self.assertEqual(p.description[e['start']:e['end']],e['text'])
 
+    def test_five_digit_battery_values_preserve_bounds_without_changing_other_grammars(self):
+        for value,expected in [('10000','10000'),('29999','29999'),('30000','30000'),
+                               ('30001',None),('100000',None)]:
+            with self.subTest(value=value):
+                self.assertEqual(self.predict('Батарея '+value+' мА*ч.')[0]['battery_mah']['value'],expected)
+
     def test_inline_html_and_entities_map_to_original(self):
         attrs,p = self.predict('Батарея <b>5100</b> мА&#42;ч.')
         a = attrs['battery_mah'];e = a['evidence']

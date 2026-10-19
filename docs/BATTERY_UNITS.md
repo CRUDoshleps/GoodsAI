@@ -44,3 +44,11 @@ python -m unittest discover -s tests -p 'test_battery_units.py' -v
 python -m unittest discover -s tests -v
 python -m unittest discover -s scripts/research -p 'test_*.py' -v
 ```
+
+
+Дополнительно при integration review исправлено прежнее ограничение четырьмя
+цифрами: battery-specific grammar распознаёт 10000–30000 без пробела-разделителя,
+а 30001/100000 отклоняются. Общий NUMBER для других атрибутов не изменён.
+Пять границ/вариантов проверены отдельным восьмым regression test. Приведённая
+выше 25-case ablation и её rules hash относятся к первому units-only producer
+c4648c6; последующая совместная проверка фиксируется в интеграционном протоколе.
