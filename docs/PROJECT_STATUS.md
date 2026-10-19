@@ -2,7 +2,12 @@
 
 Актуально на 19 октября 2026 года.
 
-## EVAL-006: catalog-silver diagnostics — REVIEW в ветке
+## EVAL-006: catalog-silver diagnostics — DONE
+
+По поручению Владислава PR #95 принят в main `5711949`; Issue #91 закрыт.
+Четыре GitHub checks головы `bd7cd51` SUCCESS; конфликтов и замечаний review
+не было. Автопубликация Gitea: mirror run 39313644701 SUCCESS. Это приёмка
+инструментов диагностики; независимая разметка и качество моделей не подтверждены.
 
 Claim `f04abec`, ветка `eval/eval-006-silver-diagnostics`, Issue #91.
 Producer итогового измерения `f33e3fc` после включения main `62898fb`
@@ -24,8 +29,8 @@ Support human audit и независимый gold остаются pending/BLOC
 PR Глеба #90 проверен повторно на `3c1e1cb`, token names поддержаны;
 живые registry/GLiNER/LLM predictions для frozen comparison не предоставлены,
 варианты not_run. 3037 predictions до/после включения main совпали, кроме run_id.
-PR #90 слит коллегой; наш PR #95 в main/Gitea не слит. Внешних вызовов,
-расходов и deploy в этой задаче не было.
+PR #90 слит коллегой; EVAL-006 принят через PR #95 и опубликован в Gitea.
+Внешних модельных вызовов, расходов и deploy в этой задаче не было.
 
 [Инструкция](SILVER_EVALUATION.md), [публичные метрики](../reports/metrics.md),
 [результаты и передача](research/silver_evaluation_results.md).
