@@ -15,7 +15,7 @@ EDA, text-only pilot и проверенный EVAL-002 audit. Старые фа
 output-dir должен быть новым и находиться в `outputs/`.
 
 ```bash
-python scripts/research/prepare_silver_reference.py --audit outputs/evaluation/eval-002-20261019-final --exposure-source data/gold/e1/tasks.jsonl --exposure-source data/gold/e1/ai/full.annotations.v4.jsonl --exposure-source data/gold/e1/m2/v2/development.tasks.jsonl --exposure-source outputs/evaluation/development-review-20261019-v2/development.tasks.jsonl --traffic data/raw/query_clicks.parquet --output-dir outputs/evaluation/eval-006-silver-v2
+python scripts/research/prepare_silver_reference.py --audit outputs/evaluation/eval-002-20261019-final --exposure-source data/gold/e1/tasks.jsonl --exposure-source data/gold/e1/ai/full.annotations.v4.jsonl --exposure-source data/gold/e1/m2/v2/development.tasks.jsonl --exposure-source outputs/evaluation/development-review-20261019-v2/development.tasks.jsonl --traffic data/raw/query_clicks.parquet --output-dir outputs/evaluation/eval-006-silver-v3
 ```
 
 Пути exposure-source — использованные в текущем локальном эксперименте.
@@ -48,7 +48,7 @@ Top-30 по metadata не означает 30 runtime-схем. EDA-кеш не 
 ## Одна команда для отчёта
 
 ```bash
-python scripts/research/run_silver_evaluation.py --bundle outputs/evaluation/eval-006-silver-v2 --output-dir outputs/evaluation/eval-006-baseline-v2
+python scripts/research/run_silver_evaluation.py --bundle outputs/evaluation/eval-006-silver-v3 --output-dir outputs/evaluation/eval-006-baseline-v3
 ```
 
 Команда выполняет rules prediction дважды, проверяет идентичность, считает
@@ -78,7 +78,7 @@ subset. Реальные карточки нельзя посылать шлюз
 и бюджете. PR #90 существует как opt-in route; этот PR его не сливает.
 
 ```bash
-python scripts/research/run_silver_evaluation.py --bundle outputs/evaluation/eval-006-silver-v2 --output-dir outputs/evaluation/eval-006-comparison-v1 --candidate llm=outputs/approved-llm-run/predictions.jsonl
+python scripts/research/run_silver_evaluation.py --bundle outputs/evaluation/eval-006-silver-v3 --output-dir outputs/evaluation/eval-006-comparison-v1 --candidate llm=outputs/approved-llm-run/predictions.jsonl
 ```
 
 Для другого конфига добавить `--candidate-config registry=path/config.json`.

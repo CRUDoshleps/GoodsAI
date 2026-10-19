@@ -69,6 +69,45 @@ def canonical(attribute, raw, unit, config):
     return " ".join(text.split()), None
 
 
+def range_constraint(attribute, raw, unit):
+    """Catalog filter buckets constrain an exact label, never supply a point."""
+    if attribute not in UNITS or not isinstance(raw, str):
+        return None
+    text = raw.strip()
+    interval = re.fullmatch(rf"(?:от\s*)?({NUMBER})\s*(?:[-–—]|до)\s*({NUMBER})\s*({UNIT_PATTERNS[attribute]})?", text, re.I)
+    bound = re.fullmatch(rf"(до|менее|от|более|свыше)\s*({NUMBER})\s*({UNIT_PATTERNS[attribute]})?", text, re.I)
+    if not interval and not bound:
+        return None
+    embedded = interval[3] if interval else bound[3]
+    declared = unit or embedded
+    if not isinstance(declared, str) or not re.fullmatch(UNIT_PATTERNS[attribute], declared, re.I):
+        return None
+    if embedded and unit and fold(embedded) != fold(unit):
+        return None
+    scale = 1
+    if attribute == "capacity_l" and fold(declared) in {"мл", "ml"}:
+        scale = .001
+    if attribute == "power_w" and fold(declared) in {"квт", "kw"}:
+        scale = 1000
+    if attribute in {"storage_gb", "ram_gb"} and fold(declared) in {"тб", "tb"}:
+        scale = 1000
+    if interval:
+        low, high = float(number(interval[1])) * scale, float(number(interval[2])) * scale
+        return {"low": low, "high": high, "low_inclusive": True, "high_inclusive": True} if low <= high else None
+    value = float(number(bound[2])) * scale
+    operator = bound[1].casefold()
+    lower = operator in {"от", "более", "свыше"}
+    return {"low": value if lower else None, "high": None if lower else value,
+            "low_inclusive": operator == "от", "high_inclusive": operator == "до"}
+
+
+def within_constraint(value, constraint):
+    n = float(number(value))
+    low, high = constraint["low"], constraint["high"]
+    return ((low is None or n > low or n == low and constraint["low_inclusive"])
+            and (high is None or n < high or n == high and constraint["high_inclusive"]))
+
+
 def _context_uncertain(text, start):
     prefix = text[max(0, start - 45):start]
     return bool(re.search(r"(?:\bне|\bбез|\bдо|\bот|\bдля|совместим\w*)\s+(?:\w+\s+){0,2}$", prefix, re.I))

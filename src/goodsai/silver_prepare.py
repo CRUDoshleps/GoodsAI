@@ -7,9 +7,9 @@ from pathlib import Path
 
 from goodsai.contracts import Product
 from goodsai.data import digest, read_jsonl, write_line
-from goodsai.silver_support import canonical, support
+from goodsai.silver_support import canonical, support, range_constraint, within_constraint
 
-VERSION = "catalog-silver-1"
+VERSION = "catalog-silver-2"
 SEED = "goodsai-silver-20261019-v1"
 # Explicit source fields only; no fuzzy field selection or unit inference.
 MAPPING = {
@@ -72,7 +72,7 @@ def labels(catalog, config):
             entries += [("vendor", catalog.get("vendor"), None)]
         if attr == "model":
             entries += [("model", catalog.get("model"), None)]
-        normalized, rejected, provenance = set(), [], []
+        normalized, rejected, provenance, constraints = set(), [], [], []
         for name, raw, unit in entries:
             if raw in (None, ""):
                 continue
@@ -80,11 +80,18 @@ def labels(catalog, config):
             try:
                 normalized.add(canonical(attr, raw, unit, config))
             except ValueError as exc:
-                rejected.append(str(exc))
+                constraint = range_constraint(attr, raw, unit)
+                if constraint is not None:
+                    constraints.append(constraint)
+                else:
+                    rejected.append(str(exc))
         status = "known" if len(normalized) == 1 and not rejected else "conflict" if len(normalized) > 1 else "unknown"
+        if normalized and constraints and any(not within_constraint(value, c) for value, _ in normalized for c in constraints):
+            status = "conflict"
+            rejected.append("catalog_range_contradiction")
         value, unit = next(iter(normalized)) if status == "known" else (None, None)
         result.append({"attribute": attr, "status": status, "value": value, "unit": unit,
-                       "provenance": provenance, "reasons": sorted(set(rejected))})
+                       "provenance": provenance, "constraints": constraints, "reasons": sorted(set(rejected))})
     return result
 
 

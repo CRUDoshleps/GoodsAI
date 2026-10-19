@@ -11,6 +11,7 @@ from goodsai.silver_calibration import calibrate, reliability
 from goodsai.silver_evaluate import bootstrap, evaluate_rows
 from goodsai.silver_prepare import assemble, labels, role, verify_bundle
 from goodsai.silver_prepare import dump, write_rows
+from goodsai.silver_prepare import VERSION
 from goodsai.data import digest
 from goodsai.silver_support import canonical, support
 from goodsai.verify import Extractor
@@ -107,9 +108,21 @@ class PreparationTests(unittest.TestCase):
     def test_bundle_checksums_and_paths(self):
         with tempfile.TemporaryDirectory() as tmp:
             p = Path(tmp)
-            (p/"manifest.json").write_text(json.dumps({"version":"catalog-silver-1", "reference_kind":"catalog_silver", "artifacts":{"../foreign":"bad"}}))
+            (p/"manifest.json").write_text(json.dumps({"version":VERSION, "reference_kind":"catalog_silver", "artifacts":{"../foreign":"bad"}}))
             with self.assertRaises(ValueError):
                 verify_bundle(p)
+
+    def test_filter_buckets_only_constrain_exact_values(self):
+        config, _, catalog, _ = fixture()
+        row = catalog["synthetic-0"]
+        row["params"] = [{"@name":"Емкость аккумулятора", "#text":"3000-5000 мАч"},
+            {"@name":"Емкость аккумулятора_search", "#text":"4000", "@unit":"мАч"}]
+        label = next(a for a in labels(row, config) if a["attribute"] == "battery_mah")
+        self.assertEqual((label["status"],label["value"]), ("known","4000"))
+        row["params"][1]["#text"] = "6000"
+        self.assertEqual(next(a for a in labels(row, config) if a["attribute"] == "battery_mah")["status"], "conflict")
+        row["params"].pop()
+        self.assertEqual(next(a for a in labels(row, config) if a["attribute"] == "battery_mah")["status"], "unknown")
 
 
 class EvaluationTests(unittest.TestCase):
@@ -213,7 +226,7 @@ class CommandTests(unittest.TestCase):
             dump(bundle / "train.split.json", {})
             write_rows(bundle / "support_review.blank.jsonl", [])
             dump(bundle / "policy.json", {"config":config,"baseline_sha":"977c5ed"})
-            manifest = {"version":"catalog-silver-1", "reference_kind":"catalog_silver", "counts":counts,
+            manifest = {"version":VERSION, "reference_kind":"catalog_silver", "counts":counts,
                 "family_groups":24, "protected_reserve_rows":0, "universe_rows":24,
                 "universe_categories":1, "universe_configured_rows":24, "top30":[],
                 "seller_role_crossings":1, "brand_role_crossings":1, "exposure_history":"synthetic",
