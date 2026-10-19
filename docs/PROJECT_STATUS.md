@@ -2,6 +2,17 @@
 
 Актуально на 19 октября 2026 года.
 
+## QA-003: генеративные проверки (ветка реализации)
+
+Добавлены 11 Hypothesis properties для text-only input, JSONL, Unicode/HTML
+position maps, schema, numeric conversion, hidden facts и no-evidence-no-value.
+Quick/nightly profiles имеют ограничение размера/времени и явный seed;
+shrunk examples переносятся в основной regression suite. Исправлены contract
+type guards (включая evidence=null) и Decimal overflow при конвертации единиц.
+Валидный schema 0.1 и решения baseline не изменены. Это synthetic robustness,
+не независимая оценка качества. Запуск и ограничения:
+[FUZZ_TESTING.md](FUZZ_TESTING.md). Фактические результаты фиксируются в PR.
+
 ## ENV-002: чистый запуск (ветка реализации)
 
 `scripts/release/clean_run.py` создаёт отдельное окружение CPython 3.12,
