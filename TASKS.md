@@ -167,7 +167,7 @@ merged; независимый прогон конкретного candidate SHA
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат / блокер |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ENV-003 | [#82](https://github.com/CRUDoshleps/GoodsAI/issues/82) | P0 | IN_PROGRESS | независимый QA/MLOps | Codex (tunaIT), технический прогон | `gov/gov-005-final-acceptance` | Приёмка candidate на целевой VM; нужны SHA/режим, #17, #14 для hybrid, доступы и независимый исполнитель; поставляет доказательство #42; 19.10: разрешён pre-acceptance, независимый verdict не заявляется |
+| ENV-003 | [#82](https://github.com/CRUDoshleps/GoodsAI/issues/82) | P0 | BLOCKED | независимый QA/MLOps | Codex (tunaIT), технический прогон | `gov/gov-005-final-acceptance` | SHA 3ad28e4: VM 11/11, 160+3 tests, HTTP 22/22, repeat equal; НЕ финальная приёмка: нет независимого исполнителя/официального API, дефекты #74/#15 |
 | QA-005 | [#83](https://github.com/CRUDoshleps/GoodsAI/issues/83) | P1 | BLOCKED | независимый QA/product | — | — | UI → backend → evidence → сохранение → export; ждёт #19/#17/#37 и исполнителя, базовый путь не ждёт #50 |
 
 Этап A EVAL-005 #40: правила против узкого GLiNER из PR #80 на независимых
