@@ -2,12 +2,52 @@
 
 Актуально на 19 октября 2026 года.
 
+## DOCS-002: текст и доказательства — DONE
+
+[DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR
+и [проверка презентации](PRESENTATION_REVIEW.md). Они разделяют DONE/PLAN/
+HYPOTHESIS, требуют источники claims и запрещают декоративные AI-визуалы.
+Текстовый аудит README, delivery report и Markdown-слайдов:
+[content audit](reviews/2026-10-19_docs-002_content_audit.md). Это редакционные
+правила, не автоматическая проверка истинности и не новая оценка качества.
+Исторические frozen artifacts и PDF не перезаписывались.
+
+## BASE-002: исходные spans — DONE
+
+[DONE] Принято в PR #75 (`61b9260`), зеркало Gitea проверено.
+Добавлен внутренний bounded SpanIndex с deterministic source/config identity,
+точными raw offsets и явными truncated/unavailable reasons. Неизвестные имена,
+числа, повторы и HTML/entities проверяются synthetic tests. Отдельный CLI
+измеряет exact candidate-set recall, время и traced Python memory на явно
+разрешённой span-разметке; raw text/SKU в report не выводятся. Synthetic fixture
+покрывает 6/6 reference spans. Runtime predictor и публичный schema не менялись;
+интеграция selector/LLM и реальное качество ещё не подтверждены.
+Контракт, ограничения и команды: [SPAN_INDEX.md](SPAN_INDEX.md).
+
+## Review и интеграция BASE-002 / DOCS-002
+
+По прямому поручению пользователя автор выполнил review и интеграцию.
+Критерии и решения ACCEPT записаны в [PR #75](https://github.com/CRUDoshleps/GoodsAI/pull/75)
+и [PR #77](https://github.com/CRUDoshleps/GoodsAI/pull/77). Это авторский review,
+не независимая разметка или подтверждение качества каталога.
+
+После review исправлены пересечения HTML comments/declarations в raw spans,
+проверка неизменности measurement input/reference и двусмысленность PLAN/REVIEW
+в style guide. Алгоритм SpanIndex — `span-index-2`. На совместном candidate
+`967108a` прошли 135 основных и 3 reader tests, pip check, demo 6/6, synthetic
+span fixture 6/6, bundle smoke/verify и local Markdown targets. Frozen delivery
+bytes не изменены. CI invariants прошёл для исправленного BASE-002 и совместного
+candidate; mirror workflow успешен для обоих merge SHA.
+
+Issues #64 и #52 закрыты после merge. VM, независимый gold/test, model calls,
+новая визуальная PDF-проверка и репетиция не выполнялись.
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
 | опубликованный runtime baseline | Gitea `main`, без ночных docs-only изменений | `48b45dc` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, DOCS-001 merge и mirror 19.10 | `55378f1` |
+| последняя проверенная интеграционная база | GitHub / Gitea `main`, BASE-002 + DOCS-002 и mirror 19.10 | `1e922aa` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
@@ -171,6 +211,28 @@ commit, producer SHA остаётся указанным выше. Официа�
 
 ## Результат организаторского review
 
+### EVAL-002: split/leakage audit — 19.10.2026
+
+Подготовлен [аудит E1 split](reviews/2026-10-19_eval-002_split_audit.md),
+[метод и CLI](SPLIT_AUDIT.md), ветка `eval/eval-002-split-leakage`, Issue #7.
+После согласования Владом PR #69 слит в GitHub main (`c49540f`), Issue #7 закрыт.
+Это принятие инструмента/результатов аудита, не независимый human gold и не
+автоматическая замена manifests в downstream-процессах. VM не обновлялась.
+Producer `62388ad`, clean Windows/Python 3.12.6. Исходные 10324 SKU содержат
+632 mixed семейных компонента; прежний original split целиком не является
+независимым. Отдельный `eval-002-quarantine-v1` сохраняет 3411 SKU
+(2198 development / 882 validation-feedback / 331 test_reserved), 6913 строк
+целиком исключены в консервативный карантин. В eligible нет обнаруженных
+межsplit-компонентов/exposed test-семейств. Validation остаётся development feedback.
+
+Действующий M2 v2 reserve: 40 SKU / 40 семейств, 0 выявленных проблем;
+тексты не выводились/не экспортировались, predictions не запускались, проверена
+пустота labels. Независимого human gold это не создаёт. Все 9 файлов двух чистых
+run побайтно совпали, verify и hashes входов — OK. 119 основных + 3 reader tests,
+pip check — OK. Старые split/gold/results не перезаписаны, runtime/VM не изменены.
+Локальные identities/fingerprints/нарушения в `outputs/evaluation/`, вне Git.
+Новый partition подключается явно после review, автоматической миграции нет.
+
 Обновление 19.10.2026: [аудит второго прогона и план](reviews/2026-10-19_second_run_plan.md).
 Сумма оценённых технических критериев выросла с 17,17 до **17,81/20** (+0,64).
 Снизились воспроизводимость (−0,10), архитектура (−0,33) и обработка ошибок
@@ -187,6 +249,23 @@ release gate. Blind human review готовить параллельно, test �
 По скриншотам первого технического прогона оценённые критерии дали 17,17/20.
 Неоценённый блок качества результата оставался пустым. Product checkpoint —
 10/10, но способ его включения в общий балл не описан.
+
+### Backlog по новой детализации оценки
+
+Платформа отдельно показывает продуктовый чекпоинт `10/10`, оценённые
+технические критерии `17,81/20`, пустой блок качества `—/5` и пока
+неоценённую финальную защиту `—/15`. Общий индикатор на странице равен
+`17,81/35`; правило объединения этапов не опубликовано, поэтому значения здесь
+не складываются самостоятельно.
+
+В `GOV-003` заведены ровно 20 новых задач
+[#35–#54](https://github.com/CRUDoshleps/GoodsAI/issues?q=is%3Aissue+is%3Aopen+created%3A2026-10-19),
+которые переводят текстовый feedback в проверяемые результаты. Наибольший
+приоритет имеют независимый пакет качества, калибровка auto-accept, чистый
+воспроизводимый запуск и release gate точного SHA. Архитектурные, операторские
+и презентационные задачи идут после их зависимостей. На момент создания плана реализация не была начата; актуальные статусы
+смотрите в TASKS.md. Критический путь находится в
+[плане улучшения оценки](reviews/2026-10-19_score_improvement_backlog.md).
 
 Организаторы подтвердили сильные стороны: работающий end-to-end baseline,
 модульность, тесты, JSONL output и документация. Основной долг:
