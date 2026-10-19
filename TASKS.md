@@ -52,9 +52,9 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | DONE | QA/MLOps | Codex (tunaIT) | `main` | PR #76 merged a10534a; mirror OK; VM audit принят; исходный 1d53dad, human quality N/A; новый deploy не выполнялся |
-| BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | READY | NLP/baseline | — | — | Исправить grammar батареи мА*ч с exact evidence; synthetic failure подтверждён на VM |
+| BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | REVIEW | NLP/baseline | Codex (tunaIT) | `baseline/base-003-battery-units` | Units fix; 158+3 tests; synthetic TP5→12 / FP0; requires PR #79; docs/BATTERY_UNITS.md |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
-| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | REVIEW | аналитик/разметчик | urasha | `eval/eval-001-blind-human-gold` | независимый human gold без просмотра ответов системы |
+| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | REVIEW | аналитик/разметчик | urasha / Codex (сессия Влада) | `eval/eval-001-blind-human-gold` | D21–D40 human-reviewed; 2 contextual corrections; code review / independent test pending |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
 | CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | IN_PROGRESS | архитектор | timur0o31 | — | вынести пороги, модели и схемы категорий в конфигурацию |
@@ -64,7 +64,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | READY | архитектор | — | — | конфиг решений, LLM, бюджета и стоимости |
 | LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | READY | LLM/backend | — | — | evidence-first fallback через шлюз хакатона |
 | OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | READY | MLOps/security | — | — | безопасные логи и границы temp/pickle |
-| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | READY | release/аналитик | — | — | demo predictions, metrics, report и hashes |
+| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | REVIEW | release/docs | Codex (tunaIT) | `artifacts/art-002-demo-kit` | Demo kit: metrics/report + 6-file hashes + verify; 162+3 tests, 6/6 smoke; quality N/A |
 | QA-002 | [#29](https://github.com/CRUDoshleps/GoodsAI/issues/29) | P0 | READY | QA | — | — | регрессия полного review-remediation сценария |
 | REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | BLOCKED | интегратор | — | — | выпуск исправлений review; ждёт подзадачи |
 | ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | DONE | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
@@ -76,7 +76,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | REVIEW | NLP/QA | urasha | `qa/ver-001-relation-verifier` | проверка отрицаний, совместимости и чужих сущностей |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | Codex (tunaIT) | `main` | PR #80 merged 468e35e; opt-in prototype принят; default/human quality gate остаётся открыт |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
-| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
+| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | REVIEW | QA | Codex (tunaIT) | `qa/qa-001-hard-cases` | 21 strict probes: 20 pass, known #15 fails visibly; 162+3 tests; depends on #79/#86 |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P1 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 | QA-003 | [#47](https://github.com/CRUDoshleps/GoodsAI/issues/47) | P1 | DONE | QA | Codex (e345ee) | `main` | PR #73 merged ba392d6; mirror OK; 11 свойств quick/nightly; schema/Decimal regressions; CI OK |
@@ -387,6 +387,34 @@ REVIEW означает готовность протокола аудита, н
 
 ### EVAL-001 — независимый gold/test
 
+**Уточнение Влада 19.10.2026:** текущий этап — ещё 20 новых development-карточек,
+AI-assisted draft с последующей проверкой Владом, как в M2. Reserve 40 не раскрывать.
+Сохранить independent-reference=false, без новых P/R/F1 до human-подтверждения.
+Предыдущее требование двух людей относится к будущей независимой оценке, а не к
+этому development-инкременту. Issue #6 не закрывать только подготовкой draft.
+Development tooling `ffa35ca`: 20 карточек/120 полей, 0 human-reviewed; форма
+`outputs/evaluation/development-review-20261019-v2-ai/development.review.md`.
+134 основных + 3 reader tests — OK; replay selection/draft deterministic,
+EVAL-002 sources unchanged, reserve закрыт. REVIEW текущего инкремента — проверка
+draft Владом и code review; независимая оценка остаётся незавершённой.
+
+Feedback Влада получен для всех D21–D40, с явным подтверждением неуказанных полей.
+Уточнение номера: G относится к D27, D25 memory подтверждена. Reviewed версия
+human-v2: 20 карточек/120 labels; 82 present/27 absent/4 ambiguous/7 unjudgeable;
+2 manual-contextual corrections D27, independent-reference=false. D24 неверная
+категория, phone schema unjudgeable; runtime/category policy не менялась.
+Новый прогон P/R/F1 не выполнялся. Не закрывать независимый этап этой записью.
+
+Claim `fab562f`, инструменты `257fe1f`, 19.10.2026. [Протокол](docs/HUMAN_GOLD.md),
+[инструкция](docs/HUMAN_GOLD_GUIDELINES.md). 128 основных + 3 reader tests — OK;
+offline HTML проверен только на synthetic. Реальный metadata-only пакет:
+40 карточек/240 пустых полей, два запуска byte-identical, test-тексты не раскрыты.
+BLOCKED для полной приёмки: Влад пока единственный разметчик, второго и
+adjudicator нет, итоговый метод не заморожен, human answers/agreement/gold отсутствуют.
+Следующее решение: сохранить reserve до freeze или оценить только текущий rules;
+AI-assisted продолжение на development не закрывает требование двух людей.
+Инструменты могут пройти code review отдельно, Issue #6 не закрывать по их merge.
+
 **Шаги**
 
 1. Заморозить annotation guideline и категории.
@@ -563,6 +591,13 @@ Gitea fast-forward; divergence останавливает job, а старый G
 безопасно работает при отключённой LLM.
 
 ### VER-001 — relation verifier
+
+19.10.2026: реализация на REVIEW, claim `9400302`, сессия Влада.
+[Результат и ограничения](docs/RELATION_VERIFIER.md). Общий candidate guard,
+без изменения v0.1 и extractor rules; на 20 synthetic probes ложные извлечения
+8→0, сохранены 10/10 положительных фактов. Два reviewed development по 20 карточек:
+M2 69 TP/0 FP/14 FN, D21–D40 59 TP/0 FP/23 FN, до=после, 0 lost TP/new FP.
+Это AI-assisted development, не independent test. Main/VM не обновлялись.
 
 **Шаги**
 
