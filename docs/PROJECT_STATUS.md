@@ -175,6 +175,9 @@ commit, producer SHA остаётся указанным выше. Официа�
 
 Подготовлен [аудит E1 split](reviews/2026-10-19_eval-002_split_audit.md),
 [метод и CLI](SPLIT_AUDIT.md), ветка `eval/eval-002-split-leakage`, Issue #7.
+После согласования Владом PR #69 слит в GitHub main (`c49540f`), Issue #7 закрыт.
+Это принятие инструмента/результатов аудита, не независимый human gold и не
+автоматическая замена manifests в downstream-процессах. VM не обновлялась.
 Producer `62388ad`, clean Windows/Python 3.12.6. Исходные 10324 SKU содержат
 632 mixed семейных компонента; прежний original split целиком не является
 независимым. Отдельный `eval-002-quarantine-v1` сохраняет 3411 SKU
