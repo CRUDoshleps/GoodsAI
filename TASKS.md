@@ -69,6 +69,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
+| BASE-002 | [#64](https://github.com/CRUDoshleps/GoodsAI/issues/64) | P1 | REVIEW | NLP/baseline | Codex (e345ee) | `base/base-002-span-index` | claim 9eaa5a3; 14 new invariants; 133 + 3 tests; synthetic spans 6/6; selector not integrated |
 
 ## Как взять задачу
 

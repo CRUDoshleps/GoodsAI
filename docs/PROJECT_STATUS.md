@@ -2,6 +2,17 @@
 
 Актуально на 19 октября 2026 года.
 
+## BASE-002: исходные spans (ветка реализации)
+
+Добавлен внутренний bounded SpanIndex с deterministic source/config identity,
+точными raw offsets и явными truncated/unavailable reasons. Неизвестные имена,
+числа, повторы и HTML/entities проверяются synthetic tests. Отдельный CLI
+измеряет exact candidate-set recall, время и traced Python memory на явно
+разрешённой span-разметке; raw text/SKU в report не выводятся. Synthetic fixture
+покрывает 6/6 reference spans. Runtime predictor и публичный schema не менялись;
+интеграция selector/LLM и реальное качество ещё не подтверждены.
+Контракт, ограничения и команды: [SPAN_INDEX.md](SPAN_INDEX.md).
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |
