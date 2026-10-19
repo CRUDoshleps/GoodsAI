@@ -54,6 +54,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | DONE | QA/MLOps | Codex (tunaIT) | `main` | PR #76 merged a10534a; mirror OK; VM audit принят; исходный 1d53dad, human quality N/A; новый deploy не выполнялся |
 | BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | DONE | NLP/baseline | Codex (tunaIT) | `main` | PR #86 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
+| EVAL-006 | [#91](https://github.com/CRUDoshleps/GoodsAI/issues/91) | P0 | DONE | evaluation/data | urasha / Codex (сессия Влада) | `main` | PR #95 merged 5711949; mirror 39313644701 SUCCESS; 3037 cards, catalog agreement F1 75.67%; 266+3 tests, clean-run 11/11; independent gold gates unchanged |
 | EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | BLOCKED | аналитик/разметчик | urasha / Codex (сессия Влада) | `main` | PR #71 принят; independent human gold/test не выполнен, нужны независимые разметчики |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
@@ -62,7 +63,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
 | CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | READY | архитектор | — | — | конфиг решений, LLM, бюджета и стоимости |
-| LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | READY | LLM/backend | — | — | evidence-first fallback через шлюз хакатона |
+| LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | REVIEW | LLM/backend | Глеб Алферов | `llm/llm-003-evidence-first-fallback` | evidence-first fallback через шлюз хакатона; opt-in `--llm`, pre-router, политика данных и бюджета 19.10 закреплена кодом; живой trace — `llm-trace` на VM |
 | OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | READY | MLOps/security | — | — | безопасные логи и границы temp/pickle |
 | ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | DONE | release/docs | Codex (tunaIT) | `main` | PR #87 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |
 | QA-002 | [#29](https://github.com/CRUDoshleps/GoodsAI/issues/29) | P0 | READY | QA | — | — | регрессия полного review-remediation сценария |
