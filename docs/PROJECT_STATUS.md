@@ -2,6 +2,24 @@
 
 Актуально на 19 октября 2026 года.
 
+## CONF-003: передача на validation, продолжение PR #92
+
+[DONE — feature candidate] Добавлен явный schema mapper и private validation
+runner поверх существующих predict/evaluate. Проверяются config/split hashes,
+полный frozen validation scope, text identity и точные manual evidence.
+Train/test и pending/silver reference отвергаются. Unmapped target labels →
+unjudgeable с видимым judged/requested denominator. Отчёт сортирует judged
+category/attribute slices по F1 и связывает файлы с run/code/config hashes.
+
+Исправлен воспроизведённый тестом дефект: правильное значение manual reference,
+которого нет в train-словаре, теперь даёт FN вместо ошибки/исключения.
+Inference-словарь не расширяется. Проверено: 247 основных + 3 reader tests
+OK (macOS/Python 3.14.8); 9 новых evaluation tests OK на CPython 3.12.14.
+Реальные данные, gold/test, LLM, VM и зависимости не менялись. Код и команды: [CATEGORY_REGISTRY](CATEGORY_REGISTRY.md).
+[PLAN] Реальные train/validation, schema mapping от команды, независимые
+метрики и приёмка по-прежнему отсутствуют. PR #92 передан пользователем;
+merge и назначение reviewer этим изменением не выполняются.
+
 ## Категории: новые feature candidates Тимура
 
 [DONE — feature candidate] CONF-001 совмещена с main 977c5ed (e0b746f),

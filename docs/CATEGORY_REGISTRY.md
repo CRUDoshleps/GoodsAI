@@ -146,3 +146,77 @@ auto_accept off. 95% template agreement не равно precision или calibra
 конфиг без изменения orchestration, API/batch parity, точные HTML offsets,
 конфликт/неизвестное значение/negation, split/hash guards, fail-before-publish,
 проверка недоверенного source. Это инженерные проверки, не independent gold.
+
+## Следующий шаг: явное сопоставление разметки и validation report
+
+[DONE — feature candidate, продолжение CONF-003 / PR #92] Команда
+`goodsai.registry_evaluation` принимает готовый frozen config, text-only
+validation input, reviewed manual reference, тот же split manifest и явный
+schema mapper. Она переиспользует обычные predict/evaluate, не обучает rules,
+не меняет словарь и не вызывает LLM. Это инструмент development feedback;
+происхождение разметки и независимость человека он доказать не может.
+
+Mapper связывает имена полей исходной разметки с target IDs конфига:
+
+```json
+{"mapping_version":"1","config_sha256":"<effective config hash>","categories":{"<category ID>":{"<reference field>":"<target attribute ID>"}}}
+```
+
+Hash effective config вычисляется так (путь заменить своим frozen config):
+
+```bash
+.venv/bin/python -c 'from goodsai.config import load_config; from goodsai.registry_evaluation import config_hash; print(config_hash(load_config("outputs/category-registry/config.json")))'
+```
+
+Сопоставление задаёт человек до измерения; fuzzy match по именам, изменение
+категорий, отбор удачных ответов или подмена единиц не выполняются. Оно должно
+быть one-to-one, target должен входить в schema, единица reviewed label должна
+точно совпасть с target. Ссылка на отсутствующий source label — ошибка, а не
+молчаливое исключение. Поля, для которых нет сопоставленного label, получают
+`unjudgeable`, а не `absent`; их число и judged/requested пары видны в отчёте.
+Из метрики только на небольшой размеченной части нельзя делать вывод о полном
+качестве новых категорий.
+
+Исходный reference содержит те же source title/description и SKU, что input;
+`split="validation"`, `annotation_status="reviewed"`, `label_source="manual"`,
+непустые annotator и group_id/family_id, labels со статусами
+present/absent/ambiguous/unjudgeable. Present требует точное evidence из
+разрешённого source. Отсутствующие/дублирующиеся карты, pending/silver labels,
+расхождение текстов и единиц приводят к отказу до публикации. Каталожные silver
+метки не становятся manual labels через mapper; их диагностика — отдельное
+направление EVAL-006. Вход/разметка должны покрыть весь declared validation;
+самостоятельного открытия test или нового split нет.
+
+```bash
+.venv/bin/python -m goodsai.registry_evaluation --config outputs/category-registry/config.json --input data/processed/approved/validation-text-only.jsonl --reference data/gold/approved/validation-reviewed.jsonl --split data/processed/approved/split.json --mapping data/processed/approved/schema-map.json --output-dir outputs/category-validation
+```
+
+Эта команда для реальных данных остаётся [PLAN], пока data/evaluation не
+передаст перечисленные разрешённые файлы. Learner должен быть заморожен до
+раскрытия validation labels. Split hash обязан совпасть с config provenance;
+train и test SKU запрещены. После validation любые изменения метода являются
+настройкой на validation, а не независимой проверкой. Закрытый test не открывается.
+
+В новой private папке публикуются input, mapped_reference, predictions/manifest,
+`report.json`, `report.md` и `artifacts.json` с hashes. Полные source/labels
+хранятся только в private файлах; отчёты содержат агрегаты по category/attribute,
+TP/FP/FN/P/R/F1, mapped/excluded counts, code/config/input/reference/split/mapper
+hashes, run ID и измеренные ресурсы predictor. Нет scored labels — N/A и CLI
+exit 2; несуществующие precision/F1 не заменяются нулём. Таблица отсортирована
+по наименьшему F1 среди judged slices, N/A в конце. Не делается автоматического
+вывода о том, какие правила следует изменить. Входные bytes и code hash
+проверяются до/после; при изменении final output не публикуется. Это локальная
+single-writer публикация, не distributed transaction/network-FS протокол.
+
+Исправлен reference-vocabulary defect: enum-значение manual reference,
+неизвестное train-словарю, остаётся в gold и может дать FN. Оно не добавляется
+в inference dictionary и не превращается в исключённую пару. Нормализация
+reference не требует присутствия значения в train, но по-прежнему требует
+каноническую форму и согласованную единицу. Для output/candidate проверки
+ограничения inference-словаря сохранены.
+
+[Доказательства] `tests/test_registry_evaluation.py`: воспроизведение прежнего
+падения и FN для неизвестного значения, корректный TP, пять unmapped полей →
+unjudgeable, hash/mapping guards, train/test exclusion, ошибочные source/units/
+evidence, изменение входов до публикации и фиксированная безопасная CLI ошибка.
+Все примеры вымышленные; реальная human quality не измерялась.

@@ -155,6 +155,20 @@ class Registry:
         except KeyError as exc:
             raise ValueError("Registry enum outside train dictionary") from exc
 
+    def normalize_reference(self, category_id, attribute, value, unit):
+        """Validate reference independently of the inference/train vocabulary.
+
+        Human labels outside train must count as false negatives, not disappear
+        or fail evaluation. This does not expand the extraction dictionary.
+        """
+        spec = self.spec(category_id, attribute)
+        if spec and spec["kind"] == "enum":
+            if unit != spec["unit"] or not isinstance(value, str) or not value.strip():
+                raise ValueError("Invalid reference value/unit")
+            owners = {v.casefold(): v for v in spec["values"]}
+            return owners.get(clean(value).casefold(), clean(value))
+        return self.normalize(category_id, attribute, value, unit)
+
     def supported(self, category_id, attribute, value, evidence):
         spec = self.spec(category_id, attribute)
         if not spec:

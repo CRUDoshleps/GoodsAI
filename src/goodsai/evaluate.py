@@ -76,7 +76,7 @@ def evaluate(predictions: Path, gold: Path | None, config: dict) -> dict:
                     raise ValueError("Present gold requires a canonical value")
                 if label.get("unit") != registry.unit(product.category_id, attr):
                     raise ValueError("Gold unit does not match category schema")
-                if registry.normalize(product.category_id, attr, label["value"], label.get("unit")) != label["value"]:
+                if registry.normalize_reference(product.category_id, attr, label["value"], label.get("unit")) != label["value"]:
                     raise ValueError("Gold numeric value is not canonical")
                 evidence = label.get("evidence") or {}
                 if (evidence.get("field") not in {"title", "description"}
