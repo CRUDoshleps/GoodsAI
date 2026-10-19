@@ -134,6 +134,11 @@ curl --fail-with-body --retry 10 --retry-connrefused --retry-delay 1 http://127.
 
 ## Атомарные outputs
 
+Ограничения логов, POSIX permissions, trusted research pickle и поддерживаемой
+локальной файловой системы: [OPS-001](OPERATIONS_SAFETY.md). Новые ошибки CLI
+имеют фиксированные диагностические коды; не добавляйте private payload в логи
+ради отладки. Старые outputs/каталоги проверьте отдельно — их права не меняются.
+
 Predictions и manifest публикуются парой. Если процесс прерван:
 
 1. убедиться, что writer больше не работает;

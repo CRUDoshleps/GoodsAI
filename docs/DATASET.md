@@ -81,6 +81,11 @@ Reader проверяет source SHA по scan, создаёт `catalog_skus.par
 `catalog_profile.json`. Ошибка/незнакомый opcode — остановка и разбор,
 не fallback на `pickle.load`. Не перезаписывать существующие outputs.
 
+В OPS-001 digest проверяется до и после decode на одном descriptor, allowlist
+применяется в dispatch reader, а projection готовится в private staging.
+Это не делает недоверенный pickle безопасным. Ограничения, новые параметры
+путей и поведение при неполной публикации: [OPS-001](OPERATIONS_SAFETY.md).
+
 Дальнейшие команды inventory/prepare — в [README](../README.md#подготовка-данных).
 Inventory хранится **вне data/raw**, и тот же путь передаётся `--inventory`.
 `inventory` фиксирует hashes текущих файлов, а не удостоверяет их происхождение.

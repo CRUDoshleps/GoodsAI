@@ -7,25 +7,35 @@ discarded, while the small category tree remains intact. No source is modified.
 """
 import argparse
 from collections import Counter, defaultdict
-import hashlib
 import json
 import pickle
+import pickletools
+import os
 from pathlib import Path
+import tempfile
 import time
+import sys
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+from catalog_guard import ALLOWED, verified_catalog
+from goodsai.storage import output_lock, atomic_text
+from goodsai.diagnostics import failure_message
+from goodsai.data import check_output
 
 SENTINEL = object()
-ALLOWED = {"PROTO", "FRAME", "EMPTY_DICT", "MEMOIZE", "SHORT_BINUNICODE",
-           "BINUNICODE", "BINUNICODE8", "MARK", "EMPTY_LIST", "SETITEMS",
-           "SETITEM", "APPENDS", "APPEND", "BINGET", "LONG_BINGET", "NONE",
-           "NEWTRUE", "NEWFALSE", "BININT", "BININT1", "BININT2", "LONG1",
-           "BINFLOAT", "STOP"}
 
 
 class CatalogReader(pickle._Unpickler):
-    dispatch = pickle._Unpickler.dispatch.copy()
+    def forbidden_opcode(self):
+        raise ValueError("Pickle opcode forbidden")
+
+    # Enforce the allowlist during decoding as well as in the external report.
+    # In particular, cached EXT/REDUCE must never bypass find_class.
+    dispatch = dict.fromkeys(pickle._Unpickler.dispatch, forbidden_opcode)
+    for opcode in pickletools.opcodes:
+        if opcode.name in ALLOWED:
+            dispatch[ord(opcode.code)] = pickle._Unpickler.dispatch[ord(opcode.code)]
 
     def __init__(self, stream, references, on_offer):
         super().__init__(stream)
@@ -72,18 +82,37 @@ class CatalogReader(pickle._Unpickler):
     dispatch[pickle.APPEND[0]] = load_append
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--trusted-pickle", action="store_true", required=True)
-    args = parser.parse_args()
-    out = Path("outputs/eda")
-    scan = json.loads((out / "pickle_opcodes.json").read_text())
-    with open("data/raw/skus.pkl", "rb") as stream:
-        if hashlib.file_digest(stream, "sha256").hexdigest() != scan["source_sha256"]:
-            raise ValueError("Pickle changed since opcode inspection")
-    unexpected = set(scan["opcodes"]) - ALLOWED
-    if unexpected:
-        raise ValueError(f"Unsupported pickle opcodes: {unexpected}")
+    parser.add_argument("--input", type=Path, default=Path("data/raw/skus.pkl"))
+    parser.add_argument("--scan", type=Path, default=Path("outputs/eda/pickle_opcodes.json"))
+    parser.add_argument("--output-dir", type=Path, default=Path("outputs/eda"))
+    args = parser.parse_args(argv)
+    out = args.output_dir.resolve()
+    check_output(out, args.input, args.scan)
+    targets = [out / "catalog_skus.parquet", out / "catalog_profile.json"]
+    if any(target.exists() or target.is_symlink() for target in targets):
+        raise FileExistsError("Research projection already exists; choose a new output directory")
+    if args.input.resolve() in targets or args.scan.resolve() in targets:
+        raise ValueError("Research output must not overwrite a source")
+    scan = json.loads(args.scan.read_text(encoding="utf-8"))
+    with output_lock(targets[0]):
+        # Check again while holding the writer lock, before creating a projection.
+        if any(target.exists() or target.is_symlink() for target in targets):
+            raise FileExistsError("Research projection already exists")
+        with tempfile.TemporaryDirectory(prefix=".goodsai-profile-", dir=out) as folder:
+            stage = Path(folder)
+            with verified_catalog(args.input, scan) as stream:
+                result = profile(stream, scan, stage)
+            # Both source checks passed. A failed parse/hash leaves no public projection.
+            for target in targets:
+                os.chmod(stage / target.name, 0o600)
+                os.replace(stage / target.name, target)
+    print(f"Completed catalog: {result['rows']:,} offers; {result['category_definition_count']:,} category definitions", flush=True)
+
+
+def profile(stream, scan, out):
     fields, types, missing, category_counts, attr_counts = (Counter() for _ in range(5))
     seller_counts, category_attrs, param_types, issues = Counter(), defaultdict(Counter), Counter(), Counter()
     sample_params = defaultdict(list)
@@ -154,12 +183,10 @@ def main():
             print(f"Profiled {n:,} offers in {time.monotonic()-start:.1f}s", flush=True)
 
     try:
-        with open("data/raw/skus.pkl", "rb") as stream:
-            reader = CatalogReader(stream, set(scan["referenced_indices"]), offer)
-            root = reader.load()
-            assert stream.read(1) == b"", "Trailing data after pickle STOP"
-        assert reader.memo_index == scan["memo_entries"]
-        assert reader.offers == n
+        reader = CatalogReader(stream, set(scan["referenced_indices"]), offer)
+        root = reader.load()
+        if stream.read(1) != b"" or reader.memo_index != scan["memo_entries"] or reader.offers != n:
+            raise ValueError("Pickle structure differs from its inspection report")
         flush()
     finally:
         writer.close()
@@ -167,6 +194,7 @@ def main():
     categories = catalog["shop"]["categories"]["category"]
     names = {c["@id"]: c.get("#text") for c in categories}
     result = {
+        "source_sha256": scan["source_sha256"],
         "rows": n, "catalog_date": catalog.get("@date"),
         "root_keys": list(root), "shop_keys": list(catalog["shop"]),
         "category_definitions": categories, "category_definition_count": len(categories),
@@ -180,9 +208,17 @@ def main():
         "retained_params_categories": sorted(candidates),
         "memo_entries_retained": len(reader.memo), "seconds": time.monotonic()-start,
     }
-    (out / "catalog_profile.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Completed catalog: {n:,} offers; {len(categories):,} category definitions", flush=True)
+    with atomic_text(out / "catalog_profile.json") as destination:
+        json.dump(result, destination, ensure_ascii=False, indent=2)
+    return result
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("catalog research: interrupted: Operation cancelled", file=sys.stderr)
+        raise SystemExit(130)
+    except Exception as exc:
+        print("catalog research: " + failure_message(exc), file=sys.stderr)
+        raise SystemExit(2)

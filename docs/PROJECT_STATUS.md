@@ -2,6 +2,22 @@
 
 Актуально на 19 октября 2026 года.
 
+## OPS-001: feature candidate безопасной диагностики и I/O
+
+[DONE — feature candidate, не release] Ветка `ops/ops-001-safe-io`, claim
+`7d38377`, владелец `timur0o31`. Добавлены фиксированные ошибки CLI/demo/API,
+POSIX private outputs/locks, отказ от linked locks и journal. Прежний recovery
+после отмены сохранён. Research reader декодирует только allowlisted opcodes,
+проверяет digest/identity одного descriptor до/после чтения и готовит файлы в
+private staging. Это не универсальная защита для недоверенного pickle.
+
+На macOS/Python 3.14.8: 145 основных + 13 reader/boundary tests — OK.
+Источники: [OPS tests](../tests/test_operations.py),
+[reader boundary tests](../scripts/research/test_catalog_boundary.py),
+[операционные границы](OPERATIONS_SAFETY.md). Реальные данные, caches, gold/test,
+VM, внешние модели и зависимости не менялись. Linux/Windows/network FS не
+проверялись. До review/merge результат относится только к feature-ветке.
+
 ## DOCS-002: текст и доказательства — DONE
 
 [DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR

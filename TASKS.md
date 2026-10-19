@@ -62,7 +62,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
 | CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | READY | архитектор | — | — | конфиг решений, LLM, бюджета и стоимости |
 | LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | READY | LLM/backend | — | — | evidence-first fallback через шлюз хакатона |
-| OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | IN_PROGRESS | MLOps/security | timur0o31 | `ops/ops-001-safe-io` | 19.10.2026: safe diagnostics, private temporary files, trusted research pickle boundary |
+| OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | IN_PROGRESS | MLOps/security | timur0o31 | `ops/ops-001-safe-io` | feature candidate: fixed diagnostics, private I/O, guarded research reader; 145 + 13 tests OK; PR ожидает создания |
 | ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | READY | release/аналитик | — | — | demo predictions, metrics, report и hashes |
 | QA-002 | [#29](https://github.com/CRUDoshleps/GoodsAI/issues/29) | P0 | READY | QA | — | — | регрессия полного review-remediation сценария |
 | REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | BLOCKED | интегратор | — | — | выпуск исправлений review; ждёт подзадачи |
@@ -157,6 +157,18 @@ model calls или использование test. Начало реализа�
 Уточнены fingerprint и предварительный аудит в [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59),
 а также независимая calibration и риск среди принятых значений в
 [#39](https://github.com/CRUDoshleps/GoodsAI/issues/39). Владельцы и статусы сохранены.
+
+## OPS-001: реализация в feature-ветке
+
+- Начато 19.10.2026, владелец `timur0o31`, claim `7d38377`, ветка `ops/ops-001-safe-io`.
+- Реализованы фиксированные ошибки CLI/API без exception payload; POSIX private
+  files/locks; отказ от linked locks/journal; отмена сохраняет recovery semantics.
+- Research reader проверяет один descriptor до/после decode и применяет allowlist
+  в dispatch. Проекция готовится в private staging; прежние outputs не затираются.
+- macOS/Python 3.14.8: 145 основных + 13 reader/boundary tests — OK.
+- Не проверялись VM/Linux/Windows ACL/network FS; реальные данные/test не читались.
+- Ограничения и команды: `docs/OPERATIONS_SAFETY.md`. Статус REVIEW — после открытия PR;
+  DONE и merge остаются за интегратором.
 
 ## Как взять задачу
 

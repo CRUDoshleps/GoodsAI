@@ -6,19 +6,34 @@ import hashlib
 import pickletools
 import time
 from pathlib import Path
+import sys
+
+from goodsai.storage import atomic_text
+from goodsai.diagnostics import failure_message
+from goodsai.data import check_output
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=Path)
     parser.add_argument("output", type=Path)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    check_output(args.output, args.input)
+    with atomic_text(args.output) as destination:
+        if args.output.exists() or args.output.is_symlink():
+            raise FileExistsError("Opcode report already exists; choose a new output")
+        result = inspect(args.input)
+        json.dump(result, destination, allow_nan=False)
+    print(json.dumps({k: v for k, v in result.items() if k != "referenced_indices"}))
+
+
+def inspect(path):
     counts = collections.Counter()
     refs = set()
     memo_count = 0
     opcode_count = 0
     start = time.monotonic()
-    with args.input.open("rb") as stream:
+    with path.open("rb") as stream:
         for opcode, value, position in pickletools.genops(stream):
             counts[opcode.name] += 1
             opcode_count += 1
@@ -28,14 +43,21 @@ def main():
                 memo_count += 1
             if opcode_count % 10_000_000 == 0:
                 print(f"Scanned {position:,} bytes; referenced memo entries {len(refs):,}", flush=True)
-    with args.input.open("rb") as stream:
+        if stream.read(1):
+            raise ValueError("Trailing data after pickle STOP")
+        stream.seek(0)
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
     result = {"source_sha256": digest, "opcodes": dict(counts), "memo_entries": memo_count,
               "referenced_indices": sorted(refs), "seconds": time.monotonic() - start}
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(result), encoding="utf-8")
-    print(json.dumps({k: v for k, v in result.items() if k != "referenced_indices"}))
+    return result
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("pickle inspection: interrupted: Operation cancelled", file=sys.stderr)
+        raise SystemExit(130)
+    except Exception as exc:
+        print("pickle inspection: " + failure_message(exc), file=sys.stderr)
+        raise SystemExit(2)

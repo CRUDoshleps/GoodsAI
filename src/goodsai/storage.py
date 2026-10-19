@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import stat
 import tempfile
 
 
@@ -37,9 +38,26 @@ def _sync_directory(path: Path):
 @contextmanager
 def output_lock(path: Path):
     path = path.resolve()
-    path.parent.mkdir(parents=True, exist_ok=True)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     # Never unlink a lock file: replacing its inode could create two independent locks.
-    with path.with_name("." + path.name + ".goodsai.lock").open("a+b") as lock:
+    lock_path = path.with_name("." + path.name + ".goodsai.lock")
+    if lock_path.is_symlink():
+        raise ValueError("Output lock must not be a symbolic link")
+    flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    fd = os.open(lock_path, flags, 0o600)
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise ValueError("Output lock must be a private regular file")
+        if os.name != "nt":
+            if info.st_uid != os.getuid():
+                raise ValueError("Output lock belongs to another user")
+            os.fchmod(fd, 0o600)
+        lock = os.fdopen(fd, "r+b")
+    except BaseException:
+        os.close(fd)
+        raise
+    with lock:
         try:
             if os.name == "nt":
                 import msvcrt
@@ -50,7 +68,7 @@ def output_lock(path: Path):
                 fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError as exc:
             if exc.errno in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}:
-                raise OutputBusyError(f"Output is busy: {path.name}; retry after the other process finishes") from exc
+                raise OutputBusyError("Output is busy; retry after the other process finishes") from exc
             raise
         try:
             yield
@@ -127,6 +145,8 @@ def _cleanup(parent: Path, directory: Path):
 
 def _recover(output: Path, manifest: Path):
     journal = _journal_path(manifest)
+    if journal.is_symlink():
+        raise ValueError("Prediction recovery journal must not be a symbolic link")
     if not journal.exists():
         return
     try:
@@ -159,7 +179,7 @@ def _recover(output: Path, manifest: Path):
         _sync_directory(output.parent)
         _cleanup(output.parent, directory)
     except (OSError, ValueError, KeyError, TypeError) as exc:
-        raise ValueError(f"Prediction recovery failed for {output.name}; preserve journal/backups for diagnosis") from exc
+        raise ValueError("Prediction recovery failed; preserve journal/backups for diagnosis") from exc
 
 
 def _publish(output: Path, manifest: Path, directory: Path):

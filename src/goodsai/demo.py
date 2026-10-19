@@ -10,6 +10,7 @@ import sys
 from goodsai.cli import predict
 from goodsai.contracts import Product, load_config, validate_prediction
 from goodsai.data import check_output, digest, read_jsonl, read_predictions, write_json
+from goodsai.diagnostics import failure_message
 
 
 def _destination(output_dir: Path, examples) -> Path:
@@ -73,7 +74,7 @@ def run_demo(output_dir: Path) -> dict:
     output = _destination(output_dir, examples)
     # The demo reserves an entirely new artifact directory; general writers also
     # have their own destination locks and recoverable pair publication.
-    output.mkdir(parents=True, exist_ok=False)
+    output.mkdir(mode=0o700, parents=True, exist_ok=False)
     input_path = output / "input.jsonl"
     prediction_path = output / "predictions.jsonl"
     input_path.write_bytes(source_bytes)
@@ -123,8 +124,14 @@ def main(argv=None) -> int:
         print("goodsai demo: output directory already exists; choose a new --output-dir", file=sys.stderr)
         return 2
     except (ValueError, OSError, KeyError) as exc:
-        print(f"goodsai demo: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print("goodsai demo: " + failure_message(exc), file=sys.stderr)
         return 2
+    except KeyboardInterrupt:
+        print("goodsai demo: interrupted: Operation cancelled", file=sys.stderr)
+        return 130
+    except Exception as exc:
+        print("goodsai demo: " + failure_message(exc), file=sys.stderr)
+        return 1
     print(json.dumps(result, ensure_ascii=False, allow_nan=False, indent=2))
     return 0
 

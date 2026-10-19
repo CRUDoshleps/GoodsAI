@@ -14,6 +14,7 @@ from goodsai.data import check_output, digest, inventory_sources, prepare, read_
 from goodsai.evaluate import evaluate
 from goodsai.runtime import identity, peak_rss_bytes
 from goodsai.storage import staged_prediction_pair
+from goodsai.diagnostics import failure_message
 from goodsai.verify import Extractor
 
 
@@ -133,8 +134,14 @@ def main(argv=None) -> int:
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except (ValueError, OSError, KeyError) as exc:
-        print(f"goodsai: {type(exc).__name__}: {exc}", file=sys.stderr)
+        print("goodsai: " + failure_message(exc), file=sys.stderr)
         return 2
+    except KeyboardInterrupt:
+        print("goodsai: interrupted: Operation cancelled; preserve artifacts before retrying", file=sys.stderr)
+        return 130
+    except Exception as exc:
+        print("goodsai: " + failure_message(exc), file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

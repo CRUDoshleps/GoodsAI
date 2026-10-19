@@ -26,6 +26,14 @@ def create_app() -> FastAPI:
     app = FastAPI(title="GoodsAI provisional API", version="0.1.0",
                   description="Temporary weekend API. Organizer endpoints are pending.")
 
+    @app.middleware("http")
+    async def safe_failures(request: Request, call_next):
+        try:
+            return await call_next(request)
+        except Exception:
+            LOGGER.error("GoodsAI request failed")
+            return error(500, "request_failed", "Request cannot be handled")
+
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException):
         return error(exc.status_code, "http_error", "Request cannot be handled")
@@ -70,9 +78,8 @@ def create_app() -> FastAPI:
             return error(400, "invalid_json", "Body must be a UTF-8 JSON object")
         try:
             product = Product.from_dict(row)
-        except ValueError as exc:
-            # Contract errors are fixed strings and never include submitted values.
-            return error(422, "invalid_product", str(exc))
+        except ValueError:
+            return error(422, "invalid_product", "Invalid product; check the text-only input schema")
         try:
             return await run_in_threadpool(extractor.predict, product, run_id="http-rules-v0")
         except Exception:
