@@ -57,14 +57,14 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
-| CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | IN_PROGRESS | архитектор | Codex | `rel/rel-003-review-remediation` | конфиг решений, LLM, бюджета и стоимости |
-| LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | IN_PROGRESS | LLM/backend | Codex | `rel/rel-003-review-remediation` | evidence-first OpenAI-compatible fallback в runtime |
-| OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | IN_PROGRESS | MLOps/security | Codex | `rel/rel-003-review-remediation` | безопасные логи и границы temp/pickle |
-| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | IN_PROGRESS | release/аналитик | Codex | `rel/rel-003-review-remediation` | demo predictions, metrics, report и hashes |
-| QA-002 | [#29](https://github.com/CRUDoshleps/GoodsAI/issues/29) | P0 | IN_PROGRESS | QA | Codex | `rel/rel-003-review-remediation` | регрессия полного review-remediation сценария |
-| REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | IN_PROGRESS | интегратор | Codex | `rel/rel-003-review-remediation` | проверенный выпуск исправлений review |
+| CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | READY | архитектор | — | — | конфиг решений, LLM, бюджета и стоимости |
+| LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | READY | LLM/backend | — | — | evidence-first OpenAI-compatible fallback в runtime |
+| OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | READY | MLOps/security | — | — | безопасные логи и границы temp/pickle |
+| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | READY | release/аналитик | — | — | demo predictions, metrics, report и hashes |
+| QA-002 | [#29](https://github.com/CRUDoshleps/GoodsAI/issues/29) | P0 | READY | QA | — | — | регрессия полного review-remediation сценария |
+| REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | BLOCKED | интегратор | — | — | проверенный выпуск исправлений review; ждёт подзадачи |
 | BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | READY | NLP/baseline | — | — | консервативный прототип извлечения модели товара |
-| DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | IN_PROGRESS | technical writer | Codex | `rel/rel-003-review-remediation` | наглядный input/output и один основной сценарий |
+| DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | DONE | technical writer | Codex (сессия Влада) | `docs/docs-001-reproducible-instructions` | проверенные инструкции и доказательства M1/M2 |
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
