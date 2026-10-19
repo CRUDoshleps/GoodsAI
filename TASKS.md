@@ -51,7 +51,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | DONE | QA/MLOps | Codex (tunaIT) | `main` | PR #76 merged a10534a; mirror OK; VM audit принят; исходный 1d53dad, human quality N/A; новый deploy не выполнялся |
-| BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | READY | NLP/baseline | — | — | Исправить grammar батареи мА*ч с exact evidence; synthetic failure подтверждён на VM |
+| BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | REVIEW | NLP/baseline | Codex (tunaIT) | `baseline/base-003-battery-units` | Units fix; 158+3 tests; synthetic TP5→12 / FP0; requires PR #79; docs/BATTERY_UNITS.md |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
 | EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | REVIEW | аналитик/разметчик | urasha | `eval/eval-001-blind-human-gold` | независимый human gold без просмотра ответов системы |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
@@ -75,7 +75,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | REVIEW | NLP/QA | urasha | `qa/ver-001-relation-verifier` | проверка отрицаний, совместимости и чужих сущностей |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | Codex (tunaIT) | `main` | PR #80 merged 468e35e; opt-in prototype принят; default/human quality gate остаётся открыт |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
-| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
+| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | REVIEW | QA | Codex (tunaIT) | `qa/qa-001-hard-cases` | 21 strict probes: 20 pass, known #15 fails visibly; 162+3 tests; depends on #79/#86 |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 | QA-003 | [#47](https://github.com/CRUDoshleps/GoodsAI/issues/47) | P1 | DONE | QA | Codex (e345ee) | `main` | PR #73 merged ba392d6; mirror OK; 11 свойств quick/nightly; schema/Decimal regressions; CI OK |
