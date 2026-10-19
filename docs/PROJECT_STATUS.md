@@ -13,12 +13,75 @@ type guards (включая evidence=null) и Decimal overflow при конве
 не независимая оценка качества. Запуск и ограничения:
 [FUZZ_TESTING.md](FUZZ_TESTING.md). Фактические результаты фиксируются в PR.
 
+## ENV-002: чистый запуск (ветка реализации)
+
+`scripts/release/clean_run.py` создаёт отдельное окружение CPython 3.12,
+устанавливает 23 hash-locked distributions, проверяет `pip check`, demo,
+внешний JSONL batch, exact evidence/manifest, API contract и synthetic bundle.
+Успешный повтор проверяет hashes и installed versions; failed attempts
+сохраняются, следующий запуск создаёт новую попытку. JSON/Markdown report
+содержит этапы и exit codes без текстов карточек. P/R/F1 без gold — N/A.
+Описание, аудит pins и поддерживаемые OS: [CLEAN_RUN.md](CLEAN_RUN.md).
+Hosted Linux/Windows CI добавлен; VM организаторов и listening socket этой
+реализацией не подтверждены. Финальную приёмку выполняет reviewer ENV-002.
+
+Последнее фактическое VM-подтверждение: [ENV-001, Linux-прогон и ошибки](reviews/2026-10-19_vm_quality_audit.md).
+На `1d53dad`: 119 основных + 3 reader tests, demo 6/6; 2171 SKU обработан,
+три повтора совпали с frozen `1754970` побайтно. Runtime/config hashes одинаковы.
+Согласие с диагностической AI-reference: P96,3/R70,3/F181,3 на 425 judged-парах
+из 480; 55 исключены. Это development, с исправлением сериализации reference
+после первого сравнения, не независимая human quality. Подтверждены synthetic
+пропуск `мА*ч` и ложный цвет из имени бренда; задачи #74 и #15 (P0).
+Все найденные значения всё ещё review, LLM в GoodsAI runtime не вызывается.
+
+## DOCS-002: текст и доказательства — DONE
+
+[DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR
+и [проверка презентации](PRESENTATION_REVIEW.md). Они разделяют DONE/PLAN/
+HYPOTHESIS, требуют источники claims и запрещают декоративные AI-визуалы.
+Текстовый аудит README, delivery report и Markdown-слайдов:
+[content audit](reviews/2026-10-19_docs-002_content_audit.md). Это редакционные
+правила, не автоматическая проверка истинности и не новая оценка качества.
+Исторические frozen artifacts и PDF не перезаписывались.
+
+## BASE-002: исходные spans — DONE
+
+[DONE] Принято в PR #75 (`61b9260`), зеркало Gitea проверено.
+Добавлен внутренний bounded SpanIndex с deterministic source/config identity,
+точными raw offsets и явными truncated/unavailable reasons. Неизвестные имена,
+числа, повторы и HTML/entities проверяются synthetic tests. Отдельный CLI
+измеряет exact candidate-set recall, время и traced Python memory на явно
+разрешённой span-разметке; raw text/SKU в report не выводятся. Synthetic fixture
+покрывает 6/6 reference spans. Runtime predictor и публичный schema не менялись;
+интеграция selector/LLM и реальное качество ещё не подтверждены.
+Контракт, ограничения и команды: [SPAN_INDEX.md](SPAN_INDEX.md).
+
+## Review и интеграция BASE-002 / DOCS-002
+
+По прямому поручению пользователя автор выполнил review и интеграцию.
+Критерии и решения ACCEPT записаны в [PR #75](https://github.com/CRUDoshleps/GoodsAI/pull/75)
+и [PR #77](https://github.com/CRUDoshleps/GoodsAI/pull/77). Это авторский review,
+не независимая разметка или подтверждение качества каталога.
+
+После review исправлены пересечения HTML comments/declarations в raw spans,
+проверка неизменности measurement input/reference и двусмысленность PLAN/REVIEW
+в style guide. Алгоритм SpanIndex — `span-index-2`. На совместном candidate
+`967108a` прошли 135 основных и 3 reader tests, pip check, demo 6/6, synthetic
+span fixture 6/6, bundle smoke/verify и local Markdown targets. Frozen delivery
+bytes не изменены. CI invariants прошёл для исправленного BASE-002 и совместного
+candidate; mirror workflow успешен для обоих merge SHA.
+
+Issues #64 и #52 закрыты после merge. VM, независимый gold/test, model calls,
+новая визуальная PDF-проверка и репетиция не выполнялись.
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
-| опубликованный runtime baseline | Gitea `main`, без ночных docs-only изменений | `48b45dc` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, DOCS-001 merge и mirror 19.10 | `55378f1` |
+| действующий сервис VM в момент ENV-001 | checkout `~/project`, сервис не перезапускался | `48b45dc` |
+| последняя проверенная на Linux интеграционная база | изолированный clean checkout GitHub `main`, ENV-001 | `1d53dad` |
+
+| последняя проверенная интеграционная база | GitHub / Gitea `main`, BASE-002 + DOCS-002 и mirror 19.10 | `1e922aa` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
@@ -220,6 +283,23 @@ release gate. Blind human review готовить параллельно, test �
 По скриншотам первого технического прогона оценённые критерии дали 17,17/20.
 Неоценённый блок качества результата оставался пустым. Product checkpoint —
 10/10, но способ его включения в общий балл не описан.
+
+### Backlog по новой детализации оценки
+
+Платформа отдельно показывает продуктовый чекпоинт `10/10`, оценённые
+технические критерии `17,81/20`, пустой блок качества `—/5` и пока
+неоценённую финальную защиту `—/15`. Общий индикатор на странице равен
+`17,81/35`; правило объединения этапов не опубликовано, поэтому значения здесь
+не складываются самостоятельно.
+
+В `GOV-003` заведены ровно 20 новых задач
+[#35–#54](https://github.com/CRUDoshleps/GoodsAI/issues?q=is%3Aissue+is%3Aopen+created%3A2026-10-19),
+которые переводят текстовый feedback в проверяемые результаты. Наибольший
+приоритет имеют независимый пакет качества, калибровка auto-accept, чистый
+воспроизводимый запуск и release gate точного SHA. Архитектурные, операторские
+и презентационные задачи идут после их зависимостей. На момент создания плана реализация не была начата; актуальные статусы
+смотрите в TASKS.md. Критический путь находится в
+[плане улучшения оценки](reviews/2026-10-19_score_improvement_backlog.md).
 
 Организаторы подтвердили сильные стороны: работающий end-to-end baseline,
 модульность, тесты, JSONL output и документация. Основной долг:

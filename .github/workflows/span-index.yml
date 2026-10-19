@@ -1,0 +1,23 @@
+name: Span index
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  invariants:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[serve,test]'
+      - run: python -m pip check
+      - run: python -m unittest discover -s tests -v
+      - run: python -m unittest discover -s scripts/research -p 'test_*.py' -v
+      - name: Synthetic span coverage and resources
+        run: python -m scripts.research.check_span_index --input tests/fixtures/span_index/products.jsonl --reference tests/fixtures/span_index/reference.json --output outputs/span-index-ci.json
