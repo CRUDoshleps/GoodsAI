@@ -58,6 +58,16 @@ py -3.12 -m venv .venv
 
 ## Пакетный прогноз
 
+Для проверки из чистого checkout одной командой, включая изолированное
+окружение, hash-locked зависимости, batch, API contract и artifact verification:
+
+```bash
+python3.12 scripts/release/clean_run.py --output-dir outputs/clean-first
+```
+
+Внешний JSONL передаётся через `--input`. Повтор команды проверяет сохранённые
+артефакты; ограничения OS/Python, отчёты и recovery — в [CLEAN_RUN](docs/CLEAN_RUN.md).
+
 Минимальная строка входного JSONL:
 
 ```json
@@ -179,6 +189,16 @@ API временный до публикации точной схемы орг�
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v
 ```
+
+Генеративные проверки Unicode/HTML, schema, единиц и evidence запускаются
+отдельно после установки `.[fuzz]`:
+
+```bash
+.venv/bin/python -m unittest discover -s tests/fuzz -v
+```
+
+Profiles quick/nightly, seed, replay и найденные regression cases — в
+[FUZZ_TESTING](docs/FUZZ_TESTING.md).
 
 На опубликованном Gitea `main` команда ранее получила 82 проверки на
 Windows/Python 3.12.6. После каждого нового изменения проверки выполняются

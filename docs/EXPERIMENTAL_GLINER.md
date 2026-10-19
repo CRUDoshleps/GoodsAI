@@ -53,6 +53,9 @@ encoder/tokenizer: [mDeBERTa-v3-base](https://huggingface.co/microsoft/mdeberta-
 MIT, revision `a0484667b22365f84929a935b5e50a51f71f159d`.
 SHA256 weights: `2100142f31627531497850659dcb3821c99d5e71c08a8e01a98e4b11ef32a199`.
 Сохраняется manifest файлов; loader проверяет hashes и локальный encoder.
+Посторонние inference assets (включая pickle weights и альтернативный tokenizer)
+и symlinks отклоняются до загрузки. Служебная `.cache` загрузчика не является
+inference asset. Экспериментальный JSONL CLI читает и пишет явный UTF-8.
 
 Проверенное окружение: torch 2.9.1+cpu, gliner 0.2.29, transformers 4.57.6,
 protobuf 6.33.5, tokenizers 0.22.2, huggingface-hub 0.36.2. При первом preflight

@@ -1,11 +1,13 @@
 """Hybrid boundaries; no download or optional ML imports in these tests."""
 from copy import deepcopy
+import json
 import tempfile
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 from goodsai.contracts import Product, load_config, validate_prediction
-from goodsai.experimental_gliner import HybridExtractor, brand_candidates, validate_artifact
+from goodsai.experimental_gliner import CHECKPOINT, ENCODER, HybridExtractor, brand_candidates, file_hash, validate_artifact
 from goodsai.span_index import visible_view
 from goodsai.verify import Extractor
 
@@ -126,6 +128,25 @@ class HybridTests(unittest.TestCase):
             with self.assertRaises(OSError): validate_artifact(Path(d)/'missing')
             (Path(d)/'artifact.json').write_text('{}')
             with self.assertRaises(ValueError): validate_artifact(d)
+
+    def test_unlisted_tokenizer_or_pickle_assets_rejected_before_loading(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            (root/'gliner').mkdir(); (root/'encoder').mkdir()
+            contents = {'gliner/gliner_config.json': json.dumps({'model_name':str(root/'encoder')}),
+                        'gliner/model.safetensors':'synthetic weights, never loaded',
+                        'encoder/config.json':'{}', 'encoder/tokenizer_config.json':'{}', 'encoder/spm.model':'synthetic tokenizer'}
+            for name, text in contents.items(): (root/name).write_text(text, encoding='utf-8')
+            hashes = {name:file_hash(root/name) for name in contents}
+            (root/'artifact.json').write_text(json.dumps({'checkpoint_revision':CHECKPOINT,
+                'encoder_revision':ENCODER, 'sha256':hashes}), encoding='utf-8')
+            with patch('goodsai.experimental_gliner.WEIGHTS_SHA256', hashes['gliner/model.safetensors']):
+                self.assertEqual(validate_artifact(root),root)
+                for name in ['gliner/pytorch_model.bin','encoder/tokenizer.json','encoder/custom.py']:
+                    extra = root/name; extra.write_text('unlisted', encoding='utf-8')
+                    with self.subTest(name=name), self.assertRaisesRegex(ValueError,'Unlisted'):
+                        validate_artifact(root)
+                    extra.unlink()
 
 
 if __name__ == '__main__': unittest.main()

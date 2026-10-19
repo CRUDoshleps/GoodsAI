@@ -41,6 +41,14 @@ def validate_artifact(root):
     manifest = json.loads((root / 'artifact.json').read_text())
     expected = {'gliner/gliner_config.json', 'gliner/model.safetensors',
                 'encoder/config.json', 'encoder/tokenizer_config.json', 'encoder/spm.model'}
+    allowed = expected | {'artifact.json', 'gliner/original_gliner_config.json',
+                          'gliner/README.md', 'encoder/README.md'}
+    for path in root.rglob('*'):
+        relative = path.relative_to(root)
+        if '.cache' in relative.parts:
+            continue  # Hugging Face download metadata is not an inference asset.
+        if path.is_symlink() or path.is_file() and relative.as_posix() not in allowed:
+            raise ValueError('Unlisted local model artifact file')
     if (manifest.get('checkpoint_revision') != CHECKPOINT or manifest.get('encoder_revision') != ENCODER
             or set(manifest.get('sha256', {})) != expected):
         raise ValueError('Unsupported local model artifact')
@@ -173,7 +181,7 @@ def main():
     if target.exists():
         parser.error('Output already exists')
     extractor = HybridExtractor(load_config(), LocalGliner(args.artifact))
-    with Path(args.input).open() as source, partial.open('x') as output:
+    with Path(args.input).open(encoding='utf-8') as source, partial.open('x', encoding='utf-8', newline='\n') as output:
         for line in source:
             if line.strip():
                 product = Product.from_dict(json.loads(line))
