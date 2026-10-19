@@ -46,6 +46,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
+| GOV-005 | [#81](https://github.com/CRUDoshleps/GoodsAI/issues/81) | P0 | REVIEW | product/QA/интегратор | Codex (tunaIT) | `gov/gov-005-final-acceptance` | 19.10.2026: 3 новых Issue, 13 уточнений, приёмка пяти направлений; claim b5ff886; docs/FINAL_ACCEPTANCE_PLAN.md |
 | GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | DONE | product/архитектор | Codex (tunaIT) | `main` | PR #63 merged f214985; mirror OK; 10 задач; BASE-002 остался DONE; дубли удалены |
 | GOV-003 | [#34](https://github.com/CRUDoshleps/GoodsAI/issues/34) | P0 | DONE | product/аналитик/архитектор | Codex | `main` | PR #55 merged 0e5ac39; mirror OK; 20 задач; актуальные владельцы и статусы сохранены |
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
@@ -76,7 +77,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | Codex (tunaIT) | `main` | PR #80 merged 468e35e; opt-in prototype принят; default/human quality gate остаётся открыт |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | REVIEW | QA | Codex (tunaIT) | `qa/qa-001-hard-cases` | 21 strict probes: 20 pass, known #15 fails visibly; 162+3 tests; depends on #79/#86 |
-| PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
+| PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P1 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 | QA-003 | [#47](https://github.com/CRUDoshleps/GoodsAI/issues/47) | P1 | DONE | QA | Codex (e345ee) | `main` | PR #73 merged ba392d6; mirror OK; 11 свойств quick/nightly; schema/Decimal regressions; CI OK |
 | ENV-002 | [#41](https://github.com/CRUDoshleps/GoodsAI/issues/41) | P0 | DONE | MLOps/QA | Codex (e345ee) | `main` | PR #72 merged 50101a7; mirror OK; locked clean-run, Linux/Windows CI и repeat OK; 11 этапов |
@@ -156,6 +157,22 @@ model calls или использование test. Начало реализа�
 Уточнены fingerprint и предварительный аудит в [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59),
 а также независимая calibration и риск среди принятых значений в
 [#39](https://github.com/CRUDoshleps/GoodsAI/issues/39). Владельцы и статусы сохранены.
+
+## Финальная приёмка — GOV-005
+
+Порядок исполнения и критерии: [FINAL_ACCEPTANCE_PLAN](docs/FINAL_ACCEPTANCE_PLAN.md).
+Implementation существующих задач и их claims не перезапускаются. Приоритет
+PRODUCT-001 #19 повышен до P1 для рабочего одиночного UI. ENV-002 #41 уже
+merged; независимый прогон конкретного candidate SHA выделен отдельно.
+
+| ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат / блокер |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| ENV-003 | [#82](https://github.com/CRUDoshleps/GoodsAI/issues/82) | P0 | BLOCKED | независимый QA/MLOps | Codex (tunaIT), технический прогон | `gov/gov-005-final-acceptance` | SHA 3ad28e4: VM 11/11, 160+3 tests, HTTP 22/22, repeat equal; НЕ финальная приёмка: нет независимого исполнителя/официального API, дефекты #74/#15 |
+| QA-005 | [#83](https://github.com/CRUDoshleps/GoodsAI/issues/83) | P1 | BLOCKED | независимый QA/product | Codex (tunaIT), readiness audit | `gov/gov-005-final-acceptance` | Producer 3ad28e4: root JSON, routes / /health /predict; UI/save/reload/export отсутствуют; rehearsal NOT RUN; ждёт #19/#17/#37 и независимого участника |
+
+Этап A EVAL-005 #40: правила против узкого GLiNER из PR #80 на независимых
+данных #6/#38; не ждёт отсутствующую LLM или полный router. Широкая матрица
+остаётся этапом B. 85.07% development agreement не является independent gate.
 
 ## Как взять задачу
 

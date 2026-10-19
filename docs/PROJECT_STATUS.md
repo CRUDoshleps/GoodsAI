@@ -3,6 +3,17 @@
 Актуально на 19 октября 2026 года.
 
 
+## ENV-003 / QA-005: техническая проверка в ветке
+
+Producer `3ad28e4` на VM: существующий clean-run 11/11, 160 + 3 tests,
+22/22 реальных loopback HTTP checks; внешний synthetic batch и его повтор
+совпали побайтно. Добавлен самостоятельный listening probe поверх действующего
+API, без изменения default pipeline. Режим rules, model calls 0, quality N/A.
+Финальная приёмка не предоставлена: исполнитель участвовал в разработке,
+API provisional, regression cases #74/#15 всё ещё не проходят. UI, сохранение
+решений и export отсутствуют; QA-005 rehearsal NOT RUN. Полные границы и
+передача независимому участнику: [протокол](reviews/2026-10-19_final_acceptance.md).
+
 ## QA-001: synthetic adversarial suite — REVIEW
 
 Добавлены 21 versioned expected-output case и команда goodsai.adversarial через
