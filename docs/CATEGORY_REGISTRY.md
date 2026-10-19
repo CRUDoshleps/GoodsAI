@@ -149,7 +149,7 @@ auto_accept off. 95% template agreement не равно precision или calibra
 
 ## Следующий шаг: явное сопоставление разметки и validation report
 
-[DONE — feature candidate, продолжение CONF-003 / PR #92] Команда
+[DONE — feature candidate, продолжение CONF-003; зависимость — CONF-001 / PR #92] Команда
 `goodsai.registry_evaluation` принимает готовый frozen config, text-only
 validation input, reviewed manual reference, тот же split manifest и явный
 schema mapper. Она переиспользует обычные predict/evaluate, не обучает rules,

@@ -2,7 +2,7 @@
 
 Актуально на 19 октября 2026 года.
 
-## CONF-003: передача на validation, продолжение PR #92
+## CONF-003: передача на validation, зависимость от PR #92
 
 [DONE — feature candidate] Добавлен явный schema mapper и private validation
 runner поверх существующих predict/evaluate. Проверяются config/split hashes,
@@ -17,8 +17,11 @@ Inference-словарь не расширяется. Проверено: 247 о
 OK (macOS/Python 3.14.8); 9 новых evaluation tests OK на CPython 3.12.14.
 Реальные данные, gold/test, LLM, VM и зависимости не менялись. Код и команды: [CATEGORY_REGISTRY](CATEGORY_REGISTRY.md).
 [PLAN] Реальные train/validation, schema mapping от команды, независимые
-метрики и приёмка по-прежнему отсутствуют. PR #92 передан пользователем;
-merge и назначение reviewer этим изменением не выполняются.
+метрики и приёмка по-прежнему отсутствуют. GitHub metadata подтверждает: PR #92 содержит только CONF-001, base main,
+head arch/conf-001-runtime-config. ARCH-001 и CONF-003 — отдельные ветки
+поверх этой зависимости; в diff PR #92 они не входят. Новые PR через
+подключение не созданы: GitHub отклонил создание с 403 FORBIDDEN.
+Merge и назначение reviewer этим изменением не выполняются.
 
 ## Категории: новые feature candidates Тимура
 

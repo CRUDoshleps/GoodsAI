@@ -703,7 +703,7 @@ split/traffic, schema mapper, согласованием категорий и r
 а не REVIEW/DONE. Подробности: docs/CATEGORY_REGISTRY.md.
 ARCH-001 также остаётся feature candidate с открытыми условиями принятия.
 
-### CONF-003: продолжение оценки / PR #92
+### CONF-003: продолжение оценки; зависимость PR #92
 
 По поручению Тимура продолжается та же ветка arch/conf-003-train-registry.
 Добавлены явный hash-bound schema mapper и private validation report, при этом
@@ -711,6 +711,7 @@ ARCH-001 также остаётся feature candidate с открытыми у�
 правильного неизвестного train-словарю значения. Source-independent inference
 не получает reference/params. Это feature candidate, не реальные метрики;
 полная приёмка и independent quality gates не закрыты. Команды и ограничения:
-docs/CATEGORY_REGISTRY.md. Ссылку PR #92 предоставил пользователь; review/
-merge и перевод задач в DONE не выполнялись. Проверки: 247 основных + 3 reader
+docs/CATEGORY_REGISTRY.md. По GitHub metadata PR #92 содержит CONF-001, а не CONF-003. Отдельные
+ARCH-001/CONF-003 PR через подключение не созданы (GitHub 403 FORBIDDEN).
+Review/merge и перевод задач в DONE не выполнялись. Проверки: 247 основных + 3 reader
 tests OK, macOS/Python 3.14.8; 9 evaluation tests OK на Python 3.12.14.
