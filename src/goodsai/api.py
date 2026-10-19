@@ -2,6 +2,8 @@
 import argparse
 import json
 import logging
+import os
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -23,6 +25,18 @@ def create_app() -> FastAPI:
     # Fail before listening if the packaged configuration cannot be loaded.
     config = load_config()
     extractor = Extractor(config)
+    llm = None
+    run_id = "http-rules-v0"
+    if os.environ.get("GOODSAI_LLM_ENABLED") == "1":
+        # Opt-in only. Endpoint, key and model come from the environment and are never echoed.
+        from goodsai.llm import LLMExtractor, LLMSettings, provider_from_env
+        settings = LLMSettings(model=os.environ.get("GOODSAI_LLM_MODEL", ""),
+                               max_calls=int(os.environ.get("GOODSAI_LLM_MAX_CALLS", "100")),
+                               daily_max_calls=int(os.environ.get("GOODSAI_LLM_DAILY_MAX_CALLS", "300")),
+                               budget_ledger=Path(os.environ.get("GOODSAI_LLM_BUDGET_FILE",
+                                                                 "outputs/llm-budget/ledger.json")))
+        llm = LLMExtractor(config, provider_from_env(settings), settings)
+        extractor, run_id = llm, "http-rules-llm-v0"
     app = FastAPI(title="GoodsAI provisional API", version="0.1.0",
                   description="Temporary weekend API. Organizer endpoints are pending.")
 
@@ -37,8 +51,13 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     def health():
-        return {"status": "ok", "service": "goodsai", "schema_version": "0.1",
+        body = {"status": "ok", "service": "goodsai", "schema_version": "0.1",
                 "api_status": "provisional", "categories": sorted(config["categories"])}
+        if llm is not None:
+            report = llm.report()
+            body["llm"] = {key: report[key] for key in ("enabled", "model", "prompt_version", "calls",
+                                                         "max_calls", "cache_hits", "disabled_reason")}
+        return body
 
     @app.post("/predict", openapi_extra={"requestBody": {
         "required": True, "content": {"application/json": {"schema": {
@@ -74,7 +93,7 @@ def create_app() -> FastAPI:
             # Contract errors are fixed strings and never include submitted values.
             return error(422, "invalid_product", str(exc))
         try:
-            return await run_in_threadpool(extractor.predict, product, run_id="http-rules-v0")
+            return await run_in_threadpool(extractor.predict, product, run_id=run_id)
         except Exception:
             # No request text, SKU or exception details in responses or application logs.
             LOGGER.error("GoodsAI extraction failed")
