@@ -30,6 +30,7 @@ import threading
 import time
 from typing import Callable, Protocol
 import urllib.error
+import urllib.parse
 import urllib.request
 
 from goodsai.contracts import Product, validate_prediction
@@ -39,6 +40,9 @@ from goodsai.text import visible_view
 from goodsai.verify import Extractor, validate_candidate
 
 PROMPT_VERSION = "llm-fill-v1"
+DATA_POLICY = "llm-data-policy-2026-10-19"
+BUDGET_TIMEZONE_OFFSET_HOURS = 3  # Daily budget resets at Moscow midnight, like the gateway quota day.
+FORBIDDEN_SOURCE_FLAGS = {"test_reserved", "exposed_test", "closed_test"}
 CACHE_VERSION = 1
 LLM_SCORE = 0.6  # Heuristic and below rule scores: a grounded proposal, not a calibrated probability.
 MAX_DESCRIPTION_CHARS = 6000
@@ -110,7 +114,7 @@ class Provider(Protocol):
 @dataclass(frozen=True)
 class LLMSettings:
     model: str
-    max_calls: int = 200
+    max_calls: int = 100
     timeout_seconds: float = 60.0
     max_attempts: int = 3
     max_tokens: int = 2048
@@ -120,12 +124,16 @@ class LLMSettings:
     price_output_per_1k: float | None = None
     json_mode: bool = False
     cache_dir: Path | None = None
+    daily_max_calls: int = 300
+    budget_ledger: Path | None = None
 
     def __post_init__(self):
         if not isinstance(self.model, str) or not self.model.strip():
             raise ValueError("LLM model name is required")
         if type(self.max_calls) is not int or self.max_calls < 0:
             raise ValueError("LLM call budget must be a non-negative integer")
+        if type(self.daily_max_calls) is not int or self.daily_max_calls < 0:
+            raise ValueError("LLM daily budget must be a non-negative integer")
         if type(self.max_attempts) is not int or not 1 <= self.max_attempts <= 5:
             raise ValueError("LLM attempts must be between 1 and 5")
         if type(self.concurrency) is not int or not 1 <= self.concurrency <= 8:
@@ -140,7 +148,8 @@ class LLMSettings:
         """Settings that change answers or accounting; no secrets, no URLs."""
         return {"prompt_version": PROMPT_VERSION, "model": self.model, "temperature": 0,
                 "max_tokens": self.max_tokens, "json_mode": self.json_mode,
-                "max_calls": self.max_calls, "max_attempts": self.max_attempts}
+                "max_calls": self.max_calls, "daily_max_calls": self.daily_max_calls,
+                "max_attempts": self.max_attempts, "data_policy": DATA_POLICY}
 
 
 class OpenAICompatibleProvider:
@@ -195,6 +204,8 @@ class OpenAICompatibleProvider:
     def complete(self, messages: list[dict], max_tokens: int) -> ProviderResponse:
         if not self.base_url or not self.api_key:
             raise ProviderError("llm_missing_key", fatal=True)
+        if not endpoint_allowed(self.base_url):
+            raise ProviderError("llm_endpoint_not_allowed", fatal=True)
         body = {"model": self.model, "messages": messages, "temperature": 0, "max_tokens": max_tokens}
         if self.settings.json_mode:
             body["response_format"] = {"type": "json_object"}
@@ -224,6 +235,64 @@ class OpenAICompatibleProvider:
                 raise ProviderError("llm_malformed_response", attempts=attempt)
             return ProviderResponse(content, prompt_tokens, completion_tokens, data.get("model"), attempt)
         raise last if last is not None else ProviderError("llm_network_error")
+
+
+def endpoint_allowed(base_url: str) -> bool:
+    """Card text leaves the machine only over TLS; plain HTTP is allowed for a local gateway."""
+    parsed = urllib.parse.urlsplit(base_url)
+    if parsed.username or parsed.password or parsed.query or parsed.fragment or not parsed.hostname:
+        return False
+    if parsed.scheme == "https":
+        return True
+    return parsed.scheme == "http" and parsed.hostname in {"localhost", "127.0.0.1", "::1"}
+
+
+class DailyLedger:
+    """Calls per local day shared by every run that points at the same file.
+
+    The read-increment-write happens under the same OS lock the prediction writer
+    uses, so parallel runs cannot overspend. Any ledger error fails closed.
+    """
+
+    def __init__(self, path: Path, limit: int, clock: Callable[[], float] = time.time):
+        self.path = Path(path)
+        self.limit = limit
+        self.clock = clock
+
+    def today(self) -> str:
+        return time.strftime("%Y-%m-%d", time.gmtime(self.clock() + BUDGET_TIMEZONE_OFFSET_HOURS * 3600))
+
+    def used(self) -> int:
+        try:
+            data = json.loads(self.path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            return 0
+        count = data.get(self.today(), 0) if isinstance(data, dict) else None
+        if type(count) is not int or count < 0:
+            raise ValueError("Corrupted LLM budget ledger")
+        return count
+
+    def reserve(self) -> str | None:
+        from goodsai.storage import output_lock
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with output_lock(self.path):
+                data = {}
+                if self.path.exists():
+                    data = json.loads(self.path.read_text(encoding="utf-8"))
+                    if not isinstance(data, dict):
+                        raise ValueError("Corrupted LLM budget ledger")
+                used = self.used()
+                if used >= self.limit:
+                    return "llm_daily_budget_exhausted"
+                data = {day: n for day, n in data.items() if type(n) is int}
+                data[self.today()] = used + 1
+                temporary = self.path.with_name("." + self.path.name + ".tmp")
+                temporary.write_text(json.dumps(data, sort_keys=True), encoding="utf-8")
+                os.replace(temporary, self.path)
+        except (OSError, ValueError):
+            return "llm_budget_ledger_unavailable"
+        return None
 
 
 def provider_from_env(settings: LLMSettings) -> OpenAICompatibleProvider:
@@ -275,6 +344,7 @@ class LLMStats:
     cards_routed: int = 0
     cards_without_gap: int = 0
     cards_skipped_no_signal: int = 0
+    cards_blocked_by_policy: int = 0
     attributes_skipped_no_signal: int = 0
     calls: int = 0
     retries: int = 0
@@ -287,6 +357,7 @@ class LLMStats:
     seconds: float = 0.0
     rejected: Counter = field(default_factory=Counter)
     failures: Counter = field(default_factory=Counter)
+    provider_models: Counter = field(default_factory=Counter)
     accepted_by_attribute: Counter = field(default_factory=Counter)
 
     def report(self, settings: LLMSettings) -> dict:
@@ -296,6 +367,7 @@ class LLMStats:
         return {"enabled": True, **settings.identity(), "cards_seen": self.cards_seen,
                 "cards_routed": self.cards_routed, "cards_without_gap": self.cards_without_gap,
                 "cards_skipped_no_signal": self.cards_skipped_no_signal,
+                "cards_blocked_by_policy": self.cards_blocked_by_policy,
                 "attributes_skipped_no_signal": self.attributes_skipped_no_signal,
                 "calls": self.calls, "retries": self.retries, "cache_hits": self.cache_hits,
                 "prompt_tokens": self.prompt_tokens, "completion_tokens": self.completion_tokens,
@@ -303,6 +375,7 @@ class LLMStats:
                 "attributes_requested": self.attributes_requested, "proposals": self.proposals,
                 "accepted": self.accepted, "accepted_by_attribute": dict(self.accepted_by_attribute),
                 "rejected": dict(self.rejected), "failures": dict(self.failures),
+                "provider_models": dict(self.provider_models),
                 "provider_seconds": round(self.seconds, 3)}
 
 
@@ -517,6 +590,7 @@ class LLMExtractor:
         self.provider = provider
         self.settings = settings
         self.cache = ExactCache(settings.cache_dir) if settings.cache_dir else None
+        self.ledger = DailyLedger(settings.budget_ledger, settings.daily_max_calls) if settings.budget_ledger else None
         self.stats = LLMStats()
         self.disabled_reason: str | None = None
         self.consecutive_failures = 0
@@ -527,6 +601,7 @@ class LLMExtractor:
         with self.lock:
             report = self.stats.report(self.settings)
             report["disabled_reason"] = self.disabled_reason
+            report["daily_budget"] = "ledger" if self.ledger is not None else "not_enforced"
             return report
 
     def _reserve_call(self) -> str | None:
@@ -535,6 +610,12 @@ class LLMExtractor:
                 return self.disabled_reason
             if self.stats.calls >= self.settings.max_calls:
                 return "llm_budget_exhausted"
+            if self.ledger is not None:
+                blocked = self.ledger.reserve()
+                if blocked:
+                    if blocked == "llm_budget_ledger_unavailable":
+                        self.disabled_reason = blocked
+                    return blocked
             self.stats.calls += 1
             return None
 
@@ -574,6 +655,8 @@ class LLMExtractor:
                 self.stats.seconds += time.perf_counter() - started
         with self.lock:
             self.stats.retries += max(0, response.attempts - 1)
+            if isinstance(response.model, str) and len(response.model) <= 200:
+                self.stats.provider_models[response.model] += 1
             self.stats.prompt_tokens += response.prompt_tokens
             self.stats.completion_tokens += response.completion_tokens
         try:
@@ -600,6 +683,14 @@ class LLMExtractor:
             return row
         by_attr = {a["attribute"]: a for a in row["attributes"]}
         open_gaps = [a["attribute"] for a in row["attributes"] if a["reason_codes"] == ["not_found_by_rules"]]
+        if open_gaps and FORBIDDEN_SOURCE_FLAGS & set(product.source_flags):
+            # Closed test cards never leave the machine (data policy).
+            for attr in open_gaps:
+                by_attr[attr]["reason_codes"].append("llm_blocked_by_data_policy")
+            with self.lock:
+                self.stats.cards_blocked_by_policy += 1
+            validate_prediction(row, self.config, product)
+            return row
         if not open_gaps:
             with self.lock:
                 self.stats.cards_without_gap += 1
@@ -662,3 +753,28 @@ class LLMExtractor:
                 target["reason_codes"].append(rejected[attr][0] if rejected[attr] else "llm_not_found")
         validate_prediction(row, self.config, product)
         return row
+
+
+TRACE_PRODUCT = {"schema_version": "0.1", "sku_id": "synthetic-llm-trace-1", "category_id": "761",
+                 "title": "Смартфон Zorion QX-900 8/256GB черный",
+                 "description": "Ёмкость 5000 мА*ч. Экран 6,7 дюйма.",
+                 "seller_attributes": [], "source_flags": ["synthetic"]}
+
+
+def synthetic_trace(extractor: "LLMExtractor") -> dict:
+    """One synthetic card through the live route: candidate, verifier result and usage.
+
+    The card is invented for this check, so it may be stored in full; no catalog text is sent.
+    """
+    product = Product.from_dict(TRACE_PRODUCT)
+    rules = extractor.rules.predict(product, "llm-trace")
+    row = extractor.predict(product, "llm-trace")
+    changes = []
+    for before, after in zip(rules["attributes"], row["attributes"]):
+        if before != after:
+            changes.append({"attribute": after["attribute"], "rules": before["reason_codes"],
+                            "decision": after["decision"], "method": after["method"], "value": after["value"],
+                            "evidence": after["evidence"], "reason_codes": after["reason_codes"]})
+    return {"trace_version": 1, "data_policy": DATA_POLICY, "input": TRACE_PRODUCT,
+            "verified_prediction": row, "llm_changes": changes, "llm": extractor.report(),
+            "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}

@@ -12,8 +12,9 @@ import urllib.error
 
 from goodsai import cli
 from goodsai.contracts import Product, load_config, validate_prediction
-from goodsai.llm import (LLMExtractor, LLMSettings, OpenAICompatibleProvider, ProviderError, ProviderResponse,
-                         cache_key, ground, has_signal, parse_proposals)
+from goodsai.llm import (DailyLedger, LLMExtractor, LLMSettings, OpenAICompatibleProvider, ProviderError,
+                         ProviderResponse, cache_key, endpoint_allowed, ground, has_signal, parse_proposals,
+                         synthetic_trace)
 from goodsai.verify import Extractor
 
 
@@ -372,6 +373,7 @@ class CliTests(unittest.TestCase):
         with patch("goodsai.llm.provider_from_env", return_value=provider):
             code, _, _ = self.run_cli("predict", "--input", str(self.input), "--output", str(self.root / "llm.jsonl"),
                                       "--llm", "--llm-model", "fake-model",
+                                      "--llm-budget-file", str(self.root / "ledger.json"),
                                       env={"GOODSAI_LLM_API_KEY": "secret-key", "GOODSAI_LLM_BASE_URL": "https://gw.invalid"})
         self.assertEqual(code, 0)
         manifest_text = (self.root / "llm.manifest.json").read_text(encoding="utf-8")
@@ -385,6 +387,21 @@ class CliTests(unittest.TestCase):
         self.assertEqual((rules["llm_calls"], "llm" in rules), (0, False))
         self.assertNotEqual(rules["run_id"], manifest["run_id"])
 
+    def test_llm_trace_command_writes_trace_and_fails_loudly(self):
+        provider = FakeProvider(answer(("battery_mah", "5000", "Ёмкость 5000 мА*ч")))
+        with patch("goodsai.llm.provider_from_env", return_value=provider):
+            code, _, _ = self.run_cli("llm-trace", "--output", str(self.root / "trace.json"), "--llm-model", "m",
+                                      "--llm-budget-file", str(self.root / "ledger.json"))
+        self.assertEqual(code, 0)
+        trace = json.loads((self.root / "trace.json").read_text(encoding="utf-8"))
+        self.assertEqual(trace["llm"]["calls"], 1)
+        failing = FakeProvider(ProviderError("llm_rate_limited"))
+        with patch("goodsai.llm.provider_from_env", return_value=failing):
+            code, _, err = self.run_cli("llm-trace", "--output", str(self.root / "trace2.json"), "--llm-model", "m",
+                                        "--llm-budget-file", str(self.root / "ledger.json"))
+        self.assertEqual(code, 3)
+        self.assertIn("llm_rate_limited", err)
+
     def test_llm_requires_model_name(self):
         with patch.dict(os.environ, {}, clear=False):
             os.environ.pop("GOODSAI_LLM_MODEL", None)
@@ -396,7 +413,8 @@ class CliTests(unittest.TestCase):
     def test_missing_key_warns_and_rules_still_written(self):
         env = {"GOODSAI_LLM_API_KEY": "", "GOODSAI_LLM_BASE_URL": ""}
         code, _, err = self.run_cli("predict", "--input", str(self.input), "--output", str(self.root / "k.jsonl"),
-                                    "--llm", "--llm-model", "m", env=env)
+                                    "--llm", "--llm-model", "m", "--llm-budget-file", str(self.root / "l.json"),
+                                    env=env)
         self.assertEqual(code, 0)
         self.assertIn("llm_missing_key", err)
         row = json.loads((self.root / "k.jsonl").read_text(encoding="utf-8"))
@@ -411,8 +429,11 @@ class ApiTests(unittest.TestCase):
         except ImportError:
             self.skipTest("serve extras are not installed")
         provider = FakeProvider(answer(("brand", "Zorion", "Смартфон Zorion")))
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
         env = {"GOODSAI_LLM_ENABLED": "1", "GOODSAI_LLM_MODEL": "fake-model",
-               "GOODSAI_LLM_API_KEY": "secret-key", "GOODSAI_LLM_BASE_URL": "https://gw.invalid"}
+               "GOODSAI_LLM_API_KEY": "secret-key", "GOODSAI_LLM_BASE_URL": "https://gw.invalid",
+               "GOODSAI_LLM_BUDGET_FILE": str(Path(tmp.name) / "ledger.json")}
         with patch.dict(os.environ, env), patch("goodsai.llm.provider_from_env", return_value=provider):
             client = TestClient(create_app())
             body = PHONE.as_dict()
@@ -423,6 +444,90 @@ class ApiTests(unittest.TestCase):
         self.assertNotIn("secret-key", health)
         self.assertNotIn("gw.invalid", health)
         self.assertEqual(json.loads(health)["llm"]["calls"], 1)
+
+
+class PolicyTests(unittest.TestCase):
+    """Data policy and budget decisions of 19.10.2026 are enforced in code, not only documented."""
+    def setUp(self):
+        self.config = load_config()
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_request_carries_only_visible_text_and_schema(self):
+        product = Product("sku-secret-42", "761", "Смартфон <b>Zorion</b> QX-900", "Ёмкость 5000 мА*ч.",
+                          ("synthetic",))
+        provider = FakeProvider(answer())
+        LLMExtractor(self.config, provider, LLMSettings(model="m")).predict(product)
+        sent = json.loads(provider.messages[0][1]["content"])
+        self.assertEqual(set(sent), {"category_id", "title", "description", "requested_attributes"})
+        self.assertNotIn("sku-secret-42", json.dumps(provider.messages, ensure_ascii=False))
+        self.assertEqual(sent["title"], "Смартфон Zorion QX-900")
+
+    def test_closed_test_cards_never_leave_the_machine(self):
+        product = Product("t1", "761", PHONE.title, PHONE.description, ("test_reserved",))
+        provider = FakeProvider(AssertionError("must not be called"))
+        extractor = LLMExtractor(self.config, provider, LLMSettings(model="m"))
+        row = extractor.predict(product)
+        validate_prediction(row, self.config, product)
+        self.assertEqual(provider.calls, 0)
+        self.assertIn("llm_blocked_by_data_policy", attrs(row)["brand"]["reason_codes"])
+        self.assertEqual(extractor.report()["cards_blocked_by_policy"], 1)
+
+    def test_endpoint_must_use_tls_unless_local(self):
+        for url, ok in [("https://gw.example/v1", True), ("http://localhost:8080/v1", True),
+                        ("http://127.0.0.1/v1", True), ("http://gw.example/v1", False),
+                        ("https://user:pw@gw.example/v1", False), ("https://gw.example/v1?key=x", False),
+                        ("ftp://gw.example", False), ("", False)]:
+            with self.subTest(url=url):
+                self.assertEqual(endpoint_allowed(url), ok)
+        settings = LLMSettings(model="m")
+        provider = OpenAICompatibleProvider("http://gw.example/v1", "k", settings,
+                                            opener=FailureTests.fail_opener)
+        with self.assertRaises(ProviderError) as caught:
+            provider.complete([], 256)
+        self.assertEqual((caught.exception.code, caught.exception.fatal), ("llm_endpoint_not_allowed", True))
+
+    def test_daily_ledger_is_shared_between_runs_and_resets_by_day(self):
+        ledger_path = self.root / "budget" / "ledger.json"
+        settings = LLMSettings(model="m", daily_max_calls=2, budget_ledger=ledger_path)
+        provider = FakeProvider(answer())
+        first = LLMExtractor(self.config, provider, settings)
+        first.predict(PHONE)
+        first.predict(Product("s2", "761", "Смартфон Zorion QX-901"))
+        second = LLMExtractor(self.config, provider, settings)
+        row = second.predict(Product("s3", "761", "Смартфон Zorion QX-902"))
+        self.assertIn("llm_daily_budget_exhausted", attrs(row)["brand"]["reason_codes"])
+        self.assertEqual((provider.calls, second.report()["calls"]), (2, 0))
+        clock = [0.0]
+        ledger = DailyLedger(ledger_path, 1, clock=lambda: clock[0])
+        self.assertIsNone(ledger.reserve())
+        self.assertEqual(ledger.reserve(), "llm_daily_budget_exhausted")
+        clock[0] += 24 * 3600
+        self.assertIsNone(ledger.reserve())
+        self.assertNotIn("Zorion", ledger_path.read_text(encoding="utf-8"))
+
+    def test_corrupted_ledger_fails_closed(self):
+        ledger_path = self.root / "ledger.json"
+        ledger_path.write_text("[1, 2]", encoding="utf-8")
+        provider = FakeProvider(answer())
+        extractor = LLMExtractor(self.config, provider, LLMSettings(model="m", budget_ledger=ledger_path))
+        row = extractor.predict(PHONE)
+        self.assertIn("llm_budget_ledger_unavailable", attrs(row)["brand"]["reason_codes"])
+        self.assertEqual((provider.calls, extractor.report()["disabled_reason"]),
+                         (0, "llm_budget_ledger_unavailable"))
+
+    def test_synthetic_trace_records_candidate_verifier_result_and_usage(self):
+        provider = FakeProvider(answer(("battery_mah", "5000", "Ёмкость 5000 мА*ч"), ("brand", "Zorion", "Zorion")))
+        settings = LLMSettings(model="m", max_calls=1, budget_ledger=self.root / "ledger.json")
+        trace = synthetic_trace(LLMExtractor(self.config, provider, settings))
+        changed = {c["attribute"]: c for c in trace["llm_changes"]}
+        self.assertEqual(changed["battery_mah"]["value"], "5000")
+        self.assertEqual(changed["battery_mah"]["method"], "llm")
+        self.assertEqual((trace["llm"]["calls"], trace["llm"]["prompt_tokens"]), (1, 120))
+        self.assertEqual(trace["data_policy"], "llm-data-policy-2026-10-19")
 
 
 class SettingsTests(unittest.TestCase):

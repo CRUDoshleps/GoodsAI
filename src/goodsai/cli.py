@@ -122,7 +122,11 @@ def main(argv=None) -> int:
                         "GOODSAI_LLM_BASE_URL / GOODSAI_LLM_API_KEY")
     p.add_argument("--llm-model", default=os.environ.get("GOODSAI_LLM_MODEL"),
                    help="Gateway model name (default: GOODSAI_LLM_MODEL)")
-    p.add_argument("--llm-max-calls", type=int, default=200, help="Hard per-run budget of real provider calls")
+    p.add_argument("--llm-max-calls", type=int, default=100, help="Hard per-run budget of real provider calls")
+    p.add_argument("--llm-daily-max-calls", type=int, default=300,
+                   help="Shared budget per Moscow day across runs using the same --llm-budget-file")
+    p.add_argument("--llm-budget-file", type=Path, default=Path("outputs/llm-budget/ledger.json"),
+                   help="Daily call ledger outside Git")
     p.add_argument("--llm-cache-dir", type=Path, help="Exact-request cache outside Git, e.g. outputs/llm-cache")
     p.add_argument("--llm-timeout", type=float, default=60.0)
     p.add_argument("--llm-attempts", type=int, default=3, help="Attempts per request, retries included (1-5)")
@@ -131,6 +135,11 @@ def main(argv=None) -> int:
     p.add_argument("--llm-price-output-per-1k", type=float, help="Price per 1000 completion tokens")
     p.add_argument("--llm-json-mode", action="store_true",
                    help="Ask the gateway for response_format=json_object; answers are validated either way")
+    p = sub.add_parser("llm-trace", help="One synthetic card through the live LLM route (counts against budgets)")
+    p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--llm-model", default=os.environ.get("GOODSAI_LLM_MODEL"))
+    p.add_argument("--llm-budget-file", type=Path, default=Path("outputs/llm-budget/ledger.json"))
+    p.add_argument("--llm-daily-max-calls", type=int, default=300)
     p = sub.add_parser("evaluate")
     p.add_argument("--predictions", type=Path, required=True)
     p.add_argument("--gold", type=Path)
@@ -161,12 +170,26 @@ def main(argv=None) -> int:
                     max_attempts=args.llm_attempts, concurrency=args.llm_concurrency,
                     price_input_per_1k=args.llm_price_input_per_1k,
                     price_output_per_1k=args.llm_price_output_per_1k,
-                    json_mode=args.llm_json_mode, cache_dir=args.llm_cache_dir)
+                    json_mode=args.llm_json_mode, cache_dir=args.llm_cache_dir,
+                    daily_max_calls=args.llm_daily_max_calls, budget_ledger=args.llm_budget_file)
                 llm = LLMExtractor(config, provider_from_env(settings), settings)
             result = predict(args.input, args.output, config, llm)
             if llm is not None and result["llm"]["disabled_reason"]:
                 print(f"goodsai: LLM fallback disabled during run: {result['llm']['disabled_reason']}; "
                       "rule results are unchanged", file=sys.stderr)
+        elif args.command == "llm-trace":
+            from goodsai.llm import LLMExtractor, LLMSettings, provider_from_env, synthetic_trace
+            if not args.llm_model:
+                raise ValueError("llm-trace requires --llm-model or GOODSAI_LLM_MODEL")
+            check_output(args.output)
+            settings = LLMSettings(model=args.llm_model, max_calls=1, daily_max_calls=args.llm_daily_max_calls,
+                                   budget_ledger=args.llm_budget_file)
+            result = synthetic_trace(LLMExtractor(config, provider_from_env(settings), settings))
+            write_json(args.output, result)
+            if result["llm"]["calls"] != 1 or result["llm"]["failures"]:
+                print("goodsai: live LLM trace did not complete: "
+                      + ",".join(sorted(result["llm"]["failures"])), file=sys.stderr)
+                return 3
         elif args.command == "evaluate":
             check_output(args.output, args.predictions, *([args.gold] if args.gold else []))
             result = evaluate(args.predictions, args.gold, config)

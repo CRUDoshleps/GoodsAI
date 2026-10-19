@@ -3,6 +3,7 @@ import argparse
 import json
 import logging
 import os
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -30,7 +31,10 @@ def create_app() -> FastAPI:
         # Opt-in only. Endpoint, key and model come from the environment and are never echoed.
         from goodsai.llm import LLMExtractor, LLMSettings, provider_from_env
         settings = LLMSettings(model=os.environ.get("GOODSAI_LLM_MODEL", ""),
-                               max_calls=int(os.environ.get("GOODSAI_LLM_MAX_CALLS", "200")))
+                               max_calls=int(os.environ.get("GOODSAI_LLM_MAX_CALLS", "100")),
+                               daily_max_calls=int(os.environ.get("GOODSAI_LLM_DAILY_MAX_CALLS", "300")),
+                               budget_ledger=Path(os.environ.get("GOODSAI_LLM_BUDGET_FILE",
+                                                                 "outputs/llm-budget/ledger.json")))
         llm = LLMExtractor(config, provider_from_env(settings), settings)
         extractor, run_id = llm, "http-rules-llm-v0"
     app = FastAPI(title="GoodsAI provisional API", version="0.1.0",
