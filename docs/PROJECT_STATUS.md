@@ -19,7 +19,8 @@ compute cost N/A. Это не качество каталога и не фина
 Эта ветка включает VER-001 (#79), battery units (#86) и QA suite (#88).
 Это кандидат поверх main; PR зависимостей ещё не объявлены merged.
 QA strict fixture показывает оставшийся color-from-brand дефект #15.
-Окончательная совместная проверка фиксируется отдельно.
+Общий producer 764dcb6: 190 + 3 tests, pip check, demo 6/6 и kit verify PASS; strict QA 20/21 (exit 1, known #15).
+Протокол: [три задачи](reviews/2026-10-19_next_three_issues.md).
 
 
 ## Интеграция PR автора e345ee — 19.10.2026
