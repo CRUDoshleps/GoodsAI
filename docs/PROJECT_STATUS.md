@@ -2,6 +2,19 @@
 
 Актуально на 19 октября 2026 года.
 
+## ML-001: opt-in гибрид — REVIEW
+
+Реализован отдельный экспериментальный `HybridExtractor`: rules + локальный
+GLiNER только для пропущенного однословного бренда. Основной CLI/API не менялся.
+На ранее просмотренном development AI-reference: 80 карточек, 425 judged полей,
+TP/FP/FN 208/8/88 → 225/8/71, F1 81.25% → 85.07%. Метод доработан после анализа
+ошибок, поэтому это screening, не независимое подтверждение accuracy. Широкий
+brand/model fallback отвергнут из-за дополнительных FP относительно reference.
+146 + 3 tests и pip check прошли на VM; два runtime-повтора совпали, отдельный
+offline smoke прошёл при заблокированной сети. Default enable/auto_accept
+остаются закрыты EVAL-001/004. Команды, ресурсы и ограничения:
+[EXPERIMENTAL_GLINER](EXPERIMENTAL_GLINER.md).
+
 ## QA-003: генеративные проверки (ветка реализации)
 
 Добавлены 11 Hypothesis properties для text-only input, JSONL, Unicode/HTML
@@ -80,7 +93,6 @@ Issues #64 и #52 закрыты после merge. VM, независимый go
 | --- | --- | --- |
 | действующий сервис VM в момент ENV-001 | checkout `~/project`, сервис не перезапускался | `48b45dc` |
 | последняя проверенная на Linux интеграционная база | изолированный clean checkout GitHub `main`, ENV-001 | `1d53dad` |
-
 | последняя проверенная интеграционная база | GitHub / Gitea `main`, BASE-002 + DOCS-002 и mirror 19.10 | `1e922aa` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |

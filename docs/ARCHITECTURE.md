@@ -25,6 +25,10 @@ flowchart LR
 В этом пути нет LLM и обученного encoder. Поле `method=model` в старых отчётах
 обозначает rules grammar для явной модели товара, а не ML-модель.
 
+Отдельный [опциональный GLiNER prototype](EXPERIMENTAL_GLINER.md) доступен
+только через явно создаваемый HybridExtractor/экспериментальный CLI. Он не
+подключён к штатным CLI/API; independent quality и default enable не приняты.
+
 ## Целевая архитектура
 
 ```mermaid
