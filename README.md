@@ -190,6 +190,23 @@ Windows/Python 3.12.6. После каждого нового изменения
 spec, статусы incomplete/N/A и правила публикации — в
 [ARTIFACT_BUNDLE.md](docs/ARTIFACT_BUNDLE.md).
 
+Подготовка реальных development-артефактов из уже существующих локальных
+E1/EDA caches, на чистом Git checkout:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.release.prepare_delivery --report-date 2026-10-19 --output-dir outputs/delivery/checkpoint-next
+```
+
+Команда сохраняет predictions, reviewed M2-метрики, EDA-сводку, Markdown-слайды,
+frozen spec и полный проверенный bundle. Закрытые и смешанные test/validation
+семейства исключаются; это development checkpoint, не весь каталог и не
+независимая итоговая оценка. Папка должна быть новой. Prerequisites описаны в
+[инструкции сборки](docs/ARTIFACT_BUNDLE.md#подготовка-реального-development-checkpoint).
+
+Готовый [checkpoint 19.10.2026](docs/delivery/2026-10-19/README.md): EDA,
+метрики, PDF/Markdown-слайды, manifest и инструкция к локальному полному архиву.
+Реальный batch содержит 2198 development SKU; закрытые группы исключены.
+
 ## Репозитории и ветки
 
 - **GitHub `main`** — основная интеграционная ветка после review.
