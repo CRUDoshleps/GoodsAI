@@ -220,6 +220,7 @@ class CommandTests(unittest.TestCase):
 
     def test_end_to_end_repeat_candidate_and_public_privacy(self):
         from scripts.research.run_silver_evaluation import ROOT, run
+        (ROOT / "outputs").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as tmp:
             root = Path(tmp)
             bundle = root / "bundle"
