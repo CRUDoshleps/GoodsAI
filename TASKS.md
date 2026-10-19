@@ -46,31 +46,69 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
+| GOV-003 | [#34](https://github.com/CRUDoshleps/GoodsAI/issues/34) | P0 | REVIEW | product/аналитик/архитектор | Codex | `gov/gov-003-score-improvement-backlog` | Issues #35–#54 и критический путь по оценке чекпоинта |
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
-| ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
+| ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | REVIEW | QA/MLOps | e345ee | `env/env-001-vm-quality-audit` | воспроизвести последний SHA на VM и сохранить протокол |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
-| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
+| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | REVIEW | аналитик/разметчик | urasha | `eval/eval-001-blind-human-gold` | независимый human gold без просмотра ответов системы |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
-| CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
+| CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | IN_PROGRESS | архитектор | timur0o31 | — | вынести пороги, модели и схемы категорий в конфигурацию |
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
+| CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | READY | архитектор | — | — | конфиг решений, LLM, бюджета и стоимости |
+| LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | READY | LLM/backend | — | — | evidence-first fallback через шлюз хакатона |
+| OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | READY | MLOps/security | — | — | безопасные логи и границы temp/pickle |
+| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | READY | release/аналитик | — | — | demo predictions, metrics, report и hashes |
+| QA-002 | [#29](https://github.com/CRUDoshleps/GoodsAI/issues/29) | P0 | READY | QA | — | — | регрессия полного review-remediation сценария |
+| REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | BLOCKED | интегратор | — | — | выпуск исправлений review; ждёт подзадачи |
+| ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | DONE | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
 | DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | DONE | technical writer | Codex (сессия Влада) | `docs/docs-001-reproducible-instructions` | PR #31 merge `55378f1`, зеркало Gitea успешно |
-| ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | REVIEW | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
+
 | BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | READY | NLP/baseline | — | — | консервативный прототип извлечения модели товара |
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
-| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P1 | READY | NLP/QA | — | — | проверка отрицаний, совместимости и чужих сущностей |
-| ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | BLOCKED | ML engineer | — | — | компактный encoder только после baseline и gold; ждёт EVAL-001 |
+| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | REVIEW | NLP/QA | urasha | `qa/ver-001-relation-verifier` | проверка отрицаний, совместимости и чужих сущностей |
+| ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | e345ee | `ml/ml-001-gliner-hybrid` | компактный encoder только после baseline и gold; ждёт EVAL-001 |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 | DOCS-002 | [#52](https://github.com/CRUDoshleps/GoodsAI/issues/52) | P1 | DONE | technical writer | Codex (e345ee) | `main` | PR #77 merged 1e922aa; author review по поручению пользователя; 135 + 3 tests, smoke/verify; mirror OK |
 | BASE-002 | [#64](https://github.com/CRUDoshleps/GoodsAI/issues/64) | P1 | DONE | NLP/baseline | Codex (e345ee) | `main` | PR #75 merged 61b9260; review fixes 0693d21; 135 + 3 tests; mirror OK; selector not integrated |
+
+## 20 улучшений по оценке 19 октября
+
+Эти задачи созданы в рамках `GOV-003`. Их актуальные статусы и владельцы приведены ниже. `READY`
+означает, что задачу можно отдельно взять по обычному claim-процессу;
+`BLOCKED` и `BACKLOG` требуют указанных зависимостей. Подробная связь с
+критериями и критический путь находятся в
+[`docs/reviews/2026-10-19_score_improvement_backlog.md`](docs/reviews/2026-10-19_score_improvement_backlog.md).
+
+| ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SPEC-002 | [#35](https://github.com/CRUDoshleps/GoodsAI/issues/35) | P0 | BLOCKED | product/QA | — | — | исполняемая матрица всех обязательных сценариев; зависимости: SPEC-001 |
+| DATA-002 | [#36](https://github.com/CRUDoshleps/GoodsAI/issues/36) | P0 | BLOCKED | data engineer/security | — | — | seller attributes без target leakage и с provenance; зависимости: SPEC-001, DATA-001 |
+| VER-002 | [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37) | P0 | BLOCKED | NLP/QA | — | — | общий evidence/relation verifier для всех кандидатов; зависимости: VER-001, SPEC-001 |
+| EVAL-003 | [#38](https://github.com/CRUDoshleps/GoodsAI/issues/38) | P0 | BLOCKED | аналитик/разметчик | — | — | независимый blind-пакет доказательств качества; зависимости: EVAL-001, EVAL-002 |
+| EVAL-004 | [#39](https://github.com/CRUDoshleps/GoodsAI/issues/39) | P0 | BLOCKED | ML/аналитик | — | — | калибровка и безопасные auto-accept thresholds; зависимости: EVAL-003, CONF-001/002 |
+| EVAL-005 | [#40](https://github.com/CRUDoshleps/GoodsAI/issues/40) | P0 | BLOCKED | аналитик/ML/LLM | — | — | Pareto-сравнение качества, coverage, latency и цены; зависимости: EVAL-003, model stages |
+| ENV-002 | [#41](https://github.com/CRUDoshleps/GoodsAI/issues/41) | P0 | REVIEW | MLOps/QA | e345ee | `env/env-002-clean-run` | одна команда от clean clone до полного отчёта; зависимости: DOCS-001 |
+| REL-004 | [#42](https://github.com/CRUDoshleps/GoodsAI/issues/42) | P0 | BLOCKED | release engineer/QA | — | — | gate точного SHA и проверенных артефактов; зависимости: ART-003, ENV-002, QA-002 |
+| ARCH-001 | [#43](https://github.com/CRUDoshleps/GoodsAI/issues/43) | P1 | READY | архитектор | — | — | стабильные интерфейсы этапов pipeline; зависимости: SPEC-001, CONF-001 |
+| CONF-003 | [#44](https://github.com/CRUDoshleps/GoodsAI/issues/44) | P1 | BLOCKED | архитектор/NLP | — | — | versioned registry категорий и атрибутов; зависимости: ARCH-001, CONF-001/002 |
+| ROUTE-002 | [#45](https://github.com/CRUDoshleps/GoodsAI/issues/45) | P1 | BLOCKED | архитектор/QA | — | — | детерминированная fallback state machine; зависимости: ROUTE-001, LLM-003, VER-002 |
+| API-002 | [#46](https://github.com/CRUDoshleps/GoodsAI/issues/46) | P1 | BLOCKED | backend | — | — | идемпотентный batch с checkpoint и resume; зависимости: API-001, OPS-001 |
+| QA-003 | [#47](https://github.com/CRUDoshleps/GoodsAI/issues/47) | P1 | REVIEW | QA | e345ee | `qa/qa-003-generative-invariants` | property-based/fuzz проверки входа и evidence; зависимости: текущий runtime |
+| QA-004 | [#48](https://github.com/CRUDoshleps/GoodsAI/issues/48) | P1 | BLOCKED | QA/MLOps | — | — | concurrency и failure-injection отчёт; зависимости: API-002, ROUTE-002, OPS-001 |
+| OPS-002 | [#49](https://github.com/CRUDoshleps/GoodsAI/issues/49) | P1 | BLOCKED | MLOps/аналитик | — | — | безопасные quality/latency/cost метрики; зависимости: CONF-002, ROUTE-002, API-002 |
+| PRODUCT-002 | [#50](https://github.com/CRUDoshleps/GoodsAI/issues/50) | P1 | BLOCKED | product/UX/backend | — | — | пакетная очередь проверки оператором; зависимости: PRODUCT-001, API-002, VER-002 |
+| ART-004 | [#51](https://github.com/CRUDoshleps/GoodsAI/issues/51) | P1 | BLOCKED | аналитик/release | — | — | человеко-читаемый отчёт с источником каждой цифры; зависимости: ART-003, EVAL-005, OPS-002 |
+| PRODUCT-003 | [#53](https://github.com/CRUDoshleps/GoodsAI/issues/53) | P2 | BACKLOG | product/аналитик | — | — | качество продавцов и источников без смешения ошибок; зависимости: PRODUCT-002, ACTIVE-001, OPS-002 |
+| PRODUCT-004 | [#54](https://github.com/CRUDoshleps/GoodsAI/issues/54) | P1 | BLOCKED | product/аналитик | — | — | проверяемый пилот, экономика и evidence для защиты; зависимости: EVAL-005, OPS-002, ART-004 |
 
 ## Как взять задачу
 
@@ -197,6 +235,23 @@ labels, пять Issue forms и PR template; активные задачи за�
 **Выполнено 19 октября:** PR #22 объединён merge commit
 `81fe5be0e9fd2256f8434cb43f84e42adfe951bb`; workflow run `39178695967`
 успешно доставил тот же commit в Gitea. Формы доступны из GitHub `New issue`.
+
+### GOV-003 — backlog улучшения оценки
+
+- Начато: 2026-10-19.
+- Claim commit: `864730a`.
+- Основание: детализация баллов технического чекпоинта и пустой блок качества.
+- Scope: создать ровно 20 задач улучшения и не начинать их реализацию.
+- Результат: Issues #35–#54 с типом, приоритетом, статусом, шагами,
+  зависимостями, приёмкой и связью с критерием оценки; задачи без исполнителей.
+- Расширенное заключение дополнительно распределено по #24, #25, #26, #35,
+  #41, #42, #44, #46, #48, #50 и #51: dependencies, `BaseException`,
+  network FS locks, pickle, защита API, production config и operator workflow.
+- Анализ: `docs/reviews/2026-10-19_score_improvement_backlog.md` содержит
+  критический путь, формулы метрик, release evidence и порядок работ.
+- Проверка: 20/20 Issue ID совпадают с таблицей; у каждого ровно один label
+  `type:*`, `priority:*`, `status:*`; локальные Markdown-ссылки существуют.
+- Runtime, данные, модели и test split не изменялись.
 
 ### SYNC-001 — рабочая база GitHub
 
