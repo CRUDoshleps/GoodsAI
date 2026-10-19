@@ -46,15 +46,15 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
-| GOV-005 | [#81](https://github.com/CRUDoshleps/GoodsAI/issues/81) | P0 | REVIEW | product/QA/интегратор | Codex (tunaIT) | `gov/gov-005-final-acceptance` | 19.10.2026: 3 новых Issue, 13 уточнений, приёмка пяти направлений; claim b5ff886; docs/FINAL_ACCEPTANCE_PLAN.md |
+| GOV-005 | [#81](https://github.com/CRUDoshleps/GoodsAI/issues/81) | P0 | DONE | product/QA/интегратор | Codex (tunaIT) | `main` | PR #85 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |
 | GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | DONE | product/архитектор | Codex (tunaIT) | `main` | PR #63 merged f214985; mirror OK; 10 задач; BASE-002 остался DONE; дубли удалены |
 | GOV-003 | [#34](https://github.com/CRUDoshleps/GoodsAI/issues/34) | P0 | DONE | product/аналитик/архитектор | Codex | `main` | PR #55 merged 0e5ac39; mirror OK; 20 задач; актуальные владельцы и статусы сохранены |
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | DONE | QA/MLOps | Codex (tunaIT) | `main` | PR #76 merged a10534a; mirror OK; VM audit принят; исходный 1d53dad, human quality N/A; новый deploy не выполнялся |
-| BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | REVIEW | NLP/baseline | Codex (tunaIT) | `baseline/base-003-battery-units` | Units fix; 158+3 tests; synthetic TP5→12 / FP0; requires PR #79; docs/BATTERY_UNITS.md |
+| BASE-003 | [#74](https://github.com/CRUDoshleps/GoodsAI/issues/74) | P0 | DONE | NLP/baseline | Codex (tunaIT) | `main` | PR #86 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
-| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | REVIEW | аналитик/разметчик | urasha / Codex (сессия Влада) | `eval/eval-001-blind-human-gold` | D21–D40 human-reviewed; 2 contextual corrections; code review / independent test pending |
+| EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | BLOCKED | аналитик/разметчик | urasha / Codex (сессия Влада) | `main` | PR #71 принят; independent human gold/test не выполнен, нужны независимые разметчики |
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
 | CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | IN_PROGRESS | архитектор | timur0o31 | — | вынести пороги, модели и схемы категорий в конфигурацию |
@@ -64,7 +64,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | READY | архитектор | — | — | конфиг решений, LLM, бюджета и стоимости |
 | LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | READY | LLM/backend | — | — | evidence-first fallback через шлюз хакатона |
 | OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | READY | MLOps/security | — | — | безопасные логи и границы temp/pickle |
-| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | REVIEW | release/docs | Codex (tunaIT) | `artifacts/art-002-demo-kit` | Demo kit: metrics/report + 6-file hashes + verify; 162+3 tests, 6/6 smoke; quality N/A |
+| ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | DONE | release/docs | Codex (tunaIT) | `main` | PR #87 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |
 | QA-002 | [#29](https://github.com/CRUDoshleps/GoodsAI/issues/29) | P0 | READY | QA | — | — | регрессия полного review-remediation сценария |
 | REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | BLOCKED | интегратор | — | — | выпуск исправлений review; ждёт подзадачи |
 | ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | DONE | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
@@ -73,10 +73,10 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
-| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | REVIEW | NLP/QA | urasha | `qa/ver-001-relation-verifier` | проверка отрицаний, совместимости и чужих сущностей |
+| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | READY | NLP/QA | urasha | `main` | PR #79 принят частично; RED SOLUTION/color остаётся FAILED в QA 20/21; #15 открыт |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | Codex (tunaIT) | `main` | PR #80 merged 468e35e; opt-in prototype принят; default/human quality gate остаётся открыт |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
-| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | REVIEW | QA | Codex (tunaIT) | `qa/qa-001-hard-cases` | 21 strict probes: 20 pass, known #15 fails visibly; 162+3 tests; depends on #79/#86 |
+| QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | DONE | QA | Codex (tunaIT) | `main` | PR #88 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P1 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 | QA-003 | [#47](https://github.com/CRUDoshleps/GoodsAI/issues/47) | P1 | DONE | QA | Codex (e345ee) | `main` | PR #73 merged ba392d6; mirror OK; 11 свойств quick/nightly; schema/Decimal regressions; CI OK |
