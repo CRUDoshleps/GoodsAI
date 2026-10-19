@@ -40,7 +40,7 @@ class FakeProvider:
 
 
 PHONE = Product("sku-1", "761", "Смартфон Zorion QX-900 8/256GB черный",
-                "Аккумулятор 5000 мА*ч. Экран 6,7 дюйма.")
+                "Ёмкость 5000 мА*ч. Экран 6,7 дюйма.")
 
 
 def attrs(row):
@@ -71,7 +71,7 @@ class GroundingTests(unittest.TestCase):
 
     def test_grounded_values_get_exact_raw_evidence_and_stay_review(self):
         row, extractor, _ = self.run_one(PHONE, answer(
-            ("brand", "Zorion", "Смартфон Zorion"), ("battery_mah", "5000 мАч", "Аккумулятор 5000 мА*ч")))
+            ("brand", "Zorion", "Смартфон Zorion"), ("battery_mah", "5000 мАч", "Ёмкость 5000 мА*ч")))
         brand, battery = attrs(row)["brand"], attrs(row)["battery_mah"]
         self.assertEqual((brand["value"], brand["method"], brand["decision"], brand["confidence_kind"]),
                          ("Zorion", "llm", "review", "heuristic"))
@@ -89,7 +89,7 @@ class GroundingTests(unittest.TestCase):
     def test_rejections_keep_abstain_with_reason(self):
         cases = {
             "llm_quote_not_found": ("battery_mah", "5000", "батарея на 5000 мА·ч"),
-            "llm_value_not_in_quote": ("battery_mah", "4500", "Аккумулятор 5000 мА*ч"),
+            "llm_value_not_in_quote": ("battery_mah", "4500", "Ёмкость 5000 мА*ч"),
             "llm_value_not_in_schema": ("brand", "смартфон", "Смартфон"),
             "llm_bad_types": ("brand", True, "Смартфон Zorion"),
         }
@@ -335,7 +335,7 @@ class CliTests(unittest.TestCase):
         manifest = json.loads(manifest_text)
         self.assertEqual((manifest["llm_calls"], manifest["llm"]["accepted"]), (1, 1))
         self.assertEqual(manifest["method_counts"]["llm"], 1)
-        for secret in ["secret-key", "gw.invalid", "Zorion", "Аккумулятор"]:
+        for secret in ["secret-key", "gw.invalid", "Zorion", "Ёмкость"]:
             self.assertNotIn(secret, manifest_text)
         code, _, _ = self.run_cli("predict", "--input", str(self.input), "--output", str(self.root / "rules.jsonl"))
         rules = json.loads((self.root / "rules.manifest.json").read_text(encoding="utf-8"))
