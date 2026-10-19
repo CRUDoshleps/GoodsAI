@@ -51,7 +51,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
 | EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
-| EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | REVIEW | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | 10324 SKU audited; filtered partition + quarantine; M2 reserve 40/40 checks OK |
+| EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
 | CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
@@ -270,7 +270,8 @@ labels, пять Issue forms и PR template; активные задачи за�
 ### EVAL-002 — аудит split и leakage
 
 Claim `697148c`, producer `62388ad`, 19.10.2026. [Отчёт](docs/reviews/2026-10-19_eval-002_split_audit.md),
-[метод](docs/SPLIT_AUDIT.md). REVIEW: 632 mixed components, новый filtered partition
+[метод](docs/SPLIT_AUDIT.md). DONE после согласования Владом и merge PR #69
+`c49540f` 19.10.2026: 632 mixed components, новый filtered partition
 3411 eligible / 6913 quarantined, текущий reserve 40/40 без выявленных проблем.
 119 + 3 tests, два clean run byte-identical, verify — OK. Данные и списки
 пересечений локально, старые split/gold не менялись. Независимый human review,
