@@ -46,7 +46,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
-| GOV-005 | [#81](https://github.com/CRUDoshleps/GoodsAI/issues/81) | P0 | IN_PROGRESS | product/QA/интегратор | Codex (tunaIT) | `gov/gov-005-final-acceptance` | 19.10.2026: оформить очередь, зависимости и проверяемую приёмку пяти направлений |
+| GOV-005 | [#81](https://github.com/CRUDoshleps/GoodsAI/issues/81) | P0 | REVIEW | product/QA/интегратор | Codex (tunaIT) | `gov/gov-005-final-acceptance` | 19.10.2026: 3 новых Issue, 13 уточнений, приёмка пяти направлений; claim b5ff886; docs/FINAL_ACCEPTANCE_PLAN.md |
 | GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | DONE | product/архитектор | Codex (tunaIT) | `gov/gov-004-runtime-improvement-tasks` | 10 новых задач, 6 уточнений приёмки, приоритеты и зависимости; PR #63 |
 
 | GOV-003 | [#34](https://github.com/CRUDoshleps/GoodsAI/issues/34) | P0 | DONE | product/аналитик/архитектор | Codex | `gov/gov-003-score-improvement-backlog` | Issues #35–#54 и критический путь по оценке чекпоинта |
@@ -81,7 +81,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
-| PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
+| PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P1 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
 | ENV-002 | [#41](https://github.com/CRUDoshleps/GoodsAI/issues/41) | P0 | REVIEW | MLOps/QA | Codex (e345ee) | `env/env-002-clean-run` | claims 7abe347/b136a67; 126 + 3 tests; clean clone, external JSONL, repeat OK; VM pending reviewer |
 
@@ -162,6 +162,22 @@ model calls или использование test. Начало реализа�
 Уточнены fingerprint и предварительный аудит в [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59),
 а также независимая calibration и риск среди принятых значений в
 [#39](https://github.com/CRUDoshleps/GoodsAI/issues/39). Владельцы и статусы сохранены.
+
+## Финальная приёмка — GOV-005
+
+Порядок исполнения и критерии: [FINAL_ACCEPTANCE_PLAN](docs/FINAL_ACCEPTANCE_PLAN.md).
+Implementation существующих задач и их claims не перезапускаются. Приоритет
+PRODUCT-001 #19 повышен до P1 для рабочего одиночного UI. ENV-002 #41 уже
+merged; независимый прогон конкретного candidate SHA выделен отдельно.
+
+| ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат / блокер |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| ENV-003 | [#82](https://github.com/CRUDoshleps/GoodsAI/issues/82) | P0 | BLOCKED | независимый QA/MLOps | — | — | Приёмка candidate на целевой VM; нужны SHA/режим, #17, #14 для hybrid, доступы и независимый исполнитель; поставляет доказательство #42 |
+| QA-005 | [#83](https://github.com/CRUDoshleps/GoodsAI/issues/83) | P1 | BLOCKED | независимый QA/product | — | — | UI → backend → evidence → сохранение → export; ждёт #19/#17/#37 и исполнителя, базовый путь не ждёт #50 |
+
+Этап A EVAL-005 #40: правила против узкого GLiNER из PR #80 на независимых
+данных #6/#38; не ждёт отсутствующую LLM или полный router. Широкая матрица
+остаётся этапом B. 85.07% development agreement не является independent gate.
 
 ## Как взять задачу
 
