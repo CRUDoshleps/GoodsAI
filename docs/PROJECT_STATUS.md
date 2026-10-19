@@ -171,6 +171,27 @@ commit, producer SHA остаётся указанным выше. Официа�
 
 ## Результат организаторского review
 
+### EVAL-001: подготовка human-review, итоговый gold не готов
+
+В `eval/eval-001-blind-human-gold` подготовлены [протокол](HUMAN_GOLD.md),
+[guideline](HUMAN_GOLD_GUIDELINES.md), offline HTML и команды
+prepare/materialize/check/reconcile/finalize. Claim `fab562f`, code `257fe1f`.
+128 основных + 3 reader tests, pip check, CLI/link/secret-pattern checks — OK;
+synthetic browser smoke подтвердил Unicode offsets/navigation/JSON download+import.
+
+Локальный `outputs/evaluation/eval-001-20261019-metadata/`: 40 карточек/240 полей,
+только metadata/blank labels, 6 файлов двух запусков byte-identical. Package ID
+`c2a18dfba7f9d23c2c913443f906ea3eba98adb9229aa9f437ae3e18f7c5cba0`.
+Неутверждённый freeze блокирует раскрытие; реальный HTML/тексты test не создавались,
+answers/gold/predictions отсутствуют, P/R/F1 и agreement N/A. Проверяемый candidate
+в template — `1d53dad` (rules-0.3.0-m2-policy), это предложение, не утверждённый freeze.
+
+Влад сообщил, что размечать будет один и раньше видел AI-assisted development.
+Это не автоматически exposure нового reserve, но не выполняет требование двух
+независимых людей. Issue #6 остаётся BLOCKED до назначения разметчиков/adjudicator,
+решения о freeze и сбора ответов. AI-assisted development можно продолжать отдельно;
+такой набор не объявляется независимым test. Runtime/данные/VM не менялись.
+
 ### EVAL-002: split/leakage audit — 19.10.2026
 
 Подготовлен [аудит E1 split](reviews/2026-10-19_eval-002_split_audit.md),
