@@ -69,8 +69,8 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
-| DOCS-002 | [#52](https://github.com/CRUDoshleps/GoodsAI/issues/52) | P1 | REVIEW | technical writer | Codex (e345ee) | `docs/docs-002-evidence-style` | claim 6dfd707; style guide, PR/presentation checklist, 3-surface audit; 18 release tests + smoke/verify |
-| BASE-002 | [#64](https://github.com/CRUDoshleps/GoodsAI/issues/64) | P1 | REVIEW | NLP/baseline | Codex (e345ee) | `base/base-002-span-index` | claim 9eaa5a3; 14 new invariants; 133 + 3 tests; synthetic spans 6/6; selector not integrated |
+| DOCS-002 | [#52](https://github.com/CRUDoshleps/GoodsAI/issues/52) | P1 | DONE | technical writer | Codex (e345ee) | `main` | PR #77 merged 1e922aa; author review по поручению пользователя; 135 + 3 tests, smoke/verify; mirror OK |
+| BASE-002 | [#64](https://github.com/CRUDoshleps/GoodsAI/issues/64) | P1 | DONE | NLP/baseline | Codex (e345ee) | `main` | PR #75 merged 61b9260; review fixes 0693d21; 135 + 3 tests; mirror OK; selector not integrated |
 
 ## Как взять задачу
 

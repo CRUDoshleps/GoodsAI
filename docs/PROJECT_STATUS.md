@@ -2,9 +2,9 @@
 
 Актуально на 19 октября 2026 года.
 
-## DOCS-002: текст и доказательства (ветка реализации)
+## DOCS-002: текст и доказательства — DONE
 
-[DONE] В feature-ветке, статус REVIEW: подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR
+[DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR
 и [проверка презентации](PRESENTATION_REVIEW.md). Они разделяют DONE/PLAN/
 HYPOTHESIS, требуют источники claims и запрещают декоративные AI-визуалы.
 Текстовый аудит README, delivery report и Markdown-слайдов:
@@ -12,8 +12,9 @@ HYPOTHESIS, требуют источники claims и запрещают де�
 правила, не автоматическая проверка истинности и не новая оценка качества.
 Исторические frozen artifacts и PDF не перезаписывались.
 
-## BASE-002: исходные spans (ветка реализации)
+## BASE-002: исходные spans — DONE
 
+[DONE] Принято в PR #75 (`61b9260`), зеркало Gitea проверено.
 Добавлен внутренний bounded SpanIndex с deterministic source/config identity,
 точными raw offsets и явными truncated/unavailable reasons. Неизвестные имена,
 числа, повторы и HTML/entities проверяются synthetic tests. Отдельный CLI
@@ -23,12 +24,30 @@ HYPOTHESIS, требуют источники claims и запрещают де�
 интеграция selector/LLM и реальное качество ещё не подтверждены.
 Контракт, ограничения и команды: [SPAN_INDEX.md](SPAN_INDEX.md).
 
+## Review и интеграция BASE-002 / DOCS-002
+
+По прямому поручению пользователя автор выполнил review и интеграцию.
+Критерии и решения ACCEPT записаны в [PR #75](https://github.com/CRUDoshleps/GoodsAI/pull/75)
+и [PR #77](https://github.com/CRUDoshleps/GoodsAI/pull/77). Это авторский review,
+не независимая разметка или подтверждение качества каталога.
+
+После review исправлены пересечения HTML comments/declarations в raw spans,
+проверка неизменности measurement input/reference и двусмысленность PLAN/REVIEW
+в style guide. Алгоритм SpanIndex — `span-index-2`. На совместном candidate
+`967108a` прошли 135 основных и 3 reader tests, pip check, demo 6/6, synthetic
+span fixture 6/6, bundle smoke/verify и local Markdown targets. Frozen delivery
+bytes не изменены. CI invariants прошёл для исправленного BASE-002 и совместного
+candidate; mirror workflow успешен для обоих merge SHA.
+
+Issues #64 и #52 закрыты после merge. VM, независимый gold/test, model calls,
+новая визуальная PDF-проверка и репетиция не выполнялись.
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
 | опубликованный runtime baseline | Gitea `main`, без ночных docs-only изменений | `48b45dc` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, DOCS-001 merge и mirror 19.10 | `55378f1` |
+| последняя проверенная интеграционная база | GitHub / Gitea `main`, BASE-002 + DOCS-002 и mirror 19.10 | `1e922aa` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
