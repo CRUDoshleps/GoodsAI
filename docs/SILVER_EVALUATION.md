@@ -8,6 +8,11 @@
 [silver_evaluation_protocol.md](research/silver_evaluation_protocol.md).
 Источник задачи — [EVAL-006 #91](https://github.com/CRUDoshleps/GoodsAI/issues/91).
 
+Итог: [метрики](../reports/metrics.md), [run stats](../reports/run_stats.json),
+[анализ и передача](research/silver_evaluation_results.md). Итоговый producer
+`47763c7`, приватный отчёт `outputs/evaluation/eval-006-baseline-final`.
+Числа из черновых v1/v2 mapping не являются итоговой оценкой.
+
 ## Подготовка данных
 
 Из корня checkout, Python 3.12 с зависимостями проекта. Нужны существующий кеш

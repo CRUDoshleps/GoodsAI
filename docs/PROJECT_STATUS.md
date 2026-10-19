@@ -2,6 +2,31 @@
 
 Актуально на 19 октября 2026 года.
 
+## EVAL-006: catalog-silver diagnostics — REVIEW в ветке
+
+Claim `f04abec`, ветка `eval/eval-006-silver-diagnostics`, Issue #91.
+Producer итогового измерения `47763c7`, runtime относительно `977c5ed`
+не изменён. Добавлены отдельные подготовка noisy reference, support matcher,
+evaluator с family-bootstrap и traffic, offline logistic/Platt и парное
+сравнение полного input либо фиксированного development subset.
+
+3037 карточек / 1270 семейств, закрытый reserve 40 не предсказывался.
+Agreement: 7522 TP / 425 FP / 4413 FN, P 94,65%, R 63,02%, F1 75,67%;
+supported recall 75,75%, coverage 54,31%. Это **не human quality**.
+Range buckets каталога проверяются как ограничения exact reference;
+старые результаты mapping не перезаписаны. Offline Brier 0,06575 → 0,03870,
+но Platt не лучше fitted logistic 0,03865; auto_accept запрещён.
+
+229 основных tests и 3 reader tests прошли; demo 6/6, clean-run 11/11,
+pip check OK. Strict adversarial по-прежнему 20/21, exit 1, известный #15.
+Support human audit и независимый gold остаются pending/BLOCKED.
+PR Глеба #90 проверен повторно на `3c1e1cb`, token names поддержаны;
+живые registry/GLiNER/LLM predictions для frozen comparison не предоставлены,
+варианты not_run. Внешних вызовов/расходов/merge/deploy не было.
+
+[Инструкция](SILVER_EVALUATION.md), [публичные метрики](../reports/metrics.md),
+[результаты и передача](research/silver_evaluation_results.md).
+
 ## Интеграция всех открытых PR — 19.10.2026
 
 По поручению владельца приняты #71, #79, #85, #86, #87 и #88.
