@@ -51,7 +51,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
 | DATA-001 | [#5](https://github.com/CRUDoshleps/GoodsAI/issues/5) | P0 | READY | data engineer | — | — | воспроизводимая предобработка и свежий data manifest |
 | EVAL-001 | [#6](https://github.com/CRUDoshleps/GoodsAI/issues/6) | P0 | READY | аналитик/разметчик | — | — | независимый human gold без просмотра ответов системы |
-| EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | READY | data/QA | — | — | аудит дублей и утечек между split |
+| EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | IN_PROGRESS | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | аудит дублей и утечек между split |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
 | CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | READY | архитектор | — | — | вынести пороги, модели и схемы категорий в конфигурацию |
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
