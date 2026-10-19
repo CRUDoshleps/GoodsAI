@@ -2,6 +2,18 @@
 
 Актуально на 19 октября 2026 года.
 
+## ENV-002: чистый запуск (ветка реализации)
+
+`scripts/release/clean_run.py` создаёт отдельное окружение CPython 3.12,
+устанавливает 23 hash-locked distributions, проверяет `pip check`, demo,
+внешний JSONL batch, exact evidence/manifest, API contract и synthetic bundle.
+Успешный повтор проверяет hashes и installed versions; failed attempts
+сохраняются, следующий запуск создаёт новую попытку. JSON/Markdown report
+содержит этапы и exit codes без текстов карточек. P/R/F1 без gold — N/A.
+Описание, аудит pins и поддерживаемые OS: [CLEAN_RUN.md](CLEAN_RUN.md).
+Hosted Linux/Windows CI добавлен; VM организаторов и listening socket этой
+реализацией не подтверждены. Финальную приёмку выполняет reviewer ENV-002.
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |

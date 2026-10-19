@@ -1,0 +1,10 @@
+# ENV-002: runtime, API/test client and isolated build tooling, CPython 3.12.
+pyarrow==26.0.0
+fastapi==0.143.3
+uvicorn==0.54.0
+httpx==0.28.1
+setuptools==84.0.0
+wheel==0.48.0
+pip==26.2.1
+
+colorama==0.4.6
