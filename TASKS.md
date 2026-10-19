@@ -46,7 +46,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
-| GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | IN_PROGRESS | product/архитектор | Codex (tunaIT) | `gov/gov-004-runtime-improvement-tasks` | описать новые задачи runtime/UI и согласовать индекс; начато 19.10.2026 |
+| GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | REVIEW | product/архитектор | Codex (tunaIT) | `gov/gov-004-runtime-improvement-tasks` | 5 новых Issues, приёмка #16/#25/#40/#50 и индекс без изменения runtime |
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
@@ -70,6 +70,29 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | READY | QA | — | — | коварный набор конфликтов, отказов и сбоев |
 | PRODUCT-001 | [#19](https://github.com/CRUDoshleps/GoodsAI/issues/19) | P2 | BACKLOG | product/UX | — | — | экран review с evidence и решениями оператора |
 | ACTIVE-001 | [#20](https://github.com/CRUDoshleps/GoodsAI/issues/20) | P2 | BLOCKED | ML/product | — | — | active learning из правок; ждёт рабочего review-сценария |
+
+## Дополнительные задачи runtime и интерфейса
+
+Заведены в GOV-004 для команды tunaIT. Описание и критерии:
+[план задач](docs/reviews/2026-10-19_runtime_improvement_tasks.md).
+Все пять функций пока не реализованы; BLOCKED указывает на перечисленные
+в Issues зависимости. Начинать реализацию можно только после их закрытия,
+согласования контракта и отдельного опубликованного claim.
+
+| ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| ML-002 | [#58](https://github.com/CRUDoshleps/GoodsAI/issues/58) | P1 | BLOCKED | ML/аналитик | — | — | Предлагать категорию по тексту с безопасным отказом; зависимости в Issue |
+| LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | BLOCKED | LLM/backend | — | — | Кэшировать точные model-запросы и объединять дубли; зависимости в Issue |
+| PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | BLOCKED | product/backend | — | — | Управлять словарями через draft, impact и rollback; зависимости в Issue |
+| OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | BLOCKED | MLOps/аналитик | — | — | Обнаруживать дрейф потока относительно frozen baseline; зависимости в Issue |
+| PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | BLOCKED | product/аналитик | — | — | Приоритизировать review по риску, возрасту и спросу; зависимости в Issue |
+
+В существующих задачах [ML-001 #16](https://github.com/CRUDoshleps/GoodsAI/issues/16),
+[LLM-003 #25](https://github.com/CRUDoshleps/GoodsAI/issues/25),
+[EVAL-005 #40](https://github.com/CRUDoshleps/GoodsAI/issues/40) и
+[PRODUCT-002 #50](https://github.com/CRUDoshleps/GoodsAI/issues/50) уточнена приёмка.
+Их владельцы, статусы и claims не менялись; второй encoder/router/review UI
+отдельными задачами не заводился.
 
 ## Как взять задачу
 
@@ -486,3 +509,11 @@ Gitea fast-forward; divergence останавливает job, а старый G
 
 **Готово, когда:** оператор решает 10–20 карточек без поиска evidence вручную,
 а действия воспроизводимо превращаются в versioned feedback.
+
+## GOV-004 — дополнение backlog
+
+- Claim `35c6b5b` опубликован до правок документов; ветка `gov/gov-004-runtime-improvement-tasks`.
+- Добавлены пять отдельных задач с experiment/keep-drop, зависимостями и приёмкой.
+- Уточнены #16, #25, #40, #50 без смены их владельцев/статусов.
+- Runtime, модели, test reserve, реальные данные и VM не менялись.
+- Дубликаты задач #35–#54 не создавались; PR #55 и чужие claims не изменены.
