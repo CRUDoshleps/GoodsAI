@@ -1,0 +1,1 @@
+{"reference_kind":"synthetic","records":[{"sku_id":"span-unknown","spans":[{"field":"title","start":0,"end":13}]},{"sku_id":"span-repeated","spans":[{"field":"title","start":0,"end":6},{"field":"title","start":7,"end":13},{"field":"description","start":0,"end":6}]},{"sku_id":"span-html","spans":[{"field":"title","start":10,"end":31},{"field":"description","start":3,"end":11}]}]}

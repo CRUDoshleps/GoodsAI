@@ -58,6 +58,16 @@ py -3.12 -m venv .venv
 
 ## Пакетный прогноз
 
+Для проверки из чистого checkout одной командой, включая изолированное
+окружение, hash-locked зависимости, batch, API contract и artifact verification:
+
+```bash
+python3.12 scripts/release/clean_run.py --output-dir outputs/clean-first
+```
+
+Внешний JSONL передаётся через `--input`. Повтор команды проверяет сохранённые
+артефакты; ограничения OS/Python, отчёты и recovery — в [CLEAN_RUN](docs/CLEAN_RUN.md).
+
 Минимальная строка входного JSONL:
 
 ```json
@@ -92,6 +102,14 @@ py -3.12 -m venv .venv
 
 Для PowerShell заменяйте `.venv/bin/python` на `.\.venv\Scripts\python.exe`,
 многострочную Bash-команду вводите одной строкой.
+
+## Экспериментальный ML для пропущенного бренда
+
+Есть отдельный opt-in гибрид: правила → GLiNER для пропущенного однословного
+бренда → точное evidence → review. Основные CLI/API его не включают.
+На просмотренном development AI-reference он добавил 17 совпадений без новых
+несовпадений; независимое качество не установлено. Команды, веса, метрики,
+RAM и ограничения: [EXPERIMENTAL_GLINER](docs/EXPERIMENTAL_GLINER.md).
 
 ## HTTP API
 
@@ -167,10 +185,23 @@ API временный до публикации точной схемы орг�
 
 ## Проверки
 
+Контекстные отказы verifier, воспроизводимое сравнение и ограничения:
+[VER-001](docs/RELATION_VERIFIER.md) (подготовлено на review).
+
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v
 ```
+
+Генеративные проверки Unicode/HTML, schema, единиц и evidence запускаются
+отдельно после установки `.[fuzz]`:
+
+```bash
+.venv/bin/python -m unittest discover -s tests/fuzz -v
+```
+
+Profiles quick/nightly, seed, replay и найденные regression cases — в
+[FUZZ_TESTING](docs/FUZZ_TESTING.md).
 
 На опубликованном Gitea `main` команда ранее получила 82 проверки на
 Windows/Python 3.12.6. После каждого нового изменения проверки выполняются
@@ -224,6 +255,10 @@ frozen spec и полный проверенный bundle. Закрытые и �
 
 ## Карта документации
 
+Статусы результатов, источники цифр и оформление материалов проверяются по
+[CONTENT_STYLE](docs/CONTENT_STYLE.md); для слайдов есть отдельный
+[checklist защиты](docs/PRESENTATION_REVIEW.md).
+
 | Файл | Назначение |
 | --- | --- |
 | [TASKS.md](TASKS.md) | очередь, владельцы, статусы и подробные подзадачи |
@@ -232,6 +267,7 @@ frozen spec и полный проверенный bundle. Закрытые и �
 | [RESEARCH.md](RESEARCH.md) | научные и open source основания решений |
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | что реально сделано и что ещё отсутствует |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | текущая и целевая архитектура гибридного pipeline |
+| [docs/SPAN_INDEX.md](docs/SPAN_INDEX.md) | внутренние исходные spans, limits и отдельный замер покрытия |
 | [docs/DATASET.md](docs/DATASET.md) | подготовка, ограничения и защита от утечки |
 | [docs/EVALUATION.md](docs/EVALUATION.md) | дизайн эксперимента, формулы и честные метрики |
 | [docs/HUMAN_GOLD.md](docs/HUMAN_GOLD.md) | blind human review, формы и проверки; gold требует двух людей и adjudication |

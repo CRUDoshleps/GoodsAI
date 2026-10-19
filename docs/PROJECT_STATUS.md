@@ -2,12 +2,120 @@
 
 Актуально на 19 октября 2026 года.
 
+## Интеграция PR автора e345ee — 19.10.2026
+
+[DONE] По поручению пользователя проверены и слиты PR #55, #63, #76, #72,
+#73 и #80. Конфликты TASKS/PROJECT_STATUS/config extras/source allowlist
+разрешены без потери владельцев, закрытых задач и независимых веток работы.
+В TASKS 64 уникальных ID; сохранены все 20 GOV-003 и 10 GOV-004 задач.
+GOV-003/GOV-004/ENV-001/ENV-002/QA-003 завершены; ML-001 остаётся REVIEW для
+независимой приёмки, хотя отдельный opt-in prototype уже доступен в main.
+
+Общий код прошёл 160 основных и 3 reader tests, pip check и isolated clean-run
+11 этапов; QA-003 nightly seed 20261020 прошёл 11/11 свойств. CI последнего
+feature head `47fabbd`: Ubuntu/Windows clean run, invariants и properties
+SUCCESS. Все шесть merge доставлены в Gitea fast-forward workflow;
+последний runtime/code merge — `468e35e`. Исторические delivery bytes сохранены.
+
+При интеграции добавлены проверка посторонних ML artifact files, UTF-8
+экспериментального CLI, игнор .venv-ml и включение public guides в source archive.
+Штатные CLI/API продолжают использовать rules; ML зависимости/веса не нужны
+для обычного пути. При этой интеграции не запускались реальные модели, новые
+quality experiments, приватный gold/test и VM deployment. Данные VM/ML в
+отдельных отчётах относятся к исходным историческим producer SHA.
+
+## ML-001: opt-in гибрид — REVIEW
+
+Реализован отдельный экспериментальный `HybridExtractor`: rules + локальный
+GLiNER только для пропущенного однословного бренда. Основной CLI/API не менялся.
+На ранее просмотренном development AI-reference: 80 карточек, 425 judged полей,
+TP/FP/FN 208/8/88 → 225/8/71, F1 81.25% → 85.07%. Метод доработан после анализа
+ошибок, поэтому это screening, не независимое подтверждение accuracy. Широкий
+brand/model fallback отвергнут из-за дополнительных FP относительно reference.
+146 + 3 tests и pip check прошли на VM; два runtime-повтора совпали, отдельный
+offline smoke прошёл при заблокированной сети. Default enable/auto_accept
+остаются закрыты EVAL-001/004. Команды, ресурсы и ограничения:
+[EXPERIMENTAL_GLINER](EXPERIMENTAL_GLINER.md).
+
+## QA-003: генеративные проверки — DONE
+
+Добавлены 11 Hypothesis properties для text-only input, JSONL, Unicode/HTML
+position maps, schema, numeric conversion, hidden facts и no-evidence-no-value.
+Quick/nightly profiles имеют ограничение размера/времени и явный seed;
+shrunk examples переносятся в основной regression suite. Исправлены contract
+type guards (включая evidence=null) и Decimal overflow при конвертации единиц.
+Валидный schema 0.1 и решения baseline не изменены. Это synthetic robustness,
+не независимая оценка качества. Запуск и ограничения:
+[FUZZ_TESTING.md](FUZZ_TESTING.md). Фактические результаты фиксируются в PR.
+
+## ENV-002: чистый запуск — DONE
+
+`scripts/release/clean_run.py` создаёт отдельное окружение CPython 3.12,
+устанавливает 23 hash-locked distributions, проверяет `pip check`, demo,
+внешний JSONL batch, exact evidence/manifest, API contract и synthetic bundle.
+Успешный повтор проверяет hashes и installed versions; failed attempts
+сохраняются, следующий запуск создаёт новую попытку. JSON/Markdown report
+содержит этапы и exit codes без текстов карточек. P/R/F1 без gold — N/A.
+Описание, аудит pins и поддерживаемые OS: [CLEAN_RUN.md](CLEAN_RUN.md).
+Hosted Linux/Windows CI добавлен; VM организаторов и listening socket этой
+реализацией не подтверждены; clean-run принят как локальная/hosted CI проверка.
+
+Последнее фактическое VM-подтверждение: [ENV-001, Linux-прогон и ошибки](reviews/2026-10-19_vm_quality_audit.md).
+На `1d53dad`: 119 основных + 3 reader tests, demo 6/6; 2171 SKU обработан,
+три повтора совпали с frozen `1754970` побайтно. Runtime/config hashes одинаковы.
+Согласие с диагностической AI-reference: P96,3/R70,3/F181,3 на 425 judged-парах
+из 480; 55 исключены. Это development, с исправлением сериализации reference
+после первого сравнения, не независимая human quality. Подтверждены synthetic
+пропуск `мА*ч` и ложный цвет из имени бренда; задачи #74 и #15 (P0).
+Все найденные значения всё ещё review, LLM в GoodsAI runtime не вызывается.
+
+## DOCS-002: текст и доказательства — DONE
+
+[DONE] Принято в PR #77 (`1e922aa`), зеркало Gitea проверено. Подготовлены [CONTENT_STYLE](CONTENT_STYLE.md), checklist PR
+и [проверка презентации](PRESENTATION_REVIEW.md). Они разделяют DONE/PLAN/
+HYPOTHESIS, требуют источники claims и запрещают декоративные AI-визуалы.
+Текстовый аудит README, delivery report и Markdown-слайдов:
+[content audit](reviews/2026-10-19_docs-002_content_audit.md). Это редакционные
+правила, не автоматическая проверка истинности и не новая оценка качества.
+Исторические frozen artifacts и PDF не перезаписывались.
+
+## BASE-002: исходные spans — DONE
+
+[DONE] Принято в PR #75 (`61b9260`), зеркало Gitea проверено.
+Добавлен внутренний bounded SpanIndex с deterministic source/config identity,
+точными raw offsets и явными truncated/unavailable reasons. Неизвестные имена,
+числа, повторы и HTML/entities проверяются synthetic tests. Отдельный CLI
+измеряет exact candidate-set recall, время и traced Python memory на явно
+разрешённой span-разметке; raw text/SKU в report не выводятся. Synthetic fixture
+покрывает 6/6 reference spans. Runtime predictor и публичный schema не менялись;
+интеграция selector/LLM и реальное качество ещё не подтверждены.
+Контракт, ограничения и команды: [SPAN_INDEX.md](SPAN_INDEX.md).
+
+## Review и интеграция BASE-002 / DOCS-002
+
+По прямому поручению пользователя автор выполнил review и интеграцию.
+Критерии и решения ACCEPT записаны в [PR #75](https://github.com/CRUDoshleps/GoodsAI/pull/75)
+и [PR #77](https://github.com/CRUDoshleps/GoodsAI/pull/77). Это авторский review,
+не независимая разметка или подтверждение качества каталога.
+
+После review исправлены пересечения HTML comments/declarations в raw spans,
+проверка неизменности measurement input/reference и двусмысленность PLAN/REVIEW
+в style guide. Алгоритм SpanIndex — `span-index-2`. На совместном candidate
+`967108a` прошли 135 основных и 3 reader tests, pip check, demo 6/6, synthetic
+span fixture 6/6, bundle smoke/verify и local Markdown targets. Frozen delivery
+bytes не изменены. CI invariants прошёл для исправленного BASE-002 и совместного
+candidate; mirror workflow успешен для обоих merge SHA.
+
+Issues #64 и #52 закрыты после merge. VM, независимый gold/test, model calls,
+новая визуальная PDF-проверка и репетиция не выполнялись.
+
 ## Версии
 
 | Назначение | Репозиторий/ветка | Commit |
 | --- | --- | --- |
-| опубликованный runtime baseline | Gitea `main`, без ночных docs-only изменений | `48b45dc` |
-| последняя проверенная интеграционная база | GitHub / Gitea `main`, DOCS-001 merge и mirror 19.10 | `55378f1` |
+| действующий сервис VM в момент ENV-001 | checkout `~/project`, сервис не перезапускался | `48b45dc` |
+| последняя проверенная на Linux интеграционная база | изолированный clean checkout GitHub `main`, ENV-001 | `1d53dad` |
+| последняя проверенная интеграционная база | GitHub / Gitea `main`, шесть PR и mirror 19.10 | `468e35e` |
 | реорганизация командной работы | GitHub `docs/gov-001-team-workflow` | `dab5a48` + status handoff |
 | типизированная система задач | GitHub `main` | PR #22, merge `81fe5be` |
 | runtime schema | `0.1` | — |
@@ -75,6 +183,19 @@ BASE-001 в TASKS всё ещё READY, хотя model rules реализован
 это расхождение передано интегратору, чужой статус автоматически не изменён.
 
 ## Проверки
+
+### VER-001: relation guard подготовлен на review, 19 октября
+
+Ветка `qa/ver-001-relation-verifier`, claim `9400302` от `37066be`.
+Общая проверка перед merge кандидатов отклоняет явные отрицания, совместимость,
+сравнения, комплект и характеристики аксессуара/другого объекта. Raw evidence
+проверяется до semantic filtering; v0.1, confidence и review/abstain сохранены.
+Реализация ещё не в main. [Отчёт](RELATION_VERIFIER.md), synthetic probes 8→0
+ложных извлечений при сохранении 10/10 положительных. Reviewed development:
+M2 69 TP/0 FP/14 FN и D21–D40 59 TP/0 FP/23 FN, до=после, 0 lost TP/new FP.
+Это не независимые метрики и не доказательство прироста качества каталога.
+Предсказания/разметка остаются private, test/LLM/VM не использовались.
+151 основной + 3 reader tests, demo 6/6 и pip check — OK на Windows/Python 3.12.6.
 
 Последний сохранённый отчёт команды для опубликованного функционала:
 
@@ -263,6 +384,23 @@ release gate. Blind human review готовить параллельно, test �
 По скриншотам первого технического прогона оценённые критерии дали 17,17/20.
 Неоценённый блок качества результата оставался пустым. Product checkpoint —
 10/10, но способ его включения в общий балл не описан.
+
+### Backlog по новой детализации оценки
+
+Платформа отдельно показывает продуктовый чекпоинт `10/10`, оценённые
+технические критерии `17,81/20`, пустой блок качества `—/5` и пока
+неоценённую финальную защиту `—/15`. Общий индикатор на странице равен
+`17,81/35`; правило объединения этапов не опубликовано, поэтому значения здесь
+не складываются самостоятельно.
+
+В `GOV-003` заведены ровно 20 новых задач
+[#35–#54](https://github.com/CRUDoshleps/GoodsAI/issues?q=is%3Aissue+is%3Aopen+created%3A2026-10-19),
+которые переводят текстовый feedback в проверяемые результаты. Наибольший
+приоритет имеют независимый пакет качества, калибровка auto-accept, чистый
+воспроизводимый запуск и release gate точного SHA. Архитектурные, операторские
+и презентационные задачи идут после их зависимостей. На момент создания плана реализация не была начата; актуальные статусы
+смотрите в TASKS.md. Критический путь находится в
+[плане улучшения оценки](reviews/2026-10-19_score_improvement_backlog.md).
 
 Организаторы подтвердили сильные стороны: работающий end-to-end baseline,
 модульность, тесты, JSONL output и документация. Основной долг:

@@ -1,0 +1,33 @@
+name: Clean run
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  clean-run:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Isolated setup, smoke, external batch, metrics, bundle verification
+        run: python scripts/release/clean_run.py --output-dir outputs/clean-ci
+      - name: Idempotent replay
+        run: python scripts/release/clean_run.py --output-dir outputs/clean-ci
+      - name: Retain safe report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-run-${{ matrix.os }}
+          path: |
+            outputs/clean-ci/report.json
+            outputs/clean-ci/report.md
