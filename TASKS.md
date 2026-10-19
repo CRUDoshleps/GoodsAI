@@ -57,7 +57,8 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
-| DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | REVIEW | technical writer | Codex (сессия Влада) | `docs/docs-001-reproducible-instructions` | проверенные инструкции и доказательства M1/M2 |
+| DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | DONE | technical writer | Codex (сессия Влада) | `docs/docs-001-reproducible-instructions` | PR #31 merge `55378f1`, зеркало Gitea успешно |
+| ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | IN_PROGRESS | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | проверяемая offline-сборка шести артефактов |
 | BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | READY | NLP/baseline | — | — | консервативный прототип извлечения модели товара |
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
@@ -94,6 +95,21 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
   `docs/RESULTS.md` с историей M1/M2 и hashes; бывший validation явно feedback.
   В полном clone с новым окружением: 82 + 3 tests, demo 6/6, pip check OK.
   BASE-001 уже имеет реализацию M1; статус общей задачи должен сверить интегратор.
+
+## Как передать результат
+
+## ART-003 — сборщик комплекта артефактов
+
+- Начато 19.10.2026, база `work/main=55378f1`, после DOCS-001.
+- Scope: этап B плана второго прогона, отдельный `scripts/release/build_release.py`,
+  синтетические проверки и инструкция. Контракт/runtime/demo не меняются.
+- Проверки: комплектность шести артефактов, SHA и provenance, согласованность
+  input/predictions/manifest/metrics, запрет перезаписи и публикации реальных
+  данных в публичном smoke; при отсутствующем gold — качество N/A.
+- ART-002 в `rel/rel-003-review-remediation` и его runtime/demo не затрагиваются.
+  Финальный реальный batch и утверждённый канал сдачи остаются ART-001.
+- DOCS-001 завершён по разрешению Влада: PR #31 слит `55378f1`, GitHub Actions
+  mirror success, SHA GitHub/Gitea совпали. VM не обновлялась.
 
 ## Как передать результат
 
