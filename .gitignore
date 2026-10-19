@@ -27,6 +27,7 @@ ai.env
 
 # Python environments and caches.
 .venv/
+.venv-ml/
 venv/
 env/
 __pycache__/
