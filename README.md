@@ -234,6 +234,10 @@ frozen spec и полный проверенный bundle. Закрытые и �
 
 ## Карта документации
 
+Статусы результатов, источники цифр и оформление материалов проверяются по
+[CONTENT_STYLE](docs/CONTENT_STYLE.md); для слайдов есть отдельный
+[checklist защиты](docs/PRESENTATION_REVIEW.md).
+
 | Файл | Назначение |
 | --- | --- |
 | [TASKS.md](TASKS.md) | очередь, владельцы, статусы и подробные подзадачи |
@@ -242,6 +246,7 @@ frozen spec и полный проверенный bundle. Закрытые и �
 | [RESEARCH.md](RESEARCH.md) | научные и open source основания решений |
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | что реально сделано и что ещё отсутствует |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | текущая и целевая архитектура гибридного pipeline |
+| [docs/SPAN_INDEX.md](docs/SPAN_INDEX.md) | внутренние исходные spans, limits и отдельный замер покрытия |
 | [docs/DATASET.md](docs/DATASET.md) | подготовка, ограничения и защита от утечки |
 | [docs/EVALUATION.md](docs/EVALUATION.md) | дизайн эксперимента, формулы и честные метрики |
 | [docs/RESULTS.md](docs/RESULTS.md) | происхождение, snapshots и воспроизведение M1/M2 |
