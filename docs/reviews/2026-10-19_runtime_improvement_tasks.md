@@ -69,9 +69,47 @@ S — до одного дня инженерной работы, M — орие
 | [LLM-003 #25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | Различать fake tests и разрешённый live trace; external JSONL; реальный usage; provider capabilities и причины отказов | Никаких live calls в GOV-004, исходные бюджет/data gates сохранены |
 | [EVAL-005 #40](https://github.com/CRUDoshleps/GoodsAI/issues/40) | Пофакторные ablations, extraction/normalization/attachment отдельно, provenance labels, cold/warm и цена ошибки category routing | Frozen validation, blind test без настройки и исходные зависимости |
 | [PRODUCT-002 #50](https://github.com/CRUDoshleps/GoodsAI/issues/50) | Настоящий backend и сохранение после reload; конкурирующие candidates; browser offsets и safe HTML; versioned export | Audit и exact evidence обязательны; новая очередь не дублируется |
+| [EVAL-004 #39](https://github.com/CRUDoshleps/GoodsAI/issues/39) | Риск условно на принятии, независимая calibration, контроль выбора порога и support, односторонняя граница | Auto-accept ждёт независимой приёмки; малый development sample не даёт гарантии |
+| [LLM-004 #59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | Аудит без model calls; версии index/planner и access flags в ключе; связь с replay | Это та же задача exact-cache; labels и зависимости сохранены |
 
 Это дополнения приёмки, а не заявление о завершении этих функций.
 Существующие владельцы, labels, статусы и claims не менялись.
+
+## Очередь исполнения: фрагменты, контекст, replay и уточнение
+
+Дополнительно заведены пять задач #64–#68. Вместе с первым списком GOV-004
+содержит десять новых Issues; N2 использует уже созданную #59.
+
+| Гипотеза / Issue | Статус / P | Результат и зависимости | Эксперимент / решение |
+| --- | --- | --- | --- |
+| N1: [BASE-002 #64](https://github.com/CRUDoshleps/GoodsAI/issues/64) | READY / P1 | Ограниченный SpanIndex, стабильные IDs, raw offsets; изолированная synthetic-реализация | Детерминизм, exact source slice, неизвестные названия, Unicode/HTML и предел размера. Без model calls и gold/test |
+| N1: [LLM-005 #65](https://github.com/CRUDoshleps/GoodsAI/issues/65) | BLOCKED / P1 | Модель выбирает ID, код строит value; #64, #25, #37, #43, #6/#7 | E1: candidate recall ≥98%, потеря macro-F1 ≤1 п.п.; ≥20% меньше output tokens либо ≥30% меньше copy/schema rejects, без новых evidence errors |
+| N2: [LLM-004 #59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | BLOCKED / P1 | Точный cache/coalescing; предварительный локальный аудит без платного inference | E2: cold/warm stream и mutations; ≥10% меньше cold calls, совпадение проверенных результатов, все invalidations проходят |
+| N3: [LLM-006 #66](https://github.com/CRUDoshleps/GoodsAI/issues/66) | BLOCKED / P1 | Исходные блоки и full fallback, проверка по полному источнику; #25, #37, #40, #49, #6/#7 | E3: ≥25% меньше input tokens с учётом fallback, потеря recall ≤1 п.п.; не теряются отрицания/конфликты |
+| N4: [ARCH-002 #67](https://github.com/CRUDoshleps/GoodsAI/issues/67) | BLOCKED / P2 | Полный immutable producer snapshot и новый downstream run; #24, #37, #43, #44 | E4: точное равенство эталонному downstream run на том же producer output, stale dependencies → miss; ≥50% меньше wall time либо согласованная экономия вызовов |
+| N5: [PRODUCT-007 #68](https://github.com/CRUDoshleps/GoodsAI/issues/68) | BLOCKED / P2 | Локальный RepairPacket после подтверждённого source gap/конфликта; #10, #37, #50 | E5: crossover 30–40 случаев / минимум 4 участника; +15 п.п. valid repair либо −20% median time без роста fabricated facts |
+
+Это предварительные gates, которые фиксируются до эксперимента, а не
+измеренные результаты. E1/E3 сначала screening на 60 разрешённых development
+карточках, затем ориентировочно 200 independent validation; точный объём
+согласуется по разметке и требуемой точности. Широкий доверительный интервал
+не разрешает включить компонент. Test не используется для выбора настройки.
+E4 сравнивает один и тот же producer output: новая стохастическая генерация
+не обязана дать те же candidates. Полные детали и границы находятся в Issues.
+
+### Порядок старта
+
+1. После согласования индекса взять BASE-002 отдельным claim; сделать только
+   SpanIndex и synthetic-проверки, без изменения публичного prediction.
+2. Параллельно по существующим задачам закрыть независимую разметку, verifier,
+   model adapter и cost ledger. Локальный аудит повторов относится к #59;
+   недоступность adapter не требует платных вызовов для такого аудита.
+3. После зависимостей выполнить E1 и E2. N3 включать в сравнение отдельно,
+   чтобы отличить пользу selector от сокращения контекста.
+4. N4/N5 выполнять после основного сценария; они не блокируют P0 и сдачу.
+
+Новые задачи не назначены исполнителям. Внешние model calls, отправка
+сообщений продавцам и внедрение в runtime в GOV-004 не выполнялись.
 
 ## Границы решений
 

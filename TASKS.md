@@ -46,7 +46,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
-| GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | IN_PROGRESS | product/архитектор | Codex (tunaIT) | `gov/gov-004-runtime-improvement-tasks` | дополнить задачи исполнения: span index/selector, контекст, replay, repair; 19.10.2026 |
+| GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | REVIEW | product/архитектор | Codex (tunaIT) | `gov/gov-004-runtime-improvement-tasks` | 10 новых задач, 6 уточнений приёмки, приоритеты и зависимости; PR #63 |
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
@@ -93,6 +93,30 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 [PRODUCT-002 #50](https://github.com/CRUDoshleps/GoodsAI/issues/50) уточнена приёмка.
 Их владельцы, статусы и claims не менялись; второй encoder/router/review UI
 отдельными задачами не заводился.
+
+## Задачи выбора фрагментов, контекста и повторной обработки
+
+Приоритет ближайшего исполнения: BASE-002, затем LLM-005 и LLM-006 после
+готовности зависимостей. Аудит повторов выполняется в LLM-004 #59 без нового
+Issue. ARCH-002 и PRODUCT-007 не задерживают существующие P0.
+
+| ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| BASE-002 | [#64](https://github.com/CRUDoshleps/GoodsAI/issues/64) | P1 | READY | NLP/backend | — | — | Детерминированный SpanIndex с raw offsets и ограничением размера; сначала synthetic |
+| LLM-005 | [#65](https://github.com/CRUDoshleps/GoodsAI/issues/65) | P1 | BLOCKED | LLM/NLP | — | — | Selector выбирает span ID, значение собирается кодом; ждёт #64, #25, #37, #43, #6/#7 |
+| LLM-006 | [#66](https://github.com/CRUDoshleps/GoodsAI/issues/66) | P1 | BLOCKED | LLM/NLP | — | — | Исходные блоки контекста с отрицаниями, конфликтами и full fallback; ждёт #25, #37, #40, #49, #6/#7 |
+| ARCH-002 | [#67](https://github.com/CRUDoshleps/GoodsAI/issues/67) | P2 | BLOCKED | архитектор/backend | — | — | Полный private snapshot кандидатов и новый decision diff; ждёт #24, #37, #43, #44 |
+| PRODUCT-007 | [#68](https://github.com/CRUDoshleps/GoodsAI/issues/68) | P2 | BLOCKED | product/backend | — | — | Нейтральный запрос уточнения после проверенного source gap; ждёт #10, #37, #50 |
+
+У каждой задачи есть шаги, эксперимент, keep/drop и границы. READY относится
+к изолированному индексу и synthetic-проверкам; это не разрешение на внешние
+model calls или использование test. Начало реализации требует отдельного claim
+после публикации согласованного индекса. Автоматическая отправка вопросов
+продавцам не входит в PRODUCT-007.
+
+Уточнены fingerprint и предварительный аудит в [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59),
+а также независимая calibration и риск среди принятых значений в
+[#39](https://github.com/CRUDoshleps/GoodsAI/issues/39). Владельцы и статусы сохранены.
 
 ## Как взять задачу
 
@@ -513,7 +537,9 @@ Gitea fast-forward; divergence останавливает job, а старый G
 ## GOV-004 — дополнение backlog
 
 - Claim `35c6b5b` опубликован до правок документов; ветка `gov/gov-004-runtime-improvement-tasks`.
-- Добавлены пять отдельных задач с experiment/keep-drop, зависимостями и приёмкой.
-- Уточнены #16, #25, #40, #50 без смены их владельцев/статусов.
+- Продолжение планирования: claim `84f596e` опубликован до дополнения документов.
+- Добавлены десять отдельных задач #58–#62 и #64–#68 с experiment/keep-drop, зависимостями и приёмкой.
+- Уточнены #16, #25, #39, #40, #50, #59 без смены их владельцев/статусов.
+- BASE-002 готова к изолированному исполнению, остальные новые функции ждут перечисленных зависимостей.
 - Runtime, модели, test reserve, реальные данные и VM не менялись.
 - Дубликаты задач #35–#54 не создавались; PR #55 и чужие claims не изменены.
