@@ -46,7 +46,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-001 | [#2](https://github.com/CRUDoshleps/GoodsAI/issues/2) | P0 | REVIEW | архитектор/интегратор | Codex | `docs/gov-001-team-workflow` | единая документация и процесс совместной работы |
 | GOV-002 | [#1](https://github.com/CRUDoshleps/GoodsAI/issues/1) | P0 | DONE | архитектор/интегратор | Codex | `gov/gov-002-task-system` | GitHub labels, issue forms и проверяемый захват задач |
-| GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | REVIEW | product/архитектор | Codex (tunaIT) | `gov/gov-004-runtime-improvement-tasks` | 5 новых Issues, приёмка #16/#25/#40/#50 и индекс без изменения runtime |
+| GOV-004 | [#57](https://github.com/CRUDoshleps/GoodsAI/issues/57) | P1 | IN_PROGRESS | product/архитектор | Codex (tunaIT) | `gov/gov-004-runtime-improvement-tasks` | дополнить задачи исполнения: span index/selector, контекст, replay, repair; 19.10.2026 |
 | SYNC-001 | — | P0 | DONE | интегратор | Codex | `main` | актуальный Gitea `main` перенесён в основной GitHub `main` |
 | SEC-001 | [#3](https://github.com/CRUDoshleps/GoodsAI/issues/3) | P0 | READY | владелец доступов | — | — | заменить опубликованные VM, Gitea, Jupyter и LLM-секреты |
 | ENV-001 | [#4](https://github.com/CRUDoshleps/GoodsAI/issues/4) | P0 | READY | QA/MLOps | — | — | воспроизвести последний SHA на VM и сохранить протокол |
