@@ -186,7 +186,7 @@ Issue. ARCH-002 и PRODUCT-007 не задерживают существующ�
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| LLM-005 | [#65](https://github.com/CRUDoshleps/GoodsAI/issues/65) | P1 | BLOCKED | LLM/NLP | — | — | Selector выбирает span ID, значение собирается кодом; ждёт #64, #25, #37, #43, #6/#7 |
+| LLM-005 | [#65](https://github.com/CRUDoshleps/GoodsAI/issues/65) | P1 | IN_PROGRESS | LLM/NLP | Codex (e345ee) | `llm/llm-005-span-selector` | 20.10.2026: claim по поручению; selector client enum + source normalizer; E1 validation отдельно |
 | LLM-006 | [#66](https://github.com/CRUDoshleps/GoodsAI/issues/66) | P1 | REVIEW | LLM/NLP | Codex (e345ee) | `llm/llm-006-source-context` | 20.10.2026: claim по поручению; opt-in raw blocks, full fallback, E3 gate отдельно |
 | ARCH-002 | [#67](https://github.com/CRUDoshleps/GoodsAI/issues/67) | P2 | BLOCKED | архитектор/backend | — | — | Полный private snapshot кандидатов и новый decision diff; ждёт #24, #37, #43, #44 |
 | PRODUCT-007 | [#68](https://github.com/CRUDoshleps/GoodsAI/issues/68) | P2 | BLOCKED | product/backend | — | — | Нейтральный запрос уточнения после проверенного source gap; ждёт #10, #37, #50 |
