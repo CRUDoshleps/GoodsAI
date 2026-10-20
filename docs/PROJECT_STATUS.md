@@ -30,6 +30,18 @@ not_found на `relation_name_token`; требование color=null/abstain с
 без изменений значений (M2 72/0/11, D21–D40 62/0/20 TP/FP/FN до=после).
 Это не независимая оценка. Нормализация, score и v0.1 не меняются.
 
+## 20.10.2026: BASE-001 model follow-up — REVIEW
+
+Claim `b348248`, база `857115d`, ветка `baseline/base-001-model-boundaries`.
+Исправлены явные границы мл/ml, SIM feature, material/color modifier;
+поддержаны digit-first index, split alphanumeric index и однозначные полные
+коммерческие имена. Unknown multiword maker, unitless memory и служебные коды
+с неясной ролью по-прежнему дают abstain. Единицы, normalization и v0.1 прежние.
+310 tests OK, 4 новых model test methods. Демо 6/6. На прежних 40 AI-assisted
+reviewed development: model TP/FP/FN 24/0/12 → 33/0/3; 0 lost TP/new FP,
+0 изменений других атрибутов. Независимая оценка не выполнялась.
+[Результаты и ограничения](research/base001_followup_results.md).
+
 ## 20.10.2026: backlog по ревью «прогон 2» — REVIEW
 
 GOV-006 #97, claim `c15ec9b`, ветка `gov/gov-006-review-run-2`.

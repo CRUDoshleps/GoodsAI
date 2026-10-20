@@ -4,12 +4,12 @@ import re
 LETTERS = "A-Za-zА-Яа-яЁё"
 TOKEN = rf"[{LETTERS}0-9]+(?:[-.][{LETTERS}0-9]+)*"
 WORD = rf"[{LETTERS}]+"
-CODE = rf"(?=[{LETTERS}0-9.-]*\d)[{LETTERS}][{LETTERS}0-9]*(?:[-.][{LETTERS}0-9]+)*"
+CODE = rf"(?=[{LETTERS}0-9.-]*\d)(?=[{LETTERS}0-9.-]*[{LETTERS}])[{LETTERS}0-9]+(?:[-.][{LETTERS}0-9]+)*"
 IDENTIFIER = rf"(?:{CODE}|\d{{1,4}})"
 NETWORK = r"(?:4G|5G|LTE)"
 SUFFIX = r"(?:Pro|Ultra|Plus|Max|Lite|Mini|FE|SE|Neo)"
 NAME = re.compile(rf"(?:{WORD}\s+){{0,2}}{IDENTIFIER}(?:\s+{SUFFIX}){{0,2}}(?:\s+{NETWORK})?", re.I)
-KETTLE_CODE = re.compile(rf"(?<!\w)(?:{CODE}|[A-ZА-ЯЁ]{{1,6}}\s+\d{{1,6}})(?!\w)")
+KETTLE_CODE = re.compile(rf"(?<!\w)(?:[A-ZА-ЯЁ]{{1,6}}\s+(?:{CODE}|\d{{1,6}})|{CODE})(?!\w)")
 MARKER = re.compile(r"\b(?:модель|model)\s*[:=]\s*", re.I)
 BAD_CONTEXT = re.compile(
     r"\b(?:для|совместим\w*|сравн\w*|вместо|аналог\w*|поддерж\w*|не|нет|без|"
@@ -17,7 +17,9 @@ BAD_CONTEXT = re.compile(
 DESCRIPTOR = re.compile(
     r"^\s*(?:(?:восстановленный|новый|мобильный)\s+)?"
     r"(?:смартфон|телефон|электрочайник|чайник|электрический\s+чайник)\s+", re.I)
-QUANTITY = re.compile(r"\d+(?:[.,]\d+)?(?:\s*[/+]\s*\d+)?\s*(?:GB|ГБ|TB|ТБ|мАч|mAh|Вт|W|кВт|л|L|дюйм\w*)(?!\w)", re.I)
+QUANTITY = re.compile(r"\d+(?:[.,]\d+)?(?:\s*[/+]\s*\d+)?\s*(?:GB|ГБ|TB|ТБ|мА\*?ч|mAh|Вт|W|кВт|мл|ml|л|L|дюйм\w*)(?!\w)", re.I)
+SIM_FEATURE = re.compile(r'(?:Dual\s+SIM(?:\s*\+\s*eSIM)?|eSIM|Nano-SIM)(?!\w)', re.I)
+MATERIAL = re.compile(r'(?:нержавеющ\w*\s+сталь|stainless\s+steel)(?!\w)', re.I)
 STATE = re.compile(r"(?:восстановленный|рабочий|новый|б/у)\b", re.I)
 
 
@@ -32,6 +34,8 @@ class ModelRules:
         self.model_brands = sorted(set(self.brands) | set(config.get("model_brand_aliases", [])),
                                    key=len, reverse=True)
         self.colors = sorted({a for aliases in config["colors"].values() for a in aliases}, key=len, reverse=True)
+        self.color_prefixes = config.get('color_modifiers', {}).get('prefix', [])
+        self.color_suffixes = config.get('color_modifiers', {}).get('suffix', [])
 
     @staticmethod
     def prefix(text: str, aliases: list[str]):
@@ -53,16 +57,21 @@ class ModelRules:
         return end or None
 
     def tail_is_boundary(self, tail: str) -> bool:
-        tail = tail.strip()
+        tail = tail.strip().lstrip(',; ')
         if not tail:
             return True
         # A measure starts a specifications suffix. Never infer its missing unit.
-        if QUANTITY.match(tail):
+        if QUANTITY.match(tail) or SIM_FEATURE.match(tail) or MATERIAL.match(tail):
             return True
-        tail = tail.lstrip(",; ")
+        modifier = self.prefix(tail, self.color_prefixes)
+        if modifier:
+            tail = tail[modifier.end():].lstrip()
         color = self.prefix(tail, self.colors)
         if color:
             rest = tail[color.end():].strip()
+            modifier = self.prefix(rest, self.color_suffixes)
+            if modifier:
+                rest = rest[modifier.end():].strip()
             return not rest or (rest.startswith(",") and bool(STATE.fullmatch(rest[1:].strip())))
         return bool(STATE.fullmatch(tail))
 
@@ -113,28 +122,48 @@ class ModelRules:
             fragment = m.group()
             # An isolated number or a unit is not an explicit model name.
             if (not re.search(rf"[{LETTERS}]", fragment)
-                    or QUANTITY.fullmatch(fragment) or not self.tail_is_boundary(text[m.end():])):
+                    or QUANTITY.search(fragment) or re.fullmatch(NETWORK, fragment, re.I)
+                    or not self.tail_is_boundary(text[m.end():])):
                 return
             yield begin, m.end(), "model.phone-title.v2"
         elif self.profiles[category] == "kettle" and descriptor:
             # A manufacturer phrase followed by exactly one unambiguous index.
-            matches = list(KETTLE_CODE.finditer(body))
+            known_brand = self.prefix(body, self.model_brands)
+            maker = known_brand or re.match(rf'{WORD}(?:\s*&\s*{WORD})*\s+', body)
+            if maker is None:
+                return
+            # Do not mistake an uppercase maker followed by its code for a split model index.
+            matches = [m for m in KETTLE_CODE.finditer(body, maker.end()) if not QUANTITY.fullmatch(m.group())]
             if len(matches) != 1:
                 return
             m = matches[0]
             manufacturer = body[:m.start()].strip()
-            known_brand = self.prefix(body, self.model_brands)
             if known_brand:
                 # Words between an explicit maker and its index may be part of
                 # the commercial model. Do not silently discard them.
-                if manufacturer.casefold() != known_brand.group().strip().casefold():
-                    return
+                family = body[known_brand.end():m.start()].strip()
+                if family and not re.fullmatch(r'[A-Z][A-Za-z]*', family):
+                    return  # A multiword prefix still has an ambiguous maker/model boundary.
             elif not re.fullmatch(rf"{WORD}(?:\s*&\s*{WORD}){{0,3}}", manufacturer):
                 # An unrecognised multiword prefix could be maker + model series.
                 return
-            if not self.tail_is_boundary(body[m.end():]):
+            start = known_brand.end() if known_brand else m.start()
+            while start < m.start() and body[start].isspace():
+                start += 1
+            end = m.end()
+            if not self.tail_is_boundary(body[end:]) and known_brand and re.search(r'\s', m.group()):
+                # Preserve an explicitly written full split-index name, never truncate it.
+                qualifiers = re.match(r'(?:\s+[A-Z][A-Za-z]*){1,3}', body[end:])
+                if qualifiers:
+                    end += qualifiers.end()
+            fragment = body[start:end]
+            if (not self.tail_is_boundary(body[end:]) or BAD_CONTEXT.search(fragment) or STATE.search(fragment)
+                    or re.fullmatch(NETWORK, fragment, re.I)
+                    or re.search(r'\b(?:тип|type|sku|артикул)\b', fragment, re.I)
+                    or (end > m.end() and any(re.fullmatch(r'[A-Z]{1,3}', word) for word in body[m.end():end].split()))
+                    or any(re.search(r'(?<!\w)' + re.escape(c) + r'(?!\w)', fragment, re.I) for c in self.colors)):
                 return
-            yield begin + m.start(), begin + m.end(), "model.kettle-title.v2"
+            yield begin + start, begin + end, "model.kettle-title.v2"
 
     def spans(self, category: str, field: str, text: str):
         yield from self.explicit(category, text)
