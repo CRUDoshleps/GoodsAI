@@ -196,10 +196,16 @@ API временный до публикации точной схемы орг�
 ## Конфигурация
 
 Настройки запуска описаны в [CONFIGURATION](docs/CONFIGURATION.md): versioned
-профиль задаёт границы чисел, scores правил, контекстные окна и HTTP limits.
+профиль задаёт границы чисел, scores правил, контекстные окна, HTTP limits
+и не-секретные LLM-параметры. Полный безопасный пример —
+[configs/production.example.json](configs/production.example.json).
 CLI принимает `--config path.json` перед подкомандой; HTTP-сервис поддерживает
 тот же профиль через `python -m goodsai.api --config path.json`. Невалидный
-профиль останавливает запуск; LLM и auto-accept остаются выключенными.
+профиль останавливает запуск; LLM включается только явным opt-in, auto-accept
+запрещён. Приоритет настроек общий: профиль → разрешённые env → явные CLI-флаги.
+Manifest содержит effective config/policy и их SHA-256 без ключа/URL шлюза;
+у API эти hashes доступны в `/health`. Числовой review threshold до калибровки
+не поддерживается (`null`), score остаётся эвристическим.
 
 ## Подготовка данных
 
@@ -304,7 +310,7 @@ default rules runtime неприменимы: route не реализован, �
 
 В Windows PowerShell используйте `.\.venv\Scripts\python.exe` и перед общим
 suite задайте `$env:PYTHONUTF8='1'`: существующие config/registry tests создают
-временные Unicode-файлы. После LLM-007 — 334 основных + 3 reader tests;
+временные Unicode-файлы. После CONF-002 — 346 основных + 3 reader tests;
 результат предшествующего принятого snapshot — 322 + 3 и strict acceptance 83/83
 ([SHA, CI и границы проверки](docs/reviews/2026-10-20_linked_acceptance.md)).
 
@@ -318,6 +324,15 @@ suite задайте `$env:PYTHONUTF8='1'`: существующие config/regi
 cache replay сохраняют rules при неверном ответе. Ключ шлюза не нужен,
 платных вызовов нет. Семантика смешанного ответа и причин отказов — в
 [LLM](docs/LLM.md#повреждённый-ответ-и-кэш-llm-007).
+
+Единая конфигурация, precedence и production-пример проверяются отдельно:
+
+```bash
+.venv/bin/python -m unittest discover -s tests -p test_runtime_policy.py -v
+```
+
+12 tests используют синтетику и fake provider; production-пример дополнительно
+запускается настоящими CLI и HTTP-процессом на loopback. Платных вызовов нет.
 
 Генеративные проверки Unicode/HTML, schema, единиц и evidence запускаются
 отдельно после установки `.[fuzz]`:

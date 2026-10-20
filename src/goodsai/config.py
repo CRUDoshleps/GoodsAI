@@ -50,6 +50,40 @@ def default_api_limits():
     return deepcopy(_packaged()["runtime"]["api"])
 
 
+def default_llm_policy():
+    return deepcopy(_packaged()["runtime"]["llm"])
+
+
+def validate_llm_policy(policy):
+    """One schema for profile, resolved overrides and low-level LLMSettings."""
+    _keys(policy, default_llm_policy(), location="runtime.llm")
+    if policy["model"] is not None:
+        _string(policy["model"], "runtime.llm.model")
+        if len(policy["model"]) > 200:
+            raise ValueError("LLM model must have at most 200 characters")
+    for key in ("max_calls", "daily_max_calls"):
+        if type(policy[key]) is not int or policy[key] < 0:
+            raise ValueError("LLM call budgets must be non-negative integers")
+    for key, low, high in (("max_attempts", 1, 5), ("concurrency", 1, 8),
+                           ("max_tokens", 64, 8192), ("circuit_breaker", 1, 100)):
+        if type(policy[key]) is not int or not low <= policy[key] <= high:
+            raise ValueError(f"LLM parameter outside supported integral range: {key}")
+    _number(policy["timeout_seconds"], "runtime.llm.timeout_seconds")
+    if not 1 <= policy["timeout_seconds"] <= 300:
+        raise ValueError("LLM timeout must be between 1 and 300 seconds")
+    if type(policy["json_mode"]) is not bool:
+        raise ValueError("LLM json_mode must be a boolean")
+    for key in ("price_input_per_1k", "price_output_per_1k"):
+        if policy[key] is not None:
+            _number(policy[key], key)
+            if policy[key] < 0:
+                raise ValueError("LLM prices must be non-negative")
+    for key in ("cache_dir", "budget_ledger"):
+        if policy[key] is not None:
+            _string(policy[key], key)
+    return deepcopy(policy)
+
+
 def _keys(value, required, optional=(), location="config"):
     if not isinstance(value, dict) or set(value) - set(required) - set(optional) or set(required) - set(value):
         raise ValueError(f"Invalid keys in configuration section: {location}")
@@ -184,9 +218,16 @@ def validate_config(config: dict) -> dict:
             raise ValueError("Rule windows must be positive integers")
 
     runtime = config["runtime"]
-    _keys(runtime, {"llm_enabled", "auto_accept_enabled", "api"}, location="runtime")
+    _keys(runtime, {"llm_enabled", "auto_accept_enabled", "api"},
+          {"llm", "review_threshold"}, location="runtime")
     if runtime["llm_enabled"] is not False or runtime["auto_accept_enabled"] is not False:
         raise ValueError("LLM and auto_accept are unsupported in the uncalibrated rules runtime")
+    # Backward-compatible completion of old v1/v2 profiles. A present section is complete.
+    runtime.setdefault("llm", default_llm_policy())
+    runtime.setdefault("review_threshold", None)
+    if runtime["review_threshold"] is not None:
+        raise ValueError("Review threshold requires calibration; only null is supported")
+    runtime["llm"] = validate_llm_policy(runtime["llm"])
     _keys(runtime["api"], {"max_body_bytes", "limit_concurrency", "timeout_keep_alive_seconds"}, location="runtime.api")
     if any(type(value) is not int or value <= 0 for value in runtime["api"].values()):
         raise ValueError("API limits must be positive integers")
