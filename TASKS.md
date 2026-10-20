@@ -11,7 +11,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-007 | [#121](https://github.com/CRUDoshleps/GoodsAI/issues/121) | P1 | REVIEW | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-007-next-checkpoint-backlog` | claim 5de5aab; четыре новые задачи и общая метка опубликованы; существующие задачи включены без смены владельцев/статусов; индекс подготовлен к интеграции |
 | DOCS-004 | [#122](https://github.com/CRUDoshleps/GoodsAI/issues/122) | P0 | READY | technical writer/QA | — | — | согласовать публичные REQUIREMENTS/RESULTS/reports и оба README с runtime; история и provenance сохраняются |
-| EVAL-007 | [#123](https://github.com/CRUDoshleps/GoodsAI/issues/123) | P1 | READY | evaluation/data | — | — | свежий baseline против прежнего producer на frozen silver; приватный проверенный bundle обязателен, independent quality не заявляется |
+| EVAL-007 | [#123](https://github.com/CRUDoshleps/GoodsAI/issues/123) | P1 | IN_PROGRESS | evaluation/data | Codex (e345ee) | `eval/eval-007-frozen-baseline` | 20.10.2026: claim; comparison/handoff с frozen hashes, bundle локально отсутствует |
 | CONF-004 | [#124](https://github.com/CRUDoshleps/GoodsAI/issues/124) | P1 | BLOCKED | архитектор/data/NLP | — | — | реальный категорийный пилот существующего registry; ждёт #10/#5 и приёмку #44; synthetic 30 не равны real coverage |
 | EVAL-008 | [#125](https://github.com/CRUDoshleps/GoodsAI/issues/125) | P1 | BLOCKED | evaluation/ML/LLM | — | — | общий development benchmark actual rules/LLM/brand-hybrid; ждёт #123, artifacts/режимы #16/#25 и разрешение пакета/бюджета; #40 не закрывает |
 
