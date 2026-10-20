@@ -7,8 +7,8 @@
 | GOV-006 | [#97](https://github.com/CRUDoshleps/GoodsAI/issues/97) | P1 | DONE | аналитик/координатор | urasha / Codex (сессия Влада) | `main` | PR #102 merged 857115d; campaign backlog и метка опубликованы |
 | QA-006 | [#98](https://github.com/CRUDoshleps/GoodsAI/issues/98) | P0 | DONE | QA/backend | urasha / Codex (сессия Влада) | `main` | PR #103 merged aee1bba; CI 6/6 SUCCESS; strict 83/83; mirror 39384309897 SUCCESS |
 | LLM-007 | [#99](https://github.com/CRUDoshleps/GoodsAI/issues/99) | P0 | DONE | LLM/backend | urasha / Codex (сессия Влада) | `main` | PR #107 merged f8f4a59 по поручению Влада; CI 6/6 SUCCESS, 334+3 tests OK, внешний rules acceptance 83/83; issue закрыта |
-| LLM-008 | [#100](https://github.com/CRUDoshleps/GoodsAI/issues/100) | P1 | REVIEW | LLM/MLOps | Глеб Алферов | `llm/llm-008-bounded-calls` | bounded response/deadline/physical attempts и failure tests; 1 МиБ, 120 с, 300 физических попыток в сутки; локальный HTTP stub |
-| DOCS-003 | [#101](https://github.com/CRUDoshleps/GoodsAI/issues/101) | P1 | READY | technical writer/QA | — | — | проверенный запуск с собственным JSONL и объяснения ответов |
+| LLM-008 | [#100](https://github.com/CRUDoshleps/GoodsAI/issues/100) | P1 | DONE | LLM/MLOps | Глеб Алферов | `llm/llm-008-bounded-calls` | PR #112 merged 7aec082; Issue #100 closed; 1 МиБ, 120 с, 300 физических попыток в сутки |
+| DOCS-003 | [#101](https://github.com/CRUDoshleps/GoodsAI/issues/101) | P1 | IN_PROGRESS | technical writer/QA | Глеб Алферов | `docs/docs-003-own-jsonl-quickstart` | проверенный запуск с собственным JSONL и объяснения ответов; claim 20.10.2026 |
 
 Связь с баллами и существующими задачами:
 [план прогона 2](docs/reviews/2026-10-20_run_2_action_plan.md).
@@ -85,7 +85,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | DONE | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
 | DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | DONE | technical writer | Codex (сессия Влада) | `docs/docs-001-reproducible-instructions` | PR #31 merge `55378f1`, зеркало Gitea успешно |
 | BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | DONE | NLP/baseline | urasha / Codex (сессия Влада) | `main` | PR #105 merged 71cae4b; CI 4/4 SUCCESS; 9 model FN→TP on development, без новых FP/lost TP |
-| LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
+| LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | DONE | LLM engineer | — | — | покрыто LLM-003 PR #90 и LLM-008 PR #112; Issue #12 closed |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
 | VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | DONE | NLP/QA | urasha / Codex (сессия Влада) | `main` | PR #104 merged d9e279a; CI 4/4 SUCCESS; имена/материал не цвет, LLM relation guard; QA-001 21/21 |
