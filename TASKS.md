@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-006 | [#97](https://github.com/CRUDoshleps/GoodsAI/issues/97) | P1 | DONE | аналитик/координатор | urasha / Codex (сессия Влада) | `main` | PR #102 merged 857115d; campaign backlog и метка опубликованы |
 | QA-006 | [#98](https://github.com/CRUDoshleps/GoodsAI/issues/98) | P0 | DONE | QA/backend | urasha / Codex (сессия Влада) | `main` | PR #103 merged aee1bba; CI 6/6 SUCCESS; strict 83/83; mirror 39384309897 SUCCESS |
-| LLM-007 | [#99](https://github.com/CRUDoshleps/GoodsAI/issues/99) | P0 | REVIEW | LLM/backend | urasha / Codex (сессия Влада) | `llm/llm-007-response-validation` | claim dce2c58; типы proposals/cache/envelope, 334+3 tests OK, внешний rules acceptance 83/83; review: wrakelft |
+| LLM-007 | [#99](https://github.com/CRUDoshleps/GoodsAI/issues/99) | P0 | DONE | LLM/backend | urasha / Codex (сессия Влада) | `main` | PR #107 merged f8f4a59 по поручению Влада; CI 6/6 SUCCESS, 334+3 tests OK, внешний rules acceptance 83/83; issue закрыта |
 | LLM-008 | [#100](https://github.com/CRUDoshleps/GoodsAI/issues/100) | P1 | READY | LLM/MLOps | — | — | bounded response/deadline/physical attempts и failure tests |
 | DOCS-003 | [#101](https://github.com/CRUDoshleps/GoodsAI/issues/101) | P1 | READY | technical writer/QA | — | — | проверенный запуск с собственным JSONL и объяснения ответов |
 

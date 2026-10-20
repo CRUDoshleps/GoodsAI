@@ -1,6 +1,11 @@
 # Состояние проекта
 
-## 20.10.2026: LLM-007 — REVIEW candidate, main не изменён
+## 20.10.2026: LLM-007 — DONE, PR #107 принят в main
+
+По прямому поручению Владислава PR #107 слит в `main`, merge `f8f4a59`.
+На head `bb0d0bc` все 6 CI checks SUCCESS, конфликтов и requests for changes нет.
+Ревью `wrakelft` было запрошено, отдельного ответа reviewer к моменту принятия нет;
+решение о merge принято Владиславом. Issue #99 закрыта с `status:done`.
 
 Issue #99, ветка `llm/llm-007-response-validation`, база `9086504`, claim `dce2c58`.
 Устранён воспроизведённый `TypeError` при нестроковом `attribute` в LLM-ответе.
@@ -15,7 +20,8 @@ pip check OK, внешний rules acceptance 83/83.
 проверены отсутствие 500, валидность predictions/manifest, продолжение партии,
 CLI/API parity и cache replay без вызова провайдера. Внешних model calls нет.
 Границы: byte/deadline/physical-attempt limits остаются #100; каталоговое качество
-и изменение баллов не измерены. Main/Gitea/VM этим PR не обновляются до merge.
+и изменение баллов не измерены. Публикация в Gitea выполняется штатным mirror
+workflow после merge. ВМ не обновлялась.
 [Поведение и воспроизведение](LLM.md#повреждённый-ответ-и-кэш-llm-007).
 
 ## 20.10.2026: связанные VER/BASE/QA приняты в main — DONE
