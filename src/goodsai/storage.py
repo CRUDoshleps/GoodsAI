@@ -224,3 +224,9 @@ def prediction_snapshot(output: Path):
             if not isinstance(record, dict) or record.get("output_sha256") != _sha(output):
                 raise ValueError("Prediction manifest checksum mismatch")
         yield output
+
+
+class FilePredictionSink:
+    """Default sink adapter; retains local-FS locks, recovery and atomic pair publication."""
+    def stage(self, output: Path):
+        return staged_prediction_pair(output)

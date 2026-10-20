@@ -208,13 +208,32 @@ MVP готов, когда:
 - поддержка всех категорий без отдельной проверки;
 - `auto_accept` на основе некалиброванного score.
 
-### Внутренний stage contract v1 (кандидат ARCH-001)
+### Внутренний stage contract v1 (ARCH-001)
 
 CandidateSource.candidates(Product) возвращает Iterable[Candidate];
 CandidateGate.reason(Candidate) возвращает reason или None. CategoryRegistry
 определяет attributes/category, unit и normalize. Это Python-интерфейсы,
 не новые поля JSON и не разрешение произвольного кода из конфигурации.
 Любой внедрённый source проходит общие проверки до merge кандидатов.
+
+Predictor.predict(Product, run_id) возвращает прежний JSON v0.1.
+ValueNormalizer.normalize(category_id, attribute, value, unit) возвращает
+каноническую строку либо выбрасывает ValueError. GateFactory.create(Product) создаёт
+подготовленный CandidateGate. Router.select(Product, eligible) возвращает
+tuple уникальных допустимых пропусков. Provider.complete принимает messages,
+max_tokens и необязательные deadline/reserve_attempt, возвращает ProviderResponse.
+PredictionSink.stage(output) — context manager двух staging Path: predictions
+и manifest; успешный выход публикует согласованную пару, ошибка сохраняет
+предыдущую. HTTP возвращает JSON напрямую, файлов не создаёт.
+
+CLI/API собирают зависимости через composition.build_runtime. Config v1/v2 и
+runtime policy v1 валидируются до работы; legacy config проходит существующую
+явную миграцию. Candidate уже содержит каноническое значение: normalizer
+проверяет числовое evidence в gate, source отвечает за первичную нормализацию
+по тому же профилю. Внедрение компонентов разрешено доверенному Python-коду,
+не JSON/env/plugin imports. Обязательные методы существующих source, поля
+JSON, решения, confidence и единицы не изменены. Официальное согласование
+SPEC-001 #10 остаётся отдельным условием. [Архитектура](docs/ARCHITECTURE.md).
 
 ### Opt-in категорийный реестр (кандидат CONF-003)
 

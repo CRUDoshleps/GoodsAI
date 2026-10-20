@@ -4,16 +4,19 @@ from collections import defaultdict
 from goodsai.contracts import Product, validate_prediction
 from goodsai.config import validate_config
 from goodsai.category_registry import Registry
-from goodsai.candidate_verifier import CandidateVerifier, validate_candidate
+from goodsai.candidate_verifier import VerifierFactory, validate_candidate
 from goodsai.rules import Rules
-from goodsai.stages import CandidateSource
+from goodsai.stages import CandidateSource, GateFactory
 
 
 class Extractor:
-    def __init__(self, config: dict, *, source: CandidateSource | None = None):
+    def __init__(self, config: dict, *, source: CandidateSource | None = None,
+                 registry=None, gate_factory: GateFactory | None = None):
         self.config = validate_config(config)
         self.rules = Rules(self.config) if source is None else source
-        self.registry = Registry(self.config)
+        self.registry = registry if registry is not None else Registry(self.config)
+        self.gate_factory = gate_factory if gate_factory is not None else VerifierFactory(
+            self.config, registry=self.registry, rules=self.rules if isinstance(self.rules, Rules) else None)
 
     def predict(self, product: Product, run_id: str = "rules-v0") -> dict:
         requested = self.config["categories"].get(product.category_id)
@@ -25,8 +28,7 @@ class Extractor:
             return row
         grouped = defaultdict(list)
         rejected = defaultdict(set)
-        gate = CandidateVerifier(product, self.config, registry=self.registry,
-                                 rules=self.rules if isinstance(self.rules, Rules) else None)
+        gate = self.gate_factory.create(product)
         for candidate in self.rules.candidates(product):
             validate_candidate(candidate, product, requested, self.config, registry=self.registry)
             reason = gate.reason(candidate)

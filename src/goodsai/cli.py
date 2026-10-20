@@ -13,31 +13,31 @@ from goodsai.contracts import Product, load_config
 from goodsai.data import check_output, digest, inventory_sources, prepare, read_jsonl, write_json, write_line
 from goodsai.evaluate import evaluate
 from goodsai.runtime import identity, peak_rss_bytes
-from goodsai.storage import staged_prediction_pair
-from goodsai.verify import Extractor
-from goodsai.config import validate_config
-from goodsai.policy import llm_settings, policy_for_settings, resolve_runtime_policy, runtime_metadata
+from goodsai.composition import Components, PipelineRuntime, build_runtime
+from goodsai.policy import policy_for_settings, resolve_runtime_policy
 
 
-def predict(input_path: Path, output: Path, config: dict, llm=None, *, runtime_policy=None) -> dict:
+def predict(input_path: Path, output: Path, config: dict, llm=None, *, runtime_policy=None,
+            components: Components | None = None) -> dict:
     """Rules-only by default; ``llm`` is an opt-in ``goodsai.llm.LLMExtractor``."""
-    config = validate_config(config)
     runtime_policy = runtime_policy or policy_for_settings(config, llm.settings if llm else None)
+    runtime = build_runtime(config, runtime_policy, components=components, legacy_llm=llm)
     output = output.resolve()
     check_output(output, input_path)
     check_output(output.with_suffix(".manifest.json"), input_path)
-    with staged_prediction_pair(output) as (staged_output, staged_manifest):
-        report = _predict_staged(input_path, staged_output, staged_manifest, config, llm, runtime_policy)
+    with runtime.sink.stage(output) as (staged_output, staged_manifest):
+        report = _predict_staged(input_path, staged_output, staged_manifest, runtime)
     return report
 
 
-def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path, config: dict, llm, runtime_policy) -> dict:
+def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path, runtime: PipelineRuntime) -> dict:
     started = time.perf_counter()
-    meta = identity(config) | runtime_metadata(config, runtime_policy)
+    config, llm = runtime.config, runtime.llm
+    meta = identity(config) | runtime.metadata
     input_hash = digest(input_path)
     run_material = input_hash + meta["code_sha256"] + meta["effective_config_sha256"]
     run_id = hashlib.sha256(run_material.encode()).hexdigest()[:20]
-    extractor = llm if llm is not None else Extractor(config)
+    extractor = runtime.predictor
     seen = set()
     elapsed = []
     rows = errors = 0
@@ -166,7 +166,6 @@ def main(argv=None) -> int:
             result.update(elapsed_seconds=time.perf_counter() - started, peak_process_rss_bytes=peak_rss_bytes())
             write_json(args.output_dir / "prepare_manifest.json", result)
         elif args.command == "predict":
-            llm = None
             policy = resolve_runtime_policy(config, enabled=args.llm, overrides={
                 "model": args.llm_model, "max_calls": args.llm_max_calls,
                 "timeout_seconds": args.llm_timeout, "max_attempts": args.llm_attempts,
@@ -177,25 +176,21 @@ def main(argv=None) -> int:
                 "cache_dir": args.llm_cache_dir, "daily_max_calls": args.llm_daily_max_calls,
                 "budget_ledger": args.llm_budget_file, "request_deadline_seconds": args.llm_deadline,
                 "max_response_bytes": args.llm_max_response_bytes, "max_proposals": args.llm_max_proposals})
-            if args.llm:
-                from goodsai.llm import LLMExtractor, provider_from_env
-                settings = llm_settings(policy)
-                llm = LLMExtractor(config, provider_from_env(settings), settings)
-            result = predict(args.input, args.output, config, llm, runtime_policy=policy)
-            if llm is not None and result["llm"]["disabled_reason"]:
+            result = predict(args.input, args.output, config, runtime_policy=policy)
+            if "llm" in result and result["llm"]["disabled_reason"]:
                 print(f"goodsai: LLM fallback disabled during run: {result['llm']['disabled_reason']}; "
                       "rule results are unchanged", file=sys.stderr)
         elif args.command == "llm-trace":
-            from goodsai.llm import LLMExtractor, provider_from_env, synthetic_trace
+            from goodsai.llm import synthetic_trace
             policy = resolve_runtime_policy(config, enabled=True, overrides={
                 "model": args.llm_model, "daily_max_calls": args.llm_daily_max_calls,
                 "budget_ledger": args.llm_budget_file})
             check_output(args.output)
             # Trace may reduce a configured limit, never increase it.
             policy["llm"]["max_calls"] = min(1, policy["llm"]["max_calls"])
-            settings = llm_settings(policy)
-            result = synthetic_trace(LLMExtractor(config, provider_from_env(settings), settings))
-            result.update(runtime_metadata(config, policy))
+            runtime = build_runtime(config, policy)
+            result = synthetic_trace(runtime.llm)
+            result.update(runtime.metadata)
             write_json(args.output, result)
             if result["llm"]["calls"] != 1 or result["llm"]["failures"]:
                 print("goodsai: live LLM trace did not complete: "

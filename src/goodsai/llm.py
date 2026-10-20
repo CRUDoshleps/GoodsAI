@@ -29,18 +29,20 @@ import re
 import tempfile
 import threading
 import time
-from typing import Callable, Protocol
+from typing import Callable
 import urllib.error
 import urllib.parse
 import urllib.request
 
 from goodsai.contracts import Product, validate_prediction
-from goodsai.config import default_llm_policy, validate_llm_policy
+from goodsai.config import default_llm_policy, validate_llm_policy, validate_config
 from goodsai.normalize import NUMBER, UNITS, model_name, number, numeric
 from goodsai.rules import Candidate, bounded_alias, uncertain
 from goodsai.text import visible_view
 from goodsai.verify import Extractor
-from goodsai.candidate_verifier import CandidateVerifier
+from goodsai.candidate_verifier import CandidateVerifier, VerifierFactory
+from goodsai.routing import SignalRouter
+from goodsai.stages import GateFactory, Predictor, Provider, ProviderResponse, Router
 
 PROMPT_VERSION = "llm-fill-v1"
 DATA_POLICY = "llm-data-policy-2026-10-19"
@@ -100,22 +102,6 @@ class ProviderError(Exception):
         self.fatal = fatal
         self.retry_after = retry_after
         self.attempts = attempts
-
-
-@dataclass(frozen=True)
-class ProviderResponse:
-    content: str
-    prompt_tokens: int = 0
-    completion_tokens: int = 0
-    model: str | None = None
-    attempts: int = 1
-
-
-class Provider(Protocol):
-    model: str
-
-    def complete(self, messages: list[dict], max_tokens: int, *, deadline: float | None = None,
-                 reserve_attempt: Callable[[], str | None] | None = None) -> ProviderResponse: ...
 
 
 @dataclass(frozen=True)
@@ -718,9 +704,13 @@ def _accepts_bounds(provider) -> bool:
 class LLMExtractor:
     """Rules first; one grounded LLM request per card for unresolved attributes only."""
 
-    def __init__(self, config: dict, provider: Provider, settings: LLMSettings):
-        self.rules = Extractor(config)
-        self.config = self.rules.config  # Validated: grounding uses the same bounds and windows as rules.
+    def __init__(self, config: dict, provider: Provider, settings: LLMSettings, *,
+                 rules: Predictor | None = None, gate_factory: GateFactory | None = None,
+                 router: Router | None = None):
+        self.config = validate_config(config)
+        self.rules = rules if rules is not None else Extractor(self.config)
+        self.gate_factory = gate_factory if gate_factory is not None else VerifierFactory(self.config)
+        self.router = router if router is not None else SignalRouter(self.config, has_signal)
         self.provider = provider
         self.settings = settings
         self.cache = ExactCache(settings.cache_dir) if settings.cache_dir else None
@@ -866,7 +856,13 @@ class LLMExtractor:
             with self.lock:
                 self.stats.cards_without_gap += 1
             return row
-        gaps = [attr for attr in open_gaps if has_signal(product, attr, self.config)]
+        selected = self.router.select(product, tuple(open_gaps))
+        if (not isinstance(selected, tuple) or any(not isinstance(attr, str) for attr in selected)
+                or len(set(selected)) != len(selected)
+                or any(attr not in open_gaps for attr in selected)):
+            raise ValueError("Router must select a unique subset of eligible attributes")
+        # Preserve schema order regardless of a router's preference order.
+        gaps = [attr for attr in open_gaps if attr in selected]
         for attr in open_gaps:
             if attr not in gaps:
                 by_attr[attr]["reason_codes"].append("llm_skipped_no_signal")
@@ -889,7 +885,7 @@ class LLMExtractor:
         grounded: dict[str, list[Candidate]] = {attr: [] for attr in gaps}
         rejected: dict[str, list[str]] = {attr: [] for attr in gaps}
         unattributed = []
-        gate = CandidateVerifier(product, self.config, rules=self.rules.rules)
+        gate = self.gate_factory.create(product)
         for item in proposals:
             with self.lock:
                 self.stats.proposals += 1

@@ -5,7 +5,7 @@ import re
 
 from goodsai.category_registry import Registry
 from goodsai.model_rules import QUANTITY, NETWORK
-from goodsai.normalize import BOUNDS, NUMBER, UNITS, model_name, numeric
+from goodsai.normalize import BOUNDS, NUMBER, UNITS, model_name
 from goodsai.relation import RelationVerifier
 from goodsai.rules import Rules, bounded_alias
 from goodsai.stages import Candidate
@@ -74,9 +74,10 @@ class CandidateVerifier:
     validate their structural invariant to expose implementation defects.
     Conflicts are merged afterwards, never resolved by this gate or by score.
     """
-    def __init__(self, product, config, *, registry=None, rules=None):
+    def __init__(self, product, config, *, registry=None, rules=None, normalizer=None):
         self.product, self.config = product, config
         self.registry = registry if registry is not None else Registry(config)
+        self.normalizer = normalizer if normalizer is not None else self.registry
         self.requested = self.registry.attributes(product.category_id)
         self.rules = Rules(config) if rules is None else rules
         self.models = self.rules.model_rules
@@ -158,7 +159,7 @@ class CandidateVerifier:
             if match.end() > end:
                 continue
             try:
-                canonical = numeric(c.attribute, match["n"], match["u"], self.config["numeric_bounds"])
+                canonical = self.normalizer.normalize(self.product.category_id, c.attribute, match["n"], match["u"])
             except ValueError:
                 continue
             if canonical != c.value:
@@ -172,3 +173,16 @@ class CandidateVerifier:
                     return "verifier_ambiguous_memory_role"
             return None
         return "verifier_unsupported_value"
+
+
+class VerifierFactory:
+    """Explicit profile-bound support grammar, shared by every producing method."""
+    def __init__(self, config, *, registry=None, rules=None, normalizer=None):
+        self.config = config
+        self.registry = registry if registry is not None else Registry(config)
+        self.rules = rules if rules is not None else Rules(config)
+        self.normalizer = normalizer if normalizer is not None else self.registry
+
+    def create(self, product):
+        return CandidateVerifier(product, self.config, registry=self.registry,
+                                 rules=self.rules, normalizer=self.normalizer)
