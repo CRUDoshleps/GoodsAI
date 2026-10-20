@@ -189,6 +189,8 @@ def main():
         m=json.loads(args.manifest.read_text(encoding='utf-8'));config=load_config(args.config)
         if m.get('input_sha256')!=digest(args.input) or m.get('output_sha256')!=digest(args.predictions):
             raise ValueError('Prediction pair hash mismatch')
+        expected_config=hashlib.sha256(json.dumps(config,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+        if m.get('config_sha256')!=expected_config:raise ValueError('Snapshot configuration differs from prediction producer')
         identity={'schema':'0.1','config_sha256':m['config_sha256'],
                   'policy_sha256':m.get('runtime_policy_sha256',fingerprint(config['runtime'])),
                   'producer_sha256':fingerprint({'code':m['code_sha256'],'model':m.get('llm',{}).get('model'),
