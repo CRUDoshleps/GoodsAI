@@ -35,6 +35,7 @@ class PairedTests(unittest.TestCase):
             root = Path(tmp)
             write_rows(root / "llm_screening.input.jsonl", [Product("synthetic", "761", "Samsung").as_dict()])
             dump(root / "run_stats.json", {"freeze": {}})
+            dump(root / "manifest.json", {"synthetic_only": True})
             args = argparse.Namespace(max_calls=20, spend_limit_rub=5, model="openai/gpt-oss-120b",
                                       bundle=root, baseline_run=root, authorized_packet_sha256="0" * 64)
             with patch.object(screening, "verify_bundle"), patch.object(screening, "provider_from_env") as factory:

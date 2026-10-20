@@ -16,7 +16,7 @@ from compare_silver_baseline import private_output
 from goodsai.cli import predict
 from goodsai.contracts import Product, load_config
 from goodsai.data import digest, read_jsonl
-from goodsai.llm import BudgetLedger, LLMExtractor, LLMSettings, build_messages, provider_from_env
+from goodsai.llm import DailyLedger, LLMExtractor, LLMSettings, build_messages, provider_from_env
 from goodsai.silver_prepare import dump, verify_bundle
 
 
@@ -53,7 +53,7 @@ def run(args):
     bound = planning_cost_bound(max(sizes), args.max_calls, settings.max_tokens)
     if bound > args.spend_limit_rub:
         raise ValueError("planning_bound_exceeds_authorized_spend")
-    ledger = BudgetLedger(settings.budget_ledger, settings.daily_max_calls)
+    ledger = DailyLedger(settings.budget_ledger, settings.daily_max_calls)
     used = ledger.used()
     if used >= settings.daily_max_calls:
         raise ValueError("shared_daily_call_budget_exhausted")
