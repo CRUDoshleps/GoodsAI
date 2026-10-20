@@ -132,7 +132,7 @@
       "price_output_per_1k": null,
       "cache_dir": null,
       "budget_ledger": "outputs/llm-budget/ledger.json", "request_deadline_seconds": 120.0, "max_response_bytes": 1048576, "max_proposals": 32,
-      "model_revision": null, "cache_namespace": "local", "cache_ttl_seconds": 3600, "context_planner": false, "context_max_chars": 16000
+      "model_revision": null, "cache_namespace": "local", "cache_ttl_seconds": 3600, "context_planner": false, "context_max_chars": 16000, "span_selector": false, "selector_max_spans": 512
     },
     "api": {
       "max_body_bytes": 131072,
