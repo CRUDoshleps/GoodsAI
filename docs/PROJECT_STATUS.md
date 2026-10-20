@@ -13,7 +13,9 @@ manifest и сохранение прежней пары после повреж
 FAILED: RED SOLUTION/color (#15) и 3 model пропуска перед `мл` (#21), по обоим
 transport. Expected не ослаблены, known issues не исключены из строгого CI.
 311 основных тестов (Windows с PYTHONUTF8=1), 3 reader tests, pip check OK;
-прежний listening HTTP probe 22/22. Это приёмка инструмента, не зелёная
+прежний listening HTTP probe 22/22; locked clean-run 11/11. Producer `4d177e1`
+проверен чистым, same-seed input/expected/predictions побайтно совпали.
+Это приёмка инструмента, не зелёная
 функциональная приёмка или независимое качество каталога. Команды и границы:
 [EXTERNAL_ACCEPTANCE](EXTERNAL_ACCEPTANCE.md). Main/VM и модели не обновлялись.
 
