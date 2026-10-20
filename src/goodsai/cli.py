@@ -135,6 +135,10 @@ def main(argv=None) -> int:
     p.add_argument("--llm-circuit-breaker", type=int)
     p.add_argument("--llm-price-input-per-1k", type=float, help="Price per 1000 prompt tokens; cost is N/A without it")
     p.add_argument("--llm-price-output-per-1k", type=float, help="Price per 1000 completion tokens")
+    p.add_argument("--llm-deadline", type=float,
+                   help="Total seconds per card request: queue, attempts, backoff (1-900)")
+    p.add_argument("--llm-max-response-bytes", type=int, help="Larger gateway bodies are rejected unread")
+    p.add_argument("--llm-max-proposals", type=int, help="Answers with more proposals are rejected")
     p.add_argument("--llm-json-mode", action=argparse.BooleanOptionalAction, default=None,
                    help="Ask the gateway for response_format=json_object; answers are validated either way")
     p = sub.add_parser("llm-trace", help="One synthetic card through the live LLM route (counts against budgets)")
@@ -171,7 +175,8 @@ def main(argv=None) -> int:
                 "price_input_per_1k": args.llm_price_input_per_1k,
                 "price_output_per_1k": args.llm_price_output_per_1k, "json_mode": args.llm_json_mode,
                 "cache_dir": args.llm_cache_dir, "daily_max_calls": args.llm_daily_max_calls,
-                "budget_ledger": args.llm_budget_file})
+                "budget_ledger": args.llm_budget_file, "request_deadline_seconds": args.llm_deadline,
+                "max_response_bytes": args.llm_max_response_bytes, "max_proposals": args.llm_max_proposals})
             if args.llm:
                 from goodsai.llm import LLMExtractor, provider_from_env
                 settings = llm_settings(policy)

@@ -23,6 +23,9 @@ ENV_FIELDS = {
     "GOODSAI_LLM_PRICE_OUTPUT_PER_1K": ("price_output_per_1k", float),
     "GOODSAI_LLM_CACHE_DIR": ("cache_dir", str),
     "GOODSAI_LLM_BUDGET_FILE": ("budget_ledger", str),
+    "GOODSAI_LLM_REQUEST_DEADLINE": ("request_deadline_seconds", float),
+    "GOODSAI_LLM_MAX_RESPONSE_BYTES": ("max_response_bytes", int),
+    "GOODSAI_LLM_MAX_PROPOSALS": ("max_proposals", int),
 }
 SECRET_ENV = {"GOODSAI_LLM_BASE_URL", "GOODSAI_LLM_API_KEY"}
 

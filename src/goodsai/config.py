@@ -81,6 +81,12 @@ def validate_llm_policy(policy):
     for key in ("cache_dir", "budget_ledger"):
         if policy[key] is not None:
             _string(policy[key], key)
+    _number(policy["request_deadline_seconds"], "runtime.llm.request_deadline_seconds")
+    if not 1 <= policy["request_deadline_seconds"] <= 900:
+        raise ValueError("LLM request deadline must be between 1 and 900 seconds")
+    for key, low, high in (("max_response_bytes", 4096, 16 * 1024 * 1024), ("max_proposals", 1, 256)):
+        if type(policy[key]) is not int or not low <= policy[key] <= high:
+            raise ValueError(f"LLM parameter outside supported integral range: {key}")
     return deepcopy(policy)
 
 
