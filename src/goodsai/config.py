@@ -50,7 +50,7 @@ def default_api_limits():
     return deepcopy(_packaged()["runtime"]["api"])
 
 
-LLM_EXTENSIONS = {"model_revision": None, "cache_namespace": "local", "cache_ttl_seconds": 3600}
+LLM_EXTENSIONS = {"model_revision": None, "cache_namespace": "local", "cache_ttl_seconds": 3600, "context_planner": False, "context_max_chars": 16000}
 
 
 def default_llm_policy():
@@ -61,6 +61,10 @@ def validate_llm_policy(policy):
     """One schema for profile, resolved overrides and low-level LLMSettings."""
     _keys(policy, set(default_llm_policy()) - set(LLM_EXTENSIONS), optional=LLM_EXTENSIONS, location="runtime.llm")
     policy = {**LLM_EXTENSIONS, **policy}
+    if type(policy["context_planner"]) is not bool:
+        raise ValueError("Context planner must be boolean")
+    if type(policy["context_max_chars"]) is not int or not 128 <= policy["context_max_chars"] <= 262144:
+        raise ValueError("Invalid context budget")
     _string(policy["cache_namespace"], "cache_namespace")
     if policy["model_revision"] is not None:
         _string(policy["model_revision"], "model_revision")

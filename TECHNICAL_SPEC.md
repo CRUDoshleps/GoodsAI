@@ -256,3 +256,7 @@ exact исходные поля/flags, schema/config, prompt, generation, model/
 namespace; TTL не более суток. Каждый replay проходит текущий общий gate.
 Single-flight не отменяет request deadline, budgets и concurrency. Формат
 prediction v0.1 и review/abstain остаётся прежним; подробности — docs/EXACT_CACHE.md.
+
+LLM-006: выключенный по умолчанию source-block planner сохраняет original offsets;
+недоказанная полнота означает полный контекст, превышение budget — abstain.
+Контракт prediction прежний; описание: docs/CONTEXT_PLANNER.md.

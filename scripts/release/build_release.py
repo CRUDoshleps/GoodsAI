@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 REQUIRED = ("code", "readme", "eda", "pipeline", "predictions", "presentation")
 REFERENCE_KINDS = {"ai_assisted_reviewed_development", "development_feedback", "blind_human_reviewed"}
 SHA = re.compile(r"[a-f0-9]{64}\Z")
-PUBLIC_DOCS = {"docs/EXACT_CACHE.md", "scripts/release/submission_readme.md", "README.md", "pyproject.toml", ".gitignore", "AGENTS.md", "CONTRIBUTING.md", "RESEARCH.md", "TASKS.md", "TECHNICAL_SPEC.md",
+PUBLIC_DOCS = {"docs/CONTEXT_PLANNER.md", "docs/EXACT_CACHE.md", "scripts/release/submission_readme.md", "README.md", "pyproject.toml", ".gitignore", "AGENTS.md", "CONTRIBUTING.md", "RESEARCH.md", "TASKS.md", "TECHNICAL_SPEC.md",
                "docs/EXPERIMENTAL_GLINER.md", "docs/CONFIGURATION.md", "docs/CATEGORY_REGISTRY.md",
                "docs/LLM.md", "docs/EXTERNAL_ACCEPTANCE.md", "docs/RELATION_VERIFIER.md", "configs/production.example.json",
                "docs/QUICKSTART.md", "docs/RESPONSES.md",
