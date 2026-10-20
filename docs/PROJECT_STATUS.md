@@ -1,8 +1,13 @@
-# 20.10.2026: SPEC-002 — REVIEW, исполняемая матрица с видимыми пробелами
+# 20.10.2026: SPEC-002 — DONE, исполняемая матрица с видимыми пробелами
 
 Claim `1a68c67`, ветка `qa/spec-002-scenario-matrix`. Реализованы независимый
 inventory требований REQ-* и bindings SCN-* (`spec-002-v1`), source status,
 заранее заданные ожидания, coverage report и artifact/source hash-manifest.
+PR #143 принят в main, merge `432963fddd49a7d5fc64e6f61a80927f943eb1b9`;
+Issue #35 закрыта с status:done. На final head `b1ea6cf` все 6 CI checks SUCCESS,
+включая matrix в Linux/Windows; дерево merge совпало с протестированным деревом.
+Чистые committed прогоны seed 20261020/20261021 оба PASS, input hashes разные;
+export 185 файлов с links/hashes проверен, внутренние metadata исключены.
 Одна команда `scripts/release/scenario_matrix.py` запускает внешний CLI/socket
 HTTP в копии runtime без examples, offline verifier/LLM/API и отдельный demo.
 Новые fixtures: только вымышленные названия/значения; реальных model calls нет.
@@ -23,7 +28,7 @@ Scope SPEC-002 не меняет src/runtime/config, версии JSON, стар
 VM и модельные API. Операционный дефект не маскируется skip/xfail.
 
 Добавлены Linux/Windows CI, инструкция SCENARIO_MATRIX, команды в оба README
-и явный Gitea allowlist документа. После CI нужна безопасная интеграция;
+и явный Gitea allowlist документа. Интеграция выполнена после зелёного CI;
 независимое качество, seller inputs, новые категории и операторская очередь
 не закрываются прохождением synthetic gate.
 
