@@ -1,7 +1,11 @@
-# 20.10.2026: DOCS-004 — согласованы публичные claims, REVIEW
+# 20.10.2026: DOCS-004 — DONE, публичные claims согласованы
 
 Issue #122, ветка `docs/docs-004-runtime-evidence`, claim `a0f5a5f`, код базы
 `1c64463`. REQUIREMENTS, RESULTS, ARCHITECTURE, LLM и VERIFIER сверены с кодом.
+По поручению Влада [PR #138](https://github.com/CRUDoshleps/GoodsAI/pull/138)
+принят в main, merge `7c49c6e4eaf62d613bc092205fc68d376985a04b`; Issue закрыта
+с `status:done`. На final head `f17a1d9` все 6 CI checks SUCCESS, конфликтов нет;
+merge-tree точно совпал с протестированным деревом файлов.
 В оба README добавлены краткие доказательства с версиями/reference; README
 сдачи содержит проверенный фрагмент JSON и действия по review/abstain/errors.
 Исторические числовые таблицы silver и `reports/run_stats.json` не менялись;
@@ -13,8 +17,8 @@ RED SOLUTION помечен исторической ошибкой, после�
 CLI/HTTP: 83/83; demo 6/6 + verify; pip check; 9 submission tests OK. Сформирован
 состав сдачи из 180 файлов: относительные ссылки, hashes и исключение внутреннего
 индекса проверены. Locked clean-run на том же commit: 11/11 passed.
-Открыт [PR #138](https://github.com/CRUDoshleps/GoodsAI/pull/138);
-финальный CI и merge фиксируются после завершения.
+Финальный export `f17a1d9`: те же 180 файлов, rewritten links и hashes валидны;
+публичный runtime/config и числовые исторические таблицы не изменены.
 Нет новых P/R/F1, реальных model calls, расходов, изменений VM или test access.
 Чужой PR #136 не менялся. Собственный #127 имеет конфликт в PROJECT_STATUS
 с записью шести функций коллеги и оставлен открытым по условию пользователя.
