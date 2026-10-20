@@ -162,7 +162,7 @@ Boolean env принимает `0/1/false/true` без учёта регистр
 | --- | --- | --- | --- |
 | `model` | `GOODSAI_LLM_MODEL` | `--llm-model` | `null`; при opt-in обязателен |
 | `max_calls` | `GOODSAI_LLM_MAX_CALLS` | `--llm-max-calls` | 100 |
-| `daily_max_calls` | `GOODSAI_LLM_DAILY_MAX_CALLS` | `--llm-daily-max-calls` | 300 |
+| `daily_max_calls` | `GOODSAI_LLM_DAILY_MAX_CALLS` | `--llm-daily-max-calls` | 300 физических HTTP-попыток в сутки |
 | `timeout_seconds` | `GOODSAI_LLM_TIMEOUT` | `--llm-timeout` | 60 |
 | `max_attempts` | `GOODSAI_LLM_ATTEMPTS` | `--llm-attempts` | 3 |
 | `max_tokens` | `GOODSAI_LLM_MAX_TOKENS` | `--llm-max-tokens` | 2048 |
@@ -173,6 +173,9 @@ Boolean env принимает `0/1/false/true` без учёта регистр
 | `price_output_per_1k` | `GOODSAI_LLM_PRICE_OUTPUT_PER_1K` | `--llm-price-output-per-1k` | null |
 | `cache_dir` | `GOODSAI_LLM_CACHE_DIR` | `--llm-cache-dir` | null |
 | `budget_ledger` | `GOODSAI_LLM_BUDGET_FILE` | `--llm-budget-file` | outputs/llm-budget/ledger.json |
+| `request_deadline_seconds` | `GOODSAI_LLM_REQUEST_DEADLINE` | `--llm-deadline` | 120 |
+| `max_response_bytes` | `GOODSAI_LLM_MAX_RESPONSE_BYTES` | `--llm-max-response-bytes` | 1048576 |
+| `max_proposals` | `GOODSAI_LLM_MAX_PROPOSALS` | `--llm-max-proposals` | 32 |
 
 Указанные цены — за 1000 токенов, в одной выбранной единице стоимости; без обеих
 цен cost остаётся N/A. Unknown `GOODSAI_LLM_*` и неизвестные ключи JSON,

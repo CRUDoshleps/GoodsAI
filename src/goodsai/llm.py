@@ -20,6 +20,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass, field
 from decimal import Decimal
 import hashlib
+import inspect
 import json
 import math
 import os
@@ -75,6 +76,8 @@ UNIT_PATTERNS = {
     "power_w": r"кВт|kW|Вт|W",
 }
 RETRYABLE = {"llm_rate_limited", "llm_server_error", "llm_timeout", "llm_network_error"}
+FATAL_BUDGET_CODES = {"llm_budget_ledger_unavailable", "llm_daily_budget_exhausted"}
+MAX_JSON_DEPTH = 32
 PAIR = re.compile(r"(?<![\w/])(?P<ram>\d{1,3})(?:\s*(?:GB|ГБ))?\s*[/+]\s*(?P<rom>\d{2,4})\s*(?:GB|ГБ)(?!\w)", re.I)
 
 SYSTEM_PROMPT = (
@@ -111,7 +114,8 @@ class ProviderResponse:
 class Provider(Protocol):
     model: str
 
-    def complete(self, messages: list[dict], max_tokens: int) -> ProviderResponse: ...
+    def complete(self, messages: list[dict], max_tokens: int, *, deadline: float | None = None,
+                 reserve_attempt: Callable[[], str | None] | None = None) -> ProviderResponse: ...
 
 
 @dataclass(frozen=True)
@@ -129,6 +133,9 @@ class LLMSettings:
     cache_dir: Path | None = None
     daily_max_calls: int = DEFAULT_LLM["daily_max_calls"]
     budget_ledger: Path | None = None
+    request_deadline_seconds: float = DEFAULT_LLM["request_deadline_seconds"]
+    max_response_bytes: int = DEFAULT_LLM["max_response_bytes"]
+    max_proposals: int = DEFAULT_LLM["max_proposals"]
 
     def __post_init__(self):
         if not isinstance(self.model, str) or not self.model.strip():
@@ -149,7 +156,9 @@ class LLMSettings:
                 "max_attempts": self.max_attempts, "timeout_seconds": self.timeout_seconds,
                 "concurrency": self.concurrency, "circuit_breaker": self.circuit_breaker,
                 "price_input_per_1k": self.price_input_per_1k, "price_output_per_1k": self.price_output_per_1k,
-                "data_policy": DATA_POLICY}
+                "request_deadline_seconds": self.request_deadline_seconds,
+                "max_response_bytes": self.max_response_bytes, "max_proposals": self.max_proposals,
+                "budget_unit": "physical_attempts", "data_policy": DATA_POLICY}
 
 
 class OpenAICompatibleProvider:
@@ -160,21 +169,23 @@ class OpenAICompatibleProvider:
     """
 
     def __init__(self, base_url: str | None, api_key: str | None, settings: LLMSettings,
-                 sleep: Callable[[float], None] = time.sleep, opener=urllib.request.urlopen):
+                 sleep: Callable[[float], None] = time.sleep, opener=urllib.request.urlopen,
+                 clock: Callable[[], float] = time.monotonic):
         self.base_url = (base_url or "").rstrip("/")
         self.api_key = api_key or ""
         self.model = settings.model
         self.settings = settings
         self.sleep = sleep
         self.opener = opener
+        self.clock = clock
 
-    def _request(self, body: bytes) -> dict:
+    def _request(self, body: bytes, timeout: float) -> dict:
         request = urllib.request.Request(
             self.base_url + "/chat/completions", data=body, method="POST",
             headers={"Content-Type": "application/json", "Authorization": "Bearer " + self.api_key})
         try:
-            with self.opener(request, timeout=self.settings.timeout_seconds) as response:
-                payload = response.read()
+            with self.opener(request, timeout=timeout) as response:
+                payload = read_bounded(response, self.settings.max_response_bytes)
         except urllib.error.HTTPError as exc:
             retry_after = None
             try:
@@ -197,12 +208,24 @@ class OpenAICompatibleProvider:
         except OSError:
             raise ProviderError("llm_network_error") from None
         try:
-            return json.loads(payload.decode("utf-8"), parse_constant=_reject_constant,
+            data = json.loads(payload.decode("utf-8"), parse_constant=_reject_constant,
                               object_pairs_hook=_unique_object)
         except (UnicodeDecodeError, ValueError, RecursionError):
             raise ProviderError("llm_malformed_response") from None
+        if json_depth(data) > MAX_JSON_DEPTH:
+            raise ProviderError("llm_malformed_response")
+        return data
 
-    def complete(self, messages: list[dict], max_tokens: int) -> ProviderResponse:
+    def complete(self, messages: list[dict], max_tokens: int, *, deadline: float | None = None,
+                 reserve_attempt: Callable[[], str | None] | None = None) -> ProviderResponse:
+        """At most ``max_attempts`` physical HTTP attempts, none started after ``deadline``.
+
+        ``deadline`` is a ``self.clock`` timestamp covering every attempt, backoff and
+        socket timeout of this logical request. ``reserve_attempt`` is asked before each
+        physical attempt (daily budget); a refusal stops the request without sending.
+        """
+        if deadline is None:
+            deadline = self.clock() + self.settings.request_deadline_seconds
         if not self.base_url or not self.api_key:
             raise ProviderError("llm_missing_key", fatal=True)
         if not endpoint_allowed(self.base_url):
@@ -214,10 +237,19 @@ class OpenAICompatibleProvider:
         last = None
         for attempt in range(1, self.settings.max_attempts + 1):
             if last is not None:
-                delay = last.retry_after if last.retry_after is not None else 2 ** (attempt - 2)
-                self.sleep(min(max(delay, 0.0), 30.0))
+                delay = min(max(last.retry_after if last.retry_after is not None else 2 ** (attempt - 2), 0.0), 30.0)
+                if self.clock() + delay >= deadline:
+                    raise ProviderError("llm_deadline_exceeded", attempts=attempt - 1)
+                self.sleep(delay)
+            remaining = deadline - self.clock()
+            if remaining <= 0:
+                raise ProviderError("llm_deadline_exceeded", attempts=attempt - 1)
+            if reserve_attempt is not None:
+                blocked = reserve_attempt()
+                if blocked:
+                    raise ProviderError(blocked, fatal=blocked in FATAL_BUDGET_CODES, attempts=attempt - 1)
             try:
-                data = self._request(encoded)
+                data = self._request(encoded, min(self.settings.timeout_seconds, remaining))
             except ProviderError as exc:
                 exc.attempts = attempt
                 if exc.fatal or exc.code not in RETRYABLE:
@@ -240,6 +272,45 @@ class OpenAICompatibleProvider:
             validate_provider_response(response)
             return response
         raise last if last is not None else ProviderError("llm_network_error")
+
+
+def read_bounded(response, limit: int) -> bytes:
+    """Read at most ``limit`` bytes; a larger body is rejected before JSON parsing.
+
+    Content-Length is only an early hint: a missing or false header is still
+    caught by the chunked read, which never buffers more than ``limit + 1`` bytes.
+    """
+    headers = getattr(response, "headers", None)
+    declared = headers.get("Content-Length") if headers is not None else None
+    if declared is not None:
+        try:
+            if int(declared) > limit:
+                raise ProviderError("llm_response_too_large")
+        except ValueError:
+            pass
+    chunks, size = [], 0
+    while True:
+        chunk = response.read(min(65536, limit + 1 - size))
+        if not chunk:
+            return b"".join(chunks)
+        size += len(chunk)
+        if size > limit:
+            raise ProviderError("llm_response_too_large")
+        chunks.append(chunk)
+
+
+def json_depth(value) -> int:
+    """Nesting depth without recursion, so a hostile document cannot exhaust the stack."""
+    deepest, stack = 0, [(value, 1)]
+    while stack:
+        item, depth = stack.pop()
+        if isinstance(item, (dict, list)):
+            deepest = max(deepest, depth)
+            if depth > MAX_JSON_DEPTH:
+                return depth
+            children = item.values() if isinstance(item, dict) else item
+            stack.extend((child, depth + 1) for child in children)
+    return deepest
 
 
 def endpoint_allowed(base_url: str) -> bool:
@@ -353,6 +424,7 @@ class LLMStats:
     cards_blocked_by_policy: int = 0
     attributes_skipped_no_signal: int = 0
     calls: int = 0
+    attempts: int = 0
     retries: int = 0
     cache_hits: int = 0
     prompt_tokens: int = 0
@@ -375,7 +447,7 @@ class LLMStats:
                 "cards_skipped_no_signal": self.cards_skipped_no_signal,
                 "cards_blocked_by_policy": self.cards_blocked_by_policy,
                 "attributes_skipped_no_signal": self.attributes_skipped_no_signal,
-                "calls": self.calls, "retries": self.retries, "cache_hits": self.cache_hits,
+                "calls": self.calls, "attempts": self.attempts, "retries": self.retries, "cache_hits": self.cache_hits,
                 "prompt_tokens": self.prompt_tokens, "completion_tokens": self.completion_tokens,
                 "cost": cost, "cost_status": "priced" if priced else "n/a_price_unknown",
                 "attributes_requested": self.attributes_requested, "proposals": self.proposals,
@@ -434,7 +506,7 @@ def validate_provider_response(response: ProviderResponse) -> None:
         raise ProviderError("llm_malformed_response", attempts=max(1, attempts))
 
 
-def parse_proposals(content: str) -> list:
+def parse_proposals(content: str, max_items: int | None = None) -> list:
     """Strict client-side structure check; markdown fences are the only tolerated wrapper."""
     if not isinstance(content, str):
         raise ProviderError("llm_malformed_json")
@@ -448,6 +520,10 @@ def parse_proposals(content: str) -> list:
         raise ProviderError("llm_malformed_json") from None
     if not isinstance(data, dict) or set(data) != {"attributes"} or not isinstance(data["attributes"], list):
         raise ProviderError("llm_malformed_json")
+    if json_depth(data) > MAX_JSON_DEPTH:
+        raise ProviderError("llm_malformed_json")
+    if max_items is not None and len(data["attributes"]) > max_items:
+        raise ProviderError("llm_too_many_proposals")
     return data["attributes"]
 
 
@@ -632,6 +708,15 @@ def has_signal(product: Product, attr: str, config: dict) -> bool:
     return False
 
 
+def _accepts_bounds(provider) -> bool:
+    try:
+        parameters = inspect.signature(provider.complete).parameters
+    except (TypeError, ValueError):
+        return False
+    return ("deadline" in parameters and "reserve_attempt" in parameters
+            or any(p.kind is inspect.Parameter.VAR_KEYWORD for p in parameters.values()))
+
+
 class LLMExtractor:
     """Rules first; one grounded LLM request per card for unresolved attributes only."""
 
@@ -647,6 +732,8 @@ class LLMExtractor:
         self.consecutive_failures = 0
         self.lock = threading.Lock()
         self.slots = threading.BoundedSemaphore(settings.concurrency)
+        self.clock = getattr(provider, "clock", time.monotonic)
+        self.bounded_provider = _accepts_bounds(provider)
 
     def report(self) -> dict:
         with self.lock:
@@ -656,19 +743,45 @@ class LLMExtractor:
             return report
 
     def _reserve_call(self) -> str | None:
+        """Per-run budget of logical requests; physical attempts are reserved separately."""
         with self.lock:
             if self.disabled_reason:
                 return self.disabled_reason
             if self.stats.calls >= self.settings.max_calls:
                 return "llm_budget_exhausted"
+            self.stats.calls += 1
+            return None
+
+    def _refund_call(self) -> None:
+        with self.lock:
+            self.stats.calls -= 1
+
+    def _reserve_attempt(self) -> str | None:
+        """Shared daily budget counts every physical HTTP attempt, retries included."""
+        with self.lock:
+            if self.disabled_reason:
+                return self.disabled_reason
             if self.ledger is not None:
                 blocked = self.ledger.reserve()
                 if blocked:
-                    if blocked == "llm_budget_ledger_unavailable":
-                        self.disabled_reason = blocked
+                    self.disabled_reason = blocked
                     return blocked
-            self.stats.calls += 1
+            self.stats.attempts += 1
             return None
+
+    def _call_provider(self, messages: list[dict], deadline: float) -> ProviderResponse:
+        if self.bounded_provider:
+            return self.provider.complete(messages, self.settings.max_tokens, deadline=deadline,
+                                          reserve_attempt=self._reserve_attempt)
+        # Injected legacy providers cannot report attempts before sending: reserve one up front.
+        blocked = self._reserve_attempt()
+        if blocked:
+            raise ProviderError(blocked, fatal=True, attempts=0)
+        response = self.provider.complete(messages, self.settings.max_tokens)
+        validate_provider_response(response)
+        with self.lock:
+            self.stats.attempts += response.attempts - 1
+        return response
 
     def _record_failure(self, exc: ProviderError) -> None:
         with self.lock:
@@ -693,11 +806,19 @@ class LLMExtractor:
                 self.stats.failures[blocked] += 1
             return None, blocked
         started = time.perf_counter()
+        # One deadline for the whole logical request: queueing, attempts, backoff and socket waits.
+        deadline = self.clock() + self.settings.request_deadline_seconds
         try:
-            with self.slots:
-                response = self.provider.complete(build_messages(product, gaps, self.config), self.settings.max_tokens)
+            if not self.slots.acquire(timeout=max(0.0, deadline - self.clock())):
+                raise ProviderError("llm_deadline_exceeded", attempts=0)
+            try:
+                response = self._call_provider(build_messages(product, gaps, self.config), deadline)
                 validate_provider_response(response)
+            finally:
+                self.slots.release()
         except ProviderError as exc:
+            if exc.attempts == 0:
+                self._refund_call()  # Nothing was sent: the logical call is not spent.
             with self.lock:
                 self.stats.retries += max(0, exc.attempts - 1)
             self._record_failure(exc)
@@ -712,7 +833,7 @@ class LLMExtractor:
             self.stats.prompt_tokens += response.prompt_tokens
             self.stats.completion_tokens += response.completion_tokens
         try:
-            proposals = parse_proposals(response.content)
+            proposals = parse_proposals(response.content, self.settings.max_proposals)
         except ProviderError as exc:
             self._record_failure(exc)
             return None, exc.code
