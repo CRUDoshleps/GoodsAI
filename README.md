@@ -24,6 +24,8 @@ runtime — только правила; сравнительное качест
 - синтетическое демо из шести сценариев;
 - opt-in LLM-fallback для пропусков правил: цитата из карточки, общий verifier,
   бюджет вызовов, повторы, кэш, учёт токенов в manifest ([LLM](docs/LLM.md));
+  ответ шлюза ограничен по размеру, запрос карточки — по времени (120 с), дневной
+  бюджет считает каждую HTTP-попытку (LLM-008);
 - unit и интеграционные проверки.
 
 Исправления #15/#21: цвет внутри имени бренда/модели не принимается за цвет
@@ -34,6 +36,11 @@ runtime — только правила; сравнительное качест
 [замер model и оставшиеся отказы](docs/research/base001_followup_results.md).
 
 ## Быстрый запуск
+
+Полный проверенный маршрут от `git clone` до ответа HTTP API на своих карточках,
+с ожидаемыми выводами для Linux и PowerShell: [QUICKSTART](docs/QUICKSTART.md).
+Что значат `review`, `abstain`, reason codes и ошибки API и что делать оператору:
+[RESPONSES](docs/RESPONSES.md). Ниже — короткая версия.
 
 Требуется Python 3.12+. Команды выполняются из корня checkout с полной Git-историей
 (без `--depth`): comparison tests используют базовый commit `5f77d81`.
@@ -136,11 +143,11 @@ python3.12 scripts/release/clean_run.py --output-dir outputs/clean-first
 {"schema_version":"0.1","sku_id":"demo-1","category_id":"761","title":"Смартфон Samsung Demo X82 8/256GB черный","description":null,"seller_attributes":[],"source_flags":[]}
 ```
 
-Запуск:
+Запуск на своём файле (например, созданном в «Быстром запуске»):
 
 ```bash
 .venv/bin/python -m goodsai.cli predict \
-  --input src/goodsai/examples/synthetic/products.jsonl \
+  --input outputs/my-card.jsonl \
   --output outputs/predictions.jsonl
 ```
 
@@ -159,8 +166,9 @@ python3.12 scripts/release/clean_run.py --output-dir outputs/clean-first
 `not_found_by_rules` означает отсутствие подходящего кандидата;
 `conflicting_evidence` — несовместимые значения. В обоих случаях значение `null`
 и решение `abstain`. Evidence содержит координаты в исходном тексте, но не
-гарантирует смысловую правильность извлечения. Примеры всех шести ответов доступны
-после демо в `predictions.jsonl`.
+гарантирует смысловую правильность извлечения. Примеры всех исходов
+(`processed`, конфликт, пропуски, `unsupported_category`, `invalid_input`) с
+действиями оператора — в [RESPONSES](docs/RESPONSES.md).
 
 Для PowerShell заменяйте `.venv/bin/python` на `.\.venv\Scripts\python.exe`,
 многострочную Bash-команду вводите одной строкой.
@@ -295,8 +303,9 @@ harness и отсутствие новых нетрекированных failur
 
 Programming/dependency failure и corrupted predictions проверены fault injection
 в test_adversarial.py; API failures — в test_api.py; реальные child-process
-concurrency/crash/recovery — в test_storage.py. Provider budget/timeouts в
-default rules runtime неприменимы: route не реализован, это N/A, не PASS.
+concurrency/crash/recovery — в test_storage.py. В default rules runtime LLM не
+вызывается; лимиты opt-in маршрута (размер ответа, дедлайн, физические попытки,
+бюджет) проверены локальным HTTP-сервером в test_llm_bounds.py (LLM-008).
 
 ## Проверки
 
@@ -310,7 +319,7 @@ default rules runtime неприменимы: route не реализован, �
 
 В Windows PowerShell используйте `.\.venv\Scripts\python.exe` и перед общим
 suite задайте `$env:PYTHONUTF8='1'`: существующие config/registry tests создают
-временные Unicode-файлы. После CONF-002 — 346 основных + 3 reader tests;
+временные Unicode-файлы. После LLM-008 — 359 основных + 3 reader tests;
 результат предшествующего принятого snapshot — 322 + 3 и strict acceptance 83/83
 ([SHA, CI и границы проверки](docs/reviews/2026-10-20_linked_acceptance.md)).
 
@@ -320,8 +329,9 @@ suite задайте `$env:PYTHONUTF8='1'`: существующие config/regi
 .venv/bin/python -m unittest discover -s tests -p 'test_llm*.py' -v
 ```
 
-Это 50 тестов с fake provider и локальным HTTP stub: CLI batch, HTTP API и
-cache replay сохраняют rules при неверном ответе. Ключ шлюза не нужен,
+Это 63 теста с fake provider и локальным HTTP stub: CLI batch, HTTP API и
+cache replay сохраняют rules при неверном ответе; медленный, огромный, chunked
+и оборванный ответ шлюза, 429/5xx и исчерпанный бюджет не ломают карточку. Ключ шлюза не нужен,
 платных вызовов нет. Семантика смешанного ответа и причин отказов — в
 [LLM](docs/LLM.md#повреждённый-ответ-и-кэш-llm-007).
 
@@ -402,6 +412,8 @@ frozen spec и полный проверенный bundle. Закрытые и �
 
 | Файл | Назначение |
 | --- | --- |
+| [docs/QUICKSTART.md](docs/QUICKSTART.md) | проверенный запуск с нуля на своём JSONL: CLI, проверка manifest, HTTP, opt-in LLM |
+| [docs/RESPONSES.md](docs/RESPONSES.md) | статусы, решения, reason codes, ошибки API и действия оператора |
 | [TASKS.md](TASKS.md) | очередь, владельцы, статусы и подробные подзадачи |
 | [docs/TASK_MANAGEMENT.md](docs/TASK_MANAGEMENT.md) | labels, Issue forms, claim commit, review и закрытие |
 | [TECHNICAL_SPEC.md](TECHNICAL_SPEC.md) | актуальное техническое задание и критерии приёмки |

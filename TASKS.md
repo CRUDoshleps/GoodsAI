@@ -8,7 +8,7 @@
 | QA-006 | [#98](https://github.com/CRUDoshleps/GoodsAI/issues/98) | P0 | DONE | QA/backend | urasha / Codex (сессия Влада) | `main` | PR #103 merged aee1bba; CI 6/6 SUCCESS; strict 83/83; mirror 39384309897 SUCCESS |
 | LLM-007 | [#99](https://github.com/CRUDoshleps/GoodsAI/issues/99) | P0 | DONE | LLM/backend | urasha / Codex (сессия Влада) | `main` | PR #107 merged f8f4a59 по поручению Влада; CI 6/6 SUCCESS, 334+3 tests OK, внешний rules acceptance 83/83; issue закрыта |
 | LLM-008 | [#100](https://github.com/CRUDoshleps/GoodsAI/issues/100) | P1 | DONE | LLM/MLOps | Глеб Алферов | `llm/llm-008-bounded-calls` | PR #112 merged 7aec082; Issue #100 closed; 1 МиБ, 120 с, 300 физических попыток в сутки |
-| DOCS-003 | [#101](https://github.com/CRUDoshleps/GoodsAI/issues/101) | P1 | IN_PROGRESS | technical writer/QA | Глеб Алферов | `docs/docs-003-own-jsonl-quickstart` | проверенный запуск с собственным JSONL и объяснения ответов; claim 20.10.2026 |
+| DOCS-003 | [#101](https://github.com/CRUDoshleps/GoodsAI/issues/101) | P1 | REVIEW | technical writer/QA | Глеб Алферов | `docs/docs-003-own-jsonl-quickstart` | проверенный запуск с собственным JSONL и объяснения ответов; QUICKSTART + RESPONSES, Linux-прогон в чистом клоне 7aec082 |
 
 Связь с баллами и существующими задачами:
 [план прогона 2](docs/reviews/2026-10-20_run_2_action_plan.md).
