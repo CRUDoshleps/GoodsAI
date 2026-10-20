@@ -55,9 +55,15 @@ class RuntimePolicyTests(unittest.TestCase):
         self.assertFalse(resolve_runtime_policy(self.config, environ={})['llm_enabled'])
 
     def test_all_recognized_environment_fields_are_used_and_validated(self):
-        values = ['stub', '5', '15', '12.5', '2', '777', '1', '3', 'true', '0.2', '0.7',
-                  'outputs/local-cache', 'outputs/local-ledger.json']
-        env = dict(zip(ENV_FIELDS, values)) | {'GOODSAI_LLM_ENABLED': 'true'}
+        env = {'GOODSAI_LLM_MODEL':'stub', 'GOODSAI_LLM_MAX_CALLS':'5',
+               'GOODSAI_LLM_DAILY_MAX_CALLS':'15', 'GOODSAI_LLM_TIMEOUT':'12.5',
+               'GOODSAI_LLM_ATTEMPTS':'2', 'GOODSAI_LLM_MAX_TOKENS':'777',
+               'GOODSAI_LLM_CONCURRENCY':'1', 'GOODSAI_LLM_CIRCUIT_BREAKER':'3',
+               'GOODSAI_LLM_JSON_MODE':'true', 'GOODSAI_LLM_PRICE_INPUT_PER_1K':'0.2',
+               'GOODSAI_LLM_PRICE_OUTPUT_PER_1K':'0.7', 'GOODSAI_LLM_CACHE_DIR':'outputs/local-cache',
+               'GOODSAI_LLM_BUDGET_FILE':'outputs/local-ledger.json', 'GOODSAI_LLM_ENABLED':'true',
+               'GOODSAI_LLM_MODEL_REVISION':'revision', 'GOODSAI_LLM_CACHE_NAMESPACE':'synthetic',
+               'GOODSAI_LLM_CACHE_TTL':'600'}
         policy = resolve_runtime_policy(self.config, environ=env)
         settings = llm_settings(policy)
         for key, (_, kind) in ENV_FIELDS.items():

@@ -1,4 +1,9 @@
-# Catalog-silver evaluation
+# Catalog-silver evaluation — historical snapshot 19.10.2026
+
+Producer: `f33e3fcd1487a3d82f8ed684ebfaa56d8220f6e4`; declared baseline: `977c5ed`.
+Numbers and reference below are preserved from this experiment, not recomputed
+for the current main. Exact hashes are in [run_stats.json](run_stats.json).
+The current evidence index and later diagnostics are in [RESULTS](../docs/RESULTS.md).
 
 Reference: noisy catalog. Role: development_feedback.
 Independent human quality: N/A. Auto-accept: forbidden. Support matcher awaits human audit.
@@ -32,6 +37,6 @@ Unknown catalog labels are not negatives; wrong known values count FP+FN. See ru
 Top-30 is a metadata ranking, not 30 implemented schemas. Current runtime supports two categories. Seller/brand crossings are disclosed; this split is not seller-disjoint.
 Closed test was not evaluated. Old validation is feedback. A catalog mismatch may be a catalog error and requires adjudication.
 Calibration: offline_fitted. Any fitted score remains offline and does not establish true correctness probability.
-Current known adversarial failure RED SOLUTION/color remains outside this evaluator; this report does not certify release readiness.
+Historical snapshot note: RED SOLUTION/color was a known adversarial failure outside this evaluator. It was subsequently fixed by VER-001 ([#15](https://github.com/CRUDoshleps/GoodsAI/issues/15), merge `d9e279a`) and is covered by external acceptance; this does not change the historical scores above. Later model/catalog discrepancies require separate adjudication ([#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)). This report does not certify current release readiness.
 
 Reproduction: docs/research/silver_evaluation_protocol.md and docs/SILVER_EVALUATION.md.

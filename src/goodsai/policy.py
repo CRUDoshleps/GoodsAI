@@ -10,6 +10,13 @@ from goodsai.config import validate_config, validate_llm_policy
 
 # Endpoint/key stay solely in the provider environment, never in policy snapshots.
 ENV_FIELDS = {
+    "GOODSAI_LLM_SPAN_SELECTOR": ("span_selector", bool),
+    "GOODSAI_LLM_SELECTOR_MAX_SPANS": ("selector_max_spans", int),
+    "GOODSAI_LLM_CONTEXT_PLANNER": ("context_planner", bool),
+    "GOODSAI_LLM_CONTEXT_MAX_CHARS": ("context_max_chars", int),
+    "GOODSAI_LLM_MODEL_REVISION": ("model_revision", str),
+    "GOODSAI_LLM_CACHE_NAMESPACE": ("cache_namespace", str),
+    "GOODSAI_LLM_CACHE_TTL": ("cache_ttl_seconds", int),
     "GOODSAI_LLM_MODEL": ("model", str),
     "GOODSAI_LLM_MAX_CALLS": ("max_calls", int),
     "GOODSAI_LLM_DAILY_MAX_CALLS": ("daily_max_calls", int),

@@ -34,6 +34,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from goodsai.request_cache import ExactCache, FLIGHTS, VERSION as CACHE_VERSION
 from goodsai.contracts import Product, validate_prediction
 from goodsai.config import default_llm_policy, validate_llm_policy, validate_config
 from goodsai.normalize import NUMBER, UNITS, model_name, number, numeric
@@ -48,7 +49,6 @@ PROMPT_VERSION = "llm-fill-v1"
 DATA_POLICY = "llm-data-policy-2026-10-19"
 BUDGET_TIMEZONE_OFFSET_HOURS = 3  # Daily budget resets at Moscow midnight, like the gateway quota day.
 FORBIDDEN_SOURCE_FLAGS = {"test_reserved", "exposed_test", "closed_test"}
-CACHE_VERSION = 1
 LLM_SCORE = 0.6  # Heuristic and below rule scores: a grounded proposal, not a calibrated probability.
 DEFAULT_LLM = default_llm_policy()
 MAX_DESCRIPTION_CHARS = 6000
@@ -122,6 +122,13 @@ class LLMSettings:
     request_deadline_seconds: float = DEFAULT_LLM["request_deadline_seconds"]
     max_response_bytes: int = DEFAULT_LLM["max_response_bytes"]
     max_proposals: int = DEFAULT_LLM["max_proposals"]
+    model_revision: str | None = None
+    cache_namespace: str = "local"
+    cache_ttl_seconds: int = 3600
+    context_planner: bool = False
+    context_max_chars: int = 16000
+    span_selector: bool = False
+    selector_max_spans: int = 512
 
     def __post_init__(self):
         if not isinstance(self.model, str) or not self.model.strip():
@@ -144,7 +151,11 @@ class LLMSettings:
                 "price_input_per_1k": self.price_input_per_1k, "price_output_per_1k": self.price_output_per_1k,
                 "request_deadline_seconds": self.request_deadline_seconds,
                 "max_response_bytes": self.max_response_bytes, "max_proposals": self.max_proposals,
-                "budget_unit": "physical_attempts", "data_policy": DATA_POLICY}
+                "budget_unit": "physical_attempts", "data_policy": DATA_POLICY,
+                "model_revision": self.model_revision, "cache_namespace": self.cache_namespace,
+                "cache_ttl_seconds": self.cache_ttl_seconds, "context_planner": self.context_planner,
+                "context_max_chars": self.context_max_chars, "context_version": "source-context-1", "span_selector": self.span_selector,
+                "selector_max_spans": self.selector_max_spans, "selector_version": "span-selector-1"}
 
 
 class OpenAICompatibleProvider:
@@ -364,43 +375,6 @@ def provider_from_env(settings: LLMSettings) -> OpenAICompatibleProvider:
                                     os.environ.get("GOODSAI_LLM_API_KEY"), settings)
 
 
-class ExactCache:
-    """Local exact-request cache. A hit is re-grounded and re-verified like a fresh answer.
-
-    Entries hold the parsed proposals (they quote card text), so the directory must
-    stay outside Git, like ``outputs/``. Unreadable or mismatching entries are misses.
-    """
-
-    def __init__(self, root: Path):
-        self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
-
-    def _path(self, key: str) -> Path:
-        return self.root / key[:2] / (key + ".json")
-
-    def get(self, key: str) -> dict | None:
-        try:
-            entry = json.loads(self._path(key).read_text(encoding="utf-8"), parse_constant=_reject_constant,
-                               object_pairs_hook=_unique_object)
-        except (OSError, ValueError, RecursionError):
-            return None
-        if not isinstance(entry, dict) or entry.get("cache_version") != CACHE_VERSION or entry.get("key") != key:
-            return None
-        if not isinstance(entry.get("proposals"), list):
-            return None
-        return entry
-
-    def put(self, key: str, proposals: list, usage: dict) -> None:
-        path = self._path(key)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        entry = {"cache_version": CACHE_VERSION, "key": key, "proposals": proposals, "usage": usage}
-        with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, prefix=".tmp-",
-                                         suffix=".json", delete=False) as stream:
-            json.dump(entry, stream, ensure_ascii=False)
-            temporary = Path(stream.name)
-        os.replace(temporary, path)
-
-
 @dataclass
 class LLMStats:
     """Run accounting for the manifest. Counts only; no texts."""
@@ -414,6 +388,11 @@ class LLMStats:
     attempts: int = 0
     retries: int = 0
     cache_hits: int = 0
+    singleflight_hits: int = 0
+    cache_seconds: float = 0.0
+    context_plans: Counter = field(default_factory=Counter)
+    context_original_chars: int = 0
+    context_selected_chars: int = 0
     prompt_tokens: int = 0
     completion_tokens: int = 0
     attributes_requested: int = 0
@@ -435,6 +414,8 @@ class LLMStats:
                 "cards_blocked_by_policy": self.cards_blocked_by_policy,
                 "attributes_skipped_no_signal": self.attributes_skipped_no_signal,
                 "calls": self.calls, "attempts": self.attempts, "retries": self.retries, "cache_hits": self.cache_hits,
+                "context_plans": dict(self.context_plans), "context_original_chars": self.context_original_chars,
+                "context_selected_chars": self.context_selected_chars, "singleflight_hits": self.singleflight_hits, "cache_seconds": round(self.cache_seconds, 6),
                 "prompt_tokens": self.prompt_tokens, "completion_tokens": self.completion_tokens,
                 "cost": cost, "cost_status": "priced" if priced else "n/a_price_unknown",
                 "attributes_requested": self.attributes_requested, "proposals": self.proposals,
@@ -444,7 +425,7 @@ class LLMStats:
                 "provider_seconds": round(self.seconds, 3)}
 
 
-def build_messages(product: Product, attributes: list[str], config: dict) -> list[dict]:
+def build_messages(product: Product, attributes: list[str], config: dict, settings=None) -> list[dict]:
     title = visible_view(product.title)[0][:MAX_TITLE_CHARS]
     description = visible_view(product.description)[0][:MAX_DESCRIPTION_CHARS] if product.description else None
     requested = []
@@ -457,12 +438,33 @@ def build_messages(product: Product, attributes: list[str], config: dict) -> lis
         requested.append(item)
     user = {"category_id": product.category_id, "title": title, "description": description,
             "requested_attributes": requested}
-    return [{"role": "system", "content": SYSTEM_PROMPT},
+    if settings is not None and settings.context_planner:
+        from goodsai.context_planner import plan_context
+        plan = plan_context(product, attributes, settings.context_max_chars)
+        if plan.status == "unavailable":
+            raise ProviderError("llm_context_budget_exceeded", attempts=0)
+        user = {"category_id": product.category_id, "source_blocks": plan.payload(),
+                "requested_attributes": requested, "context_version": plan.version}
+    system = SYSTEM_PROMPT
+    if settings is not None and settings.span_selector:
+        from goodsai.span_selector import selector_payload, SelectorError, SYSTEM
+        try:
+            user.update(selector_payload(product, attributes, settings.selector_max_spans))
+        except SelectorError as exc:
+            raise ProviderError(str(exc), attempts=0) from None
+        system = SYSTEM
+        # No title/description truncation may hide a contradiction in selector mode.
+        if not settings.context_planner:
+            if len(product.title) + len(product.description or "") > settings.context_max_chars:
+                raise ProviderError("llm_context_budget_exceeded", attempts=0)
+            user.update(title=product.title, description=product.description)
+    return [{"role": "system", "content": system},
             {"role": "user", "content": json.dumps(user, ensure_ascii=False)}]
 
 
 def cache_key(product: Product, attributes: list[str], config: dict, settings: LLMSettings) -> str:
-    material = {"cache_version": CACHE_VERSION, "messages": build_messages(product, attributes, config),
+    material = {"cache_version": CACHE_VERSION, "source": {"title": product.title, "description": product.description,
+                "category_id": product.category_id, "source_flags": sorted(set(product.source_flags)), "schema": "0.1"}, "messages": build_messages(product, attributes, config, settings),
                 "settings": {k: v for k, v in settings.identity().items() if k not in {"max_calls", "max_attempts"}},
                 "config_sha256": hashlib.sha256(json.dumps(config, sort_keys=True, ensure_ascii=False).encode()).hexdigest()}
     return hashlib.sha256(json.dumps(material, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
@@ -713,7 +715,7 @@ class LLMExtractor:
         self.router = router if router is not None else SignalRouter(self.config, has_signal)
         self.provider = provider
         self.settings = settings
-        self.cache = ExactCache(settings.cache_dir) if settings.cache_dir else None
+        self.cache = ExactCache(settings.cache_dir, settings.cache_ttl_seconds) if settings.cache_dir else None
         self.ledger = DailyLedger(settings.budget_ledger, settings.daily_max_calls) if settings.budget_ledger else None
         self.stats = LLMStats()
         self.disabled_reason: str | None = None
@@ -781,13 +783,52 @@ class LLMExtractor:
                 self.disabled_reason = "llm_circuit_open"
 
     def _proposals(self, product: Product, gaps: list[str]) -> tuple[list | None, str | None]:
-        key = cache_key(product, gaps, self.config, self.settings) if self.cache else None
+        if self.settings.context_planner:
+            from goodsai.context_planner import plan_context
+            plan = plan_context(product, gaps, self.settings.context_max_chars)
+            with self.lock:
+                self.stats.context_plans[plan.status] += 1
+                self.stats.context_original_chars += plan.original_chars
+                self.stats.context_selected_chars += plan.selected_chars
+            if plan.status == "unavailable":
+                return None, "llm_context_budget_exceeded"
+        if not self.cache:
+            return self._produce(product, gaps)
+        try:
+            key = cache_key(product, gaps, self.config, self.settings)
+        except ProviderError as exc:
+            return None, exc.code
+        started = time.monotonic()
+        deadline = started + self.settings.request_deadline_seconds
+        def work():
+            try:
+                with self.cache.flight(key, deadline):
+                    return self._produce(product, gaps, max(0, deadline - time.monotonic()))
+            except TimeoutError:
+                return None, "llm_deadline_exceeded"
+        result, shared = FLIGHTS.run((str(self.cache.root.resolve()), key), work,
+                                    self.settings.request_deadline_seconds)
+        with self.lock:
+            self.stats.singleflight_hits += int(shared)
+        return result
+
+    def _produce(self, product: Product, gaps: list[str], remaining_seconds=None) -> tuple[list | None, str | None]:
+        try:
+            messages = build_messages(product, gaps, self.config, self.settings)
+            key = cache_key(product, gaps, self.config, self.settings) if self.cache else None
+        except ProviderError as exc:
+            return None, exc.code
         if self.cache:
+            started_cache = time.perf_counter()
             entry = self.cache.get(key)
+            with self.lock:
+                self.stats.cache_seconds += time.perf_counter() - started_cache
             if entry is not None:
                 with self.lock:
                     self.stats.cache_hits += 1
                 return entry["proposals"], None
+        if remaining_seconds is not None and remaining_seconds <= 0:
+            return None, "llm_deadline_exceeded"
         blocked = self._reserve_call()
         if blocked:
             with self.lock:
@@ -795,12 +836,12 @@ class LLMExtractor:
             return None, blocked
         started = time.perf_counter()
         # One deadline for the whole logical request: queueing, attempts, backoff and socket waits.
-        deadline = self.clock() + self.settings.request_deadline_seconds
+        deadline = self.clock() + (self.settings.request_deadline_seconds if remaining_seconds is None else remaining_seconds)
         try:
             if not self.slots.acquire(timeout=max(0.0, deadline - self.clock())):
                 raise ProviderError("llm_deadline_exceeded", attempts=0)
             try:
-                response = self._call_provider(build_messages(product, gaps, self.config), deadline)
+                response = self._call_provider(messages, deadline)
                 validate_provider_response(response)
             finally:
                 self.slots.release()
@@ -827,7 +868,9 @@ class LLMExtractor:
             return None, exc.code
         with self.lock:
             self.consecutive_failures = 0
-        if self.cache:
+        from goodsai.span_selector import selection_error
+        validator = selection_error if self.settings.span_selector else proposal_error
+        if self.cache and all(validator(item) is None for item in proposals):
             try:
                 self.cache.put(key, proposals, {"prompt_tokens": response.prompt_tokens,
                                                 "completion_tokens": response.completion_tokens})
@@ -889,7 +932,8 @@ class LLMExtractor:
         for item in proposals:
             with self.lock:
                 self.stats.proposals += 1
-            reason = proposal_error(item)
+            from goodsai.span_selector import selection_error, candidate_from_id
+            reason = selection_error(item) if self.settings.span_selector else proposal_error(item)
             if reason:
                 with self.lock:
                     self.stats.rejected[reason] += 1
@@ -904,7 +948,11 @@ class LLMExtractor:
                 with self.lock:
                     self.stats.rejected["llm_unknown_attribute"] += 1
                 continue
-            candidate, reason = ground(product, attr, item["value"], item["quote"], self.config, gate=gate)
+            if self.settings.span_selector:
+                candidate, reason = candidate_from_id(product, item, self.config,
+                                                     max_spans=self.settings.selector_max_spans, gate=gate)
+            else:
+                candidate, reason = ground(product, attr, item["value"], item["quote"], self.config, gate=gate)
             if reason:
                 rejected[attr].append(reason)
                 with self.lock:

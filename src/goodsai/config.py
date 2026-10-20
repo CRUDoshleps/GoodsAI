@@ -50,13 +50,30 @@ def default_api_limits():
     return deepcopy(_packaged()["runtime"]["api"])
 
 
+LLM_EXTENSIONS = {"model_revision": None, "cache_namespace": "local", "cache_ttl_seconds": 3600, "context_planner": False, "context_max_chars": 16000, "span_selector": False, "selector_max_spans": 512}
+
+
 def default_llm_policy():
-    return deepcopy(_packaged()["runtime"]["llm"])
+    return {**deepcopy(_packaged()["runtime"]["llm"]), **LLM_EXTENSIONS}
 
 
 def validate_llm_policy(policy):
     """One schema for profile, resolved overrides and low-level LLMSettings."""
-    _keys(policy, default_llm_policy(), location="runtime.llm")
+    _keys(policy, set(default_llm_policy()) - set(LLM_EXTENSIONS), optional=LLM_EXTENSIONS, location="runtime.llm")
+    policy = {**LLM_EXTENSIONS, **policy}
+    if type(policy["span_selector"]) is not bool:
+        raise ValueError("Span selector must be boolean")
+    if type(policy["selector_max_spans"]) is not int or not 1 <= policy["selector_max_spans"] <= 2048:
+        raise ValueError("Invalid selector span budget")
+    if type(policy["context_planner"]) is not bool:
+        raise ValueError("Context planner must be boolean")
+    if type(policy["context_max_chars"]) is not int or not 128 <= policy["context_max_chars"] <= 262144:
+        raise ValueError("Invalid context budget")
+    _string(policy["cache_namespace"], "cache_namespace")
+    if policy["model_revision"] is not None:
+        _string(policy["model_revision"], "model_revision")
+    if type(policy["cache_ttl_seconds"]) is not int or not 1 <= policy["cache_ttl_seconds"] <= 86400:
+        raise ValueError("Cache TTL must be between 1 and 86400 seconds")
     if policy["model"] is not None:
         _string(policy["model"], "runtime.llm.model")
         if len(policy["model"]) > 200:

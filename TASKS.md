@@ -10,7 +10,7 @@
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GOV-007 | [#121](https://github.com/CRUDoshleps/GoodsAI/issues/121) | P1 | DONE | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-007-next-checkpoint-backlog` | PR #126 merged 3e78ebf; claim 5de5aab; CI 6/6; четыре новые задачи и общая метка опубликованы, 14 существующих включены без смены owners/status/priority; индекс в main; Issue закрыта |
-| DOCS-004 | [#122](https://github.com/CRUDoshleps/GoodsAI/issues/122) | P0 | READY | technical writer/QA | — | — | согласовать публичные REQUIREMENTS/RESULTS/reports и оба README с runtime; история и provenance сохраняются |
+| DOCS-004 | [#122](https://github.com/CRUDoshleps/GoodsAI/issues/122) | P0 | DONE | technical writer/QA | urasha / Codex (сессия Влада) | `docs/docs-004-runtime-evidence` | PR #138 merged 7c49c6e, claim a0f5a5f; CI 6/6, внешний CLI/HTTP 83/83, clean-run 11/11, demo verify, 9 submission tests; public claims/оба README/provenance согласованы; код и historical числовые таблицы сохранены; Issue закрыта |
 | EVAL-007 | [#123](https://github.com/CRUDoshleps/GoodsAI/issues/123) | P1 | READY | evaluation/data | — | — | свежий baseline против прежнего producer на frozen silver; приватный проверенный bundle обязателен, independent quality не заявляется |
 | CONF-004 | [#124](https://github.com/CRUDoshleps/GoodsAI/issues/124) | P1 | BLOCKED | архитектор/data/NLP | — | — | реальный категорийный пилот существующего registry; ждёт #10/#5 и приёмку #44; synthetic 30 не равны real coverage |
 | EVAL-008 | [#125](https://github.com/CRUDoshleps/GoodsAI/issues/125) | P1 | BLOCKED | evaluation/ML/LLM | — | — | общий development benchmark actual rules/LLM/brand-hybrid; ждёт #123, artifacts/режимы #16/#25 и разрешение пакета/бюджета; #40 не закрывает |
@@ -166,10 +166,10 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ML-002 | [#58](https://github.com/CRUDoshleps/GoodsAI/issues/58) | P1 | BLOCKED | ML/аналитик | — | — | Предлагать категорию по тексту с безопасным отказом; зависимости в Issue |
-| LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | BLOCKED | LLM/backend | — | — | Кэшировать точные model-запросы и объединять дубли; зависимости в Issue |
-| PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | BLOCKED | product/backend | — | — | Управлять словарями через draft, impact и rollback; зависимости в Issue |
-| OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | BLOCKED | MLOps/аналитик | — | — | Обнаруживать дрейф потока относительно frozen baseline; зависимости в Issue |
-| PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | BLOCKED | product/аналитик | — | — | Приоритизировать review по риску, возрасту и спросу; зависимости в Issue |
+| LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | REVIEW | LLM/backend | Codex (e345ee) | `main` | 20.10.2026: PR #128 merged; exact cache v2, TTL/fingerprint и thread/process single-flight; 6 tests; representative keep gate #59 остаётся |
+| PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | REVIEW | product/backend | Codex (e345ee) | `main` | 20.10.2026: PR #133 merged; dictionary UI/RBAC/impact/immutable publish/CAS/rollback; 20 synthetic proposals, browser smoke; UX/registry integration остаются |
+| OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | REVIEW | MLOps/аналитик | Codex (e345ee) | `main` | 20.10.2026: PR #131 merged; frozen aggregate drift, Wilson/JS, redaction/hysteresis; 6 tests; OPS-002 и calibration остаются |
+| PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | REVIEW | product/аналитик | Codex (e345ee) | `main` | 20.10.2026: PR #132 merged; severity/age/rare/audit ranking + local session audit; 5 tests; PRODUCT-002/UX benchmark остаются |
 
 В существующих задачах [ML-001 #16](https://github.com/CRUDoshleps/GoodsAI/issues/16),
 [LLM-003 #25](https://github.com/CRUDoshleps/GoodsAI/issues/25),
@@ -186,8 +186,8 @@ Issue. ARCH-002 и PRODUCT-007 не задерживают существующ�
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| LLM-005 | [#65](https://github.com/CRUDoshleps/GoodsAI/issues/65) | P1 | BLOCKED | LLM/NLP | — | — | Selector выбирает span ID, значение собирается кодом; ждёт #64, #25, #37, #43, #6/#7 |
-| LLM-006 | [#66](https://github.com/CRUDoshleps/GoodsAI/issues/66) | P1 | BLOCKED | LLM/NLP | — | — | Исходные блоки контекста с отрицаниями, конфликтами и full fallback; ждёт #25, #37, #40, #49, #6/#7 |
+| LLM-005 | [#65](https://github.com/CRUDoshleps/GoodsAI/issues/65) | P1 | REVIEW | LLM/NLP | Codex (e345ee) | `main` | 20.10.2026: PR #130 merged; client enum IDs, source-only Candidate/shared gate; 5 tests; E1 recall/F1/token gate остаётся |
+| LLM-006 | [#66](https://github.com/CRUDoshleps/GoodsAI/issues/66) | P1 | REVIEW | LLM/NLP | Codex (e345ee) | `main` | 20.10.2026: PR #129 merged; raw blocks/full fallback и отказ по budget; 4 tests; E3 независимый keep gate остаётся |
 | ARCH-002 | [#67](https://github.com/CRUDoshleps/GoodsAI/issues/67) | P2 | BLOCKED | архитектор/backend | — | — | Полный private snapshot кандидатов и новый decision diff; ждёт #24, #37, #43, #44 |
 | PRODUCT-007 | [#68](https://github.com/CRUDoshleps/GoodsAI/issues/68) | P2 | BLOCKED | product/backend | — | — | Нейтральный запрос уточнения после проверенного source gap; ждёт #10, #37, #50 |
 

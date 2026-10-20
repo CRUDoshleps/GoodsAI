@@ -8,6 +8,20 @@
 Это репозиторий сдачи. Исходный GitHub commit и SHA-256 опубликованных файлов
 указаны в [submission-manifest.json](../../submission-manifest.json).
 
+## Проверено и измерено
+
+| Проверка / reference | Результат | Версия и граница вывода |
+| --- | --- | --- |
+| Внешний JSONL → CLI/HTTP без packaged examples | 83/83 synthetic contract checks | протокол кода `1c64463`, seed `20261020`; не catalog P/R/F1 |
+| 40 AI-assisted human-reviewed development | 143 TP / 0 FP / 22 FN | snapshot `3d3dc49`; не independent test и не новый замер нынешнего main |
+| 3037 catalog-silver cards | agreement F1 75,67% | producer `f33e3fc`, исторический отчёт; не human precision |
+| Независимый human test и общий актуальный model benchmark | N/A | приёмка не завершена; auto_accept выключен |
+
+Происхождение и воспроизведение: [RESULTS](../../docs/RESULTS.md).
+Свежие расхождения `model` разбираются отдельно
+([#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)): synthetic PASS
+не заменяет adjudication. [Требования → реализация → оставшийся долг](../../docs/REQUIREMENTS.md).
+
 ## Быстрый запуск
 
 Требуется Python 3.12+. Клонируйте с полной историей: comparison tests используют
@@ -29,6 +43,18 @@ JSON
 Predictions и paired manifest записываются в `outputs/`.
 Можно заменить название и описание своими текстами. Готовые vendor/model/params
 во входе запрещены.
+
+Фрагмент результата для этого ввода:
+
+```json
+{"attribute":"brand","value":"Samsung","unit":null,"confidence":0.85,"confidence_kind":"heuristic","decision":"review","method":"rule","rule_id":"brand.explicit-title.v1","evidence":{"field":"title","start":9,"end":16,"text":"Samsung"},"reason_codes":[]}
+```
+
+| Ответ | Действие оператора |
+| --- | --- |
+| `review` | проверить значение по выделенному evidence; score — эвристика, не вероятность |
+| `abstain` | прочитать reason: отсутствие факта или конфликт; не заполнять догадкой |
+| HTTP 422 / CLI `invalid_input` | исправить схему/типы своего ввода, затем повторить |
 
 Полный сценарий, команды PowerShell, проверка manifest и отрицательные примеры:
 [QUICKSTART](../../docs/QUICKSTART.md). Ответы и действия оператора:
@@ -69,6 +95,24 @@ Smoke проверяет упаковку на синтетике, а не ка�
 - [Checkpoint: EDA, метрики, PDF-презентация](../../docs/delivery/2026-10-19/README.md).
 - [Продуктовая презентация](../../docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).
 - [Сборка и проверка шести артефактов](../../docs/ARTIFACT_BUNDLE.md).
+
+## Инструменты оператора и диагностики
+
+- [Консоль словарей](../../docs/DICTIONARY_CONSOLE.md): `python -m goodsai.dictionary_app`
+  на `127.0.0.1:8001`; draft → impact → review → owner publish/rollback,
+  отдельные ключи ролей и явно выбранный профиль для следующего run.
+- [Приоритет проверки](../../docs/REVIEW_PRIORITY.md): `python -m goodsai.review_priority --help`;
+  severity/age, квоты старых/редких задач, объяснение порядка и audit сессий.
+- [Дрейф](../../docs/DRIFT.md): `python -m goodsai.drift --help`; локальные агрегаты,
+  frozen baseline, min support и hysteresis. Без reviewed labels F1 недоступен.
+- [Exact cache](../../docs/EXACT_CACHE.md): аудит повторов без model calls,
+  TTL/namespace и single-flight; cache включается отдельно.
+- [Span selector](../../docs/SPAN_SELECTOR.md) и [source context planner](../../docs/CONTEXT_PLANNER.md)
+  — экспериментальные opt-in режимы LLM, по умолчанию выключены.
+
+Компоненты проверены на синтетике. Репрезентативные E1/E3/cache keep gates,
+независимая validation, human UX benchmark и подключение к общей review-очереди
+остаются отдельной приёмкой; измеренный выигрыш качества/времени не заявляется.
 
 ## Ограничения
 

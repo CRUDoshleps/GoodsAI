@@ -1,3 +1,64 @@
+# 20.10.2026: DOCS-004 — DONE, публичные claims согласованы
+
+Issue #122, ветка `docs/docs-004-runtime-evidence`, claim `a0f5a5f`, код базы
+`1c64463`. REQUIREMENTS, RESULTS, ARCHITECTURE, LLM и VERIFIER сверены с кодом.
+По поручению Влада [PR #138](https://github.com/CRUDoshleps/GoodsAI/pull/138)
+принят в main, merge `7c49c6e4eaf62d613bc092205fc68d376985a04b`; Issue закрыта
+с `status:done`. На final head `f17a1d9` все 6 CI checks SUCCESS, конфликтов нет;
+merge-tree точно совпал с протестированным деревом файлов.
+В оба README добавлены краткие доказательства с версиями/reference; README
+сдачи содержит проверенный фрагмент JSON и действия по review/abstain/errors.
+Исторические числовые таблицы silver и `reports/run_stats.json` не менялись;
+RED SOLUTION помечен исторической ошибкой, последующее исправление указано
+отдельно. Неподтверждённые model/catalog расхождения #137 не скрываются.
+
+Пример своего JSONL выполнен фактическим CLI: все семь значений/decisions и
+точный raw evidence совпали с документацией. На committed `7b79925` внешний
+CLI/HTTP: 83/83; demo 6/6 + verify; pip check; 9 submission tests OK. Сформирован
+состав сдачи из 180 файлов: относительные ссылки, hashes и исключение внутреннего
+индекса проверены. Locked clean-run на том же commit: 11/11 passed.
+Финальный export `f17a1d9`: те же 180 файлов, rewritten links и hashes валидны;
+публичный runtime/config и числовые исторические таблицы не изменены.
+Нет новых P/R/F1, реальных model calls, расходов, изменений VM или test access.
+Чужой PR #136 не менялся. На момент завершения DOCS-004 собственный #127
+оставался открытым из-за конфликта с записью шести функций коллеги.
+По последующему поручению Влада в #127 выполнено согласование с main:
+сохранены запись коллеги, результат DOCS-004 и завершение GOV-007.
+
+# 20.10.2026: реализации шести задач приняты, экспериментальная приёмка открыта
+
+По прямому поручению владельца реализованы #59/#66/#65/#61/#62/#60 отдельными
+claims и PR #128–#133. Все шесть PR слиты после зелёных 6/6 CI checks.
+Перед интеграционным follow-up: 431 основной test + 3 reader tests, synthetic
+browser lifecycle dictionary draft→impact→review→publish выполнен. Добавлены
+отдельные проверки single-flight между двумя процессами и точного producer
+config у drift snapshot. PR #134 принят после 6/6 зелёных CI: 433 основных +
+3 reader tests. Отдельный очищенный checkout: 433 tests, изолированный clean-run
+11/11 и внешний CLI/HTTP 83/83. В README сдачи добавлены команды и ссылки
+на эксплуатационные руководства; прежний фильтр внутренних документов сохранён.
+
+- LLM-004: versioned exact cache, namespace/revision/TTL, integrity, bounded
+  single-flight, свежий downstream verifier и аудит повторов без model calls.
+- LLM-006: исходные blocks/raw offsets, неизвестная проза сохраняется;
+  negation/relations/multiple mentions → full fallback, budget overflow → abstain.
+- LLM-005: только attribute/span_id|null; source-only normalizer и общий gate;
+  enum проверяется клиентом, server constrained generation не заявляется.
+- OPS-003: локальные allowlisted агрегаты, совместимый frozen baseline,
+  uncertainty/min support/persistence/hysteresis и ручное действие для alert.
+- PRODUCT-006: severity/age ranking, oldest/rare/audit quotas, equal demand по
+  умолчанию, approved aggregate weights и локальный audit сессий оператора.
+- PRODUCT-005: UI над существующими config brands/colors, proposal/impact/review,
+  server-side RBAC, immutable version/hash/author/reviewer/publisher/date,
+  CAS publication и rollback; старые runs не переключаются автоматически.
+
+Issues остаются REVIEW: representative cache/E1/E3 keep/drop, независимая
+validation, OPS-002/PRODUCT-002/CONF-003 integration и human UX benchmark не
+выполнены и не подменены synthetic tests. Default model routes выключены;
+семантические alias, demand permissions и независимое качество не согласуются
+автоматически. Реальные данные/gold/test, платные API и VM не использовались.
+Новые эксплуатационные документы включены в явный Gitea allowlist; внутренние
+исследования/планы/reviews и task board по-прежнему не публикуются.
+
 # 20.10.2026: GOV-007 — DONE, очередь следующего технического прогона
 
 По поручению Влада создана метка `review:next-checkpoint` и координатор

@@ -248,3 +248,26 @@ train values/support и конечный набор изученных numeric t
 Контракт train-проекции, словарей, нормализации, evidence и границы поддержки
 описаны в [CATEGORY_REGISTRY](docs/CATEGORY_REGISTRY.md). Реальный train/split,
 независимые метрики и принятие расширения остаются отдельными условиями.
+
+## Exact producer reuse (LLM-004)
+
+Opt-in cache сохраняет producer proposals, а не решения. Fingerprint включает
+exact исходные поля/flags, schema/config, prompt, generation, model/revision и
+namespace; TTL не более суток. Каждый replay проходит текущий общий gate.
+Single-flight не отменяет request deadline, budgets и concurrency. Формат
+prediction v0.1 и review/abstain остаётся прежним; подробности — docs/EXACT_CACHE.md.
+
+LLM-006: выключенный по умолчанию source-block planner сохраняет original offsets;
+недоказанная полнота означает полный контекст, превышение budget — abstain.
+Контракт prediction прежний; описание: docs/CONTEXT_PLANNER.md.
+
+LLM-005: opt-in selector принимает только attribute/span_id|null; значение
+собирается из исходного span и проходит общий gate на полном source.
+Неполный индекс даёт abstain; server constrained generation не заявляется.
+Подробности: docs/SPAN_SELECTOR.md.
+
+PRODUCT-005: alias lifecycle изменяет существующий configuration dictionary
+только через draft/impact/review/owner publish. Versions immutable, current
+pointer CAS; rollback создаёт новую версию. Prediction snapshots/решения
+не меняются задним числом. Numeric/catalog schema и semantic alias policy
+не согласуются автоматически. Инструкция: docs/DICTIONARY_CONSOLE.md.
