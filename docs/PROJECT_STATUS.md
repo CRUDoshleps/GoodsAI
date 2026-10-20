@@ -1,16 +1,34 @@
 # Состояние проекта
 
-## 20.10.2026: BASE-001 model follow-up — REVIEW
+## 20.10.2026: интеграционный кандидат #103/#104/#105
 
-Claim `b348248`, база `857115d`, ветка `baseline/base-001-model-boundaries`.
-Исправлены явные границы мл/ml, SIM feature, material/color modifier;
-поддержаны digit-first index, split alphanumeric index и однозначные полные
-коммерческие имена. Unknown multiword maker, unitless memory и служебные коды
-с неясной ролью по-прежнему дают abstain. Единицы, normalization и v0.1 прежние.
-310 tests OK, 4 новых model test methods. Демо 6/6. На прежних 40 AI-assisted
-reviewed development: model TP/FP/FN 24/0/12 → 33/0/3; 0 lost TP/new FP,
-0 изменений других атрибутов. Независимая оценка не выполнялась.
-[Результаты и ограничения](research/base001_followup_results.md).
+В QA-006 включены обе отдельные fix-ветки с сохранением всех статусов/документов.
+Producer `12ae4c6`: strict внешний CLI/HTTP без examples **83/83, exit 0**
+вместо 75/83; QA-001 v2 содержит все прежние случаи и точную причину отказа
+для имени бренда. README начинает со своего JSONL, demo — дополнительный smoke.
+Ниже сохранены результаты отдельных этапов, в том числе исходные ошибки.
+Слияние в main выполняется только после общей регрессии и проверки CI.
+Общий suite: 322 основных + 3 reader tests OK, pip check OK; PowerShell
+пример README выполнен: все 7 значений совпали, input UTF-8 без BOM.
+
+## 20.10.2026: QA-006 внешний ввод — REVIEW
+
+Issue #98, claim `a7ca1db`, ветка `qa/qa-006-external-input`, база `857115d`.
+Runner генерирует 16 новых synthetic inputs и добавляет все 21 QA-001 probe.
+Настоящие CLI/HTTP работают из временной копии пакета без `examples/`.
+Общие assertions проверяют value/unit/decision/reasons и exact evidence;
+manifest и сохранение прежней пары после повреждённого JSONL проверяются отдельно.
+Существующие runtime-правила и v0.1 не меняются.
+
+При seed 20261020: 66/74 case checks и 9/9 stages, итого **75/83**, exit 1.
+FAILED: RED SOLUTION/color (#15) и 3 model пропуска перед `мл` (#21), по обоим
+transport. Expected не ослаблены, known issues не исключены из строгого CI.
+311 основных тестов (Windows с PYTHONUTF8=1), 3 reader tests, pip check OK;
+прежний listening HTTP probe 22/22; locked clean-run 11/11. Producer `4d177e1`
+проверен чистым, same-seed input/expected/predictions побайтно совпали.
+Это приёмка инструмента, не зелёная
+функциональная приёмка или независимое качество каталога. Команды и границы:
+[EXTERNAL_ACCEPTANCE](EXTERNAL_ACCEPTANCE.md). Main/VM и модели не обновлялись.
 
 ## 20.10.2026: VER-001 follow-up — REVIEW
 
@@ -22,6 +40,18 @@ not_found на `relation_name_token`; требование color=null/abstain с
 7 новых тестов; общий suite 313 tests OK, 40 AI-assisted reviewed development
 без изменений значений (M2 72/0/11, D21–D40 62/0/20 TP/FP/FN до=после).
 Это не независимая оценка. Нормализация, score и v0.1 не меняются.
+
+## 20.10.2026: BASE-001 model follow-up — REVIEW
+
+Claim `b348248`, база `857115d`, ветка `baseline/base-001-model-boundaries`.
+Исправлены явные границы мл/ml, SIM feature, material/color modifier;
+поддержаны digit-first index, split alphanumeric index и однозначные полные
+коммерческие имена. Unknown multiword maker, unitless memory и служебные коды
+с неясной ролью по-прежнему дают abstain. Единицы, normalization и v0.1 прежние.
+310 tests OK, 4 новых model test methods. Демо 6/6. На прежних 40 AI-assisted
+reviewed development: model TP/FP/FN 24/0/12 → 33/0/3; 0 lost TP/new FP,
+0 изменений других атрибутов. Независимая оценка не выполнялась.
+[Результаты и ограничения](research/base001_followup_results.md).
 
 ## 20.10.2026: backlog по ревью «прогон 2» — REVIEW
 

@@ -4,6 +4,7 @@ This does not certify independent review, an official organizer API or a UI.
 Starts its own server on an ephemeral loopback port and always stops it.
 """
 import argparse
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import socket
@@ -15,6 +16,56 @@ import urllib.error
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def request_json(base, path, body=None, media='application/json'):
+    """Loopback probe, independent of proxy settings and in-process TestClient."""
+    req = urllib.request.Request(base + path, data=body,
+                                 headers={'Content-Type': media} if body is not None else {})
+    tick = time.perf_counter()
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    try:
+        response = opener.open(req, timeout=10)
+    except urllib.error.HTTPError as exc:
+        response = exc
+    with response:
+        return response.code, json.loads(response.read()), (time.perf_counter() - tick) * 1000
+
+
+def stop_server(process):
+    if process.poll() is None:
+        process.terminate()
+    try:
+        process.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=10)
+
+
+@contextmanager
+def listening_server(python, cwd, env):
+    """Own one server; cleanup also covers failed readiness and failed assertions."""
+    with socket.socket() as probe:
+        probe.bind(('127.0.0.1', 0))
+        port = probe.getsockname()[1]
+    base = f'http://127.0.0.1:{port}'
+    process = subprocess.Popen([str(python), '-m', 'goodsai.api', '--host', '127.0.0.1', '--port', str(port)],
+                               cwd=cwd, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        deadline = time.monotonic() + 30
+        while process.poll() is None and time.monotonic() < deadline:
+            try:
+                status, health, _ = request_json(base, '/health')
+                if status == 200 and health.get('service') == 'goodsai':
+                    break
+            except OSError:
+                pass
+            time.sleep(.1)
+        else:
+            raise RuntimeError('Isolated server did not become ready')
+        yield base, process
+    finally:
+        stop_server(process)
 
 
 def main():
@@ -45,16 +96,7 @@ def main():
                                cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def request(path, body=None, media='application/json'):
-        req = urllib.request.Request(base+path, data=body,
-                                     headers={'Content-Type': media} if body is not None else {})
-        tick = time.perf_counter()
-        try:
-            response = urllib.request.urlopen(req, timeout=10)
-        except urllib.error.HTTPError as exc:
-            response = exc
-        with response:
-            data = response.read()
-            return response.code, json.loads(data), (time.perf_counter()-tick)*1000
+        return request_json(base, path, body, media)
 
     try:
         deadline = time.monotonic()+30
@@ -116,10 +158,7 @@ def main():
                   'ui_rehearsal':'BLOCKED: no review UI or persistence/export workflow in candidate',
                   'server_cleanup':'finally terminate and wait'}
     finally:
-        process.terminate()
-        try: process.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            process.kill(); process.wait(timeout=10)
+        stop_server(process)
     target.parent.mkdir(parents=True,exist_ok=True)
     with target.open('x',encoding='utf-8') as stream:
         json.dump(report,stream,ensure_ascii=True,indent=2)

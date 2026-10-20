@@ -23,7 +23,8 @@ REFERENCE_KINDS = {"ai_assisted_reviewed_development", "development_feedback", "
 SHA = re.compile(r"[a-f0-9]{64}\Z")
 PUBLIC_DOCS = {"README.md", "pyproject.toml", ".gitignore", "AGENTS.md", "CONTRIBUTING.md", "RESEARCH.md", "TASKS.md", "TECHNICAL_SPEC.md",
                "docs/EXPERIMENTAL_GLINER.md", "docs/CONFIGURATION.md", "docs/CATEGORY_REGISTRY.md",
-               "docs/LLM.md", ".env.example",
+               "docs/LLM.md", "docs/EXTERNAL_ACCEPTANCE.md", "docs/RELATION_VERIFIER.md",
+               "docs/research/base001_followup_results.md", ".env.example",
                "docs/SILVER_EVALUATION.md", "docs/research/silver_evaluation_protocol.md",
                "docs/research/silver_evaluation_results.md",
                "reports/metrics.md", "reports/run_stats.json",
