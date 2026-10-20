@@ -8,8 +8,9 @@
 Проект развивается как гибридная система. Правила закрывают частые и хорошо
 формализуемые случаи. Модель или LLM будет получать только сложный остаток.
 Любой кандидат проходит одну проверку схемы, диапазона, конфликта и evidence.
-LLM подключается **только явно** флагом `--llm` (LLM-003, в review): она получает
-пропуски правил и проходит ту же проверку evidence. По умолчанию runtime — только правила.
+LLM подключается **только явно** флагом `--llm`: она получает пропуски правил
+и проходит проверки evidence и принадлежности значения товару. По умолчанию
+runtime — только правила; сравнительное качество LLM ещё не подтверждено.
 
 ## Что работает сейчас
 
@@ -36,7 +37,11 @@ python3.12 --version
 python3.12 -m venv .venv
 .venv/bin/python -m pip install -e '.[serve,test]'
 .venv/bin/python -m pip check
-.venv/bin/python -m goodsai.demo --output-dir outputs/demo-first-run
+mkdir -p outputs
+cat > outputs/my-card.jsonl <<'JSON'
+{"schema_version":"0.1","sku_id":"my-phone","category_id":"761","title":"Смартфон Samsung Orbit X73 12/512GB белый","description":"Экран 6,4 дюйма. Аккумулятор 4600 мАч."}
+JSON
+.venv/bin/python -m goodsai.cli predict --input outputs/my-card.jsonl --output outputs/my-predictions.jsonl
 ```
 
 Windows PowerShell:
@@ -45,14 +50,33 @@ Windows PowerShell:
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[serve,test]"
 .\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -m goodsai.demo --output-dir outputs/demo-first-run
+New-Item -ItemType Directory -Path outputs -Force | Out-Null
+$goodsaiInput = '{"schema_version":"0.1","sku_id":"my-phone","category_id":"761","title":"Смартфон Samsung Orbit X73 12/512GB белый","description":"Экран 6,4 дюйма. Аккумулятор 4600 мАч."}'
+[IO.File]::WriteAllText((Join-Path $PWD 'outputs/my-card.jsonl'), $goodsaiInput + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+.\.venv\Scripts\python.exe -m goodsai.cli predict --input outputs/my-card.jsonl --output outputs/my-predictions.jsonl
 ```
+
+Это собственный внешний JSONL, без чтения packaged demo-файлов. Ожидаются
+`status=processed`, brand=`Samsung`, model=`Orbit X73`, RAM=`12 GB`,
+storage=`512 GB`, screen=`6.4 inch`, battery=`4600 mAh`, color=`белый`.
+Все найденные значения имеют `decision=review` и точный source span.
+Результат — `outputs/my-predictions.jsonl`, provenance/hashes —
+`outputs/my-predictions.manifest.json`. Замените title/description своими
+данными, сохраняя text-only схему; готовые vendor/model/params поля запрещены.
+PowerShell пример пишет UTF-8 **без BOM**, в том числе на Windows PowerShell 5.
 
 Если `.venv` уже существует, сначала проверьте её Python; не создавайте её заново
 поверх рабочего окружения. Системный `python3` на VM может быть 3.10; используйте
 имеющуюся `.venv/bin/python` версии >=3.12. Вариант с установленным `uv` описан
 в [RUNBOOK](docs/RUNBOOK.md). Активация окружения не требуется.
 
+Дополнительный smoke из шести заранее подготовленных случаев:
+
+```bash
+.venv/bin/python -m goodsai.demo --output-dir outputs/demo-first-run
+```
+
+В PowerShell executable — `.\.venv\Scripts\python.exe`.
 Демо создаёт в `outputs/demo-first-run/` `input.jsonl`, `predictions.jsonl`,
 `predictions.manifest.json`, `summary.json`, `metrics.json`, `report.md` и
 `artifacts.json` с hashes шести файлов. В stdout и summary ожидаются
@@ -83,9 +107,10 @@ candidate coverage не являются точностью извлечения
 
 Команда генерирует свой `input.jsonl` и ожидаемые ответы, запускает CLI и настоящий
 HTTP на временном loopback-порту из копии пакета **без `examples/`**. Отчёты:
-`outputs/external-first/report.json` и `report.md`. Exit `1` означает найденные
-ошибки, включая известные #15/#21; exit `2` — сбой самого прогона. Проверка
-строгая и не скрывает дефекты ради зелёного результата. Это synthetic acceptance,
+`outputs/external-first/report.json` и `report.md`. Ожидается `passed`, **83/83**,
+exit `0` после исправлений #15/#21. Exit `1` означает найденные ошибки;
+exit `2` — сбой самого прогона. Known issues тоже считаются ошибками,
+проверки не исключаются. Это synthetic acceptance,
 не оценка точности каталога. [Сценарии, ограничения и запуск в PowerShell](docs/EXTERNAL_ACCEPTANCE.md).
 
 Для проверки из чистого checkout одной командой, включая изолированное
