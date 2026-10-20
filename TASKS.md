@@ -4,8 +4,8 @@
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GOV-006 | [#97](https://github.com/CRUDoshleps/GoodsAI/issues/97) | P1 | REVIEW | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-006-review-run-2` | 20.10.2026: claim c15ec9b; анализ и 4 задачи, 6 существующих отмечены; runtime не меняется |
-| QA-006 | [#98](https://github.com/CRUDoshleps/GoodsAI/issues/98) | P0 | REVIEW | QA/backend | urasha / Codex (сессия Влада) | `qa/qa-006-external-input` | claim a7ca1db; #104/#105 включены для проверки; strict 83/83 вместо 75/83, оба дефекта исправлены без исключения cases |
+| GOV-006 | [#97](https://github.com/CRUDoshleps/GoodsAI/issues/97) | P1 | DONE | аналитик/координатор | urasha / Codex (сессия Влада) | `main` | PR #102 merged 857115d; campaign backlog и метка опубликованы |
+| QA-006 | [#98](https://github.com/CRUDoshleps/GoodsAI/issues/98) | P0 | DONE | QA/backend | urasha / Codex (сессия Влада) | `main` | PR #103 merged aee1bba; CI 6/6 SUCCESS; strict 83/83; mirror 39384309897 SUCCESS |
 | LLM-007 | [#99](https://github.com/CRUDoshleps/GoodsAI/issues/99) | P0 | READY | LLM/backend | — | — | исправить воспроизведённый TypeError на нестроковом attribute |
 | LLM-008 | [#100](https://github.com/CRUDoshleps/GoodsAI/issues/100) | P1 | READY | LLM/MLOps | — | — | bounded response/deadline/physical attempts и failure tests |
 | DOCS-003 | [#101](https://github.com/CRUDoshleps/GoodsAI/issues/101) | P1 | READY | technical writer/QA | — | — | проверенный запуск с собственным JSONL и объяснения ответов |
@@ -84,11 +84,11 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | BLOCKED | интегратор | — | — | выпуск исправлений review; ждёт подзадачи |
 | ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | DONE | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
 | DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | DONE | technical writer | Codex (сессия Влада) | `docs/docs-001-reproducible-instructions` | PR #31 merge `55378f1`, зеркало Gitea успешно |
-| BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | REVIEW | NLP/baseline | urasha / Codex (сессия Влада) | `baseline/base-001-model-boundaries` | claim b348248; model boundaries/code grammar; 40 development: 9 FN→TP, 0 new FP/lost TP; 310 tests OK |
+| BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | DONE | NLP/baseline | urasha / Codex (сессия Влада) | `main` | PR #105 merged 71cae4b; CI 4/4 SUCCESS; 9 model FN→TP on development, без новых FP/lost TP |
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
-| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | REVIEW | NLP/QA | urasha / Codex (сессия Влада) | `qa/ver-001-color-attachment` | claim c8e9374; имена/материал не цвет, LLM использует relation guard; QA-001 21/21; 40 reviewed development без потери TP |
+| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | DONE | NLP/QA | urasha / Codex (сессия Влада) | `main` | PR #104 merged d9e279a; CI 4/4 SUCCESS; имена/материал не цвет, LLM relation guard; QA-001 21/21 |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | Codex (tunaIT) | `main` | PR #80 merged 468e35e; opt-in prototype принят; default/human quality gate остаётся открыт |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | DONE | QA | Codex (tunaIT) | `main` | PR #88 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |

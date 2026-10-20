@@ -25,6 +25,7 @@ PUBLIC_DOCS = {"README.md", "pyproject.toml", ".gitignore", "AGENTS.md", "CONTRI
                "docs/EXPERIMENTAL_GLINER.md", "docs/CONFIGURATION.md", "docs/CATEGORY_REGISTRY.md",
                "docs/LLM.md", "docs/EXTERNAL_ACCEPTANCE.md", "docs/RELATION_VERIFIER.md",
                "docs/research/base001_followup_results.md", ".env.example",
+               "docs/reviews/2026-10-20_linked_acceptance.md",
                "docs/SILVER_EVALUATION.md", "docs/research/silver_evaluation_protocol.md",
                "docs/research/silver_evaluation_results.md",
                "reports/metrics.md", "reports/run_stats.json",
