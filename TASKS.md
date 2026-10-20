@@ -9,7 +9,23 @@
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GOV-007 | [#121](https://github.com/CRUDoshleps/GoodsAI/issues/121) | P1 | IN_PROGRESS | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-007-next-checkpoint-backlog` | 20.10.2026: отдельный claim перед публикацией детального backlog; runtime не меняется |
+| GOV-007 | [#121](https://github.com/CRUDoshleps/GoodsAI/issues/121) | P1 | REVIEW | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-007-next-checkpoint-backlog` | claim 5de5aab; четыре новые задачи и общая метка опубликованы; существующие задачи включены без смены владельцев/статусов; индекс подготовлен к интеграции |
+| DOCS-004 | [#122](https://github.com/CRUDoshleps/GoodsAI/issues/122) | P0 | READY | technical writer/QA | — | — | согласовать публичные REQUIREMENTS/RESULTS/reports и оба README с runtime; история и provenance сохраняются |
+| EVAL-007 | [#123](https://github.com/CRUDoshleps/GoodsAI/issues/123) | P1 | READY | evaluation/data | — | — | свежий baseline против прежнего producer на frozen silver; приватный проверенный bundle обязателен, independent quality не заявляется |
+| CONF-004 | [#124](https://github.com/CRUDoshleps/GoodsAI/issues/124) | P1 | BLOCKED | архитектор/data/NLP | — | — | реальный категорийный пилот существующего registry; ждёт #10/#5 и приёмку #44; synthetic 30 не равны real coverage |
+| EVAL-008 | [#125](https://github.com/CRUDoshleps/GoodsAI/issues/125) | P1 | BLOCKED | evaluation/ML/LLM | — | — | общий development benchmark actual rules/LLM/brand-hybrid; ждёт #123, artifacts/режимы #16/#25 и разрешение пакета/бюджета; #40 не закрывает |
+
+Порядок: #122 и #123 можно брать после claim; далее подтверждённый контракт
+#10/#17 и матрица #35, разрешённая train-проекция #5 и пилот #124 через
+существующий #44. Сравнение #125 ограничено development и не заменяет
+независимые gates #6/#38/#40. Одиночный review-экран остаётся #19;
+интеграционная приёмка — #29/#26, целевая VM — #82, release gate — #42.
+
+Также метка кампании добавлена к существующим #5/#10/#16/#17/#19/#25/#26/#29/
+#35/#36/#40/#42/#44/#82. Их приоритеты, статусы и владельцы сохранены.
+Перед новой работой уточнить фактическую приёмку #44/#25: часть реализации
+уже в main. Синхронизация GitHub/Gitea проверяется через source SHA и hashes
+submission-manifest, а не равенство SHA двух репозиториев.
 
 ## Ревью прогона 2 — подготовка backlog
 
