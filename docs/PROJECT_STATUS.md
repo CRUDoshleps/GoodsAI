@@ -1,5 +1,22 @@
 # Состояние проекта
 
+## 20.10.2026: QA-006 внешний ввод — REVIEW
+
+Issue #98, claim `a7ca1db`, ветка `qa/qa-006-external-input`, база `857115d`.
+Runner генерирует 16 новых synthetic inputs и добавляет все 21 QA-001 probe.
+Настоящие CLI/HTTP работают из временной копии пакета без `examples/`.
+Общие assertions проверяют value/unit/decision/reasons и exact evidence;
+manifest и сохранение прежней пары после повреждённого JSONL проверяются отдельно.
+Существующие runtime-правила и v0.1 не меняются.
+
+При seed 20261020: 66/74 case checks и 9/9 stages, итого **75/83**, exit 1.
+FAILED: RED SOLUTION/color (#15) и 3 model пропуска перед `мл` (#21), по обоим
+transport. Expected не ослаблены, known issues не исключены из строгого CI.
+311 основных тестов (Windows с PYTHONUTF8=1), 3 reader tests, pip check OK;
+прежний listening HTTP probe 22/22. Это приёмка инструмента, не зелёная
+функциональная приёмка или независимое качество каталога. Команды и границы:
+[EXTERNAL_ACCEPTANCE](EXTERNAL_ACCEPTANCE.md). Main/VM и модели не обновлялись.
+
 ## 20.10.2026: backlog по ревью «прогон 2» — REVIEW
 
 GOV-006 #97, claim `c15ec9b`, ветка `gov/gov-006-review-run-2`.

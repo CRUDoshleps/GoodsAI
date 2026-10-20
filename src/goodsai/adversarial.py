@@ -16,6 +16,31 @@ from goodsai.data import read_predictions, write_json
 from goodsai.demo import _destination
 
 
+def case_errors(case, row, config):
+    """Shared expected-output assertions, independent of the predictor's answer."""
+    expected = case['expected']
+    errors = []
+    if not isinstance(row, dict):
+        return ['prediction_not_object']
+    if row.get('sku_id') != case['input'].get('sku_id') or row.get('status') != expected['status']:
+        errors.append('identity_or_status')
+    try:
+        product = None if expected['status'] == 'invalid_input' else Product.from_dict(case['input'])
+        validate_prediction(row, config, product)
+    except (ValueError, KeyError, TypeError):
+        errors.append('prediction_contract_or_evidence')
+    if expected['status'] == 'invalid_input' and row.get('reason_codes') != ['invalid_text_only_input']:
+        errors.append('invalid_input_reason')
+    attrs = {a.get('attribute'): a for a in row.get('attributes', [])
+             if isinstance(a, dict) and isinstance(a.get('attribute'), str)} if isinstance(row.get('attributes'), list) else {}
+    for attr, wanted in expected['attributes'].items():
+        actual = attrs.get(attr)
+        for key, value in wanted.items():
+            if actual is None or actual.get(key) != value:
+                errors.append(attr + '.' + key)
+    return errors
+
+
 def run_suite(output_dir):
     examples = files('goodsai').joinpath('examples','synthetic')
     raw = examples.joinpath('adversarial.json').read_bytes()
@@ -36,19 +61,7 @@ def run_suite(output_dir):
         predictions=list(read_predictions(output/'predictions.jsonl'))
         if len(predictions)!=len(cases):raise ValueError('Case count mismatch')
         for case,row in zip(cases,predictions):
-            errors=[];expected=case['expected']
-            if row['sku_id']!=case['input']['sku_id'] or row['status']!=expected['status']:
-                errors.append('identity_or_status')
-            if expected['status']=='invalid_input':
-                validate_prediction(row,config)
-                if row.get('reason_codes')!=['invalid_text_only_input']:errors.append('invalid_input_reason')
-            else:
-                validate_prediction(row,config,Product.from_dict(case['input']))
-            attrs={a['attribute']:a for a in row['attributes']}
-            for attr,wanted in expected['attributes'].items():
-                actual=attrs.get(attr)
-                for key,value in wanted.items():
-                    if actual is None or actual.get(key)!=value:errors.append(attr+'.'+key)
+            errors=case_errors(case,row,config)
             report['cases'].append({'id':case['id'],'passed':not errors,'mismatched_fields':errors,
                                     'known_issue':case.get('known_issue')})
         report.update(status='passed' if all(c['passed'] for c in report['cases']) else 'failed',

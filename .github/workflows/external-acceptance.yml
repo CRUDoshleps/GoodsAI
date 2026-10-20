@@ -1,0 +1,39 @@
+name: External input acceptance
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  external-acceptance:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[serve,test]'
+      - name: Strict external CLI and listening HTTP without packaged examples
+        run: python scripts/release/external_acceptance.py --seed 20261020 --output-dir outputs/external-ci
+      # No continue-on-error: known regressions intentionally fail this job too.
+      - name: Retain synthetic acceptance evidence, including failed checks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-acceptance-${{ matrix.os }}
+          path: |
+            outputs/external-ci/report.json
+            outputs/external-ci/report.md
+            outputs/external-ci/input.jsonl
+            outputs/external-ci/expected.json
+            outputs/external-ci/predictions.jsonl
+            outputs/external-ci/predictions.manifest.json
+            outputs/external-ci/http_predictions.json
+            outputs/external-ci/malformed.jsonl

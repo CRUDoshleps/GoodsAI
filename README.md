@@ -75,6 +75,19 @@ candidate coverage не являются точностью извлечения
 
 ## Пакетный прогноз
 
+Для проверки внешнего ввода без встроенных demo-файлов:
+
+```bash
+.venv/bin/python scripts/release/external_acceptance.py --seed 20261020 --output-dir outputs/external-first
+```
+
+Команда генерирует свой `input.jsonl` и ожидаемые ответы, запускает CLI и настоящий
+HTTP на временном loopback-порту из копии пакета **без `examples/`**. Отчёты:
+`outputs/external-first/report.json` и `report.md`. Exit `1` означает найденные
+ошибки, включая известные #15/#21; exit `2` — сбой самого прогона. Проверка
+строгая и не скрывает дефекты ради зелёного результата. Это synthetic acceptance,
+не оценка точности каталога. [Сценарии, ограничения и запуск в PowerShell](docs/EXTERNAL_ACCEPTANCE.md).
+
 Для проверки из чистого checkout одной командой, включая изолированное
 окружение, hash-locked зависимости, batch, API contract и artifact verification:
 
