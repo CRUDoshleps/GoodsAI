@@ -79,7 +79,11 @@ GoodsAI. Claims, ветки, Issues и согласования ниже отн�
 ## Репозитории
 
 `work` — GitHub для разработки. `release` — Gitea организаторов. Feature-ветки
-сливаются в GitHub `main`; workflow автоматически fast-forward публикует этот
-commit в Gitea `main`. Прямые рабочие commits в Gitea запрещены.
+сливаются в GitHub `main`; workflow публикует отфильтрованный состав сдачи
+обычным следующим commit в Gitea `main`. GitHub и Gitea SHA различаются; связь
+и hashes файлов — в `submission-manifest.json`. Новые документы допускаются
+только через `PUBLIC_FILES` в `scripts/release/publish_gitea.py`; исследования,
+планы и внутренние reviews остаются в GitHub. Подробности — `docs/RELEASES.md`.
+Прямые рабочие commits в Gitea запрещены.
 Секреты никогда не помещаются в URL remote, commit, PR, terminal transcript
 или документацию.
