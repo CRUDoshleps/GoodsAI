@@ -273,3 +273,7 @@ endpoint/key; изменение цен/timeout отражено в provenance. 
 ## Exact cache LLM-004
 
 Versioned exact-cache, TTL, single-flight и аудит без вызовов: [EXACT_CACHE](EXACT_CACHE.md). Репрезентативный keep/drop остаётся отдельной проверкой.
+
+## Source context LLM-006
+
+Отбор исходных блоков, full fallback и отказ по budget: [CONTEXT_PLANNER](CONTEXT_PLANNER.md).
