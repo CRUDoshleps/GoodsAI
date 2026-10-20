@@ -26,6 +26,37 @@ SCN-109 остаётся непокрытой общей очередью #19/#5
 не указан как её текущий блокер. Новых API/JSON полей, конфигурации, метрик
 качества, изменений gold/датасетов, model calls или действий на VM нет.
 
+# 21.10.2026: DATA-001 — REVIEW, воспроизводимая text-only подготовка
+
+Issue #5, claim `5d705ed`, ветка `data/data-001-reproducible-prepare`.
+Inventory разделяет text-only (skus + descriptions) и analytics (+clicks),
+проверяет существующий reference по флагу и запрещает перезапись. CLI default
+inventory/prepare пути согласованы. Prepare-v2 проверяет схему/ID/join/hash,
+фиксирует accounting и публикует только полный новый каталог. Данные Unicode/
+HTML сохраняются, targets не попадают в Product. Результат v0.1 не меняется.
+
+Одна команда `scripts/research/prepare_dataset.py` повторяет prepare и связывает
+его с проверенным frozen EVAL-002 audit, без нового grouping/split/predictions.
+`--verify` сверяет источники, выходы и hash-связь с exact/normalized/near/family/
+exposure quarantine. Нет аудита или изменился JSONL — handoff останавливается.
+Обычный prepare по-прежнему доступен, но имеет split_status=not_checked.
+
+На локальных реальных источниках: 10324 строки (7988/2336), 4244 descriptions,
+6080 title-only, 343 mismatch. JSONL/provenance при повторе идентичны; input SHA
+`68875ae2...b70fe3` совпал с frozen audit. Eligible 3411/quarantine 6913,
+reserve не материализован для просмотра или inference, разбиения не менялись.
+9 новых tests с подслучаями PASS: profiles/legacy inventory, schema/null/joins,
+source tamper, Unicode/HTML, target exclusion, staging failure, repeat/CLI и
+связь с реальным split-auditor. Целевой data suite 11/11 PASS, полная регрессия
+до двух последних новых тестов 458/458 PASS, research reader 3/3, pip check PASS.
+Тесты подготовки добавлены в Windows/Linux CI; final head проверяется CI целиком.
+
+README и DATASET описывают профили, новый каталог, одну команду и ограничения.
+Приватные данные/результаты не публикуются, LLM calls и VM deployment не
+выполнялись. Это воспроизводимость подготовки, не независимая оценка качества.
+Разрешённая train-проекция новых категорий и seller input всё ещё требуют
+собственных решений/проверок #124/#36. PR #136 коллеги не изменялся.
+
 # 20.10.2026: SPEC-002 — DONE, исполняемая матрица с видимыми пробелами
 
 Claim `1a68c67`, ветка `qa/spec-002-scenario-matrix`. Реализованы независимый

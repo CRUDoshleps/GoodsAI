@@ -102,6 +102,21 @@ Smoke проверяет упаковку на синтетике, а не ка�
 
 ## Документация и материалы сдачи
 
+Подготовка выданных данных описана в [DATASET](../../docs/DATASET.md).
+`inventory --profile text-only` требует только `skus.pkl` и `sku_desc.parquet`;
+clicks обязательны только для `--profile analytics`. `prepare` использует
+готовую доверенную Parquet-проекцию и проверенные SHA-256, не загружает pickle.
+Оба инструмента запрещают перезапись существующих результатов.
+Полный handoff подготовки с существующим frozen EVAL-002 аудитом:
+
+```bash
+.venv/bin/python scripts/research/prepare_dataset.py --inventory data/processed/source_inventory.json --split-audit outputs/evaluation/eval-002-20261019-final --output-dir data/processed/data001-next
+```
+
+Путь аудита зависит от вашего приватного окружения. Команда сохраняет прежние
+группы и карантин; данные/reserve не публикуются, независимый test не создаётся.
+Без повторной подготовки: замените `--output-dir ...` на `--verify data/processed/data001-next`.
+
 - [Технический контракт](../../TECHNICAL_SPEC.md), [архитектура](../../docs/ARCHITECTURE.md).
 - [Конфигурация](../../docs/CONFIGURATION.md), [production-пример](../../configs/production.example.json).
 - [Эксплуатация](../../docs/RUNBOOK.md), [LLM: opt-in, бюджет, fallback](../../docs/LLM.md).

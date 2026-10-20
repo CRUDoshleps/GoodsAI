@@ -1,11 +1,15 @@
 """Bounded preparation from the existing trusted EDA projection, never raw pickle loading."""
 from contextlib import contextmanager
+from collections import Counter
 import hashlib
 import json
+import os
 from pathlib import Path
+import platform
+import tempfile
 
 from goodsai.contracts import Product
-from goodsai.storage import atomic_text as _atomic_text, prediction_snapshot
+from goodsai.storage import atomic_text as _atomic_text, prediction_snapshot, output_lock
 
 
 def digest(path: Path) -> str:
@@ -57,65 +61,162 @@ def write_json(path: Path, value: dict):
         stream.write("\n")
 
 
-def inventory_sources(raw: Path, output: Path) -> dict:
+SOURCE_PROFILES = {
+    "text-only": ("skus.pkl", "sku_desc.parquet"),
+    "analytics": ("skus.pkl", "sku_desc.parquet", "query_clicks.parquet"),
+}
+
+
+def verify_sources(raw: Path, inventory: Path, profile: str = "text-only") -> dict:
+    """Verify required sources, including legacy inventories, without reading pickle."""
+    if profile not in SOURCE_PROFILES:
+        raise ValueError("Unknown source profile")
+    value = json.loads(inventory.read_text(encoding="utf-8"))
+    entries = value.get("files") if isinstance(value, dict) else None
+    if not isinstance(entries, list):
+        raise ValueError("Invalid source inventory")
+    indexed = {}
+    for entry in entries:
+        if not isinstance(entry, dict) or entry.get("file") not in SOURCE_PROFILES["analytics"]:
+            raise ValueError("Invalid inventory source name")
+        name = entry["file"]
+        checksum = entry.get("sha256")
+        if (name in indexed or type(entry.get("bytes")) is not int or entry["bytes"] < 0
+                or not isinstance(checksum, str) or len(checksum) != 64
+                or any(c not in "0123456789abcdef" for c in checksum)):
+            raise ValueError("Invalid or duplicate inventory entry")
+        indexed[name] = entry
+    if not set(SOURCE_PROFILES[profile]) <= indexed.keys():
+        raise ValueError("Inventory must describe all required sources for the profile")
+    fingerprints = {}
+    for name in SOURCE_PROFILES[profile]:
+        entry, path = indexed[name], raw / name
+        if not path.is_file() or path.stat().st_size != entry["bytes"] or digest(path) != entry["sha256"]:
+            raise ValueError("Official source differs from the local inventory")
+        fingerprints[name] = entry["sha256"]
+    return fingerprints
+
+
+def inventory_sources(raw: Path, output: Path, profile: str = "text-only", *, reference: Path | None = None) -> dict:
     check_output(output)
     if output.resolve() == raw.resolve() or raw.resolve() in output.resolve().parents:
         raise ValueError("Write the inventory outside the raw directory")
+    if profile not in SOURCE_PROFILES:
+        raise ValueError("Unknown source profile")
+    reference_hashes = verify_sources(raw, reference, profile) if reference is not None else None
     entries = []
-    for name in ["skus.pkl", "sku_desc.parquet", "query_clicks.parquet"]:
+    for name in SOURCE_PROFILES[profile]:
         path = raw / name
         entries.append({"file": name, "bytes": path.stat().st_size, "sha256": digest(path)})
-    result = {"files": entries, "note": "Local fingerprints, not independent source authentication."}
-    write_json(output, result)
+    if reference_hashes is not None and {e["file"]: e["sha256"] for e in entries} != reference_hashes:
+        raise ValueError("Official source differs from the local inventory")
+    result = {"version": "source-inventory-v2", "profile": profile, "files": entries,
+              "optional_files": [{"file": name, "present": (raw / name).is_file(), "used": False}
+                                 for name in SOURCE_PROFILES["analytics"] if name not in SOURCE_PROFILES[profile]],
+              "verified_reference_sha256": digest(reference) if reference else None,
+              "note": "Local fingerprints, not independent source authentication. Optional files are not read."}
+    with output_lock(output):
+        if output.exists() or output.is_symlink():
+            raise ValueError("Use a new inventory output; existing fingerprints must not be overwritten")
+        with output.open("x", encoding="utf-8", newline="\n") as stream:
+            stream.write(json.dumps(result, ensure_ascii=False, allow_nan=False, indent=2) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
     return result
 
 
-def prepare(catalog: Path, descriptions: Path, raw_inventory: Path, output: Path, config: dict) -> dict:
-    import pyarrow.parquet as pq
+@contextmanager
+def preparation_directory(output: Path, *inputs: Path):
+    """Publish a new complete directory; errors never replace prior artifacts."""
+    check_output(output, *inputs)
+    resolved = output.resolve()
+    if any(resolved in p.resolve().parents for p in inputs):
+        raise ValueError("Prepared output must not contain an input")
+    with output_lock(output):
+        if output.exists() or output.is_symlink():
+            raise ValueError("Use a new output directory; prepared data must not be overwritten")
+        with tempfile.TemporaryDirectory(prefix=".goodsai-prepare-", dir=output.parent) as temporary:
+            stage = Path(temporary) / "bundle"
+            stage.mkdir()
+            yield stage
+            os.rename(stage, output)
 
-    check_output(output, catalog, descriptions, raw_inventory)
+
+def prepare(catalog: Path, descriptions: Path, raw_inventory: Path, output: Path, config: dict) -> dict:
+    # Source verification precedes publication and never deserializes raw pickle.
+    fingerprints = verify_sources(descriptions.parent, raw_inventory)
+    if digest(descriptions) != fingerprints["sku_desc.parquet"]:
+        raise ValueError("Description path does not match the verified source")
     raw_root = descriptions.parent.resolve()
     if output.resolve() == raw_root or raw_root in output.resolve().parents:
         raise ValueError("Prepared output must be outside the raw source directory")
-    # Verify existing official sources; no code or data is downloaded or unpickled.
-    inventory = json.loads(raw_inventory.read_text(encoding="utf-8"))
-    fingerprints = {}
-    for entry in inventory["files"]:
-        path = descriptions.parent / entry["file"]
-        if path.name not in {"skus.pkl", "sku_desc.parquet"}:
-            continue
-        if path.stat().st_size != entry["bytes"] or digest(path) != entry["sha256"]:
-            raise ValueError("Official source differs from the local inventory")
-        fingerprints[path.name] = entry["sha256"]
-    if set(fingerprints) != {"skus.pkl", "sku_desc.parquet"}:
-        raise ValueError("Inventory must describe the official catalog and descriptions")
-    if digest(descriptions) != fingerprints["sku_desc.parquet"]:
-        raise ValueError("Description path does not match the verified source")
+    with preparation_directory(output, catalog, descriptions, raw_inventory) as stage:
+        return _prepare(catalog, descriptions, raw_inventory, stage, config, fingerprints)
+
+
+def _prepare(catalog: Path, descriptions: Path, raw_inventory: Path, output: Path,
+             config: dict, fingerprints: dict) -> dict:
+    import pyarrow.parquet as pq
+    check_output(output, catalog, descriptions, raw_inventory)
     if not catalog.is_file():
         raise ValueError("Trusted catalog projection is missing; run the documented research preparation first")
+    with pq.ParquetFile(catalog) as catalog_file, pq.ParquetFile(descriptions) as description_file:
+        return _prepare_tables(catalog, descriptions, raw_inventory, output, config, fingerprints,
+                               catalog_file, description_file)
+
+
+def _prepare_tables(catalog, descriptions, raw_inventory, output, config, fingerprints,
+                    catalog_file, description_file):
+    import pyarrow as pa
+
     selected = {}
     columns = ["sku_id", "category_ids", "title", "vendor", "model", "seller"]
-    for batch in pq.ParquetFile(catalog).iter_batches(batch_size=4096, columns=columns, use_threads=False):
+    sources = {"catalog_projection": catalog, "descriptions": descriptions, "inventory": raw_inventory}
+    before = {name: digest(path) for name, path in sources.items()}
+    schemas = {}
+    for name, parquet, required in [("catalog", catalog_file, columns),
+                                     ("descriptions", description_file, ["sku_id", "title", "description"])]:
+        schema = parquet.schema_arrow
+        if any(schema.names.count(col) != 1 for col in required):
+            raise ValueError("Missing or duplicate required Parquet columns")
+        for col in required:
+            dtype = schema.field(col).type
+            if not (pa.types.is_string(dtype) or pa.types.is_large_string(dtype) or pa.types.is_null(dtype)
+                    or (col == "sku_id" and name == "descriptions" and pa.types.is_integer(dtype))):
+                raise ValueError("Invalid required Parquet column type")
+        schemas[name] = {col: str(schema.field(col).type) for col in required}
+    seen = set()
+    filtered = Counter()
+    for batch in catalog_file.iter_batches(batch_size=4096, columns=columns, use_threads=False):
         for row in batch.to_pylist():
-            categories = json.loads(row["category_ids"])
-            if not isinstance(categories, list) or len(categories) != 1:
+            sku = row["sku_id"]
+            if not isinstance(sku, str) or not sku.strip() or sku in seen:
+                raise ValueError("Duplicate or invalid catalog SKU")
+            seen.add(sku)
+            categories = json.loads(row["category_ids"]) if isinstance(row["category_ids"], str) else None
+            if not isinstance(categories, list) or len(categories) != 1 or not isinstance(categories[0], str):
                 raise ValueError("Expected a single catalog category")
             if categories[0] not in config["categories"]:
+                filtered[categories[0]] += 1
                 continue
-            sku = row["sku_id"]
-            if sku in selected:
-                raise ValueError("Duplicate catalog SKU")
+            if not isinstance(row["title"], str) or not row["title"].strip():
+                raise ValueError("Selected catalog title must be nonempty text")
             selected[sku] = row | {"category_id": categories[0]}
     if not selected:
         raise ValueError("No configured categories found in catalog projection")
     joined = {}
-    for batch in pq.ParquetFile(descriptions).iter_batches(
+    desc_seen = set()
+    for batch in description_file.iter_batches(
             batch_size=4096, columns=["sku_id", "title", "description"], use_threads=False):
         for row in batch.to_pylist():
-            sku = str(row["sku_id"])
+            identity = row["sku_id"]
+            if identity is None or isinstance(identity, bool) or not str(identity).strip():
+                raise ValueError("Invalid description SKU")
+            sku = str(identity)
+            if sku in desc_seen:
+                raise ValueError("Duplicate description SKU")
+            desc_seen.add(sku)
             if sku in selected:
-                if sku in joined:
-                    raise ValueError("Duplicate description SKU")
                 joined[sku] = row
     input_path = output / "pilot.jsonl"
     provenance_path = output / "provenance.jsonl"
@@ -139,10 +240,26 @@ def prepare(catalog: Path, descriptions: Path, raw_inventory: Path, output: Path
             c["rows"] += 1
             c["with_description" if has_desc else "title_only"] += 1
             c["title_mismatch"] += int(mismatch)
-    result = {"source_kind": "trusted_existing_research_projection", "mode": "text_only",
+    if any(digest(path) != before[name] for name, path in sources.items()):
+        raise ValueError("Preparation source changed during the run")
+    if verify_sources(descriptions.parent, raw_inventory) != fingerprints:
+        raise ValueError("Preparation source changed during the run")
+    result = {"version": "prepare-v2", "source_kind": "trusted_existing_research_projection", "mode": "text_only",
               "source_sha256": fingerprints, "projection_sha256": digest(catalog),
+              "inventory_sha256": before["inventory"], "required_schemas": schemas,
+              "config_sha256": hashlib.sha256(json.dumps(config, sort_keys=True, ensure_ascii=True).encode()).hexdigest(),
+              "tool_sha256": digest(Path(__file__)), "python": platform.python_version(),
               "input_sha256": digest(input_path), "provenance_sha256": digest(provenance_path),
               "rows": len(selected), "counts": counts,
+              "accounting": {"catalog_rows": len(seen), "selected_rows": len(selected),
+                             "filtered_category_rows": sum(filtered.values()), "filtered_categories": dict(sorted(filtered.items())),
+                             "description_rows": len(desc_seen), "matched_description_rows": len(joined),
+                             "unmatched_description_rows": len(desc_seen) - len(joined),
+                             "selected_without_description_row": len(selected) - len(joined),
+                             "matched_blank_description_rows": sum(not r["description"] or not r["description"].strip() for r in joined.values()),
+                             "dropped_selected_rows": 0},
+              "split_status": "not_checked; use the frozen EVAL-002 audit handoff, never resample existing test",
+              "text_policy": "Keep original Unicode/HTML and offsets; catalog title wins; blank description becomes null.",
               "note": "Projection provenance is inherited from local EDA, not independently regenerated here."}
     write_json(output / "prepare_manifest.json", result)
     return result
