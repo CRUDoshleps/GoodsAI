@@ -304,8 +304,20 @@ default rules runtime неприменимы: route не реализован, �
 
 В Windows PowerShell используйте `.\.venv\Scripts\python.exe` и перед общим
 suite задайте `$env:PYTHONUTF8='1'`: существующие config/registry tests создают
-временные Unicode-файлы. На проверенном snapshot — 322 основных + 3 reader tests;
-strict acceptance отдельно — 83/83. [SHA, CI и границы проверки](docs/reviews/2026-10-20_linked_acceptance.md).
+временные Unicode-файлы. После LLM-007 — 334 основных + 3 reader tests;
+результат предшествующего принятого snapshot — 322 + 3 и strict acceptance 83/83
+([SHA, CI и границы проверки](docs/reviews/2026-10-20_linked_acceptance.md)).
+
+Проверка повреждённых LLM-ответов отдельно:
+
+```bash
+.venv/bin/python -m unittest discover -s tests -p 'test_llm*.py' -v
+```
+
+Это 50 тестов с fake provider и локальным HTTP stub: CLI batch, HTTP API и
+cache replay сохраняют rules при неверном ответе. Ключ шлюза не нужен,
+платных вызовов нет. Семантика смешанного ответа и причин отказов — в
+[LLM](docs/LLM.md#повреждённый-ответ-и-кэш-llm-007).
 
 Генеративные проверки Unicode/HTML, schema, единиц и evidence запускаются
 отдельно после установки `.[fuzz]`:

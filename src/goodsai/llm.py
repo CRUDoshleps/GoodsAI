@@ -198,8 +198,9 @@ class OpenAICompatibleProvider:
         except OSError:
             raise ProviderError("llm_network_error") from None
         try:
-            return json.loads(payload.decode("utf-8"))
-        except (UnicodeDecodeError, ValueError):
+            return json.loads(payload.decode("utf-8"), parse_constant=_reject_constant,
+                              object_pairs_hook=_unique_object)
+        except (UnicodeDecodeError, ValueError, RecursionError):
             raise ProviderError("llm_malformed_response") from None
 
     def complete(self, messages: list[dict], max_tokens: int) -> ProviderResponse:
@@ -224,17 +225,21 @@ class OpenAICompatibleProvider:
                     raise
                 last = exc
                 continue
-            try:
-                message = data["choices"][0]["message"]
-                content = message.get("content")
-                usage = data.get("usage") or {}
-                prompt_tokens = int(usage.get("prompt_tokens") or 0)
-                completion_tokens = int(usage.get("completion_tokens") or 0)
-            except (KeyError, IndexError, TypeError, ValueError, AttributeError):
-                raise ProviderError("llm_malformed_response", attempts=attempt) from None
-            if not isinstance(content, str):
+            if not isinstance(data, dict) or not isinstance(data.get("choices"), list) or not data["choices"]:
                 raise ProviderError("llm_malformed_response", attempts=attempt)
-            return ProviderResponse(content, prompt_tokens, completion_tokens, data.get("model"), attempt)
+            choice = data["choices"][0]
+            message = choice.get("message") if isinstance(choice, dict) else None
+            if not isinstance(message, dict):
+                raise ProviderError("llm_malformed_response", attempts=attempt)
+            usage = data.get("usage")
+            if usage is None:
+                usage = {}
+            if not isinstance(usage, dict):
+                raise ProviderError("llm_malformed_response", attempts=attempt)
+            response = ProviderResponse(message.get("content"), usage.get("prompt_tokens", 0),
+                                        usage.get("completion_tokens", 0), data.get("model"), attempt)
+            validate_provider_response(response)
+            return response
         raise last if last is not None else ProviderError("llm_network_error")
 
 
@@ -318,8 +323,9 @@ class ExactCache:
 
     def get(self, key: str) -> dict | None:
         try:
-            entry = json.loads(self._path(key).read_text(encoding="utf-8"))
-        except (OSError, ValueError):
+            entry = json.loads(self._path(key).read_text(encoding="utf-8"), parse_constant=_reject_constant,
+                               object_pairs_hook=_unique_object)
+        except (OSError, ValueError, RecursionError):
             return None
         if not isinstance(entry, dict) or entry.get("cache_version") != CACHE_VERSION or entry.get("key") != key:
             return None
@@ -408,19 +414,57 @@ def _reject_constant(_):
     raise ValueError("Non-JSON number")
 
 
+def _unique_object(pairs):
+    """Do not let repeated JSON keys silently replace a previously checked field."""
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Duplicate JSON key")
+        result[key] = value
+    return result
+
+
+def validate_provider_response(response: ProviderResponse) -> None:
+    """Validate transport metadata before accounting, also for injected providers."""
+    if (not isinstance(response, ProviderResponse) or not isinstance(response.content, str)
+            or type(response.attempts) is not int or response.attempts < 1
+            or type(response.prompt_tokens) is not int or response.prompt_tokens < 0
+            or type(response.completion_tokens) is not int or response.completion_tokens < 0
+            or (response.model is not None and (not isinstance(response.model, str) or len(response.model) > 200))):
+        attempts = response.attempts if isinstance(response, ProviderResponse) and type(response.attempts) is int else 1
+        raise ProviderError("llm_malformed_response", attempts=max(1, attempts))
+
+
 def parse_proposals(content: str) -> list:
     """Strict client-side structure check; markdown fences are the only tolerated wrapper."""
+    if not isinstance(content, str):
+        raise ProviderError("llm_malformed_json")
     text = content.strip()
     fenced = re.fullmatch(r"```(?:json)?\s*(.*?)\s*```", text, re.S)
     if fenced:
         text = fenced.group(1)
     try:
-        data = json.loads(text, parse_constant=_reject_constant)
+        data = json.loads(text, parse_constant=_reject_constant, object_pairs_hook=_unique_object)
     except (ValueError, RecursionError):
         raise ProviderError("llm_malformed_json") from None
     if not isinstance(data, dict) or set(data) != {"attributes"} or not isinstance(data["attributes"], list):
         raise ProviderError("llm_malformed_json")
     return data["attributes"]
+
+
+def proposal_error(item) -> str | None:
+    """Shared fresh/cache guard: no membership or grounding of untyped fields."""
+    if not isinstance(item, dict) or set(item) != {"attribute", "value", "quote"}:
+        return "llm_unknown_field"
+    if not isinstance(item["attribute"], str) or not item["attribute"].strip():
+        return "llm_bad_types"
+    value, quote = item["value"], item["quote"]
+    if value is None:
+        return None if quote is None or isinstance(quote, str) else "llm_bad_types"
+    if (type(value) not in (str, int, float) or (isinstance(value, float) and not math.isfinite(value))
+            or not isinstance(quote, str)):
+        return "llm_bad_types"
+    return None
 
 
 def _quote_pattern(quote: str) -> re.Pattern:
@@ -479,10 +523,11 @@ def _word_span(text: str, qs: int, qe: int, needle: str):
 
 def ground(product: Product, attr: str, value, quote, config: dict) -> tuple[Candidate | None, str | None]:
     """Turn one proposal into a verified Candidate, or return a rejection reason code."""
+    reason = proposal_error({"attribute": attr, "value": value, "quote": quote})
+    if reason:
+        return None, reason
     if value is None:
         return None, None
-    if not isinstance(value, (str, int, float)) or isinstance(value, bool) or not isinstance(quote, str):
-        return None, "llm_bad_types"
     value = str(value).strip()
     quote = quote.strip()
     if not value or not quote or len(quote) > 400:
@@ -652,6 +697,7 @@ class LLMExtractor:
         try:
             with self.slots:
                 response = self.provider.complete(build_messages(product, gaps, self.config), self.settings.max_tokens)
+                validate_provider_response(response)
         except ProviderError as exc:
             with self.lock:
                 self.stats.retries += max(0, exc.attempts - 1)
@@ -724,12 +770,19 @@ class LLMExtractor:
             return row
         grounded: dict[str, list[Candidate]] = {attr: [] for attr in gaps}
         rejected: dict[str, list[str]] = {attr: [] for attr in gaps}
+        unattributed = []
         for item in proposals:
             with self.lock:
                 self.stats.proposals += 1
-            if not isinstance(item, dict) or set(item) != {"attribute", "value", "quote"}:
+            reason = proposal_error(item)
+            if reason:
                 with self.lock:
-                    self.stats.rejected["llm_unknown_field"] += 1
+                    self.stats.rejected[reason] += 1
+                name = item.get("attribute") if isinstance(item, dict) else None
+                if isinstance(name, str) and name in rejected:
+                    rejected[name].append(reason)
+                else:
+                    unattributed.append(reason)
                 continue
             attr = item["attribute"]
             if attr not in grounded:
@@ -757,7 +810,7 @@ class LLMExtractor:
                     self.stats.accepted += 1
                     self.stats.accepted_by_attribute[attr] += 1
             else:
-                target["reason_codes"].append(rejected[attr][0] if rejected[attr] else "llm_not_found")
+                target["reason_codes"].append((rejected[attr] or unattributed or ["llm_not_found"])[0])
         validate_prediction(row, self.config, product)
         return row
 

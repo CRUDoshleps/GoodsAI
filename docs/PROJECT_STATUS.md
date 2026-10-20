@@ -1,5 +1,23 @@
 # Состояние проекта
 
+## 20.10.2026: LLM-007 — REVIEW candidate, main не изменён
+
+Issue #99, ветка `llm/llm-007-response-validation`, база `9086504`, claim `dce2c58`.
+Устранён воспроизведённый `TypeError` при нестроковом `attribute` в LLM-ответе.
+Типы proposals проверяются до membership/grounding одинаково для provider и cache;
+gateway envelope/usage проверяются до accounting. Повреждённые элементы получают
+фиксированные причины, допустимые соседи проходят verifier, rules сохраняются.
+Контракт v0.1, heuristic score, review/abstain и политика conflicts прежние.
+
+Локально: 334 основных + 3 reader tests OK (прежние 38 LLM + 12 новых regression),
+pip check OK, внешний rules acceptance 83/83.
+Новые tests исполняют настоящий CLI batch и HTTP-сервис через loopback stub;
+проверены отсутствие 500, валидность predictions/manifest, продолжение партии,
+CLI/API parity и cache replay без вызова провайдера. Внешних model calls нет.
+Границы: byte/deadline/physical-attempt limits остаются #100; каталоговое качество
+и изменение баллов не измерены. Main/Gitea/VM этим PR не обновляются до merge.
+[Поведение и воспроизведение](LLM.md#повреждённый-ответ-и-кэш-llm-007).
+
 ## 20.10.2026: связанные VER/BASE/QA приняты в main — DONE
 
 По поручению Владислава последовательно приняты PR #104 (`d9e279a`),
