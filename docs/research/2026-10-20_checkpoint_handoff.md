@@ -185,5 +185,5 @@ python scripts/research/prepare_category_pilot.py --catalog PRIVATE/catalog_skus
 provisional exact-title families и предложенные поля. Near-family/units/mandatory
 fields/официальный контракт ещё требуют acceptance. Доступный clicks-файл с hash
 `75eb3622…0a87a` не совпал с `f9bc052d…bb22`, поэтому в registry не подставлялись
-ни новые counts без provenance, ни равные фиктивные traffic weights. Пилот новых
+ни новые counts без provenance, ни равные фиктивные traffic weights. Базовый SPEC-001 #10 принят параллельным PR #140. Пилот новых
 категорий остаётся BLOCKED; CLI/API inference и качество на них не заявлены.

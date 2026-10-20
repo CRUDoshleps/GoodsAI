@@ -9,13 +9,13 @@
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GOV-007 | [#121](https://github.com/CRUDoshleps/GoodsAI/issues/121) | P1 | REVIEW | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-007-next-checkpoint-backlog` | claim 5de5aab; четыре новые задачи и общая метка опубликованы; существующие задачи включены без смены владельцев/статусов; индекс подготовлен к интеграции |
-| DOCS-004 | [#122](https://github.com/CRUDoshleps/GoodsAI/issues/122) | P0 | READY | technical writer/QA | — | — | согласовать публичные REQUIREMENTS/RESULTS/reports и оба README с runtime; история и provenance сохраняются |
+| GOV-007 | [#121](https://github.com/CRUDoshleps/GoodsAI/issues/121) | P1 | DONE | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-007-next-checkpoint-backlog` | PR #126 merged 3e78ebf; claim 5de5aab; CI 6/6; четыре новые задачи и общая метка опубликованы, 14 существующих включены без смены owners/status/priority; индекс в main; Issue закрыта |
+| DOCS-004 | [#122](https://github.com/CRUDoshleps/GoodsAI/issues/122) | P0 | DONE | technical writer/QA | urasha / Codex (сессия Влада) | `docs/docs-004-runtime-evidence` | PR #138 merged 7c49c6e, claim a0f5a5f; CI 6/6, внешний CLI/HTTP 83/83, clean-run 11/11, demo verify, 9 submission tests; public claims/оба README/provenance согласованы; код и historical числовые таблицы сохранены; Issue закрыта |
 | EVAL-007 | [#123](https://github.com/CRUDoshleps/GoodsAI/issues/123) | P1 | REVIEW | evaluation/data | Codex (e345ee) | `eval/eval-007-frozen-baseline` | 20.10: новая frozen VM выборка 2974/1250 по поручению владельца; f33e3fc→1c64463 +25TP/+20FP/6lostTP; дефект #137; исторический набор не перезаписан; отчёт reports/checkpoint_20261020.md |
-| CONF-004 | [#124](https://github.com/CRUDoshleps/GoodsAI/issues/124) | P1 | BLOCKED | архитектор/data/NLP | Codex (e345ee) | `eval/eval-007-frozen-baseline` | 20.10: private train 900 (по 300 ноутбуков/ТВ/мониторов), split/family/source hashes и draft контракта готовы; clicks hash mismatch, inference не запускался; ждёт #10/#5/#44 и mapping/family acceptance |
+| CONF-004 | [#124](https://github.com/CRUDoshleps/GoodsAI/issues/124) | P1 | BLOCKED | архитектор/data/NLP | Codex (e345ee) | `eval/eval-007-frozen-baseline` | 20.10: private train 900 (по 300 ноутбуков/ТВ/мониторов), split/family/source hashes и draft контракта готовы; clicks hash mismatch, inference не запускался; ждёт #5/#44 и mapping/family acceptance; базовый SPEC-001 #10 принят |
 | EVAL-008 | [#125](https://github.com/CRUDoshleps/GoodsAI/issues/125) | P1 | REVIEW | evaluation/ML/LLM | Codex (e345ee) | `eval/eval-007-frozen-baseline` | 20.10: общий screening 200; brand +48TP/0FP/0lost, LLM +72TP/+20FP/0lost; 123 requests, 2.55063692 ₽; keep opt-in brand / drop general LLM-fill; independent #40 открыт |
-
 | EVAL-009 | [#137](https://github.com/CRUDoshleps/GoodsAI/issues/137) | P1 | READY | evaluation/verifier | — | — | adjudicate model mismatches baseline и LLM; нет изменения verifier/threshold под frozen ответы |
+
 
 Порядок: #122 и #123 можно брать после claim; далее подтверждённый контракт
 #10/#17 и матрица #35, разрешённая train-проекция #5 и пилот #124 через
@@ -102,7 +102,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | EVAL-002 | [#7](https://github.com/CRUDoshleps/GoodsAI/issues/7) | P0 | DONE | data/QA | urasha / Codex (сессия Влада) | `eval/eval-002-split-leakage` | PR #69 merged `c49540f`; filtered partition + quarantine; M2 reserve 40/40 checks OK |
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
 | CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | IN_PROGRESS | архитектор | timur0o31 | `arch/conf-001-runtime-config` | 19.10.2026: конфигурация bounds/scores/limits, строгая валидация; defaults без изменения поведения |
-| SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
+| SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | DONE | product/аналитик | urasha / Codex (сессия Влада) | `docs/spec-001-team-contract` | PR #140 merged 0ac3b18; claim 1190fa6; spec-team-v1: требования/политика/неизвестное разделены; 34 local tests и CI 6/6 PASS, export 180 файлов; JSON v0.1/runtime прежние; Issue закрыта, SPEC-002 READY, другие зависимости сохраняются |
 | REL-005 | [#115](https://github.com/CRUDoshleps/GoodsAI/issues/115) | P0 | DONE | release engineer | Codex (e345ee) | `main` | PR #116 merged 741df14; publish 39421217155 SUCCESS, Gitea f15f99b; 154 файла, 369+3 tests, clean-run 11/11, внешний CLI/HTTP 83/83; VM не менялась |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
@@ -139,7 +139,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| SPEC-002 | [#35](https://github.com/CRUDoshleps/GoodsAI/issues/35) | P0 | BLOCKED | product/QA | — | — | исполняемая матрица всех обязательных сценариев; зависимости: SPEC-001 |
+| SPEC-002 | [#35](https://github.com/CRUDoshleps/GoodsAI/issues/35) | P0 | READY | product/QA | — | — | SPEC-001 принята через PR #140, spec-team-v1; матрица подтверждённых/командных сценариев с явным source status; неизвестные и нереализованные пути не считать покрытыми; нужен отдельный claim |
 | DATA-002 | [#36](https://github.com/CRUDoshleps/GoodsAI/issues/36) | P0 | BLOCKED | data engineer/security | — | — | seller attributes без target leakage и с provenance; зависимости: SPEC-001, DATA-001 |
 | VER-002 | [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37) | P0 | DONE | QA/backend | urasha / Codex (сессия Влада) | `qa/ver-002-common-verifier` | PR #118 принят 20.10.2026, merge 0a1d134; claim 8a55d81; общий gate rules/LLM/cache/experimental GLiNER; CI 6/6; проверен вместе с ARCH-001: 402+3 tests, external 83/83, clean-run 11/11; reviewed development без регрессии; #10 остаётся открытой |
 | EVAL-003 | [#38](https://github.com/CRUDoshleps/GoodsAI/issues/38) | P0 | BLOCKED | аналитик/разметчик | — | — | независимый blind-пакет доказательств качества; зависимости: EVAL-001, EVAL-002 |
@@ -536,6 +536,12 @@ split; test contents не использовались для настройки
 невалидный config останавливает запуск, а defaults безопасны.
 
 ### SPEC-001 — официальный контракт
+
+Уточнение scope от 20.10.2026: по поручению Владислава фиксируем рабочую
+политику `spec-team-v1` в TECHNICAL_SPEC, раздел 0. Дополнительные ответы не
+получены; скриншоты разделов 2–6 подтверждают текст кейса. Завершение означает
+разделение требований/решений/неизвестного, не выдуманное официальное согласование.
+Runtime v0.1 и ранее принятые семантические решения сохраняются.
 
 **Шаги**
 

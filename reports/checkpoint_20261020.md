@@ -36,7 +36,7 @@ LLM `openai/gpt-oss-120b`: всего 123 физических запроса, �
 
 Подготовлены private train/split/family/source hashes и контракт: ноутбуки 987, телевизоры 1682, мониторы 1263 — по 300 train-карточек. Отбор до inference, без vendor/model/params во входе extractor. Params остаются отдельными train labels.
 
-**Inference новых категорий не выполнялся.** #5/#10/#44 и owner mapping/units/required-fields/family review остаются блокерами. Доступный clicks-файл не совпал с прежним fingerprint; он не использован, фиктивные веса не созданы. Registry draft без проверенного traffic handoff не публиковался. Schema preparation не объявляется quality/coverage всего каталога.
+**Inference новых категорий не выполнялся.** #5/#44 и owner mapping/units/required-fields/family review остаются блокерами; SPEC-001 #10 принят. Доступный clicks-файл не совпал с прежним fingerprint; он не использован, фиктивные веса не созданы. Registry draft без проверенного traffic handoff не публиковался. Schema preparation не объявляется quality/coverage всего каталога.
 
 ## Provenance и ограничения
 

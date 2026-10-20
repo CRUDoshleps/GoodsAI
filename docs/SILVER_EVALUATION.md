@@ -11,7 +11,7 @@ rules/LLM/brand-hybrid screening 200 карточек. Это не точное 
 один frozen bundle/config/evaluator, paired new FP/lost TP и cold/warm ресурсы.
 Он не подготавливает новый split и не вызывает model API. Команда, обязательные
 source hashes и блокеры следующего прогона описаны в
-[handoff #123/#124/#125](research/2026-10-20_checkpoint_handoff.md).
+[handoff #123/#124/#125](https://github.com/CRUDoshleps/GoodsAI/blob/85df5ba9f3153e553f53b1a7b526498bd3d5d7a9/docs/research/2026-10-20_checkpoint_handoff.md).
 `scripts/research/prepare_checkpoint.py` подготавливает private планы без inference;
 наличие этих инструментов не означает получения свежих метрик.
 

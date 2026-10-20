@@ -1135,9 +1135,9 @@
     }
   },
   "category_pilot": {
+    "base_contract": "spec-team-v1 accepted in SPEC-001 #10 / PR #140; category mapping/family review remains",
     "blocking_dependencies": [
       5,
-      10,
       44
     ],
     "categories": [
@@ -1179,7 +1179,7 @@
     "category_inference": "not_run",
     "default_enable": false,
     "limitations": [
-      "#5/#10/#44 acceptance",
+      "#5/#44 acceptance; SPEC-001 #10 accepted",
       "owner mapping/units/required fields decision",
       "near-family review beyond exact titles",
       "separate approved evaluation input/reference before real inference"

@@ -22,8 +22,8 @@ adjudication; 19 новых расхождений относятся к model. 
 
 CONF-004: подготовлены 900 private train rows (300 ноутбуков 987, 300 телевизоров
 1682, 300 мониторов 1263), split/family/source hashes и draft обязательных полей.
-Новый category inference не запускался; #5/#10/#44 и owner mapping/units/family
-acceptance остаются блокерами. Доступный clicks source не совпал с historical
+Новый category inference не запускался; #5/#44 и owner mapping/units/family
+acceptance остаются блокерами; базовый SPEC-001 #10 принят параллельно. Доступный clicks source не совпал с historical
 fingerprint: не использован; фиктивные traffic weights не созданы.
 
 Локально 451 tests; на VM 12 ранних targeted tests и actual frozen comparison /
@@ -32,6 +32,61 @@ brand / gateway / repeat процессы. Подробности и hashes — 
 runtime rules/units/confidence/decision/model modes не менялись под ответы.
 Рабочий ~/project и demo не обновлялись. В Gitea допускаются только безопасные
 измеренные отчёты и код; внутренний handoff/планы/TASKS/PROJECT_STATUS исключены.
+
+# 20.10.2026: SPEC-001 — DONE, рабочая политика команды зафиксирована
+
+По поручению Владислава и скриншотам разделов 2–6 подготовлен `spec-team-v1`
+в TECHNICAL_SPEC, раздел 0; claim `1190fa6`, ветка `docs/spec-001-team-contract`.
+PR #140 принят в main, merge `0ac3b185e8d279293ee2c388d0e0ed6a63ebdc38`;
+Issue #10 закрыта с status:done. Final head `c28d774`: CI 6/6 SUCCESS;
+дерево merge совпало с протестированным деревом. Локально: 16 baseline,
+9 API и 9 submission tests PASS; committed export 180 файлов, links/hashes
+и исключение внутренних документов проверены.
+Дополнительного ответа организаторов нет: конечные endpoints/транзакции,
+детальный категорийный перечень, состав разрешённого LLM payload и канал
+передачи полного комплекта не объявляются официально подтверждёнными.
+
+Зафиксированы JSON v0.1, эвристические review/abstain, единицы, точный raw
+evidence, прежние правила brand/model/memory/color и отказ при неопределённости.
+Seller attributes разрешены самим кейсом; их отсутствие в E1 признано долгом
+DATA-002. Catalog vendor/model/params не допускаются без доказанного seller
+provenance; новую форму seller evidence предстоит согласовать отдельно.
+Реальный LLM пакет требует отдельного scope/hash/model/budget решения; reserve
+закрыт. Шесть артефактов обязательны, локальный закрытый bundle не считается
+уже переданным организаторам. Порог до калибровки не выдумывается.
+
+SPEC-002 #35 переведена в READY без назначения владельца: можно строить
+матрицу подтверждённых/командных сценариев с явным статусом источника;
+DATA-001, DATA-002, приёмка CONF-003, новый реальный пилот и независимая оценка
+не закрываются этим решением. Изменены только документы; runtime, JSON schema,
+конфигурация, старые predictions/reference/метрики, VM и model API не менялись.
+
+# 20.10.2026: DOCS-004 — DONE, публичные claims согласованы
+
+Issue #122, ветка `docs/docs-004-runtime-evidence`, claim `a0f5a5f`, код базы
+`1c64463`. REQUIREMENTS, RESULTS, ARCHITECTURE, LLM и VERIFIER сверены с кодом.
+По поручению Влада [PR #138](https://github.com/CRUDoshleps/GoodsAI/pull/138)
+принят в main, merge `7c49c6e4eaf62d613bc092205fc68d376985a04b`; Issue закрыта
+с `status:done`. На final head `f17a1d9` все 6 CI checks SUCCESS, конфликтов нет;
+merge-tree точно совпал с протестированным деревом файлов.
+В оба README добавлены краткие доказательства с версиями/reference; README
+сдачи содержит проверенный фрагмент JSON и действия по review/abstain/errors.
+Исторические числовые таблицы silver и `reports/run_stats.json` не менялись;
+RED SOLUTION помечен исторической ошибкой, последующее исправление указано
+отдельно. Неподтверждённые model/catalog расхождения #137 не скрываются.
+
+Пример своего JSONL выполнен фактическим CLI: все семь значений/decisions и
+точный raw evidence совпали с документацией. На committed `7b79925` внешний
+CLI/HTTP: 83/83; demo 6/6 + verify; pip check; 9 submission tests OK. Сформирован
+состав сдачи из 180 файлов: относительные ссылки, hashes и исключение внутреннего
+индекса проверены. Locked clean-run на том же commit: 11/11 passed.
+Финальный export `f17a1d9`: те же 180 файлов, rewritten links и hashes валидны;
+публичный runtime/config и числовые исторические таблицы не изменены.
+Нет новых P/R/F1, реальных model calls, расходов, изменений VM или test access.
+Чужой PR #136 не менялся. На момент завершения DOCS-004 собственный #127
+оставался открытым из-за конфликта с записью шести функций коллеги.
+По последующему поручению Влада в #127 выполнено согласование с main:
+сохранены запись коллеги, результат DOCS-004 и завершение GOV-007.
 
 # 20.10.2026: реализации шести задач приняты, экспериментальная приёмка открыта
 
@@ -67,10 +122,12 @@ validation, OPS-002/PRODUCT-002/CONF-003 integration и human UX benchmark не
 Новые эксплуатационные документы включены в явный Gitea allowlist; внутренние
 исследования/планы/reviews и task board по-прежнему не публикуются.
 
-# 20.10.2026: GOV-007 — очередь следующего технического прогона
+# 20.10.2026: GOV-007 — DONE, очередь следующего технического прогона
 
 По поручению Влада создана метка `review:next-checkpoint` и координатор
 [GOV-007 #121](https://github.com/CRUDoshleps/GoodsAI/issues/121), claim `5de5aab`.
+Индекс принят через [PR #126](https://github.com/CRUDoshleps/GoodsAI/pull/126),
+merge `3e78ebf`, CI 6/6 SUCCESS; Issue закрыта с `status:done`.
 Четыре новые узкие задачи: DOCS-004 #122 (публичные документы/README, P0 READY),
 EVAL-007 #123 (fresh frozen-silver baseline, P1 READY), CONF-004 #124 (реальный
 пилот категорий, P1 BLOCKED), EVAL-008 #125 (development model comparison,
