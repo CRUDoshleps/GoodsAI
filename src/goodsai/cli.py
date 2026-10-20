@@ -109,10 +109,13 @@ def main(argv=None) -> int:
     p = sub.add_parser("inventory")
     p.add_argument("--raw-dir", type=Path, default=Path("data/raw"))
     p.add_argument("--output", type=Path, default=Path("data/processed/source_inventory.json"))
+    p.add_argument("--profile", choices=["text-only", "analytics"], default="text-only",
+                   help="text-only requires catalog/descriptions; analytics also requires clicks")
+    p.add_argument("--verify-against", type=Path, help="Verify existing trusted fingerprints before recording a new inventory")
     p = sub.add_parser("prepare")
     p.add_argument("--catalog", type=Path, default=Path("outputs/eda/catalog_skus.parquet"))
     p.add_argument("--descriptions", type=Path, default=Path("data/raw/sku_desc.parquet"))
-    p.add_argument("--inventory", type=Path, default=Path("data/raw/.local_inventory.json"))
+    p.add_argument("--inventory", type=Path, default=Path("data/processed/source_inventory.json"))
     p.add_argument("--output-dir", type=Path, default=Path("data/processed/e1"))
     p = sub.add_parser("predict")
     p.add_argument("--input", type=Path, required=True)
@@ -159,7 +162,7 @@ def main(argv=None) -> int:
     try:
         config = load_config(args.config)
         if args.command == "inventory":
-            result = inventory_sources(args.raw_dir, args.output)
+            result = inventory_sources(args.raw_dir, args.output, args.profile, reference=args.verify_against)
         elif args.command == "prepare":
             started = time.perf_counter()
             result = prepare(args.catalog, args.descriptions, args.inventory, args.output_dir, config)

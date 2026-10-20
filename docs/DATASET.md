@@ -33,10 +33,11 @@ seller-колонки нужны source/hash, происхождение до к
 
 ## Pipeline подготовки
 
-Схема ниже описывает подготовку и контроль split в целом. Это не одна уже
-реализованная команда: `goodsai prepare` проверяет источники, фильтрует категории
-и соединяет SKU; grouping/quarantine/split выполняются отдельными research tools.
-Полный аудит near-duplicates и независимая gold-оценка остаются открыты.
+`goodsai prepare` проверяет источники, фильтрует категории и соединяет SKU.
+DATA-001 добавляет одну команду handoff: она повторяет подготовку и проверяет
+её связь с существующим frozen EVAL-002 аудитом exact/normalized/near-дублей,
+families, exposure и quarantine. Новые split assignments не создаются;
+независимая gold-оценка остаётся отдельной задачей.
 
 ```mermaid
 flowchart LR
@@ -95,6 +96,97 @@ Inventory хранится **вне data/raw**, и тот же путь пере
 При наличии старого доверенного inventory сначала сверить его с источниками;
 не заменять его новым ради обхода mismatch. Не публиковать EDA profile с локальными
 примерами атрибутов или входными текстами.
+
+### Профили источников и запись
+
+- `inventory --profile text-only` (по умолчанию): обязательны `skus.pkl` и
+  `sku_desc.parquet`. Наличие clicks записывается как optional/unused; файл
+  не читается и его отсутствие не мешает подготовке.
+- `inventory --profile analytics`: обязательны все три файла, включая clicks.
+- `--verify-against <existing-inventory>` проверяет hashes старого доверенного
+  inventory до создания нового. Поддерживаются прежние inventory без поля
+  `profile`. Новое fingerprinting само по себе не доказывает происхождение.
+- `inventory` не перезаписывает существующий файл. `prepare` принимает только
+  новый каталог; при Parquet/schema/hash/write ошибке опубликованного
+  частичного комплекта нет. Используются локальная OS-блокировка, staging
+  и переименование каталога на той же ФС. Поддержка NFS/SMB не заявляется.
+- Default `prepare --inventory` совпадает с default `inventory --output`:
+  `data/processed/source_inventory.json`. Старый путь можно передать явно.
+
+`prepare-v2` сохраняет прежний побайтовый JSONL и provenance. Он проверяет
+необходимые Parquet-колонки и типы, пустые/повторные SKU и выбранные titles,
+однозначную категорию, duplicate description IDs и hashes до/после чтения.
+Некорректная запись останавливает весь запуск; скрытого удаления строки нет.
+Каталог title имеет приоритет; description join выполняется по SKU. Пробельное
+description становится null; исходные непустые Unicode/HTML остаются без
+изменений для точных evidence offsets. Null metadata не дописываются во вход.
+
+Manifest содержит схемы, source/inventory/projection/config/tool SHA-256,
+версию Python, hashes JSONL/provenance, counts по категориям и accounting:
+все catalog rows = selected + filtered; отдельно matched/unmatched/blank
+descriptions и отсутствие description row. Выбранные SKU не теряются.
+Готовые params не читаются; vendor/model/seller остаются только в приватном
+provenance. Историческая проекция наследует доверие локальному EDA; проверка
+новых hashes не превращает её в независимо удостоверенный источник.
+
+### Одна команда подготовки и проверки frozen split
+
+После inventory и при наличии существующего EVAL-002 bundle:
+
+```bash
+.venv/bin/python scripts/research/prepare_dataset.py --inventory data/processed/source_inventory.json --split-audit outputs/evaluation/eval-002-20261019-final --output-dir data/processed/data001-next
+```
+
+PowerShell: замените `.venv/bin/python` на `.\.venv\Scripts\python.exe`.
+`--catalog`, `--descriptions` и `--config` позволяют явно выбрать источники
+и разрешённый профиль. При изменении входного JSONL старая привязка отклоняется.
+
+Выход: `prepared/pilot.jsonl`, `prepared/provenance.jsonl`,
+`prepared/prepare_manifest.json`, `dataset.manifest.json`.
+Последний связывает hashes файлов с проверенным audit summary, детекторами,
+near-порогами, eligible/quarantine counts и ограничениями аудита. Он не содержит
+текстов, labels или новых predictions. Приватный pilot включает весь прежний
+набор; для обучения/оценки использовать eligible ledger с учётом quarantine,
+не все строки pilot. Старый резерв, gold и assignments не изменяются.
+
+Проверка источников, выходов и привязки без подготовки и predictions:
+
+```bash
+.venv/bin/python scripts/research/prepare_dataset.py --inventory data/processed/source_inventory.json --split-audit outputs/evaluation/eval-002-20261019-final --verify data/processed/data001-next
+```
+
+Оба режима возвращают только агрегаты. Нужны прежние source paths аудитора;
+для переноса между машинами подготовьте проверенный handoff EVAL-002, не
+редактируйте его manifest. При отсутствии аудита можно получить text-only
+JSONL через `goodsai prepare`, но его `split_status=not_checked` не доказывает
+отсутствия утечки. Нельзя снимать это ограничение переименованием файла.
+
+### Проверенный локальный прогон DATA-001, 21.10.2026
+
+Без повторного pickle loading или полного EDA подготовлены **10 324** строки
+(7 988 смартфонов, 2 336 чайников). 4 244 с description, 6 080 title-only,
+343 title mismatch. Из 546 069 catalog rows отфильтрованы 535 745 строк других
+категорий; выбранные строки не потеряны. 1 177 200 description rows проверены
+на уникальность SKU; с пилотом сопоставлены 4 244, остальные 1 172 956 не входят
+в выбранный набор. Это left join от каталога, не потеря выбранных товаров.
+
+Повторная подготовка дала побайтово одинаковые pilot/provenance. Вход совпал
+с ранее замороженным EVAL-002 аудитом: eligible 3 411, quarantine 6 913;
+старый reserve и assignments не изменялись. Проверка handoff `--verify` PASS.
+
+| Артефакт | SHA-256 |
+| --- | --- |
+| skus.pkl | `7dd8da31382016c770877e16fbcce565e29e479ad6a6317f0a7e683a09eb3524` |
+| sku_desc.parquet | `08af4442a87dd2d0e50d80aae4371b12d72d9f82adfeffeca3c0fff5595bc67d` |
+| trusted catalog projection | `2a80d0f0c55a37458faed6638bebc3af417c35e2d8de0265cbd5c023bdf6c250` |
+| pilot.jsonl | `68875ae2ef66c3527915be0e2cca29639c4a1c792e359973ae8623a404b70fe3` |
+| provenance.jsonl | `e481d719eca0b92652992f23ccb00774e571644d19b6fcc49b14c3fa1a3d32b8` |
+
+Среда — локальный Windows, Python 3.12; это не новый запуск на целевой VM.
+Он подтверждает подготовку на тех же исходных fingerprints, но не новое
+качество извлечения, не human gold и не поддержку новых категорий. Приватные
+manifest/JSONL остаются вне Git. На VM нужен тот же проверенный input/audit
+handoff; pipeline ничего не скачивает и не восстанавливает за пользователя.
 
 ## Обязательные проверки
 

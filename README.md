@@ -255,7 +255,7 @@ Manifest содержит effective config/policy и их SHA-256 без клю�
 ## Подготовка данных
 
 Этот путь нужен только для локальных выданных данных и не является условием
-запуска демо. Требуются `skus.pkl`, `sku_desc.parquet`, `query_clicks.parquet`
+запуска демо. Для text-only профиля требуются только `skus.pkl`, `sku_desc.parquet`
 в `data/raw/` и **готовая доверенная проекция** `outputs/eda/catalog_skus.parquet`.
 Существующие источники/EDA не пересоздавайте: сначала проверьте provenance и hashes.
 Подготовка отсутствующей проекции описана в [DATASET](docs/DATASET.md#подготовка-проекции).
@@ -263,6 +263,7 @@ Manifest содержит effective config/policy и их SHA-256 без клю�
 ```bash
 .venv/bin/python -m goodsai.cli inventory \
   --raw-dir data/raw \
+  --profile text-only \
   --output data/processed/source_inventory.json
 
 .venv/bin/python -m goodsai.cli prepare \
@@ -276,10 +277,33 @@ Manifest содержит effective config/policy и их SHA-256 без клю�
 приведение типов, контроль SKU, фиксацию provenance и manifest с hashes.
 Готовые target-поля каталога не передаются extractor как подсказки.
 Здесь создаются `pilot.jsonl`, `provenance.jsonl`, `prepare_manifest.json`.
-Указывайте новый каталог вместо перезаписи существующего E1; `prepare` сам
-не резервирует весь каталог от повторной записи. Старый inventory подтверждает
+`inventory` и `prepare` отклоняют существующий файл/каталог назначения;
+подготовка публикует каталог целиком после успешной проверки. Старый inventory подтверждает
 неизменность локальной копии, новый фиксирует текущее состояние и не заменяет
 проверку происхождения файлов.
+
+Если доверенный inventory уже есть, добавьте к `inventory`
+`--verify-against data/raw/.local_inventory.json`: несовпадение остановит запуск.
+`--profile analytics` дополнительно требует и хеширует `query_clicks.parquet`;
+text-only профиль его не читает.
+
+Для полного handoff с **уже замороженным** аудитом exact/normalized/near-дублей,
+families, exposure и split используйте одну команду:
+
+```bash
+.venv/bin/python scripts/research/prepare_dataset.py \
+  --inventory data/processed/source_inventory.json \
+  --split-audit outputs/evaluation/eval-002-20261019-final \
+  --output-dir data/processed/data001-next
+```
+
+Путь `--split-audit` указывает на ваш существующий проверенный EVAL-002 bundle.
+Команда создаёт `prepared/pilot.jsonl`, отдельный provenance и
+`dataset.manifest.json`; принимает только побайтное совпадение входа с frozen
+аудитом. Новый split и test не создаются. Проверка без повторной подготовки:
+замените `--output-dir ...` на `--verify data/processed/data001-next`.
+Если аудита нет или hashes изменились, требуется отдельный аудит, а не обход
+проверки. Политика, схемы и ограничения — [DATASET](docs/DATASET.md).
 
 ## Оценка
 
