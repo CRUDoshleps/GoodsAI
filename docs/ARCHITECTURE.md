@@ -25,7 +25,7 @@ flowchart LR
 По умолчанию в этом пути нет LLM и обученного encoder. С флагом `--llm`
 (или `GOODSAI_LLM_ENABLED=1` в API) после правил пропуски `not_found_by_rules`
 одним запросом уходят в OpenAI-совместимый шлюз; ответ проходит grounding по
-цитате и тот же `validate_candidate`, итог — `method=llm`, `review`
+цитате и общий `CandidateVerifier`, итог — `method=llm`, `review`
 ([LLM](LLM.md)). Поле `method=model` в старых отчётах
 обозначает rules grammar для явной модели товара, а не ML-модель.
 
@@ -69,9 +69,9 @@ flowchart TD
 | Preprocessing | CLI prepare, provenance, manifests | дубли, split audit, category configs |
 | Rules | работает | вынести все пороги и словари в конфиг |
 | Encoder | отсутствует | эксперимент после независимого gold |
-| LLM adapter | отсутствует | OpenAI-compatible client, schema, budget |
-| Router | отсутствует | rules-first по полям, причины маршрута |
-| Verifier | rules candidate и output validation | relation/negation/compatibility checks для всех методов |
+| LLM adapter | opt-in OpenAI-compatible provider, deadlines/ledger/cache | независимое измерение качества и стоимости |
+| Router | SignalRouter для eligible gaps, data policy перед router | измеряемые альтернативы маршрутизации |
+| Verifier | общий CandidateVerifier для rules/LLM/cache/experimental model | расширение по подтверждённым ошибкам |
 | Normalizer | числа, единицы, aliases | versioned ontology и category ranges |
 | Decision | `review`/`abstain` | calibration и безопасный `auto_accept` |
 | Storage | atomic predictions + manifest | release artifact registry |
@@ -174,6 +174,8 @@ flowchart LR
 | `rules.py`, `model_rules.py` | детерминированные кандидаты |
 | `normalize.py` | единицы и канонические значения |
 | `verify.py` | merge, конфликт и финальная проверка |
+| `stages.py`, `composition.py` | typed boundaries и единая сборка CLI/API |
+| `candidate_verifier.py`, `routing.py` | фабрика общих gate и signal router |
 | `evaluate.py` | метрики и slices |
 | `storage.py` | атомарная публикация output |
 | `runtime.py` | manifest и измерения процесса |
@@ -190,19 +192,73 @@ flowchart LR
 
 ## ARCH-001: внутренний контракт этапов v1
 
-[DONE — feature candidate] `goodsai.stages` задаёт неизменяемый Candidate,
-CandidateSource, CandidateGate и CategoryRegistry через typing.Protocol.
-Импорт Candidate из rules сохранён как alias. Extractor принимает явный
-keyword-only source для внедрения нового производителя кандидатов; CLI/API
-по умолчанию продолжают создавать Rules. Ни одна source не обходит structural,
-relation, conflict и output checks. Score остаётся heuristic/review.
+Начальные CandidateSource/CandidateGate/CategoryRegistry Тимура сохранены.
+`stages.py` также содержит Predictor, ValueNormalizer, GateFactory, Router,
+Provider/ProviderResponse и PredictionSink. Protocol используют структурную
+типизацию; JSON/env не загружают классы или произвольный код. Candidate из
+`rules` и ProviderResponse из `llm` доступны как прежние aliases.
 
-Это минимальный внутренний контракт для конфигурируемых категорий, не новый
-router, LLM adapter или официальный API. CategoryRegistry задаёт интерфейс;
-его data-driven реализация относится к CONF-003. Внешний E1 schema не изменён.
-Совместимость типизируется структурно, без runtime загрузки классов из конфига.
+`composition.build_runtime(config, policy, components=Components(...))` —
+одна точка сборки для batch CLI, HTTP и synthetic trace. Она валидирует и
+копирует профиль/политику, создаёт registry, source, normalizer, фабрику gate,
+predictor и sink. Opt-in ветка добавляет router и provider. Environment
+precedence разрешается entrypoint до сборки; ключ читает только live provider
+factory при включённом LLM. В rules-only factory провайдера не вызывается.
 
-[PLAN] SPEC-001 и CONF-002 остаются условиями принятия полного pipeline.
-Кандидат ARCH-001 стоит поверх CONF-001 и требует последовательного review.
-Проверки: tests/test_stages.py, синтетические source с неверным evidence,
-единицами, отрицанием и конфликтом; настоящие данные не открывались.
+| Граница | Реализация по умолчанию | Замена для offline-проверки |
+| --- | --- | --- |
+| CandidateSource | Rules с явным профилем | fake/model `.candidates(Product)` |
+| ValueNormalizer | Registry.normalize с bounds профиля | совместимый canonical normalizer |
+| GateFactory → CandidateGate | VerifierFactory → CandidateVerifier | factory с тем же evidence/relation контрактом |
+| Predictor | Extractor; при opt-in LLMExtractor | композиция над Predictor без `.rules.rules` |
+| Router | SignalRouter + has_signal | selector подмножества eligible gaps |
+| Provider | OpenAICompatibleProvider | bounded offline provider с ProviderResponse |
+| PredictionSink | FilePredictionSink | context adapter staging пары |
+
+Source возвращает уже нормализованный Candidate; gate сопоставляет значение
+с raw/visible evidence, используя normalizer для числовых единиц. Новая
+реализация source сама выполняет первичную нормализацию по выбранному профилю.
+Подмена source не подменяет поддержку/verifier grammar: для неё отдельный Rules
+экземпляр. Общий gate применяется перед merge и к fresh/cache LLM-кандидатам.
+Trusted structural bugs источника по-прежнему приводят к ошибке, а не успешному
+пустому результату. Конфликты дают abstain; score остаётся heuristic/review.
+
+LLMExtractor и экспериментальный HybridExtractor принимают Predictor и
+GateFactory явно; у внедрённого predictor не требуется config или Rules.
+Проверка source_flags выполняется до router. Router не может запросить уже
+решённое/конфликтное поле, повторить его или обойти закрытый test. Проверки
+бюджета/deadline/cache/provider ошибок остаются внутри существующего LLM пути.
+Неудача провайдера сохраняет rules-result и фиксированный reason code.
+
+Batch использует sink для той же транзакционной публикации predictions/manifest,
+блокировок и recovery на локальной ФС. HTTP возвращает JSON, не сохраняет
+файловую пару. Неподдерживаемые сетевые ФС этим refactor не становятся
+поддерживаемыми. Замена sink — доверенная интеграция, которая обязана сохранить
+контракт успешного выхода и отката при исключении.
+
+```python
+from goodsai.composition import Components, build_runtime
+
+# candidate_model implements candidates(Product); no orchestration change.
+runtime = build_runtime(config, components=Components(source=candidate_model))
+prediction = runtime.predictor.predict(product, run_id="offline-comparison")
+```
+
+Для Python batch API доступны `predict(..., components=Components(...))`,
+для HTTP `create_app(config_path, components=Components(...))`. Legacy
+`predict(..., llm=existing)` сохраняет экземпляр, cache и counters; несовпадение
+профиля/settings с runtime policy отклоняется до записи. Обычные команды CLI,
+systemd и HTTP endpoints не меняются. Тестовые providers не являются новым
+runtime режимом CLI и не выдают synthetic результаты за model quality.
+
+Совместимость: публичный schema v0.1, config v1 и opt-in registry config v2,
+runtime policy v1, внутренний stage v1. Legacy config мигрирует существующим
+валидатором; неизвестные версии, частичные профили и auto_accept запрещены.
+Добавлены Protocol, но обязательные поля Candidate/методы source не изменены.
+Официальное подтверждение SPEC-001 #10 этим не закрывается; CONF-002 уже принят.
+
+Проверки: `tests/test_composition.py` и `tests/test_stages.py`: замена source на
+model-shaped fake в CLI/API, parity профиля и provider/router, offline failure,
+общая factory, normalizer, rollback sink, запрет test/перезаписи, legacy aliases,
+копирование config/policy, отсутствие eager import cycles и optional ML imports.
+Это рефакторинг сборки: измеримого прироста извлечения или баллов не заявляет.

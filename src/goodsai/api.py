@@ -10,8 +10,8 @@ from starlette.exceptions import HTTPException
 
 from goodsai.contracts import Product, load_config
 from goodsai.config import default_api_limits
-from goodsai.verify import Extractor
-from goodsai.policy import llm_settings, resolve_runtime_policy, runtime_metadata
+from goodsai.composition import Components, build_runtime
+from goodsai.policy import resolve_runtime_policy
 
 MAX_BODY_BYTES = default_api_limits()["max_body_bytes"]  # Backward-compatible default export.
 LOGGER = logging.getLogger(__name__)
@@ -21,21 +21,15 @@ def error(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse({"error": {"code": code, "message": message}}, status_code=status)
 
 
-def create_app(config_path: str | None = None) -> FastAPI:
+def create_app(config_path: str | None = None, *, components: Components | None = None) -> FastAPI:
     # Fail before listening if the packaged configuration cannot be loaded.
     config = load_config(config_path)
     policy = resolve_runtime_policy(config)
-    metadata = runtime_metadata(config, policy)
+    runtime = build_runtime(config, policy, components=components)
+    config, metadata = runtime.config, runtime.metadata
     api_limits = config["runtime"]["api"]
-    extractor = Extractor(config)
-    llm = None
-    run_id = "http-rules-v0"
-    if policy["llm_enabled"]:
-        # Opt-in only. Endpoint, key and model come from the environment and are never echoed.
-        from goodsai.llm import LLMExtractor, provider_from_env
-        settings = llm_settings(policy)
-        llm = LLMExtractor(config, provider_from_env(settings), settings)
-        extractor, run_id = llm, "http-rules-llm-v0"
+    extractor, llm = runtime.predictor, runtime.llm
+    run_id = "http-rules-llm-v0" if llm is not None else "http-rules-v0"
     app = FastAPI(title="GoodsAI provisional API", version="0.1.0",
                   description="Temporary weekend API. Organizer endpoints are pending.")
     app.state.goodsai_config = config

@@ -1,3 +1,31 @@
+# 20.10.2026: ARCH-001 — общая сборка pipeline, REVIEW
+
+По поручению Влада завершена недостающая часть Issue #43. Claim `ff89c14`,
+ветка `arch/arch-001-pipeline-composition` от актуального main; поверх неё
+локально включён PR #118 без merge в main. Исходные интерфейсы Тимура `e59c175`
+сохранены. `composition.build_runtime` собирает CLI/API/trace из явного профиля
+и runtime policy: typed source, normalizer, verifier factory, router, provider,
+predictor и sink. Python overrides не требуют изменения orchestration;
+LLM/GLiNER больше не зависят от `.rules.rules` внедрённого predictor.
+
+Source возвращает канонические Candidate по stage v1; normalizer проверяет
+числовое evidence. Gate, data policy, budgets и запрет перезаписи остаются в
+основном пути. Rules-only не создаёт provider; fake provider доступен через
+Python injection для offline tests. Файловый sink сохраняет прежнюю
+транзакцию/recovery. HTTP не пишет файлы. Legacy imports и batch llm instance
+сохранены; неизвестный policy или несовместимый профиль отклоняется до работы.
+JSON v0.1, config v1/v2, confidence, units, review/abstain и команды запуска
+не менялись. Официальное подтверждение SPEC-001 #10 не объявляется полученным.
+
+Добавлены 16 synthetic tests для границ этапов, CLI/API parity с fake source и
+provider/router, offline failure, rollback sink, legacy aliases, data policy,
+неизменности снимков профиля и отсутствия eager import cycles/ML imports.
+Первичный полный прогон: **402 tests OK**. Финальные clean-run, внешняя приёмка,
+регрессия reviewed development и CI фиксируются после committed checkout.
+Новых реальных model calls, расходов, просмотра test или изменений VM нет.
+Прироста качества/баллов от архитектурного рефакторинга не заявляем.
+Контракты и ограничения: [ARCHITECTURE](ARCHITECTURE.md).
+
 # 20.10.2026: VER-002 — REVIEW, PR #118
 
 Issue #37, ветка `qa/ver-002-common-verifier`, база `73faf07`, claim `8a55d81`

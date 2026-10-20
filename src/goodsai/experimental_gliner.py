@@ -16,7 +16,8 @@ from goodsai.rules import Candidate
 from goodsai.span_index import visible_view
 from goodsai.text import visible_span
 from goodsai.verify import Extractor, validate_candidate
-from goodsai.candidate_verifier import CandidateVerifier
+from goodsai.candidate_verifier import VerifierFactory
+from goodsai.stages import GateFactory, Predictor
 
 CHECKPOINT = '443d26d654e0324125a96bebd8e796c14ff2efe6'
 ENCODER = 'a0484667b22365f84929a935b5e50a51f71f159d'
@@ -125,9 +126,11 @@ def brand_candidates(product, config, entities):
 
 class HybridExtractor:
     """Explicitly constructed alternative to Extractor; never overwrites rule output."""
-    def __init__(self, config, backend):
+    def __init__(self, config, backend, *, rules: Predictor | None = None,
+                 gate_factory: GateFactory | None = None):
         self.config = config
-        self.rules = Extractor(config)
+        self.rules = rules if rules is not None else Extractor(config)
+        self.gate_factory = gate_factory if gate_factory is not None else VerifierFactory(config)
         self.backend = backend
         self.failed = False
         self.last_diagnostics = {}
@@ -157,7 +160,7 @@ class HybridExtractor:
             return row
         finally:
             self.last_diagnostics['model_seconds'] = time.perf_counter() - started
-        gate = CandidateVerifier(product, self.config, rules=self.rules.rules)
+        gate = self.gate_factory.create(product)
         rejected = set()
         verified = []
         for candidate in candidates:
