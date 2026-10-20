@@ -1,5 +1,5 @@
 {
-  "version": "qa-001-v1",
+  "version": "qa-001-v2",
   "origin": "assistant-curated synthetic contract probes, not catalogue gold",
   "cases": [
     {
@@ -532,7 +532,7 @@
             "decision": "abstain",
             "evidence": null,
             "reason_codes": [
-              "not_found_by_rules"
+              "relation_name_token"
             ]
           }
         }
