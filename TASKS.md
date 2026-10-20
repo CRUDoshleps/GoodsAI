@@ -169,7 +169,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | REVIEW | LLM/backend | Codex (e345ee) | `llm/llm-004-exact-cache` | 20.10.2026: claim по прямому поручению; реализация opt-in, validation/keep gate отдельно |
 | PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | BLOCKED | product/backend | — | — | Управлять словарями через draft, impact и rollback; зависимости в Issue |
 | OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | REVIEW | MLOps/аналитик | Codex (e345ee) | `ops/ops-003-frozen-drift` | 20.10.2026: claim по поручению; local aggregates/frozen baseline, uncertainty/hysteresis; thresholds explicit |
-| PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | BLOCKED | product/аналитик | — | — | Приоритизировать review по риску, возрасту и спросу; зависимости в Issue |
+| PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | IN_PROGRESS | product/аналитик | Codex (e345ee) | `product/product-006-review-priority` | 20.10.2026: claim по поручению; severity/age/rare/audit, demand off по умолчанию; UX benchmark отдельно |
 
 В существующих задачах [ML-001 #16](https://github.com/CRUDoshleps/GoodsAI/issues/16),
 [LLM-003 #25](https://github.com/CRUDoshleps/GoodsAI/issues/25),
