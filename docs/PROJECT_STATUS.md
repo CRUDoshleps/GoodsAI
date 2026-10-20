@@ -1,3 +1,33 @@
+# 20.10.2026: VER-002 — общий verifier, кандидат для PR
+
+Issue #37, ветка `qa/ver-002-common-verifier`, база `73faf07`, claim `8a55d81`
+(кодировка исправлена `eddf6a1`), реализация `a2c0b32`. В рабочую ветку включён
+актуальный `work/main` с REL-005; в `main` эта задача не сливалась.
+
+`CandidateVerifier` проверяет структуру, raw/visible evidence, каноническую
+нормализацию/единицы/диапазон, роль памяти, обнаруживаемые границы модели и
+relation guard. Один gate используется rules, LLM (включая cache replay) и
+experimental GLiNER. Relation 1.2 отклоняет явно служебные инструкции и
+помеченные примеры JSON/ответа, сохраняя настоящие факты после них.
+Контракт v0.1, конфигурация, heuristic score и review/abstain не менялись.
+Общий stage contract v1 сохранён; официальное подтверждение SPEC-001 #10
+не объявляется выполненным. Документация gate включена в allowlist сдачи.
+
+Целевая synthetic regression: 5/12 → 12/12, неверные значения 4 → 0,
+пропуски настоящих фактов 3 → 0, потеря прежде правильных фактов 0.
+На 40 прежних AI-assisted human-reviewed development: TP/FP/FN 143/0/22
+до = после, 224 judged / 16 excluded, 0 новых FP / lost TP / изменённых
+значений. Это не independent gold и не доказательство улучшения каталожной F1.
+Добавлены 17 targeted тестов, CLI/API parity, manifest reasons, fake provider
+и cache replay, injected model entities без загрузки весов.
+Полные проверки итогового commit фиксируются в PR; в исходном прогоне до
+REL-005 — 377 основных + 3 reader tests OK, external acceptance 83/83,
+synthetic demo 6/6 и verify OK, pip check OK.
+
+Реальных model calls, расходов, просмотра test reserve и изменений VM нет.
+PR подготовлен для команды; запросы reviewer не отправляются по указанию Влада.
+Схемы, ограничения, команды и private provenance: [VERIFIER](VERIFIER.md).
+
 # 20.10.2026: REL-005 — опубликован состав сдачи Gitea
 
 PR #116 слит в GitHub main (`741df14677a6d0639e55b40af1d5a95de328743f`).

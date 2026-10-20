@@ -63,6 +63,7 @@ Smoke проверяет упаковку на синтетике, а не ка�
 - [Технический контракт](../../TECHNICAL_SPEC.md), [архитектура](../../docs/ARCHITECTURE.md).
 - [Конфигурация](../../docs/CONFIGURATION.md), [production-пример](../../configs/production.example.json).
 - [Эксплуатация](../../docs/RUNBOOK.md), [LLM: opt-in, бюджет, fallback](../../docs/LLM.md).
+- [Общий verifier](../../docs/VERIFIER.md): evidence, нормализация, связь с товаром и причины отказа.
 - [Оценка](../../docs/EVALUATION.md), [результаты и provenance](../../docs/RESULTS.md).
 - [Silver-метрики](../../reports/metrics.md), [статистика прогона](../../reports/run_stats.json).
 - [Checkpoint: EDA, метрики, PDF-презентация](../../docs/delivery/2026-10-19/README.md).
