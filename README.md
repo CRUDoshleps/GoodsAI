@@ -281,11 +281,11 @@ Exit 0 — все ожидания совпали, 1 — наблюдаемые 
 2 — ошибка самого прогона. Исключения backend не превращаются в abstain/успех;
 их payload не попадает в отчёт. Существующий каталог не перезаписывается.
 
-На ветке с VER-001/BASE-003: 20/21 совпадений, один открытый дефект #15 — цвет
-из бренда RED SOLUTION. Метка known_issue не подавляет failure и ненулевой exit.
+После исправления #15 через PR #104: **21/21** совпадений. Цвет из имени
+RED SOLUTION отклоняется. Метка known_issue не подавляет failure и ненулевой exit.
 Это regression suite, не human gold или качество каталога. Unit tests проверяют
-harness и отсутствие новых нетрекированных failures; их PASS не означает,
-что strict regression suite уже весь зелёный. Изменение fixture требует review.
+harness и отсутствие новых нетрекированных failures; их PASS не заменяет
+отдельный strict прогон. Изменение fixture требует review.
 
 Programming/dependency failure и corrupted predictions проверены fault injection
 в test_adversarial.py; API failures — в test_api.py; реальные child-process
@@ -295,12 +295,17 @@ default rules runtime неприменимы: route не реализован, �
 ## Проверки
 
 Контекстные отказы verifier, воспроизводимое сравнение и ограничения:
-[VER-001](docs/RELATION_VERIFIER.md) (подготовлено на review).
+[VER-001](docs/RELATION_VERIFIER.md) (включено в main через PR #104).
 
 ```bash
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v
 ```
+
+В Windows PowerShell используйте `.\.venv\Scripts\python.exe` и перед общим
+suite задайте `$env:PYTHONUTF8='1'`: существующие config/registry tests создают
+временные Unicode-файлы. На проверенном snapshot — 322 основных + 3 reader tests;
+strict acceptance отдельно — 83/83. [SHA, CI и границы проверки](docs/reviews/2026-10-20_linked_acceptance.md).
 
 Генеративные проверки Unicode/HTML, schema, единиц и evidence запускаются
 отдельно после установки `.[fuzz]`:
@@ -392,7 +397,7 @@ frozen spec и полный проверенный bundle. Закрытые и �
 
 - поддерживаются две категории, а не весь каталог;
 - seller attributes пока запрещены, чтобы не подмешать target;
-- LLM-маршрут opt-in и не измерен на реальном шлюзе; encoder в основном пути нет;
+- LLM-маршрут opt-in; его качество на реальном каталоге не измерено, encoder в основном пути нет;
 - `auto_accept` выключен до независимой оценки и калибровки;
 - фактическое качество на независимом test неизвестно;
 - публичный API временный;
