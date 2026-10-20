@@ -26,9 +26,15 @@ SCN-109 остаётся непокрытой общей очередью #19/#5
 не указан как её текущий блокер. Новых API/JSON полей, конфигурации, метрик
 качества, изменений gold/датасетов, model calls или действий на VM нет.
 
-# 21.10.2026: DATA-001 — REVIEW, воспроизводимая text-only подготовка
+# 21.10.2026: DATA-001 — DONE, воспроизводимая text-only подготовка
 
 Issue #5, claim `5d705ed`, ветка `data/data-001-reproducible-prepare`.
+PR #147 принят в main, merge `ee1c4f8f22603f45b0feb8e91635514f22d9caaf`;
+Issue #5 закрыта с status:done. Final head `3023090`, CI 6/6 SUCCESS,
+дерево merge совпало с проверенным деревом. Экспорт 187 файлов и ссылки
+проверены, внутренние документы и реальные данные исключены. Сравнение
+merge-tree с PR #136 не добавило новых конфликтующих файлов: только прежний
+PROJECT_STATUS конфликт, существовавший до DATA-001.
 Inventory разделяет text-only (skus + descriptions) и analytics (+clicks),
 проверяет существующий reference по флагу и запрещает перезапись. CLI default
 inventory/prepare пути согласованы. Prepare-v2 проверяет схему/ID/join/hash,
@@ -47,9 +53,10 @@ exposure quarantine. Нет аудита или изменился JSONL — han
 reserve не материализован для просмотра или inference, разбиения не менялись.
 9 новых tests с подслучаями PASS: profiles/legacy inventory, schema/null/joins,
 source tamper, Unicode/HTML, target exclusion, staging failure, repeat/CLI и
-связь с реальным split-auditor. Целевой data suite 11/11 PASS, полная регрессия
-до двух последних новых тестов 458/458 PASS, research reader 3/3, pip check PASS.
-Тесты подготовки добавлены в Windows/Linux CI; final head проверяется CI целиком.
+связь с реальным split-auditor. Целевой data suite 11/11 PASS, полная финальная
+Windows-регрессия 460/460 PASS, research reader 3/3, pip check PASS.
+Тесты подготовки прошли Windows/Linux CI. Реальные 10324 строки с тем же
+input SHA также воспроизведены из чистого git archive committed head `3023090`.
 
 README и DATASET описывают профили, новый каталог, одну команду и ограничения.
 Приватные данные/результаты не публикуются, LLM calls и VM deployment не
