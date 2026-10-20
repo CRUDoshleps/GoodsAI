@@ -1,5 +1,20 @@
 # EVAL-006: оценка по каталогу и offline-калибровка
 
+Новый [измеренный checkpoint 20.10.2026](../reports/checkpoint_20261020.md)
+содержит fresh baseline на **новой** frozen выборке 2974 карточек и реальный
+rules/LLM/brand-hybrid screening 200 карточек. Это не точное повторение старых
+3037 карточек. Прежние отчёты ниже сохранены как исторические. Новые judged
+расхождения раскрыты; model defaults и auto_accept не включались.
+
+Для сравнения исторического producer с новым commit предусмотрен отдельный
+`scripts/research/compare_silver_baseline.py`: два изолированных Git checkout,
+один frozen bundle/config/evaluator, paired new FP/lost TP и cold/warm ресурсы.
+Он не подготавливает новый split и не вызывает model API. Команда, обязательные
+source hashes и блокеры следующего прогона описаны в
+[handoff #123/#124/#125](https://github.com/CRUDoshleps/GoodsAI/blob/85df5ba9f3153e553f53b1a7b526498bd3d5d7a9/docs/research/2026-10-20_checkpoint_handoff.md).
+`scripts/research/prepare_checkpoint.py` подготавливает private планы без inference;
+наличие этих инструментов не означает получения свежих метрик.
+
 Инструменты работают локально, без LLM-запросов и изменения runtime. Сохраняются
 контракт 0.1, heuristic confidence и review/abstain. Каталог — приблизительный
 эталон: отчёт измеряет согласованность с ним, а не независимое качество.

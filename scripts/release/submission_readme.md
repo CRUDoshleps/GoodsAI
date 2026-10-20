@@ -96,6 +96,7 @@ Smoke проверяет упаковку на синтетике, а не ка�
 - [Общий verifier](../../docs/VERIFIER.md): evidence, нормализация, связь с товаром и причины отказа.
 - [Оценка](../../docs/EVALUATION.md), [результаты и provenance](../../docs/RESULTS.md).
 - [Silver-метрики](../../reports/metrics.md), [статистика прогона](../../reports/run_stats.json).
+- [Измеренный checkpoint 20.10](../../reports/checkpoint_20261020.md): новая frozen выборка 2974 карточек и общий model screening 200; catalog agreement, расходы и keep/drop, без заявления independent quality.
 - [Checkpoint: EDA, метрики, PDF-презентация](../../docs/delivery/2026-10-19/README.md).
 - [Продуктовая презентация](../../docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).
 - [Сборка и проверка шести артефактов](../../docs/ARTIFACT_BUNDLE.md).

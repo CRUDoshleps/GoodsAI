@@ -212,10 +212,14 @@ class CalibrationTests(unittest.TestCase):
 class CommandTests(unittest.TestCase):
     def test_gleb_manifest_token_names_and_secret_allowlist(self):
         from scripts.research.run_silver_evaluation import public_usage
-        usage = public_usage({"llm_calls": 3, "llm": {"prompt_tokens": 120, "completion_tokens": 34,
-            "retries": 1, "cost": .03, "base_url": "private", "api_key": "private", "messages": ["private"]}})
+        usage = public_usage({"llm_calls": 3, "rows": 10, "llm": {"prompt_tokens": 120, "completion_tokens": 34,
+            "attempts": 4, "retries": 1, "cost": .03, "base_url": "private", "api_key": "private", "messages": ["private"]}})
         self.assertEqual(usage["input_tokens"], 120)
         self.assertEqual(usage["output_tokens"], 34)
+        self.assertEqual(usage["attempts"], 4)
+        self.assertEqual(usage["estimated_cost_per_1000_sku_in_provider_price_units"], 3)
+        self.assertIsNone(usage["compute_cost"])
+        self.assertIsNone(public_usage({"llm_calls": 1, "rows": 10})["estimated_cost_per_1000_sku_in_provider_price_units"])
         self.assertNotIn("private", json.dumps(usage))
 
     def test_end_to_end_repeat_candidate_and_public_privacy(self):
@@ -257,6 +261,12 @@ class CommandTests(unittest.TestCase):
             run(args)
             paired = json.loads((args.output_dir/"run_stats.json").read_text(encoding="utf-8"))
             self.assertEqual(paired["variants"]["control"]["paired_delta_vs_rules"]["intervals"]["f1"]["upper"], 0)
+            transitions = paired["variants"]["control"]["paired_transitions"]["counts"]
+            self.assertEqual(transitions["new_fp"], 0)
+            self.assertEqual(transitions["lost_tp"], 0)
+            self.assertNotIn("synthetic-0", json.dumps(paired))
+            self.assertIn("per_category", paired["variants"]["control"])
+            self.assertIn("peak_process_rss_bytes", paired["variants"]["control"]["resources"])
             from goodsai.cli import predict
             subset = root/"subset.jsonl"
             predict(bundle/"llm_screening.input.jsonl", subset, config)
