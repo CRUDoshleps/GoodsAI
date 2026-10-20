@@ -5,7 +5,10 @@ claims и PR #128–#133. Все шесть PR слиты после зелён�
 Перед интеграционным follow-up: 431 основной test + 3 reader tests, synthetic
 browser lifecycle dictionary draft→impact→review→publish выполнен. Добавлены
 отдельные проверки single-flight между двумя процессами и точного producer
-config у drift snapshot; финальный набор/публикация фиксируются CI follow-up.
+config у drift snapshot. PR #134 принят после 6/6 зелёных CI: 433 основных +
+3 reader tests. Отдельный очищенный checkout: 433 tests, изолированный clean-run
+11/11 и внешний CLI/HTTP 83/83. В README сдачи добавлены команды и ссылки
+на эксплуатационные руководства; прежний фильтр внутренних документов сохранён.
 
 - LLM-004: versioned exact cache, namespace/revision/TTL, integrity, bounded
   single-flight, свежий downstream verifier и аудит повторов без model calls.

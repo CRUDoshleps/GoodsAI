@@ -70,6 +70,24 @@ Smoke проверяет упаковку на синтетике, а не ка�
 - [Продуктовая презентация](../../docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).
 - [Сборка и проверка шести артефактов](../../docs/ARTIFACT_BUNDLE.md).
 
+## Инструменты оператора и диагностики
+
+- [Консоль словарей](../../docs/DICTIONARY_CONSOLE.md): `python -m goodsai.dictionary_app`
+  на `127.0.0.1:8001`; draft → impact → review → owner publish/rollback,
+  отдельные ключи ролей и явно выбранный профиль для следующего run.
+- [Приоритет проверки](../../docs/REVIEW_PRIORITY.md): `python -m goodsai.review_priority --help`;
+  severity/age, квоты старых/редких задач, объяснение порядка и audit сессий.
+- [Дрейф](../../docs/DRIFT.md): `python -m goodsai.drift --help`; локальные агрегаты,
+  frozen baseline, min support и hysteresis. Без reviewed labels F1 недоступен.
+- [Exact cache](../../docs/EXACT_CACHE.md): аудит повторов без model calls,
+  TTL/namespace и single-flight; cache включается отдельно.
+- [Span selector](../../docs/SPAN_SELECTOR.md) и [source context planner](../../docs/CONTEXT_PLANNER.md)
+  — экспериментальные opt-in режимы LLM, по умолчанию выключены.
+
+Компоненты проверены на синтетике. Репрезентативные E1/E3/cache keep gates,
+независимая validation, human UX benchmark и подключение к общей review-очереди
+остаются отдельной приёмкой; измеренный выигрыш качества/времени не заявляется.
+
 ## Ограничения
 
 Поддерживаются две категории. `auto_accept` выключен, confidence — эвристика.
