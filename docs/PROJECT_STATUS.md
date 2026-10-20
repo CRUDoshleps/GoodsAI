@@ -1,4 +1,37 @@
-# 20.10.2026: ARCH-001 — общая сборка pipeline, REVIEW
+# 20.10.2026: VER-002 + ARCH-001 — DONE, опубликованы в main и Gitea
+
+По прямому поручению Влада последовательно приняты
+[PR #118](https://github.com/CRUDoshleps/GoodsAI/pull/118) (Issue #37,
+merge `0a1d13450b03ba617f8302c86e867b3a2bc65e6d`) и
+[PR #119](https://github.com/CRUDoshleps/GoodsAI/pull/119) (Issue #43,
+merge `88a216b3406cc7fd0f79eb8054ee8ad908fd3940`). Оба issues закрыты с
+`status:done`, TASKS синхронизирован интегратором после фактического merge.
+Запросов reviewer нет по указанию пользователя; независимое review не заявляется.
+
+Перед merge у каждого PR 6/6 CI SUCCESS. После #118 база #119 изменена на main;
+`git merge-tree --write-tree work/main HEAD` завершился без конфликтов, его
+дерево `a4cf118a1122a41676b8f36056bac6447d05c114` точно совпало с HEAD
+протестированного `2e43fa4`. Последняя мелкая правка добавляет отказы на
+нестроковые router selections и сохраняет optional HTTP test extras;
+targeted 16/16 прошли локально, весь набор прошёл в финальном CI.
+
+Совместный результат: 402 основных + 3 reader tests; внешняя приёмка 83/83;
+locked clean-run 11/11; synthetic demo 6/6 + verify. На прежних 40 reviewed
+development результат не изменился: 143 TP / 0 FP / 22 FN, 224 judged /
+16 excluded, A→C deltas отсутствуют. Это регрессионная проверка, не новый
+independent quality result. Команды воспроизведения и границы этапов:
+[ARCHITECTURE](ARCHITECTURE.md), [VERIFIER](VERIFIER.md).
+
+Публикации Gitea обоих merge выполнены штатным allowlist workflow:
+[39427814019](https://github.com/CRUDoshleps/GoodsAI/actions/runs/39427814019) и
+[39427937162](https://github.com/CRUDoshleps/GoodsAI/actions/runs/39427937162)
+SUCCESS. `origin/main` указывает на Gitea `02b0151`; его submission-manifest
+ссылается на GitHub `88a216b`. Публичные runtime/контракты/архитектура включены;
+TASKS и PROJECT_STATUS остаются только в GitHub. SHA двух репозиториев различны
+по проектной политике. ВМ не обновлялась, model calls и расходы не выполнялись,
+test reserve не открывался. SPEC-001 #10 остаётся открытой.
+
+# 20.10.2026: ARCH-001 — проверка перед интеграцией (историческая запись)
 
 По поручению Влада завершена недостающая часть Issue #43. Claim `ff89c14`,
 ветка `arch/arch-001-pipeline-composition` от актуального main; поверх неё
