@@ -83,15 +83,19 @@ def allowed(path):
             or (path.startswith("tests/fixtures/") and p.suffix in {".json", ".jsonl"}))
 
 
-def rewrite_links(content, path, published, tracked, source):
+def rewrite_links(content, path, published, tracked, source, origin_path=None):
     """Keep references to development evidence usable, without copying its files."""
     def replace(match):
         target = match[2]
         url = urlsplit(target)
         if url.scheme or url.netloc or not url.path or url.path.startswith("/"):
             return match[0]
-        resolved = posixpath.normpath(posixpath.join(posixpath.dirname(path), unquote(url.path)))
+        resolved = posixpath.normpath(posixpath.join(posixpath.dirname(origin_path or path), unquote(url.path)))
         if resolved in published:
+            if origin_path:
+                relative = posixpath.relpath(resolved, posixpath.dirname(path) or ".")
+                suffix = ("?" + url.query if url.query else "") + ("#" + url.fragment if url.fragment else "")
+                return match[1] + quote(relative) + suffix + match[3]
             return match[0]
         if resolved in tracked:
             suffix = ("?" + url.query if url.query else "") + ("#" + url.fragment if url.fragment else "")
@@ -112,13 +116,14 @@ def submission_files(root, source):
         if kind != "blob" or mode not in {"100644", "100755"}:
             raise PublicationError(f"Unsupported source entry (symlink/submodule): {name}")
         data = git(root, "cat-file", "blob", oid)
-        if name == README_SOURCE:
-            # Also retain the template alongside the publisher, for reproducible exports.
-            result[name] = (mode, data)
-            name = "README.md"
         if name.endswith(".md"):
             data = rewrite_links(data.decode("utf-8"), name, published, tracked, source).encode("utf-8")
         result[name] = (mode, data)
+        if name == README_SOURCE:
+            # Retain the template alongside the publisher for reproducible exports,
+            # and rebase its relative links for the root README.
+            result["README.md"] = (mode, rewrite_links(data.decode("utf-8"), "README.md", published,
+                                                     tracked, source, origin_path=README_SOURCE).encode("utf-8"))
     manifest = {
         "format_version": 1,
         "source_repository": SOURCE_REPOSITORY,

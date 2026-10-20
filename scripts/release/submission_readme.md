@@ -6,7 +6,7 @@
 По умолчанию работают правила; LLM-fallback включается явно и требует ключа.
 
 Это репозиторий сдачи. Исходный GitHub commit и SHA-256 опубликованных файлов
-указаны в [submission-manifest.json](submission-manifest.json).
+указаны в [submission-manifest.json](../../submission-manifest.json).
 
 ## Быстрый запуск
 
@@ -31,8 +31,8 @@ Predictions и paired manifest записываются в `outputs/`.
 во входе запрещены.
 
 Полный сценарий, команды PowerShell, проверка manifest и отрицательные примеры:
-[QUICKSTART](docs/QUICKSTART.md). Ответы и действия оператора:
-[RESPONSES](docs/RESPONSES.md).
+[QUICKSTART](../../docs/QUICKSTART.md). Ответы и действия оператора:
+[RESPONSES](../../docs/RESPONSES.md).
 
 HTTP API:
 
@@ -60,14 +60,14 @@ Smoke проверяет упаковку на синтетике, а не ка�
 
 ## Документация и материалы сдачи
 
-- [Технический контракт](TECHNICAL_SPEC.md), [архитектура](docs/ARCHITECTURE.md).
-- [Конфигурация](docs/CONFIGURATION.md), [production-пример](configs/production.example.json).
-- [Эксплуатация](docs/RUNBOOK.md), [LLM: opt-in, бюджет, fallback](docs/LLM.md).
-- [Оценка](docs/EVALUATION.md), [результаты и provenance](docs/RESULTS.md).
-- [Silver-метрики](reports/metrics.md), [статистика прогона](reports/run_stats.json).
-- [Checkpoint: EDA, метрики, PDF-презентация](docs/delivery/2026-10-19/README.md).
-- [Продуктовая презентация](docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).
-- [Сборка и проверка шести артефактов](docs/ARTIFACT_BUNDLE.md).
+- [Технический контракт](../../TECHNICAL_SPEC.md), [архитектура](../../docs/ARCHITECTURE.md).
+- [Конфигурация](../../docs/CONFIGURATION.md), [production-пример](../../configs/production.example.json).
+- [Эксплуатация](../../docs/RUNBOOK.md), [LLM: opt-in, бюджет, fallback](../../docs/LLM.md).
+- [Оценка](../../docs/EVALUATION.md), [результаты и provenance](../../docs/RESULTS.md).
+- [Silver-метрики](../../reports/metrics.md), [статистика прогона](../../reports/run_stats.json).
+- [Checkpoint: EDA, метрики, PDF-презентация](../../docs/delivery/2026-10-19/README.md).
+- [Продуктовая презентация](../../docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).
+- [Сборка и проверка шести артефактов](../../docs/ARTIFACT_BUNDLE.md).
 
 ## Ограничения
 
