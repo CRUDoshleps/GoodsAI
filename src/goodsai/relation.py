@@ -6,12 +6,17 @@ Structural candidate validation must run first. No target or catalogue lookup.
 import re
 
 from goodsai.contracts import Product
+from goodsai.config import load_config
+from goodsai.model_rules import DESCRIPTOR, ModelRules
 from goodsai.text import visible_view
 
 
-VERSION = "relation-1.0"
+VERSION = "relation-1.1"
 ACCESSORY = r"(?:чехо?л\w*|кабел\w*|зарядн\w*\s+устройств\w*|защитн\w*\s+стекл\w*|пленк\w*|плёнк\w*|крышк\w*|подставк\w*|запчаст\w*|адаптер\w*|case|cover|cable|charger)"
 PRIMARY = r"(?:смартфон\w*|телефон\w*|электрочайник\w*|чайник\w*|smartphone|phone|kettle)"
+# An explicit proper-name head, not a lookup for a particular manufacturer.
+UPPER_NAME_HEAD = re.compile(r"^\s*(?i:" + PRIMARY + r")\s+(?P<name>[A-Z][A-Z&-]*(?:\s+[A-Z][A-Z&-]*){1,3})(?=\s+[A-Z][A-Za-z0-9.-]*\d)")
+NAME_LABEL = re.compile(r"\b(?:бренд|производитель|модель|brand|manufacturer|model)\s*[:=]\s*(?P<name>[^\n;,.]+?)(?=\s+\b(?:цвет\w*|colou?r)\s*[:=]|[\n;,.]|$)", re.I)
 TITLE_ACCESSORY = re.compile(r"^\s*(?:(?:универсальн\w*|оригинальн\w*|черн\w*|чёрн\w*|бел\w*|красн\w*|син\w*|прозрачн\w*|black|white|red|blue|transparent)\s+){0,2}" + ACCESSORY + r"\b", re.I)
 BOUNDARY = re.compile(r"(?<!\d)\.(?!\d)|[!?;\n]|\b(?:но|однако|зато|but|however)\b", re.I)
 FOREIGN = re.compile(
@@ -46,7 +51,7 @@ class RelationVerifier:
     either side. Rejected candidates never compete with supported main-product
     facts. A rejection does not assert the opposite fact.
     """
-    def __init__(self, product: Product):
+    def __init__(self, product: Product, config: dict | None = None):
         self.views = {}
         for field in ("title", "description"):
             text, positions = visible_view(getattr(product, field) or "")
@@ -58,6 +63,23 @@ class RelationVerifier:
             self.views[field] = (text, positions, starts, ends)
         title = self.views["title"][0]
         self.accessory_title = bool(TITLE_ACCESSORY.search(title))
+        config = load_config() if config is None else config
+        models = ModelRules(config)
+        self.name_spans = {}
+        for field, (text, _, _, _) in self.views.items():
+            spans = [m.span('name') for m in NAME_LABEL.finditer(text)]
+            if product.category_id in config['category_profiles']:
+                spans.extend((a, b) for a, b, _ in models.spans(product.category_id, field, text))
+            if field == 'title':
+                descriptor = DESCRIPTOR.match(text)
+                begin = descriptor.end() if descriptor else len(text) - len(text.lstrip())
+                brand_end = models.brand_end(text[begin:], models.model_brands, repeated=True)
+                if brand_end:
+                    spans.append((begin, begin + brand_end))
+                head = UPPER_NAME_HEAD.match(text)
+                if head:
+                    spans.append(head.span('name'))
+            self.name_spans[field] = spans
 
     def reason(self, candidate) -> str | None:
         """Return a stable rejection reason, or None when no rule rejects it.
@@ -73,6 +95,8 @@ class RelationVerifier:
             return "relation_nonvisible_evidence"
         if self.accessory_title:
             return "relation_accessory_product"
+        if candidate.attribute == 'color' and any(start < b and end > a for a, b in self.name_spans[candidate.field]):
+            return 'relation_name_token'
 
         # Sentence/HTML-block/contrast boundaries prevent leakage from a nearby
         # accessory sentence. Decimal points and model dots are not split.
@@ -101,6 +125,13 @@ class RelationVerifier:
         # Postposed ownership: 'цвет черный у чехла', '6 inches on another phone'.
         if re.match(r"\s*(?:у|для|of|on)\s+(?:" + ACCESSORY + r"|друг\w*\s+" + PRIMARY + r")\b", suffix, re.I):
             return "relation_other_object"
+
+        if candidate.attribute == 'color':
+            if re.search(r'(?:\w+-|\b(?:темно|тёмно|светло|ярко|бледно|глубок\w*|насыщенн\w*|dark|light|deep)\s+)$', prefix, re.I):
+                return 'relation_unknown_color_modifier'
+            material = list(re.finditer(r'\b(?:материал\w*|material)\b', prefix, re.I))
+            if material and not re.search(r'\b(?:цвет\w*|colou?r)\b', prefix[material[-1].end():], re.I):
+                return 'relation_material_not_color'
 
         # Negation must immediately govern the value or this attribute label;
         # 'без кабеля, мощность 2300 Вт' must not negate the appliance power.

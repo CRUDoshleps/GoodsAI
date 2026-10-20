@@ -47,6 +47,36 @@ Migration не требуется; потребители reason codes долж�
 основного товара вместе с аксессуаром в одной фразе может дать лишний отказ.
 Ошибочная категория часов D24 не исправляется этой задачей: это отдельная ML-002.
 
+## Продолжение VER-001, 20.10.2026: relation 1.1
+
+Исправляется оставшийся RED SOLUTION/color defect без добавления бренда в lookup.
+Защищаются явные brand/model labels, модели из существующей grammar, начальный
+известный brand span и uppercase multiword name перед кодом товара. Guard
+применяется к raw evidence через visible mapping, поэтому отдельный настоящий
+цвет после имени или в другом предложении сохраняется. Material-label не
+выдаётся за цвет; неизвестный qualifier не обрезается до basic color в LLM.
+Это консервативная синтаксика, не универсальное распознавание имён.
+
+`llm.ground` теперь вызывает общий relation guard после structural validation.
+Чужая сущность, аксессуар и bundle не проходят только за счёт точной цитаты.
+Действующий ранний `llm_uncertain_context` сохраняется. Новые причины отказа:
+`relation_name_token`, `relation_material_not_color`, `relation_unknown_color_modifier`.
+Review/abstain, heuristic score, единицы и v0.1 остаются прежними.
+
+В QA-001 v2 изменена **только причина** для brand_is_not_color:
+`not_found_by_rules` → `relation_name_token`; value=null/decision=abstain
+не ослаблены. Все 21 strict cases проходят, известный дефект не исключается.
+7 новых tests проверяют неизвестное uppercase имя, HTML, model labels,
+отдельные настоящие цвета, конфликты, material, LLM и CLI/API parity.
+
+Сравнение с `857115d` через существующий compare_model_stage (A против C,
+по 2 повтора) на двух прежних reviewed development по 20 карточек:
+M2 TP/FP/FN 72/0/11 → 72/0/11; D21–D40 62/0/20 → 62/0/20.
+0 изменённых A→C пар, 0 lost TP / new FP. Это AI-assisted development,
+не blind test. Артефакты не перезаписывались: `outputs/evaluation/ver001-followup-m2/`
+и `outputs/evaluation/ver001-followup-d21/`; snapshots и reference SHA внутри manifest.
+Резерв test, внешние API, расходы и VM не использованы.
+
 ## Проверки
 
 [test_relation.py](../tests/test_relation.py) проверяет отказы и сохранение

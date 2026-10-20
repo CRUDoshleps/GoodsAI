@@ -38,6 +38,7 @@ from goodsai.normalize import NUMBER, UNITS, model_name, number, numeric
 from goodsai.rules import Candidate, bounded_alias, uncertain
 from goodsai.text import visible_view
 from goodsai.verify import Extractor, validate_candidate
+from goodsai.relation import RelationVerifier
 
 PROMPT_VERSION = "llm-fill-v1"
 DATA_POLICY = "llm-data-policy-2026-10-19"
@@ -550,6 +551,9 @@ def ground(product: Product, attr: str, value, quote, config: dict) -> tuple[Can
         validate_candidate(candidate, product, config["categories"][product.category_id], config)
     except (ValueError, KeyError):
         return None, "llm_failed_verification"
+    reason = RelationVerifier(product, config).reason(candidate)
+    if reason:
+        return None, reason
     return candidate, None
 
 
