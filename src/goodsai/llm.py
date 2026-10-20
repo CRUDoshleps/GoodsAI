@@ -17,7 +17,7 @@ written to logs or to the run manifest.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from decimal import Decimal
 import hashlib
 import json
@@ -34,6 +34,7 @@ import urllib.parse
 import urllib.request
 
 from goodsai.contracts import Product, validate_prediction
+from goodsai.config import default_llm_policy, validate_llm_policy
 from goodsai.normalize import NUMBER, UNITS, model_name, number, numeric
 from goodsai.rules import Candidate, bounded_alias, uncertain
 from goodsai.text import visible_view
@@ -46,6 +47,7 @@ BUDGET_TIMEZONE_OFFSET_HOURS = 3  # Daily budget resets at Moscow midnight, like
 FORBIDDEN_SOURCE_FLAGS = {"test_reserved", "exposed_test", "closed_test"}
 CACHE_VERSION = 1
 LLM_SCORE = 0.6  # Heuristic and below rule scores: a grounded proposal, not a calibrated probability.
+DEFAULT_LLM = default_llm_policy()
 MAX_DESCRIPTION_CHARS = 6000
 MAX_TITLE_CHARS = 1000
 GENERIC_WORDS = {"смартфон", "телефон", "чайник", "электрочайник", "smartphone", "phone", "kettle"}
@@ -115,42 +117,39 @@ class Provider(Protocol):
 @dataclass(frozen=True)
 class LLMSettings:
     model: str
-    max_calls: int = 100
-    timeout_seconds: float = 60.0
-    max_attempts: int = 3
-    max_tokens: int = 2048
-    concurrency: int = 2
-    circuit_breaker: int = 5
-    price_input_per_1k: float | None = None
-    price_output_per_1k: float | None = None
-    json_mode: bool = False
+    max_calls: int = DEFAULT_LLM["max_calls"]
+    timeout_seconds: float = DEFAULT_LLM["timeout_seconds"]
+    max_attempts: int = DEFAULT_LLM["max_attempts"]
+    max_tokens: int = DEFAULT_LLM["max_tokens"]
+    concurrency: int = DEFAULT_LLM["concurrency"]
+    circuit_breaker: int = DEFAULT_LLM["circuit_breaker"]
+    price_input_per_1k: float | None = DEFAULT_LLM["price_input_per_1k"]
+    price_output_per_1k: float | None = DEFAULT_LLM["price_output_per_1k"]
+    json_mode: bool = DEFAULT_LLM["json_mode"]
     cache_dir: Path | None = None
-    daily_max_calls: int = 300
+    daily_max_calls: int = DEFAULT_LLM["daily_max_calls"]
     budget_ledger: Path | None = None
 
     def __post_init__(self):
         if not isinstance(self.model, str) or not self.model.strip():
             raise ValueError("LLM model name is required")
-        if type(self.max_calls) is not int or self.max_calls < 0:
-            raise ValueError("LLM call budget must be a non-negative integer")
-        if type(self.daily_max_calls) is not int or self.daily_max_calls < 0:
-            raise ValueError("LLM daily budget must be a non-negative integer")
-        if type(self.max_attempts) is not int or not 1 <= self.max_attempts <= 5:
-            raise ValueError("LLM attempts must be between 1 and 5")
-        if type(self.concurrency) is not int or not 1 <= self.concurrency <= 8:
-            raise ValueError("LLM concurrency must be between 1 and 8")
-        if not 1 <= self.timeout_seconds <= 300 or not 64 <= self.max_tokens <= 8192:
-            raise ValueError("LLM timeout or token limit outside supported range")
-        for price in (self.price_input_per_1k, self.price_output_per_1k):
-            if price is not None and (not math.isfinite(price) or price < 0):
-                raise ValueError("LLM price must be a finite non-negative number")
+        values = asdict(self)
+        for key in ("cache_dir", "budget_ledger"):
+            if isinstance(values[key], Path):
+                values[key] = str(values[key])
+            elif values[key] is not None:
+                raise ValueError("LLM paths must be Path or None")
+        validate_llm_policy(values)
 
     def identity(self) -> dict:
         """Settings that change answers or accounting; no secrets, no URLs."""
         return {"prompt_version": PROMPT_VERSION, "model": self.model, "temperature": 0,
                 "max_tokens": self.max_tokens, "json_mode": self.json_mode,
                 "max_calls": self.max_calls, "daily_max_calls": self.daily_max_calls,
-                "max_attempts": self.max_attempts, "data_policy": DATA_POLICY}
+                "max_attempts": self.max_attempts, "timeout_seconds": self.timeout_seconds,
+                "concurrency": self.concurrency, "circuit_breaker": self.circuit_breaker,
+                "price_input_per_1k": self.price_input_per_1k, "price_output_per_1k": self.price_output_per_1k,
+                "data_policy": DATA_POLICY}
 
 
 class OpenAICompatibleProvider:

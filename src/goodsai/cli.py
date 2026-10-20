@@ -3,7 +3,6 @@ import argparse
 from collections import Counter, defaultdict
 import hashlib
 import json
-import os
 from pathlib import Path
 import sys
 import time
@@ -16,26 +15,27 @@ from goodsai.evaluate import evaluate
 from goodsai.runtime import identity, peak_rss_bytes
 from goodsai.storage import staged_prediction_pair
 from goodsai.verify import Extractor
+from goodsai.config import validate_config
+from goodsai.policy import llm_settings, policy_for_settings, resolve_runtime_policy, runtime_metadata
 
 
-def predict(input_path: Path, output: Path, config: dict, llm=None) -> dict:
+def predict(input_path: Path, output: Path, config: dict, llm=None, *, runtime_policy=None) -> dict:
     """Rules-only by default; ``llm`` is an opt-in ``goodsai.llm.LLMExtractor``."""
+    config = validate_config(config)
+    runtime_policy = runtime_policy or policy_for_settings(config, llm.settings if llm else None)
     output = output.resolve()
     check_output(output, input_path)
     check_output(output.with_suffix(".manifest.json"), input_path)
     with staged_prediction_pair(output) as (staged_output, staged_manifest):
-        report = _predict_staged(input_path, staged_output, staged_manifest, config, llm)
+        report = _predict_staged(input_path, staged_output, staged_manifest, config, llm, runtime_policy)
     return report
 
 
-def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path, config: dict, llm=None) -> dict:
+def _predict_staged(input_path: Path, staged_output: Path, staged_manifest: Path, config: dict, llm, runtime_policy) -> dict:
     started = time.perf_counter()
-    meta = identity(config)
+    meta = identity(config) | runtime_metadata(config, runtime_policy)
     input_hash = digest(input_path)
-    run_material = input_hash + meta["code_sha256"] + meta["config_sha256"]
-    if llm is not None:
-        # A different model, prompt or budget is a different run.
-        run_material += json.dumps(llm.settings.identity(), sort_keys=True)
+    run_material = input_hash + meta["code_sha256"] + meta["effective_config_sha256"]
     run_id = hashlib.sha256(run_material.encode()).hexdigest()[:20]
     extractor = llm if llm is not None else Extractor(config)
     seen = set()
@@ -120,26 +120,28 @@ def main(argv=None) -> int:
     p.add_argument("--llm", action="store_true",
                    help="Opt-in LLM fallback for attributes rules did not find; endpoint and key come from "
                         "GOODSAI_LLM_BASE_URL / GOODSAI_LLM_API_KEY")
-    p.add_argument("--llm-model", default=os.environ.get("GOODSAI_LLM_MODEL"),
+    p.add_argument("--llm-model",
                    help="Gateway model name (default: GOODSAI_LLM_MODEL)")
-    p.add_argument("--llm-max-calls", type=int, default=100, help="Hard per-run budget of real provider calls")
-    p.add_argument("--llm-daily-max-calls", type=int, default=300,
+    p.add_argument("--llm-max-calls", type=int, help="Hard per-run budget of logical provider calls")
+    p.add_argument("--llm-daily-max-calls", type=int,
                    help="Shared budget per Moscow day across runs using the same --llm-budget-file")
-    p.add_argument("--llm-budget-file", type=Path, default=Path("outputs/llm-budget/ledger.json"),
+    p.add_argument("--llm-budget-file", type=Path,
                    help="Daily call ledger outside Git")
     p.add_argument("--llm-cache-dir", type=Path, help="Exact-request cache outside Git, e.g. outputs/llm-cache")
-    p.add_argument("--llm-timeout", type=float, default=60.0)
-    p.add_argument("--llm-attempts", type=int, default=3, help="Attempts per request, retries included (1-5)")
-    p.add_argument("--llm-concurrency", type=int, default=2)
+    p.add_argument("--llm-timeout", type=float)
+    p.add_argument("--llm-attempts", type=int, help="Attempts per request, retries included (1-5)")
+    p.add_argument("--llm-concurrency", type=int)
+    p.add_argument("--llm-max-tokens", type=int)
+    p.add_argument("--llm-circuit-breaker", type=int)
     p.add_argument("--llm-price-input-per-1k", type=float, help="Price per 1000 prompt tokens; cost is N/A without it")
     p.add_argument("--llm-price-output-per-1k", type=float, help="Price per 1000 completion tokens")
-    p.add_argument("--llm-json-mode", action="store_true",
+    p.add_argument("--llm-json-mode", action=argparse.BooleanOptionalAction, default=None,
                    help="Ask the gateway for response_format=json_object; answers are validated either way")
     p = sub.add_parser("llm-trace", help="One synthetic card through the live LLM route (counts against budgets)")
     p.add_argument("--output", type=Path, required=True)
-    p.add_argument("--llm-model", default=os.environ.get("GOODSAI_LLM_MODEL"))
-    p.add_argument("--llm-budget-file", type=Path, default=Path("outputs/llm-budget/ledger.json"))
-    p.add_argument("--llm-daily-max-calls", type=int, default=300)
+    p.add_argument("--llm-model")
+    p.add_argument("--llm-budget-file", type=Path)
+    p.add_argument("--llm-daily-max-calls", type=int)
     p = sub.add_parser("evaluate")
     p.add_argument("--predictions", type=Path, required=True)
     p.add_argument("--gold", type=Path)
@@ -161,30 +163,34 @@ def main(argv=None) -> int:
             write_json(args.output_dir / "prepare_manifest.json", result)
         elif args.command == "predict":
             llm = None
+            policy = resolve_runtime_policy(config, enabled=args.llm, overrides={
+                "model": args.llm_model, "max_calls": args.llm_max_calls,
+                "timeout_seconds": args.llm_timeout, "max_attempts": args.llm_attempts,
+                "concurrency": args.llm_concurrency, "max_tokens": args.llm_max_tokens,
+                "circuit_breaker": args.llm_circuit_breaker,
+                "price_input_per_1k": args.llm_price_input_per_1k,
+                "price_output_per_1k": args.llm_price_output_per_1k, "json_mode": args.llm_json_mode,
+                "cache_dir": args.llm_cache_dir, "daily_max_calls": args.llm_daily_max_calls,
+                "budget_ledger": args.llm_budget_file})
             if args.llm:
-                from goodsai.llm import LLMExtractor, LLMSettings, provider_from_env
-                if not args.llm_model:
-                    raise ValueError("--llm requires --llm-model or GOODSAI_LLM_MODEL")
-                settings = LLMSettings(
-                    model=args.llm_model, max_calls=args.llm_max_calls, timeout_seconds=args.llm_timeout,
-                    max_attempts=args.llm_attempts, concurrency=args.llm_concurrency,
-                    price_input_per_1k=args.llm_price_input_per_1k,
-                    price_output_per_1k=args.llm_price_output_per_1k,
-                    json_mode=args.llm_json_mode, cache_dir=args.llm_cache_dir,
-                    daily_max_calls=args.llm_daily_max_calls, budget_ledger=args.llm_budget_file)
+                from goodsai.llm import LLMExtractor, provider_from_env
+                settings = llm_settings(policy)
                 llm = LLMExtractor(config, provider_from_env(settings), settings)
-            result = predict(args.input, args.output, config, llm)
+            result = predict(args.input, args.output, config, llm, runtime_policy=policy)
             if llm is not None and result["llm"]["disabled_reason"]:
                 print(f"goodsai: LLM fallback disabled during run: {result['llm']['disabled_reason']}; "
                       "rule results are unchanged", file=sys.stderr)
         elif args.command == "llm-trace":
-            from goodsai.llm import LLMExtractor, LLMSettings, provider_from_env, synthetic_trace
-            if not args.llm_model:
-                raise ValueError("llm-trace requires --llm-model or GOODSAI_LLM_MODEL")
+            from goodsai.llm import LLMExtractor, provider_from_env, synthetic_trace
+            policy = resolve_runtime_policy(config, enabled=True, overrides={
+                "model": args.llm_model, "daily_max_calls": args.llm_daily_max_calls,
+                "budget_ledger": args.llm_budget_file})
             check_output(args.output)
-            settings = LLMSettings(model=args.llm_model, max_calls=1, daily_max_calls=args.llm_daily_max_calls,
-                                   budget_ledger=args.llm_budget_file)
+            # Trace may reduce a configured limit, never increase it.
+            policy["llm"]["max_calls"] = min(1, policy["llm"]["max_calls"])
+            settings = llm_settings(policy)
             result = synthetic_trace(LLMExtractor(config, provider_from_env(settings), settings))
+            result.update(runtime_metadata(config, policy))
             write_json(args.output, result)
             if result["llm"]["calls"] != 1 or result["llm"]["failures"]:
                 print("goodsai: live LLM trace did not complete: "

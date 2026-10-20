@@ -2,8 +2,6 @@
 import argparse
 import json
 import logging
-import os
-from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -13,6 +11,7 @@ from starlette.exceptions import HTTPException
 from goodsai.contracts import Product, load_config
 from goodsai.config import default_api_limits
 from goodsai.verify import Extractor
+from goodsai.policy import llm_settings, resolve_runtime_policy, runtime_metadata
 
 MAX_BODY_BYTES = default_api_limits()["max_body_bytes"]  # Backward-compatible default export.
 LOGGER = logging.getLogger(__name__)
@@ -25,23 +24,22 @@ def error(status: int, code: str, message: str) -> JSONResponse:
 def create_app(config_path: str | None = None) -> FastAPI:
     # Fail before listening if the packaged configuration cannot be loaded.
     config = load_config(config_path)
+    policy = resolve_runtime_policy(config)
+    metadata = runtime_metadata(config, policy)
     api_limits = config["runtime"]["api"]
     extractor = Extractor(config)
     llm = None
     run_id = "http-rules-v0"
-    if os.environ.get("GOODSAI_LLM_ENABLED") == "1":
+    if policy["llm_enabled"]:
         # Opt-in only. Endpoint, key and model come from the environment and are never echoed.
-        from goodsai.llm import LLMExtractor, LLMSettings, provider_from_env
-        settings = LLMSettings(model=os.environ.get("GOODSAI_LLM_MODEL", ""),
-                               max_calls=int(os.environ.get("GOODSAI_LLM_MAX_CALLS", "100")),
-                               daily_max_calls=int(os.environ.get("GOODSAI_LLM_DAILY_MAX_CALLS", "300")),
-                               budget_ledger=Path(os.environ.get("GOODSAI_LLM_BUDGET_FILE",
-                                                                 "outputs/llm-budget/ledger.json")))
+        from goodsai.llm import LLMExtractor, provider_from_env
+        settings = llm_settings(policy)
         llm = LLMExtractor(config, provider_from_env(settings), settings)
         extractor, run_id = llm, "http-rules-llm-v0"
     app = FastAPI(title="GoodsAI provisional API", version="0.1.0",
                   description="Temporary weekend API. Organizer endpoints are pending.")
     app.state.goodsai_config = config
+    app.state.goodsai_runtime = metadata
 
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException):
@@ -55,7 +53,9 @@ def create_app(config_path: str | None = None) -> FastAPI:
     @app.get("/health")
     def health():
         body = {"status": "ok", "service": "goodsai", "schema_version": "0.1",
-                "api_status": "provisional", "categories": sorted(config["categories"])}
+                "api_status": "provisional", "categories": sorted(config["categories"]),
+                "runtime_policy_sha256": metadata["runtime_policy_sha256"],
+                "effective_config_sha256": metadata["effective_config_sha256"]}
         if llm is not None:
             report = llm.report()
             body["llm"] = {key: report[key] for key in ("enabled", "model", "prompt_version", "calls",

@@ -43,13 +43,13 @@ def stop_server(process):
 
 
 @contextmanager
-def listening_server(python, cwd, env):
+def listening_server(python, cwd, env, extra_args=()):
     """Own one server; cleanup also covers failed readiness and failed assertions."""
     with socket.socket() as probe:
         probe.bind(('127.0.0.1', 0))
         port = probe.getsockname()[1]
     base = f'http://127.0.0.1:{port}'
-    process = subprocess.Popen([str(python), '-m', 'goodsai.api', '--host', '127.0.0.1', '--port', str(port)],
+    process = subprocess.Popen([str(python), '-m', 'goodsai.api', '--host', '127.0.0.1', '--port', str(port), *extra_args],
                                cwd=cwd, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         deadline = time.monotonic() + 30

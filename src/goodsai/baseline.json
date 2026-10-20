@@ -117,6 +117,22 @@
   "runtime": {
     "llm_enabled": false,
     "auto_accept_enabled": false,
+    "review_threshold": null,
+    "llm": {
+      "model": null,
+      "max_calls": 100,
+      "daily_max_calls": 300,
+      "timeout_seconds": 60.0,
+      "max_attempts": 3,
+      "max_tokens": 2048,
+      "concurrency": 2,
+      "circuit_breaker": 5,
+      "json_mode": false,
+      "price_input_per_1k": null,
+      "price_output_per_1k": null,
+      "cache_dir": null,
+      "budget_ledger": "outputs/llm-budget/ledger.json"
+    },
     "api": {
       "max_body_bytes": 131072,
       "limit_concurrency": 32,
