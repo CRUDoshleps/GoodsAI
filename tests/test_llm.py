@@ -258,8 +258,12 @@ class Response:
     def __exit__(self, *exc):
         return False
 
-    def read(self):
-        return self.body
+    def read(self, size=-1):
+        if size is None or size < 0:
+            chunk, self.body = self.body, b""
+        else:
+            chunk, self.body = self.body[:size], self.body[size:]
+        return chunk
 
 
 def http_error(code, retry_after=None):
