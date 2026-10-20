@@ -99,7 +99,7 @@ SCENARIOS = {
     'SCN-106': gap('Real rules/model/hybrid comparison', 'not_verified', [125, 40, 25], 'Offline fake-provider success is not measured live quality or cost.'),
     'SCN-107': gap('Traffic/seller fairness evidence', 'not_verified', [53, 40], 'No approved representative weights/reference in this synthetic run.'),
     'SCN-108': gap('Full predictions/EDA/final slides and private delivery', 'not_verified', [8, 42], 'Smoke/export is not the six final artifacts or confirmed delivery.'),
-    'SCN-109': gap('General operator acceptance/persistence workflow', 'not_implemented', [19, 50, 142], 'Dictionary console/ranking do not implement general attribute review; Windows audit SQLite lifecycle defect is tracked separately.'),
+    'SCN-109': gap('General operator acceptance/persistence workflow', 'not_implemented', [19, 50], 'Dictionary console and ranking do not implement general attribute review.'),
     'SCN-110': gap('Clean real-data preparation', 'not_verified', [5], 'No real data are opened or prepared by this runner.'),
     'SCN-111': gap('Target VM acceptance', 'not_verified', [82], 'Local socket and CI do not prove final deployed VM identity.'),
     'SCN-201': gap('Official HTTP transactions', 'unknown', [17], 'Organizers have not provided a final endpoint contract.'),
