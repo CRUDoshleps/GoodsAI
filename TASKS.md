@@ -76,7 +76,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
-| CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | READY | архитектор | — | — | конфиг решений, LLM, бюджета и стоимости |
+| CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | IN_PROGRESS | архитектор | urasha / Codex (сессия Влада) | `arch/conf-002-runtime-policy` | 20.10.2026: claim; единый resolver CLI/API, effective policy/hash, production example; без auto_accept |
 | LLM-003 | [#25](https://github.com/CRUDoshleps/GoodsAI/issues/25) | P0 | REVIEW | LLM/backend | Глеб Алферов | `llm/llm-003-evidence-first-fallback` | evidence-first fallback через шлюз хакатона; opt-in `--llm`, pre-router, политика данных и бюджета 19.10 закреплена кодом; живой trace — `llm-trace` на VM |
 | OPS-001 | [#26](https://github.com/CRUDoshleps/GoodsAI/issues/26) | P0 | READY | MLOps/security | — | — | безопасные логи и границы temp/pickle |
 | ART-002 | [#27](https://github.com/CRUDoshleps/GoodsAI/issues/27) | P0 | DONE | release/docs | Codex (tunaIT) | `main` | PR #87 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |
