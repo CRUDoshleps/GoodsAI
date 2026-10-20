@@ -127,6 +127,8 @@ class LLMSettings:
     cache_ttl_seconds: int = 3600
     context_planner: bool = False
     context_max_chars: int = 16000
+    span_selector: bool = False
+    selector_max_spans: int = 512
 
     def __post_init__(self):
         if not isinstance(self.model, str) or not self.model.strip():
@@ -152,7 +154,8 @@ class LLMSettings:
                 "budget_unit": "physical_attempts", "data_policy": DATA_POLICY,
                 "model_revision": self.model_revision, "cache_namespace": self.cache_namespace,
                 "cache_ttl_seconds": self.cache_ttl_seconds, "context_planner": self.context_planner,
-                "context_max_chars": self.context_max_chars, "context_version": "source-context-1"}
+                "context_max_chars": self.context_max_chars, "context_version": "source-context-1", "span_selector": self.span_selector,
+                "selector_max_spans": self.selector_max_spans, "selector_version": "span-selector-1"}
 
 
 class OpenAICompatibleProvider:
@@ -442,7 +445,20 @@ def build_messages(product: Product, attributes: list[str], config: dict, settin
             raise ProviderError("llm_context_budget_exceeded", attempts=0)
         user = {"category_id": product.category_id, "source_blocks": plan.payload(),
                 "requested_attributes": requested, "context_version": plan.version}
-    return [{"role": "system", "content": SYSTEM_PROMPT},
+    system = SYSTEM_PROMPT
+    if settings is not None and settings.span_selector:
+        from goodsai.span_selector import selector_payload, SelectorError, SYSTEM
+        try:
+            user.update(selector_payload(product, attributes, settings.selector_max_spans))
+        except SelectorError as exc:
+            raise ProviderError(str(exc), attempts=0) from None
+        system = SYSTEM
+        # No title/description truncation may hide a contradiction in selector mode.
+        if not settings.context_planner:
+            if len(product.title) + len(product.description or "") > settings.context_max_chars:
+                raise ProviderError("llm_context_budget_exceeded", attempts=0)
+            user.update(title=product.title, description=product.description)
+    return [{"role": "system", "content": system},
             {"role": "user", "content": json.dumps(user, ensure_ascii=False)}]
 
 
@@ -852,7 +868,9 @@ class LLMExtractor:
             return None, exc.code
         with self.lock:
             self.consecutive_failures = 0
-        if self.cache and all(proposal_error(item) is None for item in proposals):
+        from goodsai.span_selector import selection_error
+        validator = selection_error if self.settings.span_selector else proposal_error
+        if self.cache and all(validator(item) is None for item in proposals):
             try:
                 self.cache.put(key, proposals, {"prompt_tokens": response.prompt_tokens,
                                                 "completion_tokens": response.completion_tokens})
@@ -914,7 +932,8 @@ class LLMExtractor:
         for item in proposals:
             with self.lock:
                 self.stats.proposals += 1
-            reason = proposal_error(item)
+            from goodsai.span_selector import selection_error, candidate_from_id
+            reason = selection_error(item) if self.settings.span_selector else proposal_error(item)
             if reason:
                 with self.lock:
                     self.stats.rejected[reason] += 1
@@ -929,7 +948,11 @@ class LLMExtractor:
                 with self.lock:
                     self.stats.rejected["llm_unknown_attribute"] += 1
                 continue
-            candidate, reason = ground(product, attr, item["value"], item["quote"], self.config, gate=gate)
+            if self.settings.span_selector:
+                candidate, reason = candidate_from_id(product, item, self.config,
+                                                     max_spans=self.settings.selector_max_spans, gate=gate)
+            else:
+                candidate, reason = ground(product, attr, item["value"], item["quote"], self.config, gate=gate)
             if reason:
                 rejected[attr].append(reason)
                 with self.lock:

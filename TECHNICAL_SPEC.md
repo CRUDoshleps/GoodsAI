@@ -260,3 +260,8 @@ prediction v0.1 и review/abstain остаётся прежним; подроб�
 LLM-006: выключенный по умолчанию source-block planner сохраняет original offsets;
 недоказанная полнота означает полный контекст, превышение budget — abstain.
 Контракт prediction прежний; описание: docs/CONTEXT_PLANNER.md.
+
+LLM-005: opt-in selector принимает только attribute/span_id|null; значение
+собирается из исходного span и проходит общий gate на полном source.
+Неполный индекс даёт abstain; server constrained generation не заявляется.
+Подробности: docs/SPAN_SELECTOR.md.

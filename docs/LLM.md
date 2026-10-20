@@ -277,3 +277,7 @@ Versioned exact-cache, TTL, single-flight и аудит без вызовов: [
 ## Source context LLM-006
 
 Отбор исходных блоков, full fallback и отказ по budget: [CONTEXT_PLANNER](CONTEXT_PLANNER.md).
+
+## Span selector LLM-005
+
+Клиентский enum ID, source-only нормализация и ограничения E1: [SPAN_SELECTOR](SPAN_SELECTOR.md).
