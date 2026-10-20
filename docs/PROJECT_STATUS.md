@@ -5,7 +5,9 @@
 исследования, reviews и task board остаются в GitHub. GitHub/Gitea SHA теперь
 различаются; соответствие и hashes — в submission-manifest.json. Старая история
 сохраняется, новые development commits не становятся родителями Gitea commits.
-Публикация и проверки будут зафиксированы в REL-005 #115; VM не меняется.
+Локально: 368 основных tests на GitHub candidate и экспортированном checkout,
+9 publication boundary tests, все относительные Markdown-ссылки проверены.
+REL-005 #115 — REVIEW, ожидаются CI и реальная публикация; VM не меняется.
 
 # Состояние проекта
 

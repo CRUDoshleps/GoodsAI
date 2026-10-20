@@ -3,11 +3,13 @@ from contextlib import redirect_stdout
 import hashlib
 import io
 import json
+import posixpath
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.parse import unquote, urlsplit
 
 from scripts.release import publish_gitea as publication
 
@@ -79,6 +81,27 @@ class SubmissionTests(unittest.TestCase):
         quickstart = files["docs/QUICKSTART.md"][1].decode()
         self.assertIn(f"{publication.SOURCE_REPOSITORY}/blob/{self.source}/docs/research/results.md#limits", quickstart)
         self.assertIn("[API](RESPONSES.md)", quickstart)
+
+    def test_current_repository_export_has_working_links_and_unchanged_runtime(self):
+        source = publication.resolve(PROJECT, "HEAD")
+        files = publication.submission_files(PROJECT, source)
+        for name in ("AGENTS.md", "CONTRIBUTING.md", "TASKS.md", "RESEARCH.md", "docs/PROJECT_STATUS.md"):
+            self.assertNotIn(name, files)
+        self.assertFalse(any(name.startswith(("docs/research/", "docs/reviews/", ".github/")) for name in files))
+        for name, (_, data) in files.items():
+            if name.endswith(".py"):
+                self.assertEqual(data, publication.git(PROJECT, "show", f"{source}:{name}"), name)
+            if not name.endswith(".md"):
+                continue
+            for match in publication.LINK.finditer(data.decode("utf-8")):
+                url = urlsplit(match[2])
+                if url.scheme or url.netloc or not url.path or url.path.startswith("/"):
+                    continue
+                target = posixpath.normpath(posixpath.join(posixpath.dirname(name), unquote(url.path)))
+                present = target in files or any(path.startswith(target.rstrip("/") + "/") for path in files)
+                self.assertTrue(present, f"Broken submission link in {name}: {match[2]}")
+        self.assertIn(b"](docs/QUICKSTART.md)", files["README.md"][1])
+        self.assertIn(b"](../../docs/QUICKSTART.md)", files[publication.README_SOURCE][1])
 
     def test_migration_is_fast_forward_and_manifest_matches_every_file(self):
         before = self.git("status", "--porcelain")
