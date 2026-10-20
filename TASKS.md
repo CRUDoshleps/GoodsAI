@@ -166,7 +166,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ML-002 | [#58](https://github.com/CRUDoshleps/GoodsAI/issues/58) | P1 | BLOCKED | ML/аналитик | — | — | Предлагать категорию по тексту с безопасным отказом; зависимости в Issue |
-| LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | IN_PROGRESS | LLM/backend | Codex (e345ee) | `llm/llm-004-exact-cache` | 20.10.2026: claim по прямому поручению; реализация opt-in, validation/keep gate отдельно |
+| LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | REVIEW | LLM/backend | Codex (e345ee) | `llm/llm-004-exact-cache` | 20.10.2026: claim по прямому поручению; реализация opt-in, validation/keep gate отдельно |
 | PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | BLOCKED | product/backend | — | — | Управлять словарями через draft, impact и rollback; зависимости в Issue |
 | OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | BLOCKED | MLOps/аналитик | — | — | Обнаруживать дрейф потока относительно frozen baseline; зависимости в Issue |
 | PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | BLOCKED | product/аналитик | — | — | Приоритизировать review по риску, возрасту и спросу; зависимости в Issue |

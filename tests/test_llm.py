@@ -346,7 +346,7 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual((provider.calls, warm.report()["calls"], warm.report()["cache_hits"]), (1, 0, 1))
 
-    def test_changed_text_misses_and_tampered_entry_is_still_verified(self):
+    def test_changed_text_misses_and_tampered_entry_is_discarded(self):
         provider = FakeProvider(answer(("brand", "Zorion", "Смартфон Zorion")))
         extractor = LLMExtractor(self.config, provider, self.settings)
         extractor.predict(PHONE)
@@ -358,8 +358,8 @@ class CacheTests(unittest.TestCase):
             entry["proposals"] = [{"attribute": "brand", "value": "Vexa", "quote": "Смартфон Vexa"}]
             path.write_text(json.dumps(entry, ensure_ascii=False), encoding="utf-8")
         row = LLMExtractor(self.config, provider, self.settings).predict(PHONE)
-        self.assertIn("llm_quote_not_found", attrs(row)["brand"]["reason_codes"])
-        self.assertEqual(provider.calls, 1)
+        self.assertEqual(attrs(row)["brand"]["value"], "Zorion")
+        self.assertEqual(provider.calls, 2)
 
     def test_corrupted_entry_is_a_miss(self):
         provider = FakeProvider(answer())
