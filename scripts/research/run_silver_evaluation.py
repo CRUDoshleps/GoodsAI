@@ -178,7 +178,7 @@ def markdown(report):
         "Top-30 is a metadata ranking, not 30 implemented schemas. Current runtime supports two categories. Seller/brand crossings are disclosed; this split is not seller-disjoint.",
         "Closed test was not evaluated. Old validation is feedback. A catalog mismatch may be a catalog error and requires adjudication.",
         "Calibration: " + report["calibration"]["status"] + ". Any fitted score remains offline and does not establish true correctness probability.",
-        "Current known adversarial failure RED SOLUTION/color remains outside this evaluator; this report does not certify release readiness.", "",
+        "The earlier RED SOLUTION/color finding is historical; consult dated regression evidence. This silver report alone does not certify release readiness.", "",
         "Reproduction: docs/research/silver_evaluation_protocol.md and docs/SILVER_EVALUATION.md."]
     return "\n".join(lines) + "\n"
 
