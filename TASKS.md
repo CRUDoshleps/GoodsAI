@@ -137,7 +137,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| SPEC-002 | [#35](https://github.com/CRUDoshleps/GoodsAI/issues/35) | P0 | READY | product/QA | — | — | SPEC-001 принята через PR #140, spec-team-v1; матрица подтверждённых/командных сценариев с явным source status; неизвестные и нереализованные пути не считать покрытыми; нужен отдельный claim |
+| SPEC-002 | [#35](https://github.com/CRUDoshleps/GoodsAI/issues/35) | P0 | IN_PROGRESS | product/QA | urasha / Codex (сессия Влада) | `qa/spec-002-scenario-matrix` | 20.10.2026: исполняемая матрица spec-team-v1, внешний CLI/HTTP без packaged examples, видимые пробелы и воспроизводимый отчёт; существующие данные/контракт сохраняются |
 | DATA-002 | [#36](https://github.com/CRUDoshleps/GoodsAI/issues/36) | P0 | BLOCKED | data engineer/security | — | — | seller attributes без target leakage и с provenance; зависимости: SPEC-001, DATA-001 |
 | VER-002 | [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37) | P0 | DONE | QA/backend | urasha / Codex (сессия Влада) | `qa/ver-002-common-verifier` | PR #118 принят 20.10.2026, merge 0a1d134; claim 8a55d81; общий gate rules/LLM/cache/experimental GLiNER; CI 6/6; проверен вместе с ARCH-001: 402+3 tests, external 83/83, clean-run 11/11; reviewed development без регрессии; #10 остаётся открытой |
 | EVAL-003 | [#38](https://github.com/CRUDoshleps/GoodsAI/issues/38) | P0 | BLOCKED | аналитик/разметчик | — | — | независимый blind-пакет доказательств качества; зависимости: EVAL-001, EVAL-002 |
