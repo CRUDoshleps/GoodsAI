@@ -1,11 +1,12 @@
 # VER-002: общий verifier кандидатов
 
-Ветка `qa/ver-002-common-verifier`, Issue [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37),
-открытый [PR #118](https://github.com/CRUDoshleps/GoodsAI/pull/118) без merge.
+Issue [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37) принят в main через
+[PR #118](https://github.com/CRUDoshleps/GoodsAI/pull/118), merge `0a1d134`.
 База — `73faf07`, опубликованный claim — `8a55d81` (исправление кодировки — `eddf6a1`).
 Это завершение проверки на действующем stage contract v1 / result v0.1.
-Официальный контракт #10, изменение категорий и большой ARCH-001 рефакторинг
-этой работой не объявляются завершёнными. Новые поля JSON не добавлены.
+Официальный контракт #10 и приёмка новых реальных категорий не объявляются
+завершёнными. ARCH-001 принят отдельно (PR #119, `88a216b`): фабрика gate входит
+в [единую сборку CLI/API](ARCHITECTURE.md). Новые поля JSON не добавлены.
 
 ## Порядок проверки
 
@@ -114,8 +115,9 @@ Reviewed development (AI-assisted, уже использовался разра�
 
 Unit/integration tests проверяют настоящий rules path, fake LLM + cache replay,
 инъекцию model entities без загрузки весов, CLI/API parity и manifest reasons.
-Реальные LLM и GLiNER inference не выполнялись. ВМ и `main` не менялись;
-test reserve не открывался. На candidate `9ce6432`: 386 основных + 3 reader
+В первоначальном эксперименте реальные LLM и GLiNER inference не выполнялись,
+ВМ не менялась, candidate ещё не был слит в `main`; test reserve не открывался.
+На candidate `9ce6432`: 386 основных + 3 reader
 tests OK; external 83/83; demo 6/6 и verify; locked clean-run 11/11; pip check
 OK. Все 6 CI checks SUCCESS на Linux/Windows. Последующее изменение этого
 документа не меняет проверенный runtime.
