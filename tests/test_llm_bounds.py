@@ -299,6 +299,22 @@ class ExtractorBoundsTests(unittest.TestCase):
         row = extractor.predict(PHONE)
         self.assertIn("llm_too_many_proposals", attrs(row)["brand"]["reason_codes"])
 
+    def test_preflight_refusals_spend_no_call_or_attempt(self):
+        for base_url, key, code in [(None, None, "llm_missing_key"),
+                                    ("http://gw.example/v1", "k", "llm_endpoint_not_allowed")]:
+            with self.subTest(code=code):
+                settings = LLMSettings(model="m")
+                provider = OpenAICompatibleProvider(base_url, key, settings, opener=self.no_network)
+                extractor = LLMExtractor(self.config, provider, settings)
+                row = extractor.predict(PHONE)
+                report = extractor.report()
+                self.assertEqual((report["calls"], report["attempts"], report["disabled_reason"]), (0, 0, code))
+                self.assertIn(code, attrs(row)["brand"]["reason_codes"])
+
+    @staticmethod
+    def no_network(*_args, **_kwargs):
+        raise AssertionError("network must not be used")
+
     def test_new_limits_are_validated(self):
         for kwargs in [{"request_deadline_seconds": 0.5}, {"request_deadline_seconds": 901},
                        {"max_response_bytes": 100}, {"max_response_bytes": 1.5}, {"max_proposals": 0}]:
