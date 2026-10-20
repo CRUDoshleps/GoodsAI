@@ -1,7 +1,9 @@
-# 20.10.2026: GOV-007 — очередь следующего технического прогона
+# 20.10.2026: GOV-007 — DONE, очередь следующего технического прогона
 
 По поручению Влада создана метка `review:next-checkpoint` и координатор
 [GOV-007 #121](https://github.com/CRUDoshleps/GoodsAI/issues/121), claim `5de5aab`.
+Индекс принят через [PR #126](https://github.com/CRUDoshleps/GoodsAI/pull/126),
+merge `3e78ebf`, CI 6/6 SUCCESS; Issue закрыта с `status:done`.
 Четыре новые узкие задачи: DOCS-004 #122 (публичные документы/README, P0 READY),
 EVAL-007 #123 (fresh frozen-silver baseline, P1 READY), CONF-004 #124 (реальный
 пилот категорий, P1 BLOCKED), EVAL-008 #125 (development model comparison,
