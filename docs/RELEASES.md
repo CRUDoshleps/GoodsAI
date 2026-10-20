@@ -1,144 +1,115 @@
-# Разработка в GitHub и релизы в Gitea
+# Разработка в GitHub и сдача в Gitea
 
 ## Назначение репозиториев
 
 | Remote | Сервис | Назначение |
 | --- | --- | --- |
-| `work` | GitHub | задачи, feature-ветки, PR и основной `main` |
-| `release` | Gitea организаторов | автоматическое зеркало GitHub `main` и release tags |
+| `work` | GitHub | разработка, задачи, feature-ветки, PR, исследования и основной `main` |
+| `release` | Gitea организаторов | код, проверки, инструкции и материалы сдачи |
 
-Секреты не встраиваются в remote URL. HTTPS credential вводится интерактивно
-или через разрешённый credential manager; предпочтительный GitHub transport — SSH.
+С 20 октября Gitea публикует отфильтрованный состав сдачи, а не полное зеркало.
+GitHub SHA и Gitea SHA различаются. Связь между ними записывается в корневой
+`submission-manifest.json` Gitea и в Actions artifact `gitea-publication`.
+Секреты хранятся только в GitHub Secrets, не в remote URL и логах.
 
-## Начальная синхронизация 19 октября
+## Разработка
 
-GitHub и Gitea имели несвязанные истории. Актуальным техническим источником
-выбран Gitea `main` `48b45dc`, потому что только там есть runtime, tests и свежий
-`PROJECT_STATUS`. Прежний GitHub `main` сохранён в резервной ветке
-`legacy/github-main-before-gitea-sync-2026-10-19`. После этого актуальная
-история стала новым GitHub `main`. Старая `dev` сохранена без изменений.
+Ветка от свежего `work/main`, опубликованный claim в TASKS, реализация, PR,
+review и merge. Интегратор ждёт успешного workflow публикации перед `DONE`.
+Напрямую в `main` обоих репозиториев рабочие commits не отправляются.
 
-## Обычная разработка
+## Состав сдачи
+
+Workflow `.github/workflows/mirror-main-to-gitea.yml` вызывает
+[`publish_gitea.py`](../scripts/release/publish_gitea.py) после push в GitHub
+`main` или ручного `workflow_dispatch`.
+
+- Исполняемый Python-код `src/`, `scripts/`, `tests/`, package fixtures,
+  зависимости, production-конфиг и systemd unit сохраняются.
+- Документы, JSON/PDF/PPTX и прочие материалы включаются только по явному
+  списку `PUBLIC_FILES`. Новый Markdown-документ сам по себе не публикуется.
+- Корневой README берётся из
+  [`submission_readme.md`](../scripts/release/submission_readme.md).
+- AGENTS, CONTRIBUTING, TASKS, RESEARCH, PROJECT_STATUS, внутренние планы,
+  `docs/research/`, `docs/reviews/` и GitHub workflow/templates не включаются.
+- `scripts/research/*.py` — исполняемые инструменты оценки, подготовки и
+  сравнения, нужные тестам и воспроизведению. Они сохраняются вместе с HTML
+  human-review формой; исследовательские Markdown-записки не включаются.
+- Ссылки технических документов на исключённые файлы ведут в GitHub на точный
+  source SHA. Материалы не копируются ради сохранения ссылки.
+
+Фильтр читает только Git objects выбранного source commit. Dirty/untracked
+файлы и локальные данные не берутся. Source archive из `build_release.py`,
+собранный в Gitea, использует только отслеживаемые там файлы.
+
+Добавление документа в сдачу требует изменения `PUBLIC_FILES` и review.
+Удаление файла из списка удалит его из текущего дерева Gitea при следующей
+публикации. Runtime-код не редактируется при экспорте.
+
+## История и защита от перезаписи
+
+Первая публикация создаёт дочерний commit прежнего Gitea `main` с очищенным
+деревом. Предыдущее зеркало остаётся в истории; старые файлы доступны через
+старые commits. Это очистка текущей сдачи, не удаление истории.
+
+Последующие commits имеют единственного родителя — предыдущий Gitea commit.
+Новые GitHub commits не добавляются родителями, поэтому их внутренние файлы
+не приезжают в Gitea через новую историю. Source SHA хранится как provenance.
+
+Перед push проверяются origin marker, hashes файлов предыдущей публикации и
+то, что новый GitHub source не старее предыдущего. Неизвестная история или
+посторонняя правка Gitea останавливают job. Обычный push дополнительно защищает
+от гонки после fetch. Force push и автоматическое затирание расхождений запрещены.
+Повторная публикация того же source не создаёт нового commit.
+
+## Проверка публикации
+
+Actions summary и artifact содержат `source_sha`, `gitea_sha`,
+`previous_gitea_sha`, `tree_sha` и число файлов. В Gitea:
 
 ```bash
-git fetch work --prune
-git switch -c <type>/<task-id>-<slug> work/main
-# claim в TASKS.md, отдельный commit и push
-git push -u work HEAD
+git fetch release main
+git show release/main:submission-manifest.json
 ```
 
-PR направляется в GitHub `main`. После review интегратор сливает его, ждёт
-успешного mirror workflow и только затем ставит задачу в `DONE`.
+1. `source_sha` совпадает с ожидаемым GitHub candidate.
+2. Gitea `main` совпадает с `gitea_sha` успешного workflow.
+3. SHA-256 каждого текущего файла совпадает с `files_sha256` manifest
+   (сам manifest не включает свой hash).
+4. На чистом Gitea checkout выполняются tests, внешний JSONL, API и smoke/verify.
+5. VM обновляется на **Gitea SHA** и проверяется отдельно по RUNBOOK.
 
-## Автоматическое зеркало GitHub main → Gitea main
+Публикация кода не означает deployment, независимую оценку качества или
+официальную готовность полного комплекта. Данные и predictions не публикуются
+автоматически. [ARTIFACT_BUNDLE](ARTIFACT_BUNDLE.md) описывает шесть артефактов.
 
-Workflow `.github/workflows/mirror-main-to-gitea.yml` запускается после каждого
-push в GitHub `main` и при ручном `workflow_dispatch`. Он читает
-`GITEA_USERNAME` и `GITEA_PASSWORD` из GitHub Secrets, получает Gitea `main`,
-проверяет fast-forward и только после этого выполняет push.
+## Release manifest и tags
 
-Workflow никогда не делает force push. Если в Gitea появился отдельный commit,
-job завершается ошибкой. Такой commit сначала нужно получить локально, проверить
-и включить в GitHub `main`, после чего перезапустить workflow.
+Release manifest хранит разные `work_source_sha`, `gitea_merge_sha`,
+`previous_gitea_sha`, hashes конфигурации/input/predictions/metrics, test report,
+результат VM smoke и время. Predictions создаются на том checkout, чей SHA
+записан в их manifest; нельзя заменять его SHA другого репозитория.
 
-Смена или ротация Gitea credentials требует обновления GitHub Secrets. Значения
-нельзя записывать в YAML, remote URL, Actions logs и repository variables.
+Source tag в GitHub и submission tag в Gitea указывают на соответствующие
+commits. Не отправляйте GitHub tag в Gitea: он снова перенесёт development
+историю. Release engineer сверяет оба SHA и provenance перед тегированием.
 
-## Состав release candidate
+## Hotfix, divergence и rollback
 
-Проверяемую локальную сборку выполняет
-[scripts/release/build_release.py](../scripts/release/build_release.py).
-Команды smoke/assemble/verify и frozen spec — в [ARTIFACT_BUNDLE.md](ARTIFACT_BUNDLE.md).
-Сборщик не заменяет preflight, review и deployment, не создаёт недостающие
-EDA/презентацию и не выполняет автоматический push приватных данных.
+Hotfix: Issue/claim → минимальный PR в GitHub → tests/review/merge → успешная
+публикация → VM smoke. VM не становится единственным местом правки.
 
-Release candidate — конкретный GitHub commit. Для него создаются:
+Если Gitea изменён вручную, release engineer сначала получает и проверяет diff,
+переносит полезные изменения в GitHub через PR и отдельно восстанавливает
+согласованную цепочку публикаций. Workflow не обходит эту защиту автоматически.
 
-- source SHA и clean-tree proof;
-- test report с Python/OS и exit codes;
-- demo report;
-- predictions-файл или утверждённая ссылка на него;
-- predictions manifest и SHA-256;
-- metrics report с split/provenance;
-- конфиг и versions без секретов;
-- список известных ограничений;
-- предыдущий Gitea SHA для rollback.
+Rollback VM запускает предыдущий известный Gitea SHA. Для постоянного rollback
+создаётся обычный revert в GitHub; новый source публикуется следующим Gitea
+commit. Release tags не перемещаются, история не переписывается.
 
-## Preflight
+## Историческая синхронизация
 
-1. Все release-задачи имеют `DONE` или записанный waiver.
-2. `git status` чистый, source commit существует в GitHub.
-3. Tests и demo проходят в чистом окружении.
-4. Batch run создаёт согласованную пару predictions/manifest.
-5. Количество строк и hashes сверены.
-6. Metrics принадлежат тому же commit/config/input.
-7. LLM budget, timeouts и fallback проверены, если route включён.
-8. Секреты, данные и реальные тексты отсутствуют в diff.
-9. VM проверена по `RUNBOOK.md`.
-10. Назначены release engineer и reviewer.
-
-## Фиксация релиза
-
-GitHub `main` уже публикуется в Gitea автоматически. Release engineer сначала
-убеждается, что оба `main` указывают на один commit, затем выполняет preflight,
-обновляет VM и фиксирует release manifest. Release tag можно отдельно отправить
-в оба репозитория после успешного smoke.
-
-Безопасная последовательность:
-
-```text
-fetch work + release
-verify expected GitHub SHA
-verify Gitea main equals GitHub main
-run preflight again
-tag release-YYYYMMDD-N
-push the same tag to work and release
-update VM to main SHA
-run smoke and save release report
-```
-
-Точные tag/deploy команды выполняет release engineer после проверки удалённого
-состояния. Force push и переписывание Gitea `main` запрещены.
-
-## Release manifest
-
-Минимальные поля:
-
-```json
-{
-  "release_id": "release-YYYYMMDD-N",
-  "work_source_sha": "<github-sha>",
-  "gitea_merge_sha": "<gitea-sha>",
-  "previous_gitea_sha": "<rollback-sha>",
-  "config_sha256": "<sha256>",
-  "input_sha256": "<sha256>",
-  "predictions_sha256": "<sha256>",
-  "metrics_sha256": "<sha256>",
-  "tests": {"passed": 0, "failed": 0},
-  "vm_smoke": "passed",
-  "released_at": "<ISO-8601>"
-}
-```
-
-Manifest не содержит токены, пароли, URL с credentials и реальные строки
-карточек.
-
-## Hotfix
-
-Hotfix допускается только при поломке проверяемого сервиса:
-
-1. задача `REL/BUG` в `TASKS.md`;
-2. ветка от текущего GitHub `main`;
-3. минимальная правка и regression test;
-4. PR в GitHub `main`;
-5. успешный автоматический mirror в Gitea;
-6. новый release manifest.
-
-VM никогда не становится единственным местом правки.
-
-## Rollback
-
-Для быстрого восстановления VM временно запускается на предыдущем известном
-release SHA. В GitHub `main` создаётся обычный revert commit; workflow
-fast-forward переносит его в Gitea. После этого VM обновляется на новый main и
-проверяет health/predict. Release tag не перемещается, force push не применяется.
+19 октября актуальная история Gitea `48b45dc` стала GitHub `main`; прежний GitHub
+сохранён в `legacy/github-main-before-gitea-sync-2026-10-19`. До REL-005 workflow
+публиковал один и тот же commit в оба `main`. Упоминания равенства SHA в старых
+протоколах относятся к тому периоду.

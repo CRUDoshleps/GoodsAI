@@ -1,0 +1,78 @@
+# GoodsAI
+
+Извлечение характеристик товара из названия и описания с точным evidence.
+Поддерживаются смартфоны (`761`) и чайники (`482`). CLI и HTTP API возвращают
+нормализованные значения, исходные offsets и решения `review` / `abstain`.
+По умолчанию работают правила; LLM-fallback включается явно и требует ключа.
+
+Это репозиторий сдачи. Исходный GitHub commit и SHA-256 опубликованных файлов
+указаны в [submission-manifest.json](../../submission-manifest.json).
+
+## Быстрый запуск
+
+Требуется Python 3.12+. Клонируйте с полной историей: comparison tests используют
+исторический baseline. Из корня этого checkout (Linux/macOS):
+
+```bash
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -e '.[serve,test]'
+.venv/bin/python -m pip check
+mkdir -p outputs
+cat > outputs/my-card.jsonl <<'JSON'
+{"schema_version":"0.1","sku_id":"my-phone","category_id":"761","title":"Смартфон Samsung Orbit X73 12/512GB белый","description":"Экран 6,4 дюйма. Аккумулятор 4600 мАч."}
+JSON
+.venv/bin/python -m goodsai.cli predict --input outputs/my-card.jsonl --output outputs/my-predictions.jsonl
+```
+
+Ожидаются `processed`, Samsung, Orbit X73, 12 GB RAM, 512 GB storage,
+6.4 inch, 4600 mAh, белый; все найденные значения имеют `decision=review`.
+Predictions и paired manifest записываются в `outputs/`.
+Можно заменить название и описание своими текстами. Готовые vendor/model/params
+во входе запрещены.
+
+Полный сценарий, команды PowerShell, проверка manifest и отрицательные примеры:
+[QUICKSTART](../../docs/QUICKSTART.md). Ответы и действия оператора:
+[RESPONSES](../../docs/RESPONSES.md).
+
+HTTP API:
+
+```bash
+.venv/bin/python -m goodsai.api
+# GET http://127.0.0.1:8000/health
+# POST http://127.0.0.1:8000/predict ; Swagger: /docs
+```
+
+## Проверка
+
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m unittest discover -s scripts/research -p 'test_*.py' -v
+.venv/bin/python scripts/release/external_acceptance.py --help
+.venv/bin/python -m goodsai.demo --output-dir outputs/demo-first-run
+.venv/bin/python scripts/release/build_release.py smoke --output-dir outputs/release/smoke-first
+.venv/bin/python scripts/release/build_release.py verify --bundle outputs/release/smoke-first
+```
+
+На Windows используйте `.\.venv\Scripts\python.exe` и `$env:PYTHONUTF8='1'`.
+Smoke проверяет упаковку на синтетике, а не качество реального каталога.
+Исполняемые инструменты подготовки/оценки в `scripts/research/` нужны тестам
+и воспроизведению; входные датасеты и приватные результаты в Git не входят.
+
+## Документация и материалы сдачи
+
+- [Технический контракт](../../TECHNICAL_SPEC.md), [архитектура](../../docs/ARCHITECTURE.md).
+- [Конфигурация](../../docs/CONFIGURATION.md), [production-пример](../../configs/production.example.json).
+- [Эксплуатация](../../docs/RUNBOOK.md), [LLM: opt-in, бюджет, fallback](../../docs/LLM.md).
+- [Оценка](../../docs/EVALUATION.md), [результаты и provenance](../../docs/RESULTS.md).
+- [Silver-метрики](../../reports/metrics.md), [статистика прогона](../../reports/run_stats.json).
+- [Checkpoint: EDA, метрики, PDF-презентация](../../docs/delivery/2026-10-19/README.md).
+- [Продуктовая презентация](../../docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).
+- [Сборка и проверка шести артефактов](../../docs/ARTIFACT_BUNDLE.md).
+
+## Ограничения
+
+Поддерживаются две категории. `auto_accept` выключен, confidence — эвристика.
+Development и silver-метрики не являются независимым human test.
+Сравнительное качество LLM и encoder на реальном каталоге не подтверждено.
+Реальные данные, gold, predictions, модели и секреты предоставляются отдельно
+по согласованному процессу; в Git их нет.
