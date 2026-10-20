@@ -154,6 +154,18 @@ class PairedTests(unittest.TestCase):
 
 
 class PilotTests(unittest.TestCase):
+    def test_source_param_projection_excludes_conflicts_and_unrequested_targets(self):
+        from collections import Counter
+        from scripts.research.prepare_category_pilot import project_params
+        counts = Counter()
+        result = project_params([{"@name": "RAM", "#text": " 8 ", "@unit": "GB"},
+                                 {"@name": "RAM", "#text": "16", "@unit": "GB"},
+                                 {"@name": "Color", "#text": "black"},
+                                 {"@name": "vendor", "#text": "private-target"}], ["RAM", "Color"], counts)
+        self.assertEqual(result, [{"name": "Color", "value": "black", "unit": None}])
+        self.assertEqual(counts["conflicting_param_name_excluded"], 1)
+        self.assertNotIn("private-target", json.dumps(result))
+
     def train(self, root, categories=("new-a", "new-b", "new-c", "761")):
         train, split, traffic = [root / x for x in ("train.jsonl", "split.json", "traffic.json")]
         data = [{"sku_id": f"{cat}-{i}", "category_id": cat, "title": "invented only", "description": None,
