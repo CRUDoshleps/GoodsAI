@@ -132,6 +132,18 @@ Runtime, VM, модели и приватные данные в GOV-006 не м�
 
 Актуально на 19 октября 2026 года.
 
+## DOCS-003: запуск с нуля и объяснение ответов — REVIEW
+
+Ветка `docs/docs-003-own-jsonl-quickstart`, владелец Глеб Алферов, задача #101.
+[QUICKSTART](QUICKSTART.md): клон → установка → свой JSONL из пяти карточек →
+predict → проверка manifest по SHA-256 → HTTP `/predict` → opt-in LLM без ключа.
+Linux-вариант выполнен в новом клоне `7aec082` (CPython 3.12.3), выводы в
+документе — из этого прогона; PowerShell-вариант здесь не запускался, его шаги
+покрывает CI `external-acceptance` на Windows. [RESPONSES](RESPONSES.md):
+статусы, решения, reason codes rules/relation/LLM, ошибки HTTP и exit codes с
+действием оператора. README больше не использует packaged examples в основном
+batch-примере; устаревшие утверждения о LLM-маршруте и числе тестов обновлены.
+
 ## LLM-008: ограничения вызова LLM — REVIEW
 
 Ветка `llm/llm-008-bounded-calls`, владелец Глеб Алферов, задача #100.
