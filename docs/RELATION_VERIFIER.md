@@ -1,5 +1,9 @@
 # VER-001: связь evidence с основным товаром
 
+Продолжение VER-002: общий gate для rules/LLM/experimental GLiNER и
+`relation-1.2` с отказом на явных инструкциях/примерах ответа описаны в
+[VERIFIER](VERIFIER.md). Исторические замеры VER-001 ниже сохранены.
+
 Статус: **REVIEW**, реализация в `qa/ver-001-relation-verifier`, claim `9400302`.
 Основание: [Issue #15](https://github.com/CRUDoshleps/GoodsAI/issues/15), FR-4
 [TECHNICAL_SPEC.md](../TECHNICAL_SPEC.md). Это дополнение к проверкам raw evidence,

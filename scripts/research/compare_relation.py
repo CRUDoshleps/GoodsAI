@@ -1,7 +1,7 @@
 """Offline guard ablation on reviewed development only; no test/LLM access.
 
 Both methods use the same frozen package/candidates. 'before' bypasses only
-RelationVerifier construction/reason in the isolated worker, never in CLI/API runtime.
+RelationVerifier.reason in the isolated worker, never in CLI/API runtime.
 """
 import argparse
 from collections import Counter
@@ -25,7 +25,7 @@ def worker(package, variant, source, output):
     from goodsai.relation import RelationVerifier
     config = load_config() | {"experiment_ablation": "relation:" + variant}
     if variant == "before":
-        with patch.object(RelationVerifier, "__init__", return_value=None), patch.object(RelationVerifier, "reason", return_value=None):
+        with patch.object(RelationVerifier, "reason", return_value=None):
             report = predict(source, output, config)
     else:
         report = predict(source, output, config)
