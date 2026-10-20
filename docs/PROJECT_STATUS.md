@@ -1,6 +1,11 @@
 # Состояние проекта
 
-## 20.10.2026: CONF-002 — REVIEW candidate, main не изменён
+## 20.10.2026: CONF-002 — DONE, PR #109 принят в main
+
+По прямому поручению Владислава PR #109 принят в main, merge `b99512f`.
+На head `8dc66c2` все 6 CI checks SUCCESS, конфликтов нет; Issue #24 закрыта
+с `status:done`. Ожидающие запросы reviewer сняты по указанию Владислава;
+независимое review не заявляется. Публикация в Gitea — штатным mirror workflow.
 
 Issue #24, база `1bedd07`, claim `3bddab1`, реализация `82cb134`, ветка
 `arch/conf-002-runtime-policy`. Существующий профиль расширен общими настройками
@@ -20,7 +25,7 @@ precedence, типы/unknown keys, fail-fast, secrets exclusion, CLI/API hash/se
 parity, zero/false overrides, сохранность прежней пары и ограничение trace.
 Frozen-method guards не ослаблялись: тесты, сравнивающие профиль с HEAD,
 выполнены после фиксации нового профиля. Реальные данные/gold/test reserve,
-внешние model APIs, main/Gitea и VM не изменялись. Архитектурное review — в PR.
+внешние model APIs и VM в рамках задачи не использовались и не изменялись.
 [Контракт и команды](CONFIGURATION.md#conf-002-единый-resolver-и-production-пример).
 
 ## 20.10.2026: LLM-007 — DONE, PR #107 принят в main
