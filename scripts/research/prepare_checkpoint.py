@@ -50,7 +50,7 @@ def pilot_selection(train, split, traffic, *, excluded, min_support=30, limit=3)
 
 def prepare(args):
     # Public aggregates supply expected fingerprints, not private data or fresh metrics.
-    history = json.loads((ROOT / "reports/run_stats.json").read_text())
+    history = json.loads((ROOT / "reports/run_stats.json").read_text(encoding="utf-8"))
     provenance = history["provenance"]
     sha = git("rev-parse", args.candidate + "^{commit}")
     bundle_status = "missing_private_bundle"

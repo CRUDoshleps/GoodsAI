@@ -3,6 +3,7 @@ import importlib.util
 import argparse
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -18,6 +19,9 @@ checkpoint = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(checkpoint)
 import compare_silver_baseline as comparison
 
+HAS_HISTORY = subprocess.run(["git", "-C", str(ROOT), "cat-file", "-e", "f33e3fc^{commit}"],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+
 
 def pair(sku, tp=0, fp=0, fn=0):
     return {"sku_id": sku, "attribute": "brand", "category_id": "761", "method": "rules",
@@ -25,6 +29,17 @@ def pair(sku, tp=0, fp=0, fn=0):
 
 
 class PairedTests(unittest.TestCase):
+    def test_shared_config_only_omits_unused_extension_defaults(self):
+        config = load_config()
+        raw = json.dumps(config, sort_keys=True)
+        shared = comparison.shared_rules_config(config)
+        self.assertEqual(shared["categories"], config["categories"])
+        self.assertEqual(shared["rule_scores"], config["rule_scores"])
+        self.assertEqual(json.dumps(config, sort_keys=True), raw)
+        config["runtime"]["llm"]["span_selector"] = True
+        with self.assertRaisesRegex(ValueError, "non_default_llm_extension"):
+            comparison.shared_rules_config(config)
+
     def test_gains_do_not_cancel_regressions(self):
         old = [pair("gain", fn=1), pair("loss", tp=1), pair("wrong", fn=1)]
         new = [pair("gain", tp=1), pair("loss", fn=1), pair("wrong", fp=1, fn=1)]
@@ -69,6 +84,7 @@ class PairedTests(unittest.TestCase):
             self.assertEqual(manifest["llm_calls"], 0)
             self.assertEqual(len(list(read_jsonl(a))), 1)
 
+    @unittest.skipUnless(HAS_HISTORY, "requires historical GitHub runtime; absent from sanitized Gitea history")
     def test_historical_runtime_accepts_its_frozen_config(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -142,7 +158,7 @@ class FrozenPopulationTests(unittest.TestCase):
         bundle, audit = root / "bundle", root / "audit"
         bundle.mkdir()
         audit.mkdir()
-        config = json.loads(comparison.git("show", "f33e3fc:src/goodsai/baseline.json"))
+        config = json.loads(comparison.git("show", "f33e3fc:src/goodsai/baseline.json")) if HAS_HISTORY else load_config()
         product = Product("synthetic-card", "761", "Samsung").as_dict()
         member = {"sku_id": "synthetic-card", "category_id": "761", "family_id": "synthetic-family",
                   "split": "development", "quarantine_reasons": [], "family_exposed": False}
@@ -191,6 +207,7 @@ class FrozenPopulationTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "invalid_screening_population"):
                     comparison.check_population(bundle, audit, checksum, sources)
 
+    @unittest.skipUnless(HAS_HISTORY, "requires historical GitHub runtime; absent from sanitized Gitea history")
     def test_complete_synthetic_driver_runs_both_commits_with_one_reference(self):
         (ROOT / "outputs").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as tmp:

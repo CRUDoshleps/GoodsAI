@@ -4,6 +4,7 @@ No source preparation, model calls, threshold fitting or reserve text access.
 All outputs (including error identities) must remain private.
 """
 import argparse
+from copy import deepcopy
 from datetime import datetime, timezone
 import json
 import os
@@ -17,6 +18,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts/research"))
 from audit_splits import verify as verify_audit
 from goodsai.contracts import Product
+from goodsai.config import LLM_EXTENSIONS
 from goodsai.data import digest, read_jsonl, read_predictions
 from goodsai.silver_comparison import paired_changes
 from goodsai.silver_evaluate import bootstrap, evaluate_rows
@@ -43,7 +45,7 @@ def check_population(bundle, audit, expected_hash, sources):
     verify_audit(audit)
     if digest(audit / "audit.summary.json") != manifest["source_sha256"]["audit"]:
         raise ValueError("audit_not_bound_to_bundle")
-    policy = json.loads((bundle / "policy.json").read_text())
+    policy = json.loads((bundle / "policy.json").read_text(encoding="utf-8"))
     # The policy records all actual preparation sources, including exposure ledgers.
     # Never read reserve contents here; the audit verifies its original checksum.
     paths = {name: Path(path) for name, path in sources.items()}
@@ -118,7 +120,7 @@ def runtime_run(sha, config, input_path, output):
                 # Do not forward arbitrary child output, which could include card content.
                 raise ValueError("isolated_runtime_failed_" + sha[:12])
             for name in ("cold", "warm"):
-                m = json.loads((output / (name + ".manifest.json")).read_text())
+                m = json.loads((output / (name + ".manifest.json")).read_text(encoding="utf-8"))
                 if m["git_commit"] != sha or m["git_dirty"] or m["llm_calls"]:
                     raise ValueError("runtime_identity_or_route_mismatch")
             if digest(output / "cold.jsonl") != digest(output / "warm.jsonl"):
@@ -126,6 +128,22 @@ def runtime_run(sha, config, input_path, output):
         finally:
             subprocess.run(["git", "-C", str(ROOT), "worktree", "remove", "--force", str(checkout)],
                            check=True, capture_output=True)
+
+
+def shared_rules_config(config):
+    """Remove only default, unused LLM extensions unknown to historical loaders.
+
+    Both runtimes receive this exact same file; the current loader restores its
+    own default extension keys. No category, dictionary or rule value changes.
+    """
+    result = deepcopy(config)
+    llm = result.get("runtime", {}).get("llm", {})
+    for key, default in LLM_EXTENSIONS.items():
+        if key in llm:
+            if llm[key] != default:
+                raise ValueError("non_default_llm_extension_in_rules_comparison")
+            del llm[key]
+    return result
 
 
 def run(args):
@@ -142,7 +160,7 @@ def run(args):
     baseline = git("rev-parse", args.baseline + "^{commit}")
     candidate = git("rev-parse", args.candidate + "^{commit}")
     output = private_output(args.output_dir)
-    dump(output / "config.json", policy["config"])
+    dump(output / "config.json", shared_rules_config(policy["config"]))
     freeze = {"schema": "goodsai-frozen-comparison-1", "created_utc": datetime.now(timezone.utc).isoformat(),
               "baseline_sha": baseline, "candidate_sha": candidate,
               "evaluator_checkout_sha": git("rev-parse", "HEAD"),
@@ -150,6 +168,7 @@ def run(args):
               "bundle_manifest_sha256": args.bundle_sha256,
               "audit_sha256": digest(audit / "audit.summary.json"), "seed": SEED,
               "bootstrap_repeats": args.repeats, "config_file_sha256": digest(output / "config.json"),
+              "shared_config_projection": "only_default_unused_llm_extensions_omitted_for_historical_loader",
               "evaluator_sha256": digest(ROOT / "src/goodsai/silver_evaluate.py"),
               "support_matcher_sha256": digest(ROOT / "src/goodsai/silver_support.py"),
               "driver_sha256": digest(Path(__file__)), "external_calls": "forbidden",
@@ -165,7 +184,7 @@ def run(args):
         reports[name], pairs[name], groups[name] = report, pair, group
         resources[name] = {}
         for temperature in ("cold", "warm"):
-            m = json.loads((target / (temperature + ".manifest.json")).read_text())
+            m = json.loads((target / (temperature + ".manifest.json")).read_text(encoding="utf-8"))
             if m["input_sha256"] != digest(bundle / "input.jsonl"):
                 raise ValueError("runtime_input_mismatch")
             resources[name][temperature] = {k: m.get(k) for k in (
@@ -197,7 +216,7 @@ def run(args):
     lines += ["", report["recommendation"], "", json.dumps(changes["counts"], sort_keys=True),
               "", "Per-attribute/category, unknown/conflict, coverage, rare slices and CI: run_stats.json.",
               "Paired identities and prediction files are private. Historical reports were not overwritten."]
-    (output / "metrics.md").write_text("\n".join(lines) + "\n")
+    (output / "metrics.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     dump(output / "manifest.json", {"schema": "goodsai-frozen-comparison-output-1", "artifacts": {
         p.relative_to(output).as_posix(): digest(p) for p in sorted(output.rglob("*"))
         if p.is_file() and not p.name.startswith(".")}})
