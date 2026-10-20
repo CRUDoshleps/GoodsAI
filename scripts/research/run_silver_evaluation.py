@@ -97,6 +97,9 @@ def run(args):
             "per_attribute": candidate["per_attribute"], "per_category": candidate["per_category"],
             "slices": candidate["slices"], "resources": public_runtime(candidate_manifest),
             "actual_producer": {k: candidate_manifest.get(k) for k in ("git_commit", "code_sha256", "config_sha256", "effective_config_sha256")},
+            "brand_model": {k: candidate_manifest.get("brand_model", {}).get(k) for k in (
+                "cards", "model_calls", "failures", "model_seconds", "accepted_brand_candidates",
+                "first_model_call_including_lazy_load_seconds", "checkpoint_revision", "policy", "weights_sha256", "artifact_manifest_sha256")},
             "usage": public_usage(candidate_manifest)}
         if name == "llm" and not (candidate_manifest.get("llm_calls", 0) or candidate_manifest.get("llm", {}).get("cache_hits", 0)):
             variants[name]["status"] = "route_not_exercised"

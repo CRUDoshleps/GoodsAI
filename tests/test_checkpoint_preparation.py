@@ -29,6 +29,22 @@ def pair(sku, tp=0, fp=0, fn=0):
 
 
 class PairedTests(unittest.TestCase):
+    def test_brand_measurement_counts_actual_diagnostics(self):
+        from scripts.research.run_brand_screening import MeasuredHybrid
+        class ExistingHybridStub:
+            last_diagnostics = {"model_called": True, "model_seconds": 2.5}
+            def predict(self, product, run_id):
+                return {"attributes": [{"method": "model", "value": "invented-brand"}]}
+        stats = dict(cards=0, model_calls=0, failures=0, model_seconds=0.0,
+                     first_model_call_including_lazy_load_seconds=None, accepted_brand_candidates=0)
+        measured = MeasuredHybrid(ExistingHybridStub(), stats)
+        measured.predict(None, "synthetic")
+        measured.predict(None, "synthetic")
+        self.assertEqual(stats["model_calls"], 2)
+        self.assertEqual(stats["first_model_call_including_lazy_load_seconds"], 2.5)
+        self.assertEqual(stats["accepted_brand_candidates"], 2)
+        self.assertEqual(stats["model_seconds"], 5)
+
     def test_shared_config_only_omits_unused_extension_defaults(self):
         config = load_config()
         raw = json.dumps(config, sort_keys=True)
