@@ -11,7 +11,7 @@ from goodsai.model_rules import DESCRIPTOR, ModelRules
 from goodsai.text import visible_view
 
 
-VERSION = "relation-1.1"
+VERSION = "relation-1.2"
 ACCESSORY = r"(?:чехо?л\w*|кабел\w*|зарядн\w*\s+устройств\w*|защитн\w*\s+стекл\w*|пленк\w*|плёнк\w*|крышк\w*|подставк\w*|запчаст\w*|адаптер\w*|case|cover|cable|charger)"
 PRIMARY = r"(?:смартфон\w*|телефон\w*|электрочайник\w*|чайник\w*|smartphone|phone|kettle)"
 # An explicit proper-name head, not a lookup for a particular manufacturer.
@@ -43,6 +43,66 @@ ATTRIBUTE_TERMS = {
     "power_w": r"мощност\w*|power",
 }
 
+# Explicit metatext only. A normal 'инструкция в комплекте' or JSON-formatted
+# seller specification is not by itself a command/example of an output.
+DIRECTIVE = re.compile(
+    r"\b(?:игнорируй\w*\s+(?:правил\w*|предыдущ\w*|инструкц\w*)|"
+    r"(?:верни|выведи|сгенерируй|напиши)\s+(?:\w+\s+){0,3}"
+    r"(?:бренд|модел\w*|батаре\w*|мощност\w*|цвет|json|ответ|атрибут\w*)|"
+    r"ignore\s+(?:previous|all|the)\s+(?:instructions|rules)|"
+    r"(?:return|output|generate)\s+(?:the\s+)?(?:brand|model|battery|power|colou?r|json|answer))\b", re.I)
+META_LABEL = re.compile(
+    r"\b(?:служебн\w*\s+(?:вставк\w*|инструкц\w*|команд\w*)|"
+    r"(?:system|assistant|developer)\s*:|"
+    r"(?:пример|образец)\s+(?:json|ответа|вывода)|"
+    r"(?:example|sample)\s+(?:json|output|response))", re.I)
+
+
+def metatext_spans(text):
+    """Mark explicit instruction clauses / labeled balanced JSON examples once.
+
+    Sentence/HTML-block/line boundaries end a command. A labeled JSON example
+    can cross these boundaries, but only up to its balanced closing delimiter.
+    This is bounded syntactic attachment, not general prompt-injection detection.
+    """
+    spans = []
+    markers = sorted(list(DIRECTIVE.finditer(text)) + list(META_LABEL.finditer(text)), key=lambda m: m.start())
+    for marker in markers:
+        if spans and marker.start() < spans[-1][1]:
+            continue
+        end = len(text)
+        for boundary in BOUNDARY.finditer(text, marker.end()):
+            end = boundary.start()
+            break
+        # A labeled JSON example remains an example across embedded newlines.
+        if META_LABEL.fullmatch(marker.group()):
+            tail = re.match(r"\s*[:=]?\s*(?:```(?:json)?\s*)?([\[{])", text[marker.end():], re.I)
+            if tail:
+                begin = marker.end() + tail.start(1)
+                end = len(text)  # An unterminated explicit example is not product facts.
+                stack, quoted, escaped = [], False, False
+                for index in range(begin, len(text)):
+                    char = text[index]
+                    if quoted:
+                        if escaped:
+                            escaped = False
+                        elif char == "\\":
+                            escaped = True
+                        elif char == '"':
+                            quoted = False
+                    elif char == '"':
+                        quoted = True
+                    elif char in "[{":
+                        stack.append(char)
+                    elif char in "]}":
+                        if not stack or (stack.pop(), char) not in {("[", "]"), ("{", "}")}:
+                            break
+                        if not stack:
+                            end = index + 1
+                            break
+        spans.append((marker.start(), end))
+    return spans
+
 
 class RelationVerifier:
     """Prepare visible/raw maps once per product, then assess each candidate.
@@ -51,7 +111,7 @@ class RelationVerifier:
     either side. Rejected candidates never compete with supported main-product
     facts. A rejection does not assert the opposite fact.
     """
-    def __init__(self, product: Product, config: dict | None = None):
+    def __init__(self, product: Product, config: dict | None = None, *, models=None):
         self.views = {}
         for field in ("title", "description"):
             text, positions = visible_view(getattr(product, field) or "")
@@ -64,9 +124,11 @@ class RelationVerifier:
         title = self.views["title"][0]
         self.accessory_title = bool(TITLE_ACCESSORY.search(title))
         config = load_config() if config is None else config
-        models = ModelRules(config)
+        models = ModelRules(config) if models is None else models
         self.name_spans = {}
+        self.metatext = {}
         for field, (text, _, _, _) in self.views.items():
+            self.metatext[field] = metatext_spans(text)
             spans = [m.span('name') for m in NAME_LABEL.finditer(text)]
             if product.category_id in config['category_profiles']:
                 spans.extend((a, b) for a, b, _ in models.spans(product.category_id, field, text))
@@ -95,6 +157,8 @@ class RelationVerifier:
             return "relation_nonvisible_evidence"
         if self.accessory_title:
             return "relation_accessory_product"
+        if any(start < b and end > a for a, b in self.metatext[candidate.field]):
+            return "relation_instruction_or_example"
         if candidate.attribute == 'color' and any(start < b and end > a for a, b in self.name_spans[candidate.field]):
             return 'relation_name_token'
 
