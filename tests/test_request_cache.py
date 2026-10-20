@@ -5,6 +5,11 @@ import tempfile
 import threading
 import time
 import unittest
+import json
+import os
+import subprocess
+import sys
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest.mock import patch
 
 from goodsai.llm import LLMExtractor, LLMSettings, cache_key
@@ -14,6 +19,56 @@ from test_llm import PHONE, FakeProvider, answer, attrs
 
 
 class ExactRequestTests(unittest.TestCase):
+    def test_separate_processes_share_one_physical_provider_call(self):
+        calls=[]
+        class Handler(BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.rfile.read(int(self.headers['Content-Length']))
+                calls.append(1)
+                time.sleep(.1)
+                payload=json.dumps({'choices':[{'message':{'content':answer(('brand','Zorion','Zorion'))}}],
+                                    'usage':{'prompt_tokens':12,'completion_tokens':3},'model':'stub'}).encode()
+                self.send_response(200);self.send_header('Content-Length',str(len(payload)))
+                self.send_header('Content-Type','application/json');self.end_headers();self.wfile.write(payload)
+            def log_message(self,*args):pass
+        server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
+        worker=threading.Thread(target=server.serve_forever,daemon=True);worker.start()
+        try:
+            with tempfile.TemporaryDirectory() as folder:
+                script='''
+import json,sys,time
+from pathlib import Path
+from goodsai.llm import LLMExtractor,LLMSettings,OpenAICompatibleProvider
+from goodsai.contracts import Product,load_config
+root=Path(sys.argv[1]);ident=sys.argv[2]
+settings=LLMSettings(model='stub',cache_dir=root/'cache',budget_ledger=root/'budget.json')
+provider=OpenAICompatibleProvider(sys.argv[3],'synthetic-test-key',settings)
+(root/('ready-'+ident)).touch()
+while not (root/'go').exists():time.sleep(.01)
+row=LLMExtractor(load_config(),provider,settings).predict(Product(ident,'761','Смартфон Zorion QX-900',source_flags=('synthetic',)))
+print(json.dumps({'sku':row['sku_id'],'brand':next(a['value'] for a in row['attributes'] if a['attribute']=='brand')}))
+'''
+                env=dict(os.environ,PYTHONUTF8='1')
+                processes=[subprocess.Popen([sys.executable,'-c',script,folder,str(i),f'http://127.0.0.1:{server.server_port}'],
+                                           stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=env) for i in range(2)]
+                try:
+                    deadline=time.monotonic()+15
+                    while len(list(Path(folder).glob('ready-*')))<2 and time.monotonic()<deadline:time.sleep(.01)
+                    self.assertEqual(len(list(Path(folder).glob('ready-*'))),2)
+                    (Path(folder)/'go').touch()
+                    rows=[]
+                    for process in processes:
+                        stdout,stderr=process.communicate(timeout=15)
+                        self.assertEqual(process.returncode,0,stderr.decode(errors='replace'));rows.append(json.loads(stdout))
+                    self.assertEqual(len(calls),1)
+                    self.assertEqual({r['sku'] for r in rows},{'0','1'})
+                    self.assertTrue(all(r['brand']=='Zorion' for r in rows))
+                finally:
+                    for process in processes:
+                        if process.poll() is None:process.kill();process.communicate()
+        finally:
+            server.shutdown();server.server_close();worker.join(timeout=2)
+
     def test_exact_fingerprint_and_namespace_mutations(self):
         config, settings = load_config(), LLMSettings(model='m')
         key = cache_key(PHONE, ['brand'], config, settings)

@@ -1,3 +1,34 @@
+# 20.10.2026: реализации шести задач приняты, экспериментальная приёмка открыта
+
+По прямому поручению владельца реализованы #59/#66/#65/#61/#62/#60 отдельными
+claims и PR #128–#133. Все шесть PR слиты после зелёных 6/6 CI checks.
+Перед интеграционным follow-up: 431 основной test + 3 reader tests, synthetic
+browser lifecycle dictionary draft→impact→review→publish выполнен. Добавлены
+отдельные проверки single-flight между двумя процессами и точного producer
+config у drift snapshot; финальный набор/публикация фиксируются CI follow-up.
+
+- LLM-004: versioned exact cache, namespace/revision/TTL, integrity, bounded
+  single-flight, свежий downstream verifier и аудит повторов без model calls.
+- LLM-006: исходные blocks/raw offsets, неизвестная проза сохраняется;
+  negation/relations/multiple mentions → full fallback, budget overflow → abstain.
+- LLM-005: только attribute/span_id|null; source-only normalizer и общий gate;
+  enum проверяется клиентом, server constrained generation не заявляется.
+- OPS-003: локальные allowlisted агрегаты, совместимый frozen baseline,
+  uncertainty/min support/persistence/hysteresis и ручное действие для alert.
+- PRODUCT-006: severity/age ranking, oldest/rare/audit quotas, equal demand по
+  умолчанию, approved aggregate weights и локальный audit сессий оператора.
+- PRODUCT-005: UI над существующими config brands/colors, proposal/impact/review,
+  server-side RBAC, immutable version/hash/author/reviewer/publisher/date,
+  CAS publication и rollback; старые runs не переключаются автоматически.
+
+Issues остаются REVIEW: representative cache/E1/E3 keep/drop, независимая
+validation, OPS-002/PRODUCT-002/CONF-003 integration и human UX benchmark не
+выполнены и не подменены synthetic tests. Default model routes выключены;
+семантические alias, demand permissions и независимое качество не согласуются
+автоматически. Реальные данные/gold/test, платные API и VM не использовались.
+Новые эксплуатационные документы включены в явный Gitea allowlist; внутренние
+исследования/планы/reviews и task board по-прежнему не публикуются.
+
 # 20.10.2026: GOV-007 — очередь следующего технического прогона
 
 По поручению Влада создана метка `review:next-checkpoint` и координатор

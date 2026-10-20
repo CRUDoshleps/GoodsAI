@@ -166,10 +166,10 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ML-002 | [#58](https://github.com/CRUDoshleps/GoodsAI/issues/58) | P1 | BLOCKED | ML/аналитик | — | — | Предлагать категорию по тексту с безопасным отказом; зависимости в Issue |
-| LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | REVIEW | LLM/backend | Codex (e345ee) | `llm/llm-004-exact-cache` | 20.10.2026: claim по прямому поручению; реализация opt-in, validation/keep gate отдельно |
-| PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | REVIEW | product/backend | Codex (e345ee) | `product/product-005-dictionary-lifecycle` | 20.10.2026: claim по поручению; existing config dictionary lifecycle, RBAC/UI/impact/CAS/rollback |
-| OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | REVIEW | MLOps/аналитик | Codex (e345ee) | `ops/ops-003-frozen-drift` | 20.10.2026: claim по поручению; local aggregates/frozen baseline, uncertainty/hysteresis; thresholds explicit |
-| PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | REVIEW | product/аналитик | Codex (e345ee) | `product/product-006-review-priority` | 20.10.2026: claim по поручению; severity/age/rare/audit, demand off по умолчанию; UX benchmark отдельно |
+| LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | REVIEW | LLM/backend | Codex (e345ee) | `main` | 20.10.2026: PR #128 merged; exact cache v2, TTL/fingerprint и thread/process single-flight; 6 tests; representative keep gate #59 остаётся |
+| PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | REVIEW | product/backend | Codex (e345ee) | `main` | 20.10.2026: PR #133 merged; dictionary UI/RBAC/impact/immutable publish/CAS/rollback; 20 synthetic proposals, browser smoke; UX/registry integration остаются |
+| OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | REVIEW | MLOps/аналитик | Codex (e345ee) | `main` | 20.10.2026: PR #131 merged; frozen aggregate drift, Wilson/JS, redaction/hysteresis; 6 tests; OPS-002 и calibration остаются |
+| PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | REVIEW | product/аналитик | Codex (e345ee) | `main` | 20.10.2026: PR #132 merged; severity/age/rare/audit ranking + local session audit; 5 tests; PRODUCT-002/UX benchmark остаются |
 
 В существующих задачах [ML-001 #16](https://github.com/CRUDoshleps/GoodsAI/issues/16),
 [LLM-003 #25](https://github.com/CRUDoshleps/GoodsAI/issues/25),
@@ -186,8 +186,8 @@ Issue. ARCH-002 и PRODUCT-007 не задерживают существующ�
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| LLM-005 | [#65](https://github.com/CRUDoshleps/GoodsAI/issues/65) | P1 | REVIEW | LLM/NLP | Codex (e345ee) | `llm/llm-005-span-selector` | 20.10.2026: claim по поручению; selector client enum + source normalizer; E1 validation отдельно |
-| LLM-006 | [#66](https://github.com/CRUDoshleps/GoodsAI/issues/66) | P1 | REVIEW | LLM/NLP | Codex (e345ee) | `llm/llm-006-source-context` | 20.10.2026: claim по поручению; opt-in raw blocks, full fallback, E3 gate отдельно |
+| LLM-005 | [#65](https://github.com/CRUDoshleps/GoodsAI/issues/65) | P1 | REVIEW | LLM/NLP | Codex (e345ee) | `main` | 20.10.2026: PR #130 merged; client enum IDs, source-only Candidate/shared gate; 5 tests; E1 recall/F1/token gate остаётся |
+| LLM-006 | [#66](https://github.com/CRUDoshleps/GoodsAI/issues/66) | P1 | REVIEW | LLM/NLP | Codex (e345ee) | `main` | 20.10.2026: PR #129 merged; raw blocks/full fallback и отказ по budget; 4 tests; E3 независимый keep gate остаётся |
 | ARCH-002 | [#67](https://github.com/CRUDoshleps/GoodsAI/issues/67) | P2 | BLOCKED | архитектор/backend | — | — | Полный private snapshot кандидатов и новый decision diff; ждёт #24, #37, #43, #44 |
 | PRODUCT-007 | [#68](https://github.com/CRUDoshleps/GoodsAI/issues/68) | P2 | BLOCKED | product/backend | — | — | Нейтральный запрос уточнения после проверенного source gap; ждёт #10, #37, #50 |
 

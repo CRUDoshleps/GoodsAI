@@ -1,12 +1,33 @@
 from copy import deepcopy
 from dataclasses import replace
 import unittest
+import json
+from pathlib import Path
+import tempfile
+from unittest.mock import patch
 from goodsai.contracts import load_config,Product
 from goodsai.verify import Extractor
 from goodsai.drift import snapshot,compare,DriftPolicy,js_divergence
 
 
 class DriftTests(unittest.TestCase):
+    def test_cli_binds_snapshot_to_the_actual_producer_config(self):
+        from goodsai.cli import predict
+        from goodsai.drift import main
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);source=root/'input.jsonl';output=root/'predictions.jsonl'
+            product=Product('synthetic','482','Чайник Polaris 1.7 л',source_flags=('synthetic',))
+            source.write_text(json.dumps(product.as_dict())+'\n',encoding='utf-8')
+            predict(source,output,self.config)
+            args=['drift','snapshot','--input',str(source),'--predictions',str(output),
+                  '--manifest',str(root/'predictions.manifest.json'),'--output',str(root/'snapshot.json')]
+            with patch('sys.argv',args):main()
+            self.assertEqual(json.loads((root/'snapshot.json').read_text(encoding='utf-8'))['count'],1)
+            changed=deepcopy(self.config);changed['brands']['Samsung'].append('Самсунг')
+            config=root/'changed.json';config.write_text(json.dumps(changed),encoding='utf-8')
+            with patch('sys.argv',args+['--config',str(config)]):
+                with self.assertRaisesRegex(ValueError,'configuration differs'):main()
+
     def setUp(self):
         self.config=load_config();self.identity={'schema':'0.1','config_sha256':'a'*64,
             'policy_sha256':'b'*64,'producer_sha256':'c'*64}
