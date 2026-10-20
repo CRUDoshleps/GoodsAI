@@ -14,6 +14,7 @@ from goodsai.contracts import load_config
 from goodsai.data import digest, read_jsonl, read_predictions
 from goodsai.silver_calibration import calibrate
 from goodsai.silver_evaluate import bootstrap, evaluate_rows
+from goodsai.silver_comparison import paired_changes
 from goodsai.silver_prepare import dump, verify_bundle, write_rows
 from goodsai.storage import prediction_snapshot
 
@@ -36,7 +37,8 @@ def run(args):
     # An immutable evaluation setup is emitted before inference.
     dump(output / "evaluation.policy.json", {"bundle_sha256": source_hash,
         "bootstrap_repeats": args.repeats, "config": config, "route": "rules_only",
-        "external_calls": "forbidden", "candidates": args.candidate})
+        "external_calls": "forbidden", "candidates": args.candidate,
+        "candidate_regression_gate": "any_new_fp_or_lost_tp_blocks_recommendation"})
     cold = predict(input_path, output / "predictions.jsonl", config)
     warm = predict(input_path, output / "repeat.jsonl", config)
     if digest(output / "predictions.jsonl") != digest(output / "repeat.jsonl"):
@@ -79,14 +81,22 @@ def run(args):
         ids = {p["sku_id"] for p in candidate_inputs}
         candidate_refs = [r for r in refs if r["sku_id"] in ids]
         candidate_meta = [m for m in metadata if m["sku_id"] in ids]
-        baseline_subset, _, baseline_groups = evaluate_rows(candidate_inputs, candidate_refs, candidate_meta,
+        baseline_subset, baseline_pairs, baseline_groups = evaluate_rows(candidate_inputs, candidate_refs, candidate_meta,
             (p for p in read_predictions(output / "predictions.jsonl") if p["sku_id"] in ids), config, args.repeats)
-        candidate, _, other = evaluate_rows(candidate_inputs, candidate_refs, candidate_meta, read_predictions(path), candidate_config, args.repeats)
+        candidate, candidate_pairs, other = evaluate_rows(candidate_inputs, candidate_refs, candidate_meta, read_predictions(path), candidate_config, args.repeats)
+        transitions, changed_pairs = paired_changes(baseline_pairs, candidate_pairs)
+        write_rows(output / (name + ".changed_pairs.private.jsonl"), changed_pairs)
+        regressions = transitions["counts"].get("new_fp", 0) or transitions["counts"].get("lost_tp", 0)
         variants[name] = {"status": "measured", "prediction_sha256": digest(path),
             "cards": len(ids), "scope": "full_frozen_population" if len(ids) == len(inputs) else "preselected_development_screening",
             "paired_rules_agreement": baseline_subset["agreement"],
             "manifest_sha256": digest(manifest_path), "agreement": candidate["agreement"],
             "paired_delta_vs_rules": bootstrap(baseline_groups, args.repeats, other=other),
+            "paired_transitions": transitions,
+            "recommendation": "blocked_regression_requires_defect" if regressions else "development_measurement_requires_cost_and_artifact_review",
+            "per_attribute": candidate["per_attribute"], "per_category": candidate["per_category"],
+            "slices": candidate["slices"], "resources": public_runtime(candidate_manifest),
+            "actual_producer": {k: candidate_manifest.get(k) for k in ("git_commit", "code_sha256", "config_sha256", "effective_config_sha256")},
             "usage": public_usage(candidate_manifest)}
         if name == "llm" and not (candidate_manifest.get("llm_calls", 0) or candidate_manifest.get("llm", {}).get("cache_hits", 0)):
             variants[name]["status"] = "route_not_exercised"
@@ -118,18 +128,23 @@ def run(args):
 
 
 def public_runtime(manifest):
-    return {k: manifest[k] for k in ["rows", "elapsed_seconds", "cards_per_second_including_io", "extractor_p50_ms", "extractor_p95_ms", "status_counts"]}
+    return {k: manifest.get(k) for k in ["rows", "elapsed_seconds", "cards_per_second_including_io", "extractor_p50_ms", "extractor_p95_ms", "peak_process_rss_bytes", "invalid_input_rows", "status_counts"]}
 
 
 def public_usage(manifest):
     raw = manifest.get("llm", {})
+    rows = manifest.get("rows")
+    cost = raw.get("cost", 0 if manifest.get("llm_calls") == 0 else None)
     # Strict allowlist: provider URL/key, prompt/cache paths and raw responses
     # cannot flow into the public report, even from a colleague's manifest.
     return {"calls": manifest.get("llm_calls"), "compute_cost": None,
-        **{k: raw[k] for k in ["model", "prompt_version", "data_policy", "calls", "retries", "cache_hits", "cost", "cost_status", "failures", "rejected", "cards_routed", "cards_without_gap", "cards_skipped_no_signal", "attributes_skipped_no_signal", "attributes_requested", "proposals", "accepted", "accepted_by_attribute", "provider_seconds"] if k in raw},
+        **{k: raw[k] for k in ["model", "prompt_version", "data_policy", "calls", "attempts", "retries", "cache_hits", "cache_overhead_seconds", "singleflight_waits", "cost", "cost_status", "failures", "rejected", "cards_routed", "cards_without_gap", "cards_skipped_no_signal", "attributes_skipped_no_signal", "attributes_requested", "proposals", "accepted", "accepted_by_attribute", "provider_seconds"] if k in raw},
         "input_tokens": raw.get("input_tokens", raw.get("prompt_tokens")),
         "output_tokens": raw.get("output_tokens", raw.get("completion_tokens")),
-        "cost": raw.get("cost", 0 if manifest.get("llm_calls") == 0 else None)}
+        "cost": cost, "cost_denominator_sku": rows,
+        "estimated_cost_per_1000_sku_in_provider_price_units": cost * 1000 / rows
+            if type(cost) in (int, float) and type(rows) is int and rows > 0 else None,
+        "billing_limitation": "provider_usage_estimate_not_invoice_unknown_failed_request_tokens_not_imputed"}
 
 
 def markdown(report):

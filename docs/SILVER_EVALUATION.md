@@ -1,5 +1,14 @@
 # EVAL-006: оценка по каталогу и offline-калибровка
 
+Для сравнения исторического producer с новым commit предусмотрен отдельный
+`scripts/research/compare_silver_baseline.py`: два изолированных Git checkout,
+один frozen bundle/config/evaluator, paired new FP/lost TP и cold/warm ресурсы.
+Он не подготавливает новый split и не вызывает model API. Команда, обязательные
+source hashes и блокеры следующего прогона описаны в
+[handoff #123/#124/#125](research/2026-10-20_checkpoint_handoff.md).
+`scripts/research/prepare_checkpoint.py` подготавливает private планы без inference;
+наличие этих инструментов не означает получения свежих метрик.
+
 Инструменты работают локально, без LLM-запросов и изменения runtime. Сохраняются
 контракт 0.1, heuristic confidence и review/abstain. Каталог — приблизительный
 эталон: отчёт измеряет согласованность с ним, а не независимое качество.

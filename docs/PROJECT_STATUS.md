@@ -1,3 +1,26 @@
+# 20.10.2026: подготовка #123/#124/#125, реальные измерения остаются заблокированы
+
+Добавлены hash-bound private handoffs, EVAL-007 comparison runner для двух
+изолированных Git worktree и paired transition diagnostics для existing silver
+candidate evaluator. До inference проверяются frozen bundle, EVAL-002 audit,
+preparation sources/exposure hashes и protected families. Сначала freeze, затем
+старый/новый rules runtime на одном input/config/reference; new FP/lost TP
+блокируют рекомендацию. Ресурсы имеют cold/warm условия и RSS; compute cost N/A.
+
+CONF-004: только deterministic train-only proposal и checklist существующего
+registry; #5/#10/#44 и утверждение mapping/families не подменены. EVAL-008:
+существующие adapters, actual producer hashes, per-category/attribute/slices,
+paired transitions, attempts/resources и usage price units; непроведённое not_run.
+
+Локально 445 tests проходят, включая реальные процессы исторического f33e3fc и
+текущего checkout на synthetic входе. Это проверка инструмента, не новый real
+baseline. SSH-доступ на VM проверен; исходный ~/project не менялся. GLiNER assets
+найдены в отдельном прежнем checkout; frozen EVAL-006 bundle, EVAL-002 audit и
+approved expanded train projection не найдены ни локально, ни при поиске
+имён соответствующих artifacts в home VM. Raw/резервные карточки не открывались,
+model API не вызывался, средства шлюза не тратились. Полные планы остаются в
+ignored outputs, внутренний handoff только в GitHub; Gitea-фильтр сохранён.
+
 # 20.10.2026: реализации шести задач приняты, экспериментальная приёмка открыта
 
 По прямому поручению владельца реализованы #59/#66/#65/#61/#62/#60 отдельными
