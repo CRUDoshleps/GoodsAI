@@ -16,6 +16,7 @@ from goodsai.rules import Candidate
 from goodsai.span_index import visible_view
 from goodsai.text import visible_span
 from goodsai.verify import Extractor, validate_candidate
+from goodsai.candidate_verifier import CandidateVerifier
 
 CHECKPOINT = '443d26d654e0324125a96bebd8e796c14ff2efe6'
 ENCODER = 'a0484667b22365f84929a935b5e50a51f71f159d'
@@ -156,6 +157,17 @@ class HybridExtractor:
             return row
         finally:
             self.last_diagnostics['model_seconds'] = time.perf_counter() - started
+        gate = CandidateVerifier(product, self.config, rules=self.rules.rules)
+        rejected = set()
+        verified = []
+        for candidate in candidates:
+            reason = gate.reason(candidate)
+            if reason:
+                rejected.add(reason)
+            else:
+                verified.append(candidate)
+        candidates = verified
+        self.last_diagnostics['rejected'] = sorted(rejected)
         if len({c.value for c in candidates}) > 1:
             brand['reason_codes'].append('conflicting_model_evidence')
         elif candidates:
@@ -164,7 +176,7 @@ class HybridExtractor:
                          rule_id=c.rule_id, reason_codes=[],
                          evidence={'field':c.field, 'start':c.start, 'end':c.end, 'text':c.text})
         else:
-            brand['reason_codes'].append('model_no_safe_candidate')
+            brand['reason_codes'].extend(sorted(rejected) or ['model_no_safe_candidate'])
         validate_prediction(row, self.config, product)
         return row
 

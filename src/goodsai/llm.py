@@ -4,7 +4,7 @@ Rules always run first. Only attributes that ended as ``not_found_by_rules`` and
 whose surface form is visible in the card (``has_signal``) are sent, in one
 request per card; cards without such gaps never reach the provider. A model answer is a *proposal*: it must quote
 the visible card text, the value must be derived from that quote by the same
-normalizer the rules use, and the candidate must pass ``validate_candidate``.
+normalizer the rules use, and the candidate must pass the shared ``CandidateVerifier``.
 Everything else is rejected with a reason code and counted. Accepted values are
 ``method="llm"``, ``decision="review"`` and a heuristic score; this module never
 produces ``auto_accept``.
@@ -39,8 +39,8 @@ from goodsai.config import default_llm_policy, validate_llm_policy
 from goodsai.normalize import NUMBER, UNITS, model_name, number, numeric
 from goodsai.rules import Candidate, bounded_alias, uncertain
 from goodsai.text import visible_view
-from goodsai.verify import Extractor, validate_candidate
-from goodsai.relation import RelationVerifier
+from goodsai.verify import Extractor
+from goodsai.candidate_verifier import CandidateVerifier
 
 PROMPT_VERSION = "llm-fill-v1"
 DATA_POLICY = "llm-data-policy-2026-10-19"
@@ -597,7 +597,7 @@ def _word_span(text: str, qs: int, qe: int, needle: str):
     return None
 
 
-def ground(product: Product, attr: str, value, quote, config: dict) -> tuple[Candidate | None, str | None]:
+def ground(product: Product, attr: str, value, quote, config: dict, *, gate=None) -> tuple[Candidate | None, str | None]:
     """Turn one proposal into a verified Candidate, or return a rejection reason code."""
     reason = proposal_error({"attribute": attr, "value": value, "quote": quote})
     if reason:
@@ -668,11 +668,8 @@ def ground(product: Product, attr: str, value, quote, config: dict) -> tuple[Can
         return None, "llm_span_not_visible"
     candidate = Candidate(attr, canonical, UNITS.get(attr), field_name, raw[0], raw[1],
                           source[raw[0]:raw[1]], LLM_SCORE, "llm." + PROMPT_VERSION)
-    try:
-        validate_candidate(candidate, product, config["categories"][product.category_id], config)
-    except (ValueError, KeyError):
-        return None, "llm_failed_verification"
-    reason = RelationVerifier(product, config).reason(candidate)
+    gate = CandidateVerifier(product, config) if gate is None else gate
+    reason = gate.reason(candidate)
     if reason:
         return None, reason
     return candidate, None
@@ -892,6 +889,7 @@ class LLMExtractor:
         grounded: dict[str, list[Candidate]] = {attr: [] for attr in gaps}
         rejected: dict[str, list[str]] = {attr: [] for attr in gaps}
         unattributed = []
+        gate = CandidateVerifier(product, self.config, rules=self.rules.rules)
         for item in proposals:
             with self.lock:
                 self.stats.proposals += 1
@@ -910,7 +908,7 @@ class LLMExtractor:
                 with self.lock:
                     self.stats.rejected["llm_unknown_attribute"] += 1
                 continue
-            candidate, reason = ground(product, attr, item["value"], item["quote"], self.config)
+            candidate, reason = ground(product, attr, item["value"], item["quote"], self.config, gate=gate)
             if reason:
                 rejected[attr].append(reason)
                 with self.lock:

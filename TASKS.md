@@ -112,7 +112,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | SPEC-002 | [#35](https://github.com/CRUDoshleps/GoodsAI/issues/35) | P0 | BLOCKED | product/QA | — | — | исполняемая матрица всех обязательных сценариев; зависимости: SPEC-001 |
 | DATA-002 | [#36](https://github.com/CRUDoshleps/GoodsAI/issues/36) | P0 | BLOCKED | data engineer/security | — | — | seller attributes без target leakage и с provenance; зависимости: SPEC-001, DATA-001 |
-| VER-002 | [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37) | P0 | BLOCKED | NLP/QA | — | — | общий evidence/relation verifier для всех кандидатов; зависимости: VER-001, SPEC-001 |
+| VER-002 | [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37) | P0 | REVIEW | QA/backend | urasha / Codex (сессия Влада) | `qa/ver-002-common-verifier` | PR #118 без merge; claim 8a55d81; общий gate rules/LLM/cache/experimental GLiNER; 386+3 tests, CI 6/6, external 83/83, clean-run 11/11; 40 reviewed development без новых FP/lost TP; #10 остаётся открытой |
 | EVAL-003 | [#38](https://github.com/CRUDoshleps/GoodsAI/issues/38) | P0 | BLOCKED | аналитик/разметчик | — | — | независимый blind-пакет доказательств качества; зависимости: EVAL-001, EVAL-002 |
 | EVAL-004 | [#39](https://github.com/CRUDoshleps/GoodsAI/issues/39) | P0 | BLOCKED | ML/аналитик | — | — | калибровка и безопасные auto-accept thresholds; зависимости: EVAL-003, CONF-001/002 |
 | EVAL-005 | [#40](https://github.com/CRUDoshleps/GoodsAI/issues/40) | P0 | BLOCKED | аналитик/ML/LLM | — | — | Pareto-сравнение качества, coverage, latency и цены; зависимости: EVAL-003, model stages |
