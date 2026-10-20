@@ -1,4 +1,51 @@
-# Результаты M1/M2 и происхождение измерений
+# Результаты и происхождение измерений
+
+## Сводка доказательств на 20.10.2026
+
+Runtime/documentation audit: код `1c64463`. Строки ниже относятся к разным
+reference и producer; это индекс, а не единая таблица сравнимого качества.
+Версия конкретного Gitea checkout записана в submission-manifest. Наличие
+исправлений/тестов не заменяет повторную оценку каталога на выбранной версии.
+
+| Доказательство | Версия / набор | Результат | Что этим не доказано |
+| --- | --- | --- | --- |
+| Внешний CLI/HTTP без packaged examples | synthetic seed `20261020`, протокол интеграции `1c64463`; [runner](../scripts/release/external_acceptance.py) | 83/83 contract checks; воспроизводится командой ниже | P/R/F1 реального каталога |
+| Чистая сборка и упаковка | locked clean-run, очищенный checkout интеграции `1c64463` | 11/11 этапов; 433 основных tests и 3 reader в интеграционном протоколе | независимая приёмка этой версии на VM, качество моделей |
+| Общий verifier + composition | ARCH-001 runtime `3d3dc49`, freeze baseline `2b0176d`; прежние 40 AI-assisted human-reviewed development | 143 TP / 0 FP / 22 FN, 224 judged / 16 excluded; A→C без дельт | independent human test; перенос на новые категории; оценка нынешнего main на этом reference заново |
+| Масштабная catalog-silver диагностика | producer `f33e3fc`, declared baseline `977c5ed`; 3037 cards / 1270 families | agreement F1 75,67%, [неизменённые агрегаты](../reports/metrics.md) и [provenance](../reports/run_stats.json) | независимая precision; значение F1 нынешнего main |
+| GLiNER brand prototype | development-эксперимент 19.10 на 80 просмотренных карточках, runtime `c3706d2` | narrow brand variant: 17 новых совпадений reference без новых brand mismatches на этом наборе; [условия](EXPERIMENTAL_GLINER.md) | independent gold и общий benchmark с нынешним LLM/registry |
+| LLM + экспериментальные routes | opt-in CLI/API, typed proposals/quotes или span IDs, shared gate, ledger/deadline/cache | интеграция и offline failure tests реализованы | измеренный сравнительный выигрыш на общем frozen reference: N/A |
+| Независимая итоговая оценка | закрытый reserve, [HUMAN_GOLD](HUMAN_GOLD.md) | N/A — не завершена | калиброванная probability и безопасный auto_accept |
+
+Малый reviewed development и catalog-silver нельзя объединять в один quality
+score. Unknown/conflict/ambiguous не переименовываются в ошибки или успехи.
+Временные и стоимостные условия каждого эксперимента находятся в его протоколе;
+нулевые API calls у rules не означают нулевую стоимость вычислений.
+
+Свежий EVAL-007 и model comparison сопровождаются отдельными задачами
+[#123](https://github.com/CRUDoshleps/GoodsAI/issues/123) и
+[#125](https://github.com/CRUDoshleps/GoodsAI/issues/125). В новой silver-диагностике
+зарегистрированы новые расхождения и потерянные совпадения `model`
+([#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)). Это требует adjudication:
+catalog mismatch не равен подтверждённой человеком ошибке, а небольшое улучшение
+aggregate F1 не отменяет regression gate. Числа этого прогона здесь не подменяют
+исторический отчёт 3037 cards и не объявляются завершённой независимой оценкой.
+
+Проверка своего checkout без приватных данных и без model API (новые каталоги):
+
+```bash
+.venv/bin/python -m scripts.release.external_acceptance --seed 20261020 --output-dir outputs/external-next
+python3.12 scripts/release/clean_run.py --output-dir outputs/clean-next
+.venv/bin/python -m goodsai.demo --output-dir outputs/demo-next
+.venv/bin/python -m goodsai.demo --verify-dir outputs/demo-next
+```
+
+В PowerShell executable — `.\.venv\Scripts\python.exe`; эквивалент clean-run —
+`.\.venv\Scripts\python.exe scripts/release/clean_run.py --output-dir outputs/clean-next`.
+`external-next` ожидает 83/83, `clean-next` — passed и 11 этапов, demo — 6/6,
+verify — verified. Эти сценарии не открывают test и не измеряют catalog P/R/F1.
+
+## Исторический индекс M1/M2, восстановленный 19.10.2026
 
 Индекс восстановлен 19.10.2026 по отчётам из Git `48b45dc` и локальным
 manifest. Это сохранённые результаты, не новый эксперимент. Реальные
@@ -152,11 +199,11 @@ seed `goodsai-m2-selection-20261018-v1`. Резерв v1 не использов
 лишь наличие metadata/blank-файла и агрегаты selection summary; сами задания
 не открывались. Человеческая blind-разметка и итоговая независимая оценка впереди.
 
-BASE-001 уже имеет runtime-реализацию (`model_rules.py`, synthetic tests,
-M1 evidence); пометка READY в общей очереди требует решения интегратора.
-Задача не объявляется DONE автором и повторная реализация не планируется.
-EVAL-001/002 остаются нужны: metadata selection/quarantine не заменяют полный
-аудит дублей и независимую human-проверку.
+На дату старого индекса приёмка BASE-001 и split audit ещё ожидалась. Позднее
+BASE-001 #21 принят через PR #105 (`71cae4b`), EVAL-002 #7 — через PR #69
+(`c49540f`). Эти изменения не пересчитывают исторические таблицы выше.
+Независимая человеческая оценка EVAL-001 остаётся отдельной задачей:
+selection/quarantine и AI-assisted review не заменяют blind human reference.
 
 ## Исходные протоколы в истории
 

@@ -11,13 +11,13 @@
 ```mermaid
 flowchart LR
     A[JSONL или POST /predict] --> B[Product.from_dict]
-    B --> C[Rules]
-    C --> D[Candidate validation]
-    D --> E{Значения согласованы?}
-    E -->|одно значение| F[Normalizer]
-    E -->|конфликт или нет кандидата| G[Abstain]
-    F --> H[Review + evidence]
-    G --> I[Prediction schema validation]
+    B --> C[Source: canonical Candidates]
+    C --> D[Общий gate: evidence, normalization, relations]
+    D --> E[Merge: review или abstain при конфликте/пропуске]
+    E --> F{LLM включена и есть допустимый gap?}
+    F -->|нет| I[Prediction schema validation]
+    F -->|да| G[Router / bounded provider / grounding / общий gate]
+    G --> H[Дополнить только unresolved gaps]
     H --> I
     I --> J[JSONL + manifest или JSON]
 ```
@@ -66,9 +66,9 @@ flowchart TD
 | Компонент | Сейчас | Следующий шаг |
 | --- | --- | --- |
 | Input contract | строгий JSON `0.1` | согласовать официальный API |
-| Preprocessing | CLI prepare, provenance, manifests | дубли, split audit, category configs |
-| Rules | работает | вынести все пороги и словари в конфиг |
-| Encoder | отсутствует | эксперимент после независимого gold |
+| Preprocessing | CLI prepare, provenance, manifests, split audit/quarantine | разрешённая train-проекция новых реальных категорий |
+| Rules | bounds/scores/limits/aliases в versioned config | новые поля и категории после приёмки |
+| Encoder | отдельный opt-in GLiNER brand prototype, default выключен | общий benchmark и независимая проверка |
 | LLM adapter | opt-in OpenAI-compatible provider, deadlines/ledger/cache | независимое измерение качества и стоимости |
 | Router | SignalRouter для eligible gaps, data policy перед router | измеряемые альтернативы маршрутизации |
 | Verifier | общий CandidateVerifier для rules/LLM/cache/experimental model | расширение по подтверждённым ошибкам |
@@ -77,29 +77,39 @@ flowchart TD
 | Storage | atomic predictions + manifest | release artifact registry |
 | API | временный FastAPI | официальный batch/transaction contract |
 
+Exact cache TTL/single-flight, source context planner и span selector уже
+реализованы как явные opt-in компоненты. Dictionary console, review priority
+и drift доступны отдельными entrypoints; это не завершённый общий кабинет
+проверки карточек. Условия и ограничения: [EXACT_CACHE](EXACT_CACHE.md),
+[CONTEXT_PLANNER](CONTEXT_PLANNER.md), [SPAN_SELECTOR](SPAN_SELECTOR.md),
+[DICTIONARY_CONSOLE](DICTIONARY_CONSOLE.md), [REVIEW_PRIORITY](REVIEW_PRIORITY.md),
+[DRIFT](DRIFT.md). Representative keep/drop и human UX приёмка ещё открыты.
+
 ## Единый Candidate
 
-Все методы должны возвращать внутренний объект одинакового смысла:
+Действующий `stages.Candidate` v1 содержит каноническое значение и raw evidence:
 
 ```text
 Candidate(
   attribute,
-  raw_value,
-  normalized_value,
+  value,
   unit,
-  source_field,
+  field,
   start,
   end,
-  evidence_text,
-  method,
-  method_version,
+  text,
   score,
-  reason_codes
+  rule_id
 )
 ```
 
+`method` и `reason_codes` относятся к публичному prediction, а не являются
+обязательными полями Candidate. Source выполняет первичную нормализацию;
+verifier независимо проверяет её связь с evidence до объединения значений.
+
 Verifier не доверяет `score` метода. Он заново проверяет поле, offsets,
-совпадение raw evidence, категорийную схему, единицу, диапазон и конфликты.
+совпадение raw evidence, категорийную схему, единицу и диапазон. После него
+merger сохраняет конфликт несовместимых значений вместо выбора по score.
 
 ## Router
 
@@ -125,8 +135,9 @@ LLM получает:
 - title и description без target metadata;
 - category ID и список нужных полей;
 - допустимые единицы/значения и инструкцию отказа;
-- требование вернуть exact quote и offsets;
-- JSON schema без свободного текста.
+- требование вернуть quote; raw offsets вычисляются локально, не берутся на веру;
+- строгую клиентскую схему ответа без дополнительных полей. В отдельном opt-in
+  span selector модель выбирает ID заранее определённого source span.
 
 Выход парсится строго. Неизвестное поле, отсутствующее evidence, несовпавший
 span, неверная единица, конфликт или превышение бюджета дают отказ. Retries
@@ -160,7 +171,7 @@ flowchart LR
 | невалидный вход | `invalid_input` без текста в логах |
 | значения конфликтуют | `abstain: conflicting_evidence` |
 | LLM недоступна/дорога | rules-result или `abstain` |
-| схема LLM неверна | reject, один ограниченный retry |
+| схема LLM неверна | reject без retry по причине ошибки схемы; rules сохраняются |
 | evidence не найден | reject |
 | запись output прервана | предыдущая согласованная пара сохраняется |
 | второй writer | явная ошибка блокировки |

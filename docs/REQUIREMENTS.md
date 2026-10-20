@@ -4,6 +4,10 @@
 с платформы хранится в
 [архиве контекста](product-stage/context/case/platform-requirements.md).
 
+Сверка реализации: **20.10.2026, код `1c64463`**. Это дата аудита, не обещание
+качества всех категорий. Версии измерений и reference отдельно указаны в
+[RESULTS](RESULTS.md); источник конкретной публикации Gitea — submission-manifest.
+
 ## Задача
 
 Автоматически извлекать из текста карточки бренд, модель и обязательные
@@ -15,15 +19,20 @@
 
 | Требование | Реализация сейчас | Долг |
 | --- | --- | --- |
-| text-only | строгий title/description контракт | согласовать seller attributes |
-| структурированный выход | JSONL/JSON schema `0.1` | официальный формат организаторов |
-| значение подтверждается текстом | exact raw evidence | семантический verifier для model/LLM |
-| нормализация | единицы, диапазоны, aliases | полные category dictionaries |
-| confidence | heuristic score | calibration и thresholds |
-| несколько категорий | смартфоны и чайники | ноутбуки и long tail |
-| ML или LLM эксперимент | отсутствует в runtime | LLM-001/002 и ROUTE-001 |
-| стоимость | manifest сообщает `llm_calls=0` | tokens, rubles и budget guard |
-| ручная проверка | решение `review` | интерфейс/очередь и feedback loop |
+| text-only | `Product.from_dict`: title/description/category, непустые seller attributes запрещены | согласовать разрешённые seller fields, не подменять их target |
+| структурированный выход | одинаковый JSONL/JSON schema `0.1` для CLI/API | официальный окончательный HTTP/batch контракт |
+| значение подтверждается текстом | общий CandidateVerifier для rules/LLM/cache/experimental GLiNER: exact raw/visible evidence, типы, единицы, роль памяти, границы модели, отрицания/совместимость/чужие сущности | семантические проверки консервативны; не гарантируют понимание любого текста |
+| нормализация | source выдаёт canonical Candidate; общий gate сверяет с evidence, aliases, units и configured bounds | приёмка новых категорий и согласованный mapping |
+| confidence | heuristic score, только `review`/`abstain` | независимая калибровка; `auto_accept` запрещён |
+| несколько категорий | default: смартфоны `761` и чайники `482`; opt-in train-only registry config v2 уже реализован | реальные новые категории/ноутбуки не приняты; synthetic 30-category test не равен качеству каталога |
+| ML/LLM в pipeline | интегрированный opt-in LLM fallback в общей сборке CLI/API; отдельный экспериментальный GLiNER для однословного бренда | сравнительная польза актуальных методов на общем reference и независимая оценка |
+| стоимость и отказы LLM | calls/physical attempts/tokens/cache/failures, pricing при заданных ценах, ledger, concurrency, deadline и byte limit | стоимость без цен N/A; compute не считается бесплатным; фактический benchmark отдельно |
+| ручная проверка | `review`, reasons/evidence; отдельная консоль brands/colors с versioning/RBAC/rollback и утилита приоритета | это не законченная общая очередь подтверждения атрибутов #19/#50 и не human UX benchmark |
+
+Проверяемые точки входа: [QUICKSTART](QUICKSTART.md), [VERIFIER](VERIFIER.md),
+[LLM](LLM.md), [ARCHITECTURE](ARCHITECTURE.md), [RESPONSES](RESPONSES.md).
+Default rules работает без model API. Synthetic acceptance проверяет внешний
+JSONL и HTTP без packaged examples; качество каталога из этого PASS не следует.
 
 ## Категорийные поля
 
@@ -32,19 +41,20 @@
 `storage_gb`; это решение команды, пока точная официальная схема не подтверждена.
 
 Для ноутбука названы бренд, процессор, RAM, накопитель, диагональ и цвет.
-Ноутбуки текущим runtime не поддерживаются. Схема чайника выбрана командой по
+Ноутбуки default-профилем не поддерживаются; реальный registry-пилот ещё не принят.
+Схема чайника выбрана командой по
 исследованию данных и не выдаётся за официальный список кейса.
 
 ## Шесть обязательных артефактов
 
 | № | Артефакт | Сейчас | Закрывающая задача |
 | --- | --- | --- | --- |
-| 1 | воспроизводимый код/ноутбук | код, CLI, API, tests есть | ENV-001, REL-001 |
-| 2 | README | переписан под текущий runtime | проверка clean VM |
-| 3 | EDA | код и агрегаты описаны | DATA-001 manifest refresh |
-| 4 | pipeline extraction | rules end-to-end работает | LLM-001, ROUTE-001 |
-| 5 | predictions по карточкам | локальный файл был создан; ART-003 проверяет упаковку и identity | ART-001 официальный файл + канал сдачи |
-| 6 | финальная презентация | есть продуктовая версия | DOCS/PRODUCT после финальных метрик |
+| 1 | воспроизводимый код/ноутбук | код, CLI/API, synthetic tests, locked clean-run | независимая приёмка выбранного SHA на целевой VM |
+| 2 | README | внешний JSONL, ожидаемый output, API и проверка артефактов | повторить на финальном окружении/профиле |
+| 3 | EDA | код, агрегаты и датированный checkpoint | актуальные source/data manifests для финального набора |
+| 4 | pipeline extraction | rules end-to-end; опциональный LLM с общим gate, schema и ограниченным provider | измеренный выбор гибрида и новых категорий |
+| 5 | predictions по карточкам | private development batch; ART-003 связывает predictions/metrics/config/EDA/report hashes | финальный согласованный набор и канал передачи реального файла |
+| 6 | финальная презентация | продуктовая и техническая checkpoint-версия 19.10 | выводы и метрики окончательного candidate |
 
 Файл predictions считается готовым только вместе с входным hash, Git SHA,
 конфигом, количеством строк и metrics report. Агрегат не заменяет сам файл.
@@ -84,5 +94,7 @@ Offline-инструмент [ART-003](ARTIFACT_BUNDLE.md) связывает э
 7. Как и куда передать крупный predictions-файл вне Git?
 8. Как считается traffic-weighted качество и какие поля clicks разрешены?
 
-До ответа реализация использует консервативный text-only контракт и явно
-маркирует внутренние решения команды.
+Официальные неизвестные условия не закрываются внутренними правилами команды.
+На каждую реальную отправку в шлюз распространяются согласованные scope данных
+и бюджет; наличие ключа не разрешает отправлять закрытый test. Текущая реализация
+сохраняет консервативный E1-контракт, а решения команды помечаются отдельно.
