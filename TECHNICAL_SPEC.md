@@ -109,6 +109,16 @@ scores или диапазонов требует review архитектора.
 версии обязаны быть `false`: конфиг их не включает, а opt-in LLM-fallback
 включается отдельно (`--llm`) и использует те же bounds и окна. Детали и legacy migration — `docs/CONFIGURATION.md`.
 
+Дополнение CONF-002 (20.10.2026, feature candidate): совместимый профиль v1/v2
+получает полный `runtime.llm` и `runtime.review_threshold=null`. Прежний профиль
+без этих полей детерминированно дополняется defaults; частичная новая секция и
+неизвестные параметры отклоняются. Общий resolver CLI/API применяет профиль,
+разрешённые non-secret env и явные CLI overrides в этом порядке. Enabled —
+отдельный opt-in, JSON-профиль сам не разрешает вызов. Ключ/URL — только env.
+Auto-accept остаётся запрещён, числовой review threshold отклоняется до
+калибровки; правила решений, units, scores и output v0.1 прежние. Ни нового
+порогового gate, ни изменения бюджетной политики физических retries здесь нет.
+
 Целевое решение выбирает самый дешёвый достаточный метод:
 
 1. rules для точных шаблонов;
@@ -130,6 +140,11 @@ Review-интерфейс или отчёт показывает исходны�
 Каждый batch-run создаёт predictions и manifest: Git SHA, dirty flag, hashes
 входа/выхода/конфига, версии правил и словарей, Python/platform, run ID, время,
 RSS, скорости, coverage, причины отказов и `llm_calls`.
+CONF-002 добавляет `runtime_policy`, `runtime_policy_sha256`,
+`effective_config={profile,runtime_policy}` и `effective_config_sha256` без
+credentials. `config_sha256` сохраняет смысл hash базового профиля; batch run ID
+учитывает effective config и code hash. API `/health` публикует два effective
+hashes, сохраняя прежний временный prediction run ID и result schema v0.1.
 
 ## 6. Нефункциональные требования
 

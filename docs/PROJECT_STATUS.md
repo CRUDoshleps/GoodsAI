@@ -1,5 +1,28 @@
 # Состояние проекта
 
+## 20.10.2026: CONF-002 — REVIEW candidate, main не изменён
+
+Issue #24, база `1bedd07`, claim `3bddab1`, реализация `82cb134`, ветка
+`arch/conf-002-runtime-policy`. Существующий профиль расширен общими настройками
+LLM; resolver CLI/API применяет profile → env → explicit CLI flags и проверяет
+все параметры до output/listen. Полные effective profile/policy и их hashes
+пишутся в manifest без endpoint/key; API health возвращает те же hashes.
+Production-пример проверен настоящими CLI и listening HTTP-процессом, включён
+в source bundle. Старые v1/v2 без новых полей мигрируются детерминированно.
+
+Решения не менялись: heuristic confidence, review/abstain, `auto_accept=false`,
+`review_threshold=null`. Числовой порог без калибровки отклоняется; default LLM
+выключен. Бюджеты пока логические, физические retries/deadline/bytes — #100.
+
+На committed candidate: 346 основных + 3 reader tests OK, pip check OK,
+внешний acceptance 83/83, locked clean-run 11/11. 12 новых policy tests:
+precedence, типы/unknown keys, fail-fast, secrets exclusion, CLI/API hash/settings
+parity, zero/false overrides, сохранность прежней пары и ограничение trace.
+Frozen-method guards не ослаблялись: тесты, сравнивающие профиль с HEAD,
+выполнены после фиксации нового профиля. Реальные данные/gold/test reserve,
+внешние model APIs, main/Gitea и VM не изменялись. Архитектурное review — в PR.
+[Контракт и команды](CONFIGURATION.md#conf-002-единый-resolver-и-production-пример).
+
 ## 20.10.2026: LLM-007 — DONE, PR #107 принят в main
 
 По прямому поручению Владислава PR #107 слит в `main`, merge `f8f4a59`.

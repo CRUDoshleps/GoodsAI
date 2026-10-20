@@ -107,8 +107,11 @@ Gateway envelope проверяется до учёта usage: `choices` — н�
 
 ## Запуск
 
-Endpoint, ключ и модель берутся только из окружения. Шаблон —
-[`.env.example`](../.env.example); реальный `.env` в Git не попадает.
+Endpoint и ключ берутся только из окружения. Модель, timeout, retries, бюджеты,
+цены и остальные настройки разрешаются единым resolver CLI/API: `runtime.llm`
+профиля → разрешённые env → явные CLI-флаги. Полная таблица, fail-fast и
+production-пример — [CONFIGURATION](CONFIGURATION.md#conf-002-единый-resolver-и-production-пример).
+Шаблон env — [`.env.example`](../.env.example); реальный `.env` в Git не попадает.
 
 ```bash
 export GOODSAI_LLM_BASE_URL=<OpenAI-совместимый base URL шлюза, с /v1>
@@ -131,22 +134,28 @@ verifier и фактическим usage и завершается с кодом
 | Флаг | По умолчанию | Назначение |
 | --- | --- | --- |
 | `--llm` | выключен | включить маршрут |
-| `--llm-model` | `GOODSAI_LLM_MODEL` | имя модели; без него запуск завершается с кодом 2 |
-| `--llm-max-calls` | 100 | жёсткий бюджет реальных вызовов за запуск |
+| `--llm-model` | профиль, затем `GOODSAI_LLM_MODEL` | имя модели; при opt-in без него запуск завершается с кодом 2 |
+| `--llm-max-calls` | 100 | бюджет логических provider operations за запуск |
 | `--llm-daily-max-calls` | 300 | общий дневной бюджет по журналу |
 | `--llm-budget-file` | `outputs/llm-budget/ledger.json` | журнал дневного бюджета |
 | `--llm-cache-dir` | нет | точный кэш запросов; каталог вне Git |
 | `--llm-timeout` | 60 с | timeout одного HTTP-запроса |
 | `--llm-attempts` | 3 | попыток на запрос вместе с повторами (1–5) |
 | `--llm-concurrency` | 2 | одновременных запросов к шлюзу |
+| `--llm-max-tokens` | 2048 | запрашиваемый лимит output tokens |
+| `--llm-circuit-breaker` | 5 | отключение после последовательных отказов |
 | `--llm-price-input-per-1k`, `--llm-price-output-per-1k` | нет | цена за 1000 токенов; без цены стоимость `N/A` |
-| `--llm-json-mode` | выключен | попросить `response_format=json_object` |
+| `--llm-json-mode` / `--no-llm-json-mode` | выключен | попросить `response_format=json_object` либо явно отменить настройку профиля/env |
 
 HTTP API: `GOODSAI_LLM_ENABLED=1`, `GOODSAI_LLM_MODEL`,
 `GOODSAI_LLM_MAX_CALLS` (по умолчанию 100), `GOODSAI_LLM_DAILY_MAX_CALLS` (300),
 `GOODSAI_LLM_BUDGET_FILE` плюс те же переменные endpoint и
 ключа. `/health` тогда показывает модель, число вызовов, cache hits и причину
 отключения, без URL и ключа. `run_id` ответа — `http-rules-llm-v0`.
+API теперь применяет также timeout/retries/concurrency/token limit/cache/prices
+из того же профиля/env, что CLI, без отдельного набора defaults. `/health`
+показывает `runtime_policy_sha256` и `effective_config_sha256`; полная применённая
+политика есть в batch manifest. Профиль сам LLM не включает, CLI требует `--llm`.
 
 `--llm-json-mode` только просит шлюз о JSON. Это не constrained decoding:
 структура всегда проверяется на клиенте. Поддержку `response_format` у шлюза
@@ -190,9 +199,15 @@ HTTP API: `GOODSAI_LLM_ENABLED=1`, `GOODSAI_LLM_MODEL`,
 промпта, лимиты, `cards_routed`, `cards_without_gap`, `cards_skipped_no_signal`,
 `attributes_skipped_no_signal`, `calls`, `retries`, `cache_hits`, токены,
 `cost` и `cost_status`, `accepted` по атрибутам, `rejected`, `failures`,
-`disabled_reason`, время провайдера. Поле `llm_calls` равно реальным вызовам;
-cache hit вызовом не считается. Настройки маршрута входят в `run_id`, поэтому
+`disabled_reason`, время провайдера. Поле `llm_calls` считает логические операции
+провайдера; cache hit не считается. Одна операция может сделать несколько
+физических HTTP attempts, `retries` учитываются отдельно. Полный физический
+budget и общий deadline — #100, они здесь не заявляются реализованными.
+Настройки маршрута входят в `run_id`, поэтому
 rules-only и LLM-запуски на одном входе различаются.
+CONF-002 дополнительно сохраняет effective profile/policy и два hashes без
+endpoint/key; изменение цен/timeout отражено в provenance. Старые результаты
+не перезаписываются.
 
 ## Кэш
 
