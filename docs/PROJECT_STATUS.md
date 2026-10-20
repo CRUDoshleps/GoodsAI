@@ -1,3 +1,25 @@
+# 20.10.2026: OPS-004 — REVIEW, закрытие SQLite-ресурсов QueueAudit
+
+Issue #142, claim `69b2c2c`, ветка `fix/ops-004-sqlite-lifecycle`. Операции
+init/begin/finish/report используют общий локальный transaction context:
+курсор закрывается перед commit/rollback, соединение закрывается и при
+ошибках SQL, получения курсора или commit. Begin/finish, уникальность,
+неизменяемость завершённых сессий и формат БД/отчётов сохранены.
+
+11 audit tests PASS, включая 6 новых: сильные ссылки на handles исключают
+маскировку утечки сборщиком мусора; проверены немедленные move/delete файла,
+duplicate begin, повторный/неизвестный finish, rollback при RuntimeError/
+KeyboardInterrupt/SystemExit, отложенный FK commit failure и SQL/cursor errors.
+Полная Windows-регрессия с PYTHONUTF8=1: **451 tests PASS**, прежнего WinError 32
+больше нет. Skip/xfail, gc.collect, sleeps и retries удаления не добавлялись.
+Cross-platform audit suite добавлен в CI Linux/Windows.
+
+README и команды не менялись: поправка не требует нового способа запуска.
+Обновлены эксплуатационное REVIEW_PRIORITY и текущая оговорка SCENARIO_MATRIX;
+SCN-109 остаётся непокрытой общей очередью #19/#50, но SQLite-дефект больше
+не указан как её текущий блокер. Новых API/JSON полей, конфигурации, метрик
+качества, изменений gold/датасетов, model calls или действий на VM нет.
+
 # 20.10.2026: SPEC-002 — DONE, исполняемая матрица с видимыми пробелами
 
 Claim `1a68c67`, ветка `qa/spec-002-scenario-matrix`. Реализованы независимый

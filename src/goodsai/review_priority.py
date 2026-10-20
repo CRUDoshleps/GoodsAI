@@ -1,5 +1,6 @@
 """Explainable human-work ordering, isolated from extraction and training selection."""
 from collections import Counter
+from contextlib import closing, contextmanager
 from dataclasses import asdict,dataclass
 import hashlib
 import json
@@ -108,30 +109,41 @@ class QueueAudit:
     """Append-only local operator sessions. Outcomes are declared development feedback."""
     def __init__(self,path):
         self.path=Path(path);self.path.parent.mkdir(parents=True,exist_ok=True)
-        with self.connect() as db:
-            db.execute('CREATE TABLE IF NOT EXISTS actions (id INTEGER PRIMARY KEY, task_id TEXT, category TEXT, '
+        with self._transaction() as cursor:
+            cursor.execute('CREATE TABLE IF NOT EXISTS actions (id INTEGER PRIMARY KEY, task_id TEXT, category TEXT, '
                        'policy_hash TEXT, actor TEXT, started REAL, finished REAL, wait_seconds REAL, '
                        'mandatory INTEGER, critical INTEGER, rare INTEGER, correct INTEGER)')
-            db.execute('CREATE UNIQUE INDEX IF NOT EXISTS action_identity ON actions(task_id,policy_hash)')
+            cursor.execute('CREATE UNIQUE INDEX IF NOT EXISTS action_identity ON actions(task_id,policy_hash)')
     def connect(self):return sqlite3.connect(self.path,timeout=10)
+
+    @contextmanager
+    def _transaction(self):
+        # SQLite's connection context commits/rolls back, but does not close it.
+        # Close the cursor before transaction exit, then the connection even if
+        # cursor acquisition, SQL, rollback or commit raises.
+        with closing(self.connect()) as db:
+            with db:
+                with closing(db.cursor()) as cursor:
+                    yield cursor
+
     def begin(self,row,actor,*,now=None):
         now=time.time() if now is None else now
         if not finite(now) or now<0 or not isinstance(actor,str) or not actor.strip():raise ValueError('Invalid audit actor/time')
-        with self.connect() as db:
-            cursor=db.execute('INSERT INTO actions(task_id,category,policy_hash,actor,started,wait_seconds,mandatory,critical,rare) '
+        with self._transaction() as cursor:
+            cursor.execute('INSERT INTO actions(task_id,category,policy_hash,actor,started,wait_seconds,mandatory,critical,rare) '
                               'VALUES(?,?,?,?,?,?,?,?,?)',(row['task_id'],row['category_id'],row['policy_sha256'],actor,now,
                               row['priority']['age_seconds'],int(row['required']),int(row['priority']['band']==0),int(row['priority']['rare'])))
             return cursor.lastrowid
     def finish(self,action_id,*,correct,now=None):
         now=time.time() if now is None else now
         if type(correct) is not bool or not finite(now):raise ValueError('Invalid feedback')
-        with self.connect() as db:
-            row=db.execute('SELECT started,finished FROM actions WHERE id=?',(action_id,)).fetchone()
+        with self._transaction() as cursor:
+            row=cursor.execute('SELECT started,finished FROM actions WHERE id=?',(action_id,)).fetchone()
             if not row or row[1] is not None or now<=row[0]:raise ValueError('Invalid or already completed session')
-            db.execute('UPDATE actions SET finished=?,correct=? WHERE id=? AND finished IS NULL',(now,int(correct),action_id))
+            cursor.execute('UPDATE actions SET finished=?,correct=? WHERE id=? AND finished IS NULL',(now,int(correct),action_id))
     def report(self):
-        with self.connect() as db:
-            rows=db.execute('SELECT finished-started,wait_seconds,mandatory,critical,rare,correct FROM actions WHERE finished IS NOT NULL').fetchall()
+        with self._transaction() as cursor:
+            rows=cursor.execute('SELECT finished-started,wait_seconds,mandatory,critical,rare,correct FROM actions WHERE finished IS NOT NULL').fetchall()
         seconds=sum(r[0] for r in rows);waits=sorted(r[1] for r in rows)
         return {'completed':len(rows),'operator_seconds':seconds,
                 'declared_correct_mandatory_per_minute':sum(r[2] and r[5] for r in rows)/(seconds/60) if seconds else None,

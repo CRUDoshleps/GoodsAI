@@ -41,6 +41,12 @@ pairs/minute, declared-correct critical errors, p90 ожидания и rare ser
 `independent_reference=false`, sales_impact=null. Он не доказывает причинный
 выигрыш, CTR/GMV или качество модели.
 
+Каждая операция аудита использует своё соединение и транзакцию SQLite.
+Курсор закрывается до завершения транзакции, соединение — после commit или
+rollback, в том числе при исключении. Дескрипторы завершившейся операции не
+удерживают файл БД; рассчитывать на сборщик мусора не требуется.
+Формат БД, команды и неизменяемость завершённых сессий сохранены.
+
 Synthetic tests проверяют порядок, decomposition, стабильность, equal weights,
 approval/cap, квоты при batch size 1 и audit. Для keep #62 нужен реальный
 контролируемый FIFO/severity+age/demand UX benchmark с одинаковым бюджетом
