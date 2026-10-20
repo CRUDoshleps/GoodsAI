@@ -1,347 +1,62 @@
 {
   "schema_version": "0.1",
   "rules_version": "rules-0.3.0-m2-policy",
-  "model_brand_aliases": [
-    "Galaxy Line"
-  ],
+  "model_brand_aliases": ["Galaxy Line"],
   "dictionary_version": "manual-reviewed-brand-and-color-names-v2",
-  "brand_subbrands": {
-    "Xiaomi": [
-      "Redmi"
-    ]
-  },
-  "color_modifiers": {
-    "prefix": [
-      "Prestige",
-      "Misty"
-    ],
-    "suffix": [
-      "Matte"
-    ]
-  },
+  "brand_subbrands": {"Xiaomi": ["Redmi"]},
+  "color_modifiers": {"prefix": ["Prestige", "Misty"], "suffix": ["Matte"]},
   "seed": "goodsai-e1-v1",
   "categories": {
-    "761": [
-      "brand",
-      "model",
-      "storage_gb",
-      "ram_gb",
-      "screen_inches",
-      "battery_mah",
-      "color"
-    ],
-    "482": [
-      "brand",
-      "model",
-      "capacity_l",
-      "power_w",
-      "color"
-    ]
+    "761": ["brand", "model", "storage_gb", "ram_gb", "screen_inches", "battery_mah", "color"],
+    "482": ["brand", "model", "capacity_l", "power_w", "color"]
   },
   "brands": {
-    "Apple": [
-      "Apple"
-    ],
-    "Samsung": [
-      "Samsung"
-    ],
-    "Xiaomi": [
-      "Xiaomi"
-    ],
-    "POCO": [
-      "Poco"
-    ],
-    "Redmi": [
-      "Redmi"
-    ],
-    "HUAWEI": [
-      "Huawei"
-    ],
-    "HONOR": [
-      "Honor"
-    ],
-    "realme": [
-      "Realme"
-    ],
-    "OPPO": [
-      "Oppo"
-    ],
-    "vivo": [
-      "Vivo"
-    ],
-    "TECNO": [
-      "Tecno"
-    ],
-    "Infinix": [
-      "Infinix"
-    ],
-    "Nokia": [
-      "Nokia"
-    ],
-    "Motorola": [
-      "Motorola"
-    ],
-    "Google": [
-      "Google"
-    ],
-    "OnePlus": [
-      "OnePlus"
-    ],
-    "Nothing": [
-      "Nothing"
-    ],
-    "ZTE": [
-      "ZTE"
-    ],
-    "BQ": [
-      "BQ"
-    ],
-    "Philips": [
-      "Philips"
-    ],
-    "Sony": [
-      "Sony"
-    ],
-    "ASUS": [
-      "Asus"
-    ],
-    "Tefal": [
-      "Tefal"
-    ],
-    "REDMOND": [
-      "Redmond",
-      "Редмонд"
-    ],
-    "Polaris": [
-      "Polaris"
-    ],
-    "Kitfort": [
-      "Kitfort",
-      "Китфорт"
-    ],
-    "Bosch": [
-      "Bosch"
-    ],
-    "Braun": [
-      "Braun"
-    ],
-    "Midea": [
-      "Midea"
-    ],
-    "WMF": [
-      "WMF"
-    ],
-    "Smeg": [
-      "Smeg"
-    ],
-    "Gorenje": [
-      "Gorenje"
-    ],
-    "Scarlett": [
-      "Scarlett"
-    ],
-    "VITEK": [
-      "Vitek"
-    ],
-    "Rondell": [
-      "Rondell"
-    ],
-    "De'Longhi": [
-      "De'Longhi",
-      "Delonghi"
-    ],
-    "BORK": [
-      "Bork"
-    ],
-    "Moulinex": [
-      "Moulinex"
-    ],
-    "CENTEK": [
-      "Centek"
-    ],
-    "BBK": [
-      "BBK"
-    ],
-    "DEXP": [
-      "Dexp"
-    ],
-    "GALAXY": [
-      "Galaxy"
-    ],
-    "MAUNFELD": [
-      "Maunfeld"
-    ],
-    "Econ": [
-      "Econ"
-    ],
-    "Hyundai": [
-      "Hyundai"
-    ],
-    "Starwind": [
-      "Starwind"
-    ],
-    "Endever": [
-      "Endever"
-    ],
-    "Supra": [
-      "Supra"
-    ],
-    "Oursson": [
-      "Oursson"
-    ],
-    "Haier": [
-      "Haier"
-    ],
-    "Hisense": [
-      "Hisense"
-    ],
-    "Galaxy Line": [
-      "Galaxy Line"
-    ],
-    "Sonnen": [
-      "Sonnen"
-    ],
-    "Weissgauff": [
-      "Weissgauff"
-    ],
-    "Аксинья": [
-      "Аксинья"
-    ]
+    "Apple": ["Apple"], "Samsung": ["Samsung"], "Xiaomi": ["Xiaomi"],
+    "POCO": ["Poco"], "Redmi": ["Redmi"], "HUAWEI": ["Huawei"],
+    "HONOR": ["Honor"], "realme": ["Realme"], "OPPO": ["Oppo"],
+    "vivo": ["Vivo"], "TECNO": ["Tecno"], "Infinix": ["Infinix"],
+    "Nokia": ["Nokia"], "Motorola": ["Motorola"], "Google": ["Google"],
+    "OnePlus": ["OnePlus"], "Nothing": ["Nothing"], "ZTE": ["ZTE"],
+    "BQ": ["BQ"], "Philips": ["Philips"], "Sony": ["Sony"], "ASUS": ["Asus"],
+    "Tefal": ["Tefal"], "REDMOND": ["Redmond", "Редмонд"],
+    "Polaris": ["Polaris"], "Kitfort": ["Kitfort", "Китфорт"],
+    "Bosch": ["Bosch"], "Braun": ["Braun"], "Midea": ["Midea"],
+    "WMF": ["WMF"], "Smeg": ["Smeg"], "Gorenje": ["Gorenje"],
+    "Scarlett": ["Scarlett"], "VITEK": ["Vitek"], "Rondell": ["Rondell"],
+    "De'Longhi": ["De'Longhi", "Delonghi"], "BORK": ["Bork"],
+    "Moulinex": ["Moulinex"], "CENTEK": ["Centek"], "BBK": ["BBK"],
+    "DEXP": ["Dexp"], "GALAXY": ["Galaxy"], "MAUNFELD": ["Maunfeld"],
+    "Econ": ["Econ"], "Hyundai": ["Hyundai"], "Starwind": ["Starwind"],
+    "Endever": ["Endever"], "Supra": ["Supra"], "Oursson": ["Oursson"],
+    "Haier": ["Haier"], "Hisense": ["Hisense"],
+    "Galaxy Line": ["Galaxy Line"], "Sonnen": ["Sonnen"],
+    "Weissgauff": ["Weissgauff"], "Аксинья": ["Аксинья"]
   },
   "colors": {
-    "черный": [
-      "черный",
-      "чёрный",
-      "черная",
-      "чёрная",
-      "black"
-    ],
-    "белый": [
-      "белый",
-      "белая",
-      "white"
-    ],
-    "серый": [
-      "серый",
-      "серая",
-      "gray",
-      "grey"
-    ],
-    "серебристый": [
-      "серебристый",
-      "серебристая",
-      "silver"
-    ],
-    "синий": [
-      "синий",
-      "синяя",
-      "blue"
-    ],
-    "темно-синий": [
-      "темно-синий",
-      "тёмно-синий",
-      "темно синий",
-      "dark blue"
-    ],
-    "голубой": [
-      "голубой",
-      "голубая",
-      "light blue"
-    ],
-    "красный": [
-      "красный",
-      "красная",
-      "red"
-    ],
-    "зеленый": [
-      "зеленый",
-      "зелёный",
-      "зеленая",
-      "зелёная",
-      "green"
-    ],
-    "желтый": [
-      "желтый",
-      "жёлтый",
-      "желтая",
-      "жёлтая",
-      "yellow"
-    ],
-    "розовый": [
-      "розовый",
-      "розовая",
-      "pink"
-    ],
-    "фиолетовый": [
-      "фиолетовый",
-      "фиолетовая",
-      "purple",
-      "violet"
-    ],
-    "золотой": [
-      "золотой",
-      "золотистый",
-      "gold"
-    ],
-    "бежевый": [
-      "бежевый",
-      "бежевая",
-      "beige"
-    ],
-    "оранжевый": [
-      "оранжевый",
-      "оранжевая",
-      "orange"
-    ],
-    "коричневый": [
-      "коричневый",
-      "коричневая",
-      "brown"
-    ],
-    "глубокий синий": [
-      "глубокий синий",
-      "deep blue"
-    ],
-    "бронзовый": [
-      "бронзовый",
-      "бронзовая",
-      "бронзового",
-      "bronze"
-    ],
-    "ультрамарин": [
-      "ультрамарин",
-      "ultramarine"
-    ],
-    "титановый": [
-      "титановый",
-      "титановая",
-      "titanium"
-    ],
-    "лавандовый": [
-      "лавандовый",
-      "лавандовая",
-      "lavender"
-    ],
-    "серо-зеленый": [
-      "серо-зеленый",
-      "серо-зелёный",
-      "серо зеленый",
-      "gray-green",
-      "grey-green"
-    ],
-    "серебристо-голубой": [
-      "серебристо-голубой",
-      "серебристо голубой",
-      "silver-blue",
-      "Silverblue",
-      "Titanium Silverblue"
-    ],
-    "серебристо-черный": [
-      "серебристо-черный",
-      "серебристо-чёрный",
-      "серебристо черный",
-      "silver-black"
-    ]
+    "черный": ["черный", "чёрный", "черная", "чёрная", "black"],
+    "белый": ["белый", "белая", "white"],
+    "серый": ["серый", "серая", "gray", "grey"],
+    "серебристый": ["серебристый", "серебристая", "silver"],
+    "синий": ["синий", "синяя", "blue"],
+    "темно-синий": ["темно-синий", "тёмно-синий", "темно синий", "dark blue"],
+    "голубой": ["голубой", "голубая", "light blue"],
+    "красный": ["красный", "красная", "red"],
+    "зеленый": ["зеленый", "зелёный", "зеленая", "зелёная", "green"],
+    "желтый": ["желтый", "жёлтый", "желтая", "жёлтая", "yellow"],
+    "розовый": ["розовый", "розовая", "pink"],
+    "фиолетовый": ["фиолетовый", "фиолетовая", "purple", "violet"],
+    "золотой": ["золотой", "золотистый", "gold"],
+    "бежевый": ["бежевый", "бежевая", "beige"],
+    "оранжевый": ["оранжевый", "оранжевая", "orange"],
+    "коричневый": ["коричневый", "коричневая", "brown"],
+    "глубокий синий": ["глубокий синий", "deep blue"],
+    "бронзовый": ["бронзовый", "бронзовая", "бронзового", "bronze"],
+    "ультрамарин": ["ультрамарин", "ultramarine"],
+    "титановый": ["титановый", "титановая", "titanium"],
+    "лавандовый": ["лавандовый", "лавандовая", "lavender"],
+    "серо-зеленый": ["серо-зеленый", "серо-зелёный", "серо зеленый", "gray-green", "grey-green"],
+    "серебристо-голубой": ["серебристо-голубой", "серебристо голубой", "silver-blue", "Silverblue", "Titanium Silverblue"],
+    "серебристо-черный": ["серебристо-черный", "серебристо-чёрный", "серебристо черный", "silver-black"]
   },
   "config_version": "1",
   "category_profiles": {
@@ -416,13 +131,8 @@
       "price_input_per_1k": null,
       "price_output_per_1k": null,
       "cache_dir": null,
-      "budget_ledger": "outputs/llm-budget/ledger.json",
-      "request_deadline_seconds": 120.0,
-      "max_response_bytes": 1048576,
-      "max_proposals": 32,
-      "model_revision": null,
-      "cache_namespace": "local",
-      "cache_ttl_seconds": 3600
+      "budget_ledger": "outputs/llm-budget/ledger.json", "request_deadline_seconds": 120.0, "max_response_bytes": 1048576, "max_proposals": 32,
+      "model_revision": null, "cache_namespace": "local", "cache_ttl_seconds": 3600
     },
     "api": {
       "max_body_bytes": 131072,
