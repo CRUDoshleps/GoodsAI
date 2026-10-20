@@ -65,7 +65,7 @@ class Extractor:
             return row
         grouped = defaultdict(list)
         rejected = defaultdict(set)
-        relations = RelationVerifier(product)
+        relations = RelationVerifier(product, self.config)
         for candidate in self.rules.candidates(product):
             validate_candidate(candidate, product, requested, self.config, registry=self.registry)
             reason = relations.reason(candidate)
