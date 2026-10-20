@@ -857,7 +857,8 @@ class LLMExtractor:
                 self.stats.cards_without_gap += 1
             return row
         selected = self.router.select(product, tuple(open_gaps))
-        if (not isinstance(selected, tuple) or len(set(selected)) != len(selected)
+        if (not isinstance(selected, tuple) or any(not isinstance(attr, str) for attr in selected)
+                or len(set(selected)) != len(selected)
                 or any(attr not in open_gaps for attr in selected)):
             raise ValueError("Router must select a unique subset of eligible attributes")
         # Preserve schema order regardless of a router's preference order.

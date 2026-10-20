@@ -166,7 +166,6 @@ def main(argv=None) -> int:
             result.update(elapsed_seconds=time.perf_counter() - started, peak_process_rss_bytes=peak_rss_bytes())
             write_json(args.output_dir / "prepare_manifest.json", result)
         elif args.command == "predict":
-            llm = None
             policy = resolve_runtime_policy(config, enabled=args.llm, overrides={
                 "model": args.llm_model, "max_calls": args.llm_max_calls,
                 "timeout_seconds": args.llm_timeout, "max_attempts": args.llm_attempts,

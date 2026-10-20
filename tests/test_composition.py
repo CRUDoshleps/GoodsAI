@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import replace
 import importlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -13,9 +14,6 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from fastapi.testclient import TestClient
-
-from goodsai.api import create_app
 from goodsai.candidate_verifier import VerifierFactory
 from goodsai.category_registry import Registry
 from goodsai.cli import predict
@@ -28,6 +26,11 @@ from goodsai.policy import policy_for_settings, resolve_runtime_policy
 from goodsai.stages import Candidate, ProviderResponse as StageResponse, STAGE_CONTRACT_VERSION
 from goodsai.storage import FilePredictionSink
 from goodsai.verify import Extractor
+
+SERVICE_DEPS = all(importlib.util.find_spec(name) for name in ("fastapi", "httpx"))
+if SERVICE_DEPS:
+    from fastapi.testclient import TestClient
+    from goodsai.api import create_app
 
 
 PRODUCT = {"schema_version": "0.1", "sku_id": "invented", "category_id": "761",
@@ -110,6 +113,7 @@ class CompositionTests(unittest.TestCase):
         report = predict(source, output, self.config, components=components, runtime_policy=policy)
         return json.loads(output.read_text(encoding="utf-8")), report
 
+    @unittest.skipUnless(SERVICE_DEPS, "HTTP test extras are optional")
     def test_model_source_replacement_cli_api_and_sink_without_orchestration_edits(self):
         sink = RecordingSink()
         parts = Components(source=ModelSource(), sink=sink)
@@ -150,10 +154,10 @@ class CompositionTests(unittest.TestCase):
             self.batch(Components(source=ModelSource(), sink=FailingSink()))
         self.assertEqual(previous, (output.read_bytes(), manifest.read_bytes()))
 
+    @unittest.skipUnless(SERVICE_DEPS, "HTTP test extras are optional")
     def test_cli_and_api_use_same_router_provider_and_policy(self):
         policy = self.enabled_policy()
         first = OfflineProvider()
-        batch, report = self.batch(Components(router=BrandRouter(), provider=first), policy)
         second = OfflineProvider()
         config_path = self.root / "profile.json"
         config = deepcopy(self.config)
@@ -161,6 +165,7 @@ class CompositionTests(unittest.TestCase):
         config_path.write_text(json.dumps(config), encoding="utf-8")
         # Same explicit profile on both transports; process env only opts HTTP in.
         source = self.root / "input.jsonl"
+        source.write_text(json.dumps(PRODUCT, ensure_ascii=False) + "\n", encoding="utf-8")
         batch_output = self.root / "profile-predictions.jsonl"
         report = predict(source, batch_output, config, runtime_policy=policy,
                          components=Components(router=BrandRouter(), provider=first))
@@ -221,7 +226,7 @@ class CompositionTests(unittest.TestCase):
         self.assertIn("llm_blocked_by_data_policy", attributes(row)["brand"]["reason_codes"])
 
     def test_bad_router_cannot_overwrite_rules_or_duplicate_requests(self):
-        for selected in (("battery_mah",), ("brand", "brand"), ("unknown",), ["brand"]):
+        for selected in (("battery_mah",), ("brand", "brand"), ("unknown",), ["brand"], ([],), (None,)):
             class BadRouter:
                 def select(self, product, eligible):
                     return selected
@@ -302,7 +307,8 @@ class CompositionTests(unittest.TestCase):
             visited.add(name)
         for name in graph:
             visit(name)
-        result = subprocess.run([sys.executable, "-c", "import goodsai.composition, goodsai.cli, goodsai.api; "
+        imports = "import goodsai.composition, goodsai.cli" + (", goodsai.api" if SERVICE_DEPS else "")
+        result = subprocess.run([sys.executable, "-c", imports + "; "
             "import sys; assert 'torch' not in sys.modules; assert 'gliner' not in sys.modules"],
             capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)

@@ -20,8 +20,15 @@ JSON v0.1, config v1/v2, confidence, units, review/abstain и команды з�
 Добавлены 16 synthetic tests для границ этапов, CLI/API parity с fake source и
 provider/router, offline failure, rollback sink, legacy aliases, data policy,
 неизменности снимков профиля и отсутствия eager import cycles/ML imports.
-Первичный полный прогон: **402 tests OK**. Финальные clean-run, внешняя приёмка,
-регрессия reviewed development и CI фиксируются после committed checkout.
+Полный прогон: **402 tests + 3 reader OK**, pip check OK. На committed `3d3dc49`:
+внешняя приёмка **83/83**, locked clean-run **11/11**, demo **6/6** + verify.
+Два comparison против frozen `2b0176d` на прежних 40 reviewed development:
+TP/FP/FN **143/0/22** до = после, 224 judged / 16 excluded, нет A→C pair deltas,
+новых FP или lost TP. Это AI-assisted human-reviewed development, не independent
+test. Synthetic verifier suite также passed без lost true facts. Private
+артефакты: `outputs/arch001-*3d3dc49*`, `outputs/evaluation/arch001-*-3d3dc49/`.
+Открыт [PR #119](https://github.com/CRUDoshleps/GoodsAI/pull/119), stacked на #118;
+финальный CI и последовательный merge ещё не объявлены выполненными.
 Новых реальных model calls, расходов, просмотра test или изменений VM нет.
 Прироста качества/баллов от архитектурного рефакторинга не заявляем.
 Контракты и ограничения: [ARCHITECTURE](ARCHITECTURE.md).
