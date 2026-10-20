@@ -1,10 +1,16 @@
-# 20.10.2026: OPS-004 — REVIEW, закрытие SQLite-ресурсов QueueAudit
+# 20.10.2026: OPS-004 — DONE, закрытие SQLite-ресурсов QueueAudit
 
 Issue #142, claim `69b2c2c`, ветка `fix/ops-004-sqlite-lifecycle`. Операции
 init/begin/finish/report используют общий локальный transaction context:
 курсор закрывается перед commit/rollback, соединение закрывается и при
 ошибках SQL, получения курсора или commit. Begin/finish, уникальность,
 неизменяемость завершённых сессий и формат БД/отчётов сохранены.
+
+PR #145 принят в main, merge `8cad64312cd3a198a316d3fac9bd0ce54ab49f00`;
+Issue #142 закрыта с status:done. Все 6 CI checks на final head `8c8772c`
+SUCCESS, включая audit suite и внешние сценарии на Windows/Linux.
+Дерево merge совпало с протестированным деревом. Экспорт 185 файлов проверен;
+внутренние документы статуса и реальные данные в состав сдачи не входят.
 
 11 audit tests PASS, включая 6 новых: сильные ссылки на handles исключают
 маскировку утечки сборщиком мусора; проверены немедленные move/delete файла,
