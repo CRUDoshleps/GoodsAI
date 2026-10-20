@@ -1,13 +1,24 @@
-# 20.10.2026: REL-005 — состав сдачи Gitea
+# 20.10.2026: REL-005 — опубликован состав сдачи Gitea
 
-По поручению владельца готовится замена полного зеркала на публикацию кода,
-тестов, эксплуатационных документов и артефактов по allowlist. Внутренние планы,
-исследования, reviews и task board остаются в GitHub. GitHub/Gitea SHA теперь
-различаются; соответствие и hashes — в submission-manifest.json. Старая история
-сохраняется, новые development commits не становятся родителями Gitea commits.
-Локально: 368 основных tests на GitHub candidate и экспортированном checkout,
-9 publication boundary tests, все относительные Markdown-ссылки проверены.
-REL-005 #115 — REVIEW, ожидаются CI и реальная публикация; VM не меняется.
+PR #116 слит в GitHub main (`741df14677a6d0639e55b40af1d5a95de328743f`).
+Workflow [39421217155](https://github.com/CRUDoshleps/GoodsAI/actions/runs/39421217155)
+успешно опубликовал 154 файла в Gitea commit
+`f15f99b8f9602300195689766f3933f519640a18`, родитель `73faf07`.
+
+Код, тесты, инструкции и материалы сдачи публикуются по allowlist с отдельным
+README. TASKS/AGENTS/RESEARCH/PROJECT_STATUS, планы, docs/research и docs/reviews
+остаются в GitHub. GitHub/Gitea SHA различаются; соответствие и hashes файлов
+записаны в submission-manifest.json. История прежнего зеркала сохраняется;
+новые development commits не становятся родителями Gitea commits.
+
+CI PR: 6/6 SUCCESS, 369 основных + 3 reader tests, properties, clean-run и
+внешняя приёмка Linux/Windows. Отдельный очищенный checkout: 368 основных tests
+до добавления девятого boundary test; затем 9 boundary tests отдельно.
+Изолированная установка/CLI/API/artifact smoke+verify: 11/11 passed; внешний
+CLI/HTTP: 83/83. Относительные Markdown-ссылки проверены, code.zip из Gitea
+состава также не содержит внутренних документов. Runtime не менялся; реальные
+данные, платные API и VM не запускались. REL-005 #115 принят интегратором.
+Исторические равенства GitHub/Gitea SHA ниже относятся к прежнему зеркалу.
 
 # Состояние проекта
 
