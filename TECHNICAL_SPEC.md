@@ -265,3 +265,9 @@ LLM-005: opt-in selector принимает только attribute/span_id|null;
 собирается из исходного span и проходит общий gate на полном source.
 Неполный индекс даёт abstain; server constrained generation не заявляется.
 Подробности: docs/SPAN_SELECTOR.md.
+
+PRODUCT-005: alias lifecycle изменяет существующий configuration dictionary
+только через draft/impact/review/owner publish. Versions immutable, current
+pointer CAS; rollback создаёт новую версию. Prediction snapshots/решения
+не меняются задним числом. Numeric/catalog schema и semantic alias policy
+не согласуются автоматически. Инструкция: docs/DICTIONARY_CONSOLE.md.

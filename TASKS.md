@@ -167,7 +167,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ML-002 | [#58](https://github.com/CRUDoshleps/GoodsAI/issues/58) | P1 | BLOCKED | ML/аналитик | — | — | Предлагать категорию по тексту с безопасным отказом; зависимости в Issue |
 | LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | REVIEW | LLM/backend | Codex (e345ee) | `llm/llm-004-exact-cache` | 20.10.2026: claim по прямому поручению; реализация opt-in, validation/keep gate отдельно |
-| PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | IN_PROGRESS | product/backend | Codex (e345ee) | `product/product-005-dictionary-lifecycle` | 20.10.2026: claim по поручению; existing config dictionary lifecycle, RBAC/UI/impact/CAS/rollback |
+| PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | REVIEW | product/backend | Codex (e345ee) | `product/product-005-dictionary-lifecycle` | 20.10.2026: claim по поручению; existing config dictionary lifecycle, RBAC/UI/impact/CAS/rollback |
 | OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | REVIEW | MLOps/аналитик | Codex (e345ee) | `ops/ops-003-frozen-drift` | 20.10.2026: claim по поручению; local aggregates/frozen baseline, uncertainty/hysteresis; thresholds explicit |
 | PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | REVIEW | product/аналитик | Codex (e345ee) | `product/product-006-review-priority` | 20.10.2026: claim по поручению; severity/age/rare/audit, demand off по умолчанию; UX benchmark отдельно |
 
