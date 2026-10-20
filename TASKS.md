@@ -74,6 +74,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | ART-001 | [#8](https://github.com/CRUDoshleps/GoodsAI/issues/8) | P0 | REVIEW | интегратор/аналитик | Codex (сессия Влада) | `release/art-001-prepared-delivery` | checkpoint: 2198 predictions, reviewed metrics, EDA, PDF, bundle verified |
 | CONF-001 | [#9](https://github.com/CRUDoshleps/GoodsAI/issues/9) | P0 | IN_PROGRESS | архитектор | timur0o31 | `arch/conf-001-runtime-config` | 19.10.2026: конфигурация bounds/scores/limits, строгая валидация; defaults без изменения поведения |
 | SPEC-001 | [#10](https://github.com/CRUDoshleps/GoodsAI/issues/10) | P0 | READY | product/аналитик | — | — | подтвердить формат выхода, обязательные поля и confidence |
+| REL-005 | [#115](https://github.com/CRUDoshleps/GoodsAI/issues/115) | P0 | DONE | release engineer | Codex (e345ee) | `main` | PR #116 merged 741df14; publish 39421217155 SUCCESS, Gitea f15f99b; 154 файла, 369+3 tests, clean-run 11/11, внешний CLI/HTTP 83/83; VM не менялась |
 | REL-001 | [#11](https://github.com/CRUDoshleps/GoodsAI/issues/11) | P0 | READY | release engineer | — | — | воспроизводимый выпуск проверенного GitHub SHA в Gitea |
 | REL-002 | — | P0 | DONE | release engineer | Codex | `ops/rel-002-main-mirror` | GitHub `main` автоматически fast-forward публикуется в Gitea `main` |
 | CONF-002 | [#24](https://github.com/CRUDoshleps/GoodsAI/issues/24) | P0 | DONE | архитектор | urasha / Codex (сессия Влада) | `main` | PR #109 merged b99512f по поручению Влада; CI 6/6 SUCCESS, 346+3 tests, acceptance 83/83, clean-run 11/11; issue закрыта |

@@ -75,7 +75,9 @@ gold или метода, если PR заявляет независимую о
 
 Интегратор убеждается, что изменения основаны на актуальном GitHub `main`,
 проверки прошли и цифры воспроизводимы. После merge workflow публикует тот же
-commit в Gitea `main`; интегратор проверяет Actions и ставит `DONE`.
+состав сдачи в Gitea `main`; интегратор проверяет Actions, source SHA в
+`submission-manifest.json` и ставит `DONE`. Gitea SHA отличается от GitHub SHA;
+исследования и task board остаются в GitHub (см. `docs/RELEASES.md`).
 
 ## Ветки и коммиты
 
