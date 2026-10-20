@@ -1,5 +1,6 @@
 # Состояние проекта
 
+<<<<<<< HEAD
 ## 20.10.2026: интеграционный кандидат #103/#104/#105
 
 В QA-006 включены обе отдельные fix-ветки с сохранением всех статусов/документов.
@@ -41,6 +42,8 @@ not_found на `relation_name_token`; требование color=null/abstain с
 без изменений значений (M2 72/0/11, D21–D40 62/0/20 TP/FP/FN до=после).
 Это не независимая оценка. Нормализация, score и v0.1 не меняются.
 
+=======
+>>>>>>> work/main
 ## 20.10.2026: BASE-001 model follow-up — REVIEW
 
 Claim `b348248`, база `857115d`, ветка `baseline/base-001-model-boundaries`.
@@ -52,6 +55,20 @@ Claim `b348248`, база `857115d`, ветка `baseline/base-001-model-boundar
 reviewed development: model TP/FP/FN 24/0/12 → 33/0/3; 0 lost TP/new FP,
 0 изменений других атрибутов. Независимая оценка не выполнялась.
 [Результаты и ограничения](research/base001_followup_results.md).
+<<<<<<< HEAD
+=======
+
+## 20.10.2026: VER-001 follow-up — REVIEW
+
+Claim `c8e9374`, ветка `qa/ver-001-color-attachment`, база `857115d`.
+Relation 1.1 защищает цвет внутри явного имени/модели и uppercase manufacturer
+head перед кодом, отличает material-role; LLM проходит тот же relation guard.
+QA-001 21/21 вместо 20/21. Для одного regression причина уточнена с generic
+not_found на `relation_name_token`; требование color=null/abstain сохранено.
+7 новых тестов; общий suite 313 tests OK, 40 AI-assisted reviewed development
+без изменений значений (M2 72/0/11, D21–D40 62/0/20 TP/FP/FN до=после).
+Это не независимая оценка. Нормализация, score и v0.1 не меняются.
+>>>>>>> work/main
 
 ## 20.10.2026: backlog по ревью «прогон 2» — REVIEW
 
