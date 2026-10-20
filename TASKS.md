@@ -137,7 +137,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| SPEC-002 | [#35](https://github.com/CRUDoshleps/GoodsAI/issues/35) | P0 | READY | product/QA | — | — | SPEC-001 принята через PR #140, spec-team-v1; матрица подтверждённых/командных сценариев с явным source status; неизвестные и нереализованные пути не считать покрытыми; нужен отдельный claim |
+| SPEC-002 | [#35](https://github.com/CRUDoshleps/GoodsAI/issues/35) | P0 | REVIEW | product/QA | urasha / Codex (сессия Влада) | `qa/spec-002-scenario-matrix` | claim 1a68c67; spec-002-v1: 29 групп, 17 executable PASS, 4 not_implemented/7 not_verified/1 unknown; external 101/101, 12 harness tests; UTF-8 full Windows 445 tests с 1 прежней ошибкой QueueAudit (#142, воспроизведена на main); runtime/config прежние; Linux/Windows CI и Gitea export перед merge |
 | DATA-002 | [#36](https://github.com/CRUDoshleps/GoodsAI/issues/36) | P0 | BLOCKED | data engineer/security | — | — | seller attributes без target leakage и с provenance; зависимости: SPEC-001, DATA-001 |
 | VER-002 | [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37) | P0 | DONE | QA/backend | urasha / Codex (сессия Влада) | `qa/ver-002-common-verifier` | PR #118 принят 20.10.2026, merge 0a1d134; claim 8a55d81; общий gate rules/LLM/cache/experimental GLiNER; CI 6/6; проверен вместе с ARCH-001: 402+3 tests, external 83/83, clean-run 11/11; reviewed development без регрессии; #10 остаётся открытой |
 | EVAL-003 | [#38](https://github.com/CRUDoshleps/GoodsAI/issues/38) | P0 | BLOCKED | аналитик/разметчик | — | — | независимый blind-пакет доказательств качества; зависимости: EVAL-001, EVAL-002 |
@@ -169,6 +169,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | LLM-004 | [#59](https://github.com/CRUDoshleps/GoodsAI/issues/59) | P1 | REVIEW | LLM/backend | Codex (e345ee) | `main` | 20.10.2026: PR #128 merged; exact cache v2, TTL/fingerprint и thread/process single-flight; 6 tests; representative keep gate #59 остаётся |
 | PRODUCT-005 | [#60](https://github.com/CRUDoshleps/GoodsAI/issues/60) | P1 | REVIEW | product/backend | Codex (e345ee) | `main` | 20.10.2026: PR #133 merged; dictionary UI/RBAC/impact/immutable publish/CAS/rollback; 20 synthetic proposals, browser smoke; UX/registry integration остаются |
 | OPS-003 | [#61](https://github.com/CRUDoshleps/GoodsAI/issues/61) | P1 | REVIEW | MLOps/аналитик | Codex (e345ee) | `main` | 20.10.2026: PR #131 merged; frozen aggregate drift, Wilson/JS, redaction/hysteresis; 6 tests; OPS-002 и calibration остаются |
+| OPS-004 | [#142](https://github.com/CRUDoshleps/GoodsAI/issues/142) | P1 | READY | backend/MLOps | — | — | найдено при SPEC-002: Windows audit.sqlite WinError 32 воспроизведён на неизменённом d4ff5f6; явное закрытие QueueAudit connections/cursors и cross-platform regression; реализация не начата |
 | PRODUCT-006 | [#62](https://github.com/CRUDoshleps/GoodsAI/issues/62) | P2 | REVIEW | product/аналитик | Codex (e345ee) | `main` | 20.10.2026: PR #132 merged; severity/age/rare/audit ranking + local session audit; 5 tests; PRODUCT-002/UX benchmark остаются |
 
 В существующих задачах [ML-001 #16](https://github.com/CRUDoshleps/GoodsAI/issues/16),

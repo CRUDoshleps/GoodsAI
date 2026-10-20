@@ -1,3 +1,32 @@
+# 20.10.2026: SPEC-002 — REVIEW, исполняемая матрица с видимыми пробелами
+
+Claim `1a68c67`, ветка `qa/spec-002-scenario-matrix`. Реализованы независимый
+inventory требований REQ-* и bindings SCN-* (`spec-002-v1`), source status,
+заранее заданные ожидания, coverage report и artifact/source hash-manifest.
+Одна команда `scripts/release/scenario_matrix.py` запускает внешний CLI/socket
+HTTP в копии runtime без examples, offline verifier/LLM/API и отдельный demo.
+Новые fixtures: только вымышленные названия/значения; реальных model calls нет.
+
+Текущий scope: 17 executable групп; 4 not_implemented, 7 not_verified,
+1 unknown — всего 29. Внешняя часть: 46 cases × CLI/HTTP + 9 стадий = 101/101.
+Нулевой suite, пропавший/дублированный case, ослабленное ожидание или удалённая
+обязательная привязка не считаются PASS. Packaged demo и финальная сдача
+различаются явно; complete_case_evidence=false, качество каталога N/A.
+
+12 новых harness tests PASS, 3 research reader tests PASS, pip check PASS.
+Полная Windows-регрессия с PYTHONUTF8=1: 445 tests, 444 PASS и 1 прежний error
+очистки QueueAudit audit.sqlite. Ошибка отдельно воспроизведена на неизменённом
+main d4ff5f6 (5 review-priority tests, 1 error) и вынесена в OPS-004 #142;
+5 dictionary tests на той же базе PASS. Первый локальный запуск без UTF-8
+также выявил ошибки неявной кодировки в старых tests; с UTF-8 они исчезли.
+Scope SPEC-002 не меняет src/runtime/config, версии JSON, старые metrics/gold,
+VM и модельные API. Операционный дефект не маскируется skip/xfail.
+
+Добавлены Linux/Windows CI, инструкция SCENARIO_MATRIX, команды в оба README
+и явный Gitea allowlist документа. После CI нужна безопасная интеграция;
+независимое качество, seller inputs, новые категории и операторская очередь
+не закрываются прохождением synthetic gate.
+
 # 20.10.2026: SPEC-001 — DONE, рабочая политика команды зафиксирована
 
 По поручению Владислава и скриншотам разделов 2–6 подготовлен `spec-team-v1`

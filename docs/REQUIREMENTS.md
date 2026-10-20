@@ -78,6 +78,14 @@ Offline-инструмент [ART-003](ARTIFACT_BUNDLE.md) связывает э
 
 ## Матрица приёмки
 
+Исполняемая [SPEC-002](SCENARIO_MATRIX.md) связывает постоянные REQ/SCN IDs с
+источником, внешним JSONL/HTTP, expected values/evidence/decisions, offline tests
+и hash-manifest. Одна команда показывает passed/failed/not_implemented/
+not_verified/unknown. Отсутствующее доказательство заявленного implemented
+сценария проваливает gate. Непокрытые seller inputs, ноутбуки, независимые
+метрики и финальная передача сохраняются отдельными строками; synthetic PASS
+не закрывает их. Протокол не является официальной шкалой баллов.
+
 | Критерий | Доказательство |
 | --- | --- |
 | соответствие задаче | trace вход → поля → выход на реальных категориях |

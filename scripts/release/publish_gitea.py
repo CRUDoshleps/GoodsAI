@@ -28,7 +28,7 @@ PUBLIC_FILES = frozenset({
     "docs/EXTERNAL_ACCEPTANCE.md", "docs/FUZZ_TESTING.md", "docs/HUMAN_GOLD.md",
     "docs/HUMAN_GOLD_GUIDELINES.md", "docs/LLM.md", "docs/QUICKSTART.md",
     "docs/RELATION_VERIFIER.md", "docs/VERIFIER.md", "docs/REQUIREMENTS.md", "docs/RESPONSES.md",
-    "docs/RESULTS.md", "docs/RUNBOOK.md", "docs/SILVER_EVALUATION.md",
+    "docs/RESULTS.md", "docs/RUNBOOK.md", "docs/SILVER_EVALUATION.md", "docs/SCENARIO_MATRIX.md",
     "docs/SPAN_INDEX.md", "docs/SPLIT_AUDIT.md", "docs/examples/release-spec.example.json",
     "docs/delivery/2026-10-19/README.md", "docs/delivery/2026-10-19/bundle.manifest.json",
     "docs/delivery/2026-10-19/checkpoint.json", "docs/delivery/2026-10-19/eda.md",
