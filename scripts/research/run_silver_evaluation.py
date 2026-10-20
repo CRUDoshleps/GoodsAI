@@ -104,6 +104,12 @@ def run(args):
         if name == "llm" and not (candidate_manifest.get("llm_calls", 0) or candidate_manifest.get("llm", {}).get("cache_hits", 0)):
             variants[name]["status"] = "route_not_exercised"
             variants[name]["reason"] = "no_provider_calls_or_cache_hits_not_an_llm_quality_experiment"
+        if name == "gliner":
+            model = candidate_manifest.get("brand_model", {})
+            if not model.get("model_calls"):
+                variants[name]["status"] = "route_not_exercised"
+            elif model.get("failures"):
+                variants[name]["status"] = "partial_model_failure"
     reasons = {"registry": "colleague_train_registry_not_integrated_on_frozen_population",
                "gliner": "local_weights_and_frozen_candidate_run_not_supplied",
                "llm": "live_gateway_trace_and_frozen_candidate_artifacts_remain_on_VM"}

@@ -29,6 +29,26 @@ def pair(sku, tp=0, fp=0, fn=0):
 
 
 class PairedTests(unittest.TestCase):
+    def test_llm_unknown_packet_never_constructs_provider(self):
+        import scripts.research.run_llm_screening as screening
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_rows(root / "llm_screening.input.jsonl", [Product("synthetic", "761", "Samsung").as_dict()])
+            dump(root / "run_stats.json", {"freeze": {}})
+            args = argparse.Namespace(max_calls=20, spend_limit_rub=5, model="openai/gpt-oss-120b",
+                                      bundle=root, baseline_run=root, authorized_packet_sha256="0" * 64)
+            with patch.object(screening, "verify_bundle"), patch.object(screening, "provider_from_env") as factory:
+                with self.assertRaisesRegex(ValueError, "exact_packet_authorization"):
+                    screening.run(args)
+                factory.assert_not_called()
+
+    def test_llm_planning_cost_and_invalid_budget(self):
+        from scripts.research.run_llm_screening import planning_cost_bound, run
+        self.assertLess(planning_cost_bound(5710, 100, 2048), 30)
+        for budget in (0, -1, float("nan"), float("inf")):
+            with self.subTest(budget=budget), self.assertRaisesRegex(ValueError, "unsupported_frozen_budget"):
+                run(argparse.Namespace(max_calls=20, spend_limit_rub=budget, model="openai/gpt-oss-120b"))
+
     def test_brand_measurement_counts_actual_diagnostics(self):
         from scripts.research.run_brand_screening import MeasuredHybrid
         class ExistingHybridStub:

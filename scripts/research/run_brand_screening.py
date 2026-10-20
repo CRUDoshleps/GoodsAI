@@ -82,7 +82,8 @@ def run(args):
         raise ValueError("screening_changed_or_non_deterministic_predictions")
     dump(output / "manifest.json", {"artifacts": {p.name: digest(p) for p in sorted(output.iterdir())
                                                   if p.is_file() and not p.name.startswith(".")}})
-    return {"status": "local_brand_screening_completed", "warm": dict(stats), "independent_quality": None}
+    status = "partial_model_failure" if hybrid.failed else "local_brand_screening_completed" if stats["model_calls"] else "route_not_exercised"
+    return {"status": status, "warm": dict(stats), "independent_quality": None}
 
 
 def main():
