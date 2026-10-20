@@ -4,7 +4,15 @@
 
 | ID | Issue | P | Статус | Роль | Исполнитель | Ветка | Результат |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GOV-006 | [#97](https://github.com/CRUDoshleps/GoodsAI/issues/97) | P1 | IN_PROGRESS | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-006-review-run-2` | 20.10.2026: анализ ревью и задачи с меткой `review:run-2`; runtime не меняется |
+| GOV-006 | [#97](https://github.com/CRUDoshleps/GoodsAI/issues/97) | P1 | REVIEW | аналитик/координатор | urasha / Codex (сессия Влада) | `gov/gov-006-review-run-2` | 20.10.2026: claim c15ec9b; анализ и 4 задачи, 6 существующих отмечены; runtime не меняется |
+| QA-006 | [#98](https://github.com/CRUDoshleps/GoodsAI/issues/98) | P0 | READY | QA/backend | — | — | внешний ввод без packaged demo, semantic CLI/HTTP acceptance |
+| LLM-007 | [#99](https://github.com/CRUDoshleps/GoodsAI/issues/99) | P0 | READY | LLM/backend | — | — | исправить воспроизведённый TypeError на нестроковом attribute |
+| LLM-008 | [#100](https://github.com/CRUDoshleps/GoodsAI/issues/100) | P1 | READY | LLM/MLOps | — | — | bounded response/deadline/physical attempts и failure tests |
+| DOCS-003 | [#101](https://github.com/CRUDoshleps/GoodsAI/issues/101) | P1 | READY | technical writer/QA | — | — | проверенный запуск с собственным JSONL и объяснения ответов |
+
+Связь с баллами и существующими задачами:
+[план прогона 2](docs/reviews/2026-10-20_run_2_action_plan.md).
+Метка `review:run-2` не снимает BLOCKED/BACKLOG у прежних задач.
 
 Этот файл — единая доска задач для людей и агентов. Перед изменением кода
 исполнитель сначала переводит одну задачу в `IN_PROGRESS`, указывает себя,
