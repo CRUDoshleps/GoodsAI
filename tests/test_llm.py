@@ -227,7 +227,7 @@ class FailureTests(unittest.TestCase):
             row = extractor.predict(PHONE)
         self.assertIn("llm_missing_key", attrs(row)["brand"]["reason_codes"])
         report = extractor.report()
-        self.assertEqual((report["disabled_reason"], report["calls"]), ("llm_missing_key", 1))
+        self.assertEqual((report["disabled_reason"], report["calls"]), ("llm_missing_key", 0))  # nothing was sent
 
     @staticmethod
     def fail_opener(*_args, **_kwargs):

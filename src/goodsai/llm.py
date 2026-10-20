@@ -226,10 +226,11 @@ class OpenAICompatibleProvider:
         """
         if deadline is None:
             deadline = self.clock() + self.settings.request_deadline_seconds
+        # Pre-flight refusals send nothing: attempts=0 so the logical call is refunded.
         if not self.base_url or not self.api_key:
-            raise ProviderError("llm_missing_key", fatal=True)
+            raise ProviderError("llm_missing_key", fatal=True, attempts=0)
         if not endpoint_allowed(self.base_url):
-            raise ProviderError("llm_endpoint_not_allowed", fatal=True)
+            raise ProviderError("llm_endpoint_not_allowed", fatal=True, attempts=0)
         body = {"model": self.model, "messages": messages, "temperature": 0, "max_tokens": max_tokens}
         if self.settings.json_mode:
             body["response_format"] = {"type": "json_object"}
