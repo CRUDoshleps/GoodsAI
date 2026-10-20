@@ -144,6 +144,7 @@ def public_usage(manifest):
     raw = manifest.get("llm", {})
     rows = manifest.get("rows")
     cost = raw.get("cost", 0 if manifest.get("llm_calls") == 0 else None)
+    acquisition = manifest.get("llm_acquisition", {})
     # Strict allowlist: provider URL/key, prompt/cache paths and raw responses
     # cannot flow into the public report, even from a colleague's manifest.
     return {"calls": manifest.get("llm_calls"), "compute_cost": None,
@@ -153,6 +154,10 @@ def public_usage(manifest):
         "cost": cost, "cost_denominator_sku": rows,
         "estimated_cost_per_1000_sku_in_provider_price_units": cost * 1000 / rows
             if type(cost) in (int, float) and type(rows) is int and rows > 0 else None,
+        "acquisition_including_verified_seed": {k: acquisition.get(k) for k in (
+            "calls", "attempts", "prompt_tokens", "completion_tokens", "cost", "prior_manifest_sha256")},
+        "acquisition_cost_per_1000_sku_in_provider_price_units": acquisition["cost"] * 1000 / rows
+            if type(acquisition.get("cost")) in (int, float) and type(rows) is int and rows > 0 else None,
         "billing_limitation": "provider_usage_estimate_not_invoice_unknown_failed_request_tokens_not_imputed"}
 
 

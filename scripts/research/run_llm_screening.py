@@ -6,6 +6,7 @@ from environment, never arguments/files in Git. Calls share the existing ledger.
 import argparse
 import json
 import math
+import shutil
 from pathlib import Path
 import sys
 
@@ -15,7 +16,7 @@ sys.path.insert(0, str(ROOT / "scripts/research"))
 from compare_silver_baseline import private_output
 from goodsai.cli import predict
 from goodsai.contracts import Product, load_config
-from goodsai.data import digest, read_jsonl
+from goodsai.data import digest, read_jsonl, write_json
 from goodsai.llm import DailyLedger, LLMExtractor, LLMSettings, build_messages, provider_from_env
 from goodsai.silver_prepare import dump, verify_bundle
 
@@ -62,6 +63,35 @@ def run(args):
     config = load_config(output / "config.json")
     from dataclasses import replace
     settings = replace(settings, cache_dir=output / "cache", cache_namespace="eval008-20261020")
+    prior = None
+    seed = getattr(args, "cache_seed_run", None)
+    if seed:
+        # Reuse only an immutable run on this exact packet/model/config. Never
+        # alter its cache: the next bounded batch gets its own verified copy.
+        inventory = json.loads((seed / "manifest.json").read_text(encoding="utf-8"))["artifacts"]
+        for name, checksum in inventory.items():
+            path = seed / name
+            if (Path(name).is_absolute() or ".." in Path(name).parts or path.is_symlink()
+                    or not path.resolve().is_relative_to(seed.resolve())
+                    or digest(path) != checksum):
+                raise ValueError("cache_seed_artifact_mismatch")
+        producer = json.loads((seed / "cold.manifest.json").read_text(encoding="utf-8"))
+        from goodsai.runtime import identity
+        if (producer["input_sha256"] != args.authorized_packet_sha256
+                or producer["config_sha256"] != identity(config)["config_sha256"]
+                or producer["llm"]["model"] != settings.model
+                or producer["llm"]["prompt_version"] != settings.identity()["prompt_version"]):
+            raise ValueError("cache_seed_packet_model_or_config_mismatch")
+        for name in inventory:
+            if name.startswith("cache/"):
+                destination = output / name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(seed / name, destination)
+                if digest(destination) != inventory[name]:
+                    raise ValueError("cache_seed_changed_during_copy")
+        billed = producer.get("llm_acquisition", producer["llm"])
+        prior = {k: billed.get(k) for k in ("calls", "attempts", "prompt_tokens", "completion_tokens", "cost")}
+        prior["manifest_sha256"] = digest(seed / "manifest.json")
     dump(output / "freeze.json", {"bundle_manifest_sha256": bundle_hash,
         "authorized_packet_sha256": args.authorized_packet_sha256, "cards": len(products),
         "authorization_record": args.authorization_record, "model": settings.model,
@@ -70,12 +100,20 @@ def run(args):
         "daily_max_calls": settings.daily_max_calls, "shared_ledger_used_before": used,
         "authorized_spend_limit_rub": args.spend_limit_rub, "conservative_planning_estimate_rub": bound,
         "max_prompt_json_utf8_bytes": max(sizes), "price_input_rub_per_million": 15.86,
+        "verified_seed_run_usage": prior,
         "price_output_rub_per_million": 61, "driver_sha256": digest(Path(__file__)),
         "regression_gate": "any_new_fp_or_lost_tp_blocks_recommendation",
         "warm_usage": "cumulative_same_extractor_and_same_total_run_call_cap"})
     extractor = LLMExtractor(config, provider_from_env(settings), settings)
     for temperature in ("cold", "warm"):
-        predict(source, output / (temperature + ".jsonl"), config, extractor)
+        target = output / (temperature + ".jsonl")
+        report = predict(source, target, config, extractor)
+        if prior:
+            report["llm_acquisition"] = {k: prior[k] + report["llm"][k]
+                if prior[k] is not None and report["llm"].get(k) is not None else None
+                for k in ("calls", "attempts", "prompt_tokens", "completion_tokens", "cost")}
+            report["llm_acquisition"]["prior_manifest_sha256"] = prior["manifest_sha256"]
+            write_json(target.with_suffix(".manifest.json"), report)
     verify_bundle(args.bundle)
     if digest(source) != args.authorized_packet_sha256:
         raise ValueError("authorized_packet_changed")
@@ -99,6 +137,7 @@ def main():
     p.add_argument("--model", default="openai/gpt-oss-120b")
     p.add_argument("--max-calls", default=100, type=int)
     p.add_argument("--spend-limit-rub", required=True, type=float)
+    p.add_argument("--cache-seed-run", type=Path, help="Verified earlier bounded run on the exact same packet")
     print(json.dumps(run(p.parse_args()), sort_keys=True))
 
 
