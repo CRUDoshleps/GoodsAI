@@ -20,8 +20,10 @@ CLI/HTTP: 83/83; demo 6/6 + verify; pip check; 9 submission tests OK. Сформ
 Финальный export `f17a1d9`: те же 180 файлов, rewritten links и hashes валидны;
 публичный runtime/config и числовые исторические таблицы не изменены.
 Нет новых P/R/F1, реальных model calls, расходов, изменений VM или test access.
-Чужой PR #136 не менялся. Собственный #127 имеет конфликт в PROJECT_STATUS
-с записью шести функций коллеги и оставлен открытым по условию пользователя.
+Чужой PR #136 не менялся. На момент завершения DOCS-004 собственный #127
+оставался открытым из-за конфликта с записью шести функций коллеги.
+По последующему поручению Влада в #127 выполнено согласование с main:
+сохранены запись коллеги, результат DOCS-004 и завершение GOV-007.
 
 # 20.10.2026: реализации шести задач приняты, экспериментальная приёмка открыта
 
@@ -57,10 +59,12 @@ validation, OPS-002/PRODUCT-002/CONF-003 integration и human UX benchmark не
 Новые эксплуатационные документы включены в явный Gitea allowlist; внутренние
 исследования/планы/reviews и task board по-прежнему не публикуются.
 
-# 20.10.2026: GOV-007 — очередь следующего технического прогона
+# 20.10.2026: GOV-007 — DONE, очередь следующего технического прогона
 
 По поручению Влада создана метка `review:next-checkpoint` и координатор
 [GOV-007 #121](https://github.com/CRUDoshleps/GoodsAI/issues/121), claim `5de5aab`.
+Индекс принят через [PR #126](https://github.com/CRUDoshleps/GoodsAI/pull/126),
+merge `3e78ebf`, CI 6/6 SUCCESS; Issue закрыта с `status:done`.
 Четыре новые узкие задачи: DOCS-004 #122 (публичные документы/README, P0 READY),
 EVAL-007 #123 (fresh frozen-silver baseline, P1 READY), CONF-004 #124 (реальный
 пилот категорий, P1 BLOCKED), EVAL-008 #125 (development model comparison,
