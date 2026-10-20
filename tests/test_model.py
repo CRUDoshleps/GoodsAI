@@ -37,6 +37,55 @@ class ModelTests(unittest.TestCase):
                 self.assertEqual(m["value"], name)
                 self.assertEqual(m["evidence"]["text"], name)
 
+    def test_explicit_quantity_and_feature_boundaries_without_memory_inference(self):
+        for title, category, expected in [
+            ('Чайник Bosch PX-7142 1200 мл 2400 Вт', '482', 'PX-7142'),
+            ('Чайник Bosch ZX-838, 1900ml', '482', 'ZX-838'),
+            ('Смартфон HONOR 7D 64GB Gold', '761', '7D'),
+            ('Смартфон Apple iPhone 38 Dual SIM+eSim, 256GB', '761', 'iPhone 38'),
+            ('Чайник Redmond LX721 Black Matte', '482', 'LX721'),
+            ('Чайник Clatronic WKS 4928 нержавеющая сталь', '482', 'WKS 4928'),
+        ]:
+            with self.subTest(title=title):
+                self.assertEqual(self.model(title, category=category)['value'], expected)
+
+    def test_full_commercial_names_and_split_alphanumeric_indices(self):
+        for title, expected in [
+            ('Чайник Tefal Aurora KO991188 белый', 'Aurora KO991188'),
+            ('Чайник Polaris PWK 2829CA', 'PWK 2829CA'),
+            ('Чайник QVC JK-HQ7291', 'JK-HQ7291'),
+            ('Чайник Weissgauff WK 2728 Db Touch CoolShell', 'WK 2728 Db Touch CoolShell'),
+        ]:
+            with self.subTest(title=title):
+                self.assertEqual(self.model(title, category='482')['value'], expected)
+        title = 'Чайник Tefal <b>Aurora</b>&nbsp;KO991188 1900 мл'
+        m = self.model(title, category='482')
+        self.assertEqual(m['value'], 'Aurora KO991188')
+        self.assertEqual(m['evidence']['text'], 'Aurora</b>&nbsp;KO991188')
+
+    def test_new_boundaries_do_not_admit_ambiguous_codes_or_standalone_features(self):
+        for title, category in [
+            ('Смартфон Samsung 5G', '761'),
+            ('Смартфон Samsung 32GB', '761'),
+            ('Смартфон Samsung Sample ROM 256GB', '761'),
+            ('Чайник Bosch 1900ml', '482'),
+            ('Чайник Bosch PX-7142 XQ-88 1900 мл', '482'),
+            ('Чайник Tefal Bright Home KX-91', '482'),
+            ('Чайник Unknown Maker KX-91', '482'),
+            ('Чайник Bosch WK 2728 RU', '482'),
+            ('Чайник Bosch WK 2728 Type', '482'),
+            ('Чайник Invented KX-82 FancyLine', '482'),
+            ('Смартфон Samsung Orbit X82 8/256', '761'),
+        ]:
+            with self.subTest(title=title):
+                self.assertIsNone(self.model(title, category=category)['value'])
+
+    def test_unknown_maker_still_requires_label_and_conflicts_still_abstain(self):
+        self.assertEqual(self.model('Товар', 'Модель: QX 9827CB', '482')['value'], 'QX 9827CB')
+        m = self.model('Чайник Bosch PX-7142 1200 мл', 'Модель: PX-7143;', '482')
+        self.assertIsNone(m['value'])
+        self.assertEqual(m['reason_codes'], ['conflicting_evidence'])
+
     def test_whitespace_and_html_keep_exact_raw_evidence(self):
         title = "Смартфон Samsung <b>Orbit</b>&nbsp;X82  Pro  5G 8/256GB"
         m = self.model(title)
