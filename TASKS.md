@@ -88,7 +88,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
-| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | READY | NLP/QA | urasha | `main` | PR #79 принят частично; RED SOLUTION/color остаётся FAILED в QA 20/21; #15 открыт |
+| VER-001 | [#15](https://github.com/CRUDoshleps/GoodsAI/issues/15) | P0 | IN_PROGRESS | NLP/QA | urasha / Codex (сессия Влада) | `qa/ver-001-color-attachment` | 20.10.2026: продолжение #79; закрыть ложный цвет внутри имени и проверить все candidate sources |
 | ML-001 | [#16](https://github.com/CRUDoshleps/GoodsAI/issues/16) | P1 | REVIEW | ML engineer | Codex (tunaIT) | `main` | PR #80 merged 468e35e; opt-in prototype принят; default/human quality gate остаётся открыт |
 | API-001 | [#17](https://github.com/CRUDoshleps/GoodsAI/issues/17) | P1 | READY | backend | — | — | финальный batch/API-контракт и диагностика ошибок |
 | QA-001 | [#18](https://github.com/CRUDoshleps/GoodsAI/issues/18) | P1 | DONE | QA | Codex (tunaIT) | `main` | PR #88 merged; mirror dc3fbad OK; интеграция 208+3 tests, clean-run 11/11; качество N/A |
