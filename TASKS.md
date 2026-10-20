@@ -84,7 +84,7 @@ GitHub Issues хранит обсуждение, labels и связь с PR; п�
 | REL-003 | [#30](https://github.com/CRUDoshleps/GoodsAI/issues/30) | P0 | BLOCKED | интегратор | — | — | выпуск исправлений review; ждёт подзадачи |
 | ART-003 | [#32](https://github.com/CRUDoshleps/GoodsAI/issues/32) | P0 | DONE | release/QA | Codex (сессия Влада) | `release/art-003-artifact-bundle` | offline smoke/assemble/verify, 100 + 3 tests OK |
 | DOCS-001 | [#28](https://github.com/CRUDoshleps/GoodsAI/issues/28) | P1 | DONE | technical writer | Codex (сессия Влада) | `docs/docs-001-reproducible-instructions` | PR #31 merge `55378f1`, зеркало Gitea успешно |
-| BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | READY | NLP/baseline | — | — | консервативный прототип извлечения модели товара |
+| BASE-001 | [#21](https://github.com/CRUDoshleps/GoodsAI/issues/21) | P1 | IN_PROGRESS | NLP/baseline | urasha / Codex (сессия Влада) | `baseline/base-001-model-boundaries` | 20.10.2026: доработка существующего M1 по подтверждённым границам и VM-пропускам |
 | LLM-001 | [#12](https://github.com/CRUDoshleps/GoodsAI/issues/12) | P1 | BACKLOG | LLM engineer | — | — | OpenAI-compatible adapter со structured output и бюджетом |
 | LLM-002 | [#13](https://github.com/CRUDoshleps/GoodsAI/issues/13) | P1 | BLOCKED | LLM engineer/аналитик | — | — | сравнение доступных моделей; ждёт EVAL-001 и лимит бюджета |
 | ROUTE-001 | [#14](https://github.com/CRUDoshleps/GoodsAI/issues/14) | P1 | BLOCKED | архитектор/ML | — | — | измеряемый rules → model/LLM → verifier router; ждёт EVAL-001 |
