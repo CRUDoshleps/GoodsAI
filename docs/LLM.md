@@ -1,7 +1,8 @@
 # LLM-003: evidence-first LLM fallback
 
 Реализация интегрирована в main; аудит кода **20.10.2026 на `1c64463`**.
-Исходная интеграция — PR #90 (`62898fb`), validation/bounded provider и общий
+Исходная интеграция — [PR #90](https://github.com/CRUDoshleps/GoodsAI/pull/90)
+(`62898fb`), validation/bounded provider и общий
 gate приняты последующими PR. [LLM-003 #25](https://github.com/CRUDoshleps/GoodsAI/issues/25)
 остаётся открытой по своей приёмке; статус issue не означает отсутствия кода.
 CLI/API создают маршрут через `composition.build_runtime`. В CLI нужен `--llm`,
@@ -235,7 +236,8 @@ endpoint/key; изменение цен/timeout отражено в provenance. 
 поэтому каталог кэша должен лежать вне Git (например, `outputs/`).
 
 Объединение одновременных одинаковых запросов, TTL, namespace/revision,
-integrity и аудит доли повторов реализованы в main (PR #128). Они явно
+integrity и аудит доли повторов реализованы в main
+([PR #128](https://github.com/CRUDoshleps/GoodsAI/pull/128)). Они явно
 настраиваются и описаны в [EXACT_CACHE](EXACT_CACHE.md). Репрезентативное
 решение keep/drop для cache остаётся отдельной экспериментальной приёмкой.
 

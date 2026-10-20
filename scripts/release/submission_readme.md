@@ -18,7 +18,8 @@
 | Независимый human test и общий актуальный model benchmark | N/A | приёмка не завершена; auto_accept выключен |
 
 Происхождение и воспроизведение: [RESULTS](../../docs/RESULTS.md).
-Свежие расхождения `model` разбираются отдельно (#137): synthetic PASS
+Свежие расхождения `model` разбираются отдельно
+([#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)): synthetic PASS
 не заменяет adjudication. [Требования → реализация → оставшийся долг](../../docs/REQUIREMENTS.md).
 
 ## Быстрый запуск

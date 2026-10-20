@@ -37,6 +37,6 @@ Unknown catalog labels are not negatives; wrong known values count FP+FN. See ru
 Top-30 is a metadata ranking, not 30 implemented schemas. Current runtime supports two categories. Seller/brand crossings are disclosed; this split is not seller-disjoint.
 Closed test was not evaluated. Old validation is feedback. A catalog mismatch may be a catalog error and requires adjudication.
 Calibration: offline_fitted. Any fitted score remains offline and does not establish true correctness probability.
-Historical snapshot note: RED SOLUTION/color was a known adversarial failure outside this evaluator. It was subsequently fixed by VER-001 (#15, merge `d9e279a`) and is covered by external acceptance; this does not change the historical scores above. Later model/catalog discrepancies require separate adjudication (#137). This report does not certify current release readiness.
+Historical snapshot note: RED SOLUTION/color was a known adversarial failure outside this evaluator. It was subsequently fixed by VER-001 ([#15](https://github.com/CRUDoshleps/GoodsAI/issues/15), merge `d9e279a`) and is covered by external acceptance; this does not change the historical scores above. Later model/catalog discrepancies require separate adjudication ([#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)). This report does not certify current release readiness.
 
 Reproduction: docs/research/silver_evaluation_protocol.md and docs/SILVER_EVALUATION.md.
