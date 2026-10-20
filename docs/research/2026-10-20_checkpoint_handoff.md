@@ -124,3 +124,66 @@ budget-limited прогон раскрывает достигнутый объё
 
 Подготовка, private планы, доступы и полные predictions не включаются в Gitea.
 Код остаётся воспроизводимым, внутренний handoff — только в GitHub.
+
+## Фактически выполнено после поручения создать новую выборку
+
+Владелец попросил самостоятельно создать недостающий набор, затем явно разрешил
+расходы шлюза. Исходный historical bundle не объявляется восстановленным.
+Существующие `goodsai-audit-20261019` projection/split/family metadata на VM
+использованы без изменения исходных файлов. Повторный полный EDA не выполнялся.
+Новый audit сохраняет исходное разбиение и карантинирует обнаруженные crossings;
+зафиксированы четыре прежних exposure источника (E1 tasks, audit-family dev tasks,
+audit-input и batch-input). Exposure inventory не доказывает полноту истории.
+
+Результаты и точные hashes: [public measured report](../../reports/checkpoint_20261020.md).
+Private корень на VM: `~/goodsai-checkpoint-20261020-e73a2a0/outputs/evaluation/`:
+
+- `eval-002-20261020-rebuilt`: audit; 10324 исходных metadata rows,
+  6980 quarantined, development 2171 / validation 846 / test_reserved 327 eligible;
+- `eval-006-silver-20261020-rebuilt`: 2974 input/reference rows, 1250 families,
+  40 metadata-only reserve, manifest SHA `fbd0dfd438226f09cdbab8e3bb2d618a215fefb729189094f48fed544777fdae`;
+- `eval-007-20261020-rebuilt-comparison`: freeze, f33e3fc/1c64463 cold/warm,
+  private error transitions, output manifest; regressions recorded in #137;
+- `eval-008-brand-20261020`: existing artifact verified; cold/warm 55 local calls,
+  48 added brands, no model failure; tokenizer warnings recorded without retuning;
+- `eval-008-llm-20261020`: first bounded batch 100 gateway attempts;
+- `eval-008-llm-complete-20261020`: verified immutable cache copy + 23 fresh
+  attempts, no remaining budget skips; warm cache adds zero fresh requests;
+- `eval-008-comparison-20261020`: same 200 preselected development cards for
+  actual rules/LLM/brand, paired deltas, per-attribute/category/rare and usage.
+
+Методы, thresholds и verifier не менялись после predictions. Бюджетное completion
+выполнялось до просмотра quality deltas, только по счётчику неотправленных строк.
+Итоговый acquisition cost включает первый и второй batch: 2.55063692 RUB,
+123 attempts, 45572 input + 29965 output tokens. Счёт шлюза не сверялся. Latency
+seeded completion не называется полностью cold latency; этапы показаны отдельно.
+
+Команды actual wrappers (из корня такого checkout; новые output-dir для повторов):
+
+```bash
+python scripts/research/run_brand_screening.py --bundle outputs/evaluation/eval-006-silver-20261020-rebuilt --baseline-run outputs/evaluation/eval-007-20261020-rebuilt-comparison --artifact PRIVATE/verified-gliner-assets --output-dir outputs/evaluation/brand-repeat
+python scripts/research/run_llm_screening.py --bundle outputs/evaluation/eval-006-silver-20261020-rebuilt --baseline-run outputs/evaluation/eval-007-20261020-rebuilt-comparison --budget-ledger PRIVATE/shared-ledger.json --authorized-packet-sha256 ceb5a79971afbff3a26858351ecc3dd25d68ee6737609b8fc0de434962830d1b --authorization-record OWNER_APPROVAL_REFERENCE --max-calls 100 --spend-limit-rub 30 --output-dir outputs/evaluation/llm-first-repeat
+python scripts/research/run_llm_screening.py --bundle outputs/evaluation/eval-006-silver-20261020-rebuilt --baseline-run outputs/evaluation/eval-007-20261020-rebuilt-comparison --budget-ledger PRIVATE/shared-ledger.json --authorized-packet-sha256 ceb5a79971afbff3a26858351ecc3dd25d68ee6737609b8fc0de434962830d1b --authorization-record OWNER_APPROVAL_REFERENCE --max-calls 23 --spend-limit-rub 8 --cache-seed-run outputs/evaluation/llm-first-repeat --output-dir outputs/evaluation/llm-complete-repeat
+python scripts/research/run_silver_evaluation.py --bundle outputs/evaluation/eval-006-silver-20261020-rebuilt --output-dir outputs/evaluation/model-comparison-repeat --candidate llm=outputs/evaluation/llm-complete-repeat/cold.jsonl --candidate gliner=outputs/evaluation/brand-repeat/cold.jsonl
+```
+
+Gateway credentials — только `GOODSAI_LLM_BASE_URL` / `GOODSAI_LLM_API_KEY` в
+окружении. Shared ledger обязателен, 300/day; цена — за 1000 tokens в settings,
+не за миллион. Replays требуют действующего разрешения и фактического остатка.
+Cache TTL 3600 s: completion выполняется в том же окне; stale/missing entries
+не считаются cache hits и могут привести к явно раскрытому budget-limited результату.
+
+CONF-004 draft находится отдельно:
+`~/goodsai-conf004-20261020-f0e4bc0/outputs/conf004-real-draft`.
+Воспроизведение без inference и без фиктивного traffic:
+
+```bash
+python scripts/research/prepare_category_pilot.py --catalog PRIVATE/catalog_skus.parquet --profile PRIVATE/catalog_profile.json --audit PRIVATE/rebuilt-audit --max-per-category 300 --output-dir outputs/conf004-real-draft-repeat
+```
+
+Сохранены 900 train rows, прежние validation/test identities в split metadata,
+provisional exact-title families и предложенные поля. Near-family/units/mandatory
+fields/официальный контракт ещё требуют acceptance. Доступный clicks-файл с hash
+`75eb3622…0a87a` не совпал с `f9bc052d…bb22`, поэтому в registry не подставлялись
+ни новые counts без provenance, ни равные фиктивные traffic weights. Пилот новых
+категорий остаётся BLOCKED; CLI/API inference и качество на них не заявлены.

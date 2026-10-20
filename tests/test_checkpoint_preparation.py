@@ -256,6 +256,34 @@ class FrozenPopulationTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "invalid_screening_population"):
                     comparison.check_population(bundle, audit, checksum, sources)
 
+    def test_llm_cache_seed_reuses_only_verified_run_and_rejects_tampering(self):
+        import scripts.research.run_llm_screening as screening
+        class SyntheticProvider:
+            def complete(self, messages, max_tokens):
+                from goodsai.llm import ProviderResponse
+                return ProviderResponse('{"attributes":[]}', prompt_tokens=10, completion_tokens=5)
+        (ROOT / "outputs").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as tmp:
+            root = Path(tmp)
+            bundle, _, checksum, _ = self.fixture(root)
+            baseline = root / "baseline"
+            baseline.mkdir()
+            dump(baseline / "run_stats.json", {"freeze": {"bundle_manifest_sha256": checksum,
+                 "evaluator_sha256": digest(ROOT / "src/goodsai/silver_evaluate.py")}})
+            args = argparse.Namespace(bundle=bundle, baseline_run=baseline, max_calls=1, spend_limit_rub=1,
+                model="openai/gpt-oss-120b", authorized_packet_sha256=digest(bundle / "llm_screening.input.jsonl"),
+                budget_ledger=root / "ledger.json", output_dir=root / "first", authorization_record="synthetic-test", cache_seed_run=None)
+            with patch.object(screening, "provider_from_env", return_value=SyntheticProvider()):
+                self.assertEqual(screening.run(args)["attempts"], 1)
+                args.cache_seed_run, args.output_dir = root / "first", root / "second"
+                self.assertEqual(screening.run(args)["attempts"], 0)
+            (root / "first/cold.manifest.json").write_text('{}\n')
+            args.output_dir = root / "corrupt"
+            with patch.object(screening, "provider_from_env") as factory:
+                with self.assertRaisesRegex(ValueError, "cache_seed_artifact_mismatch"):
+                    screening.run(args)
+                factory.assert_not_called()
+
     @unittest.skipUnless(HAS_HISTORY, "requires historical GitHub runtime; absent from sanitized Gitea history")
     def test_complete_synthetic_driver_runs_both_commits_with_one_reference(self):
         (ROOT / "outputs").mkdir(exist_ok=True)

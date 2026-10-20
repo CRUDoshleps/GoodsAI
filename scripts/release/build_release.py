@@ -29,7 +29,7 @@ PUBLIC_DOCS = {"docs/DICTIONARY_CONSOLE.md", "docs/REVIEW_PRIORITY.md", "docs/DR
                "docs/reviews/2026-10-20_linked_acceptance.md",
                "docs/SILVER_EVALUATION.md", "docs/research/silver_evaluation_protocol.md",
                "docs/research/silver_evaluation_results.md",
-               "reports/metrics.md", "reports/run_stats.json",
+               "reports/metrics.md", "reports/run_stats.json", "reports/checkpoint_20261020.md", "reports/checkpoint_20261020.json",
                "docs/FUZZ_TESTING.md",
                "requirements/clean-run.in", "requirements/clean-run.lock", "docs/CLEAN_RUN.md",
 

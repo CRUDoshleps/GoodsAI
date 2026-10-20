@@ -1,5 +1,11 @@
 # EVAL-006: оценка по каталогу и offline-калибровка
 
+Новый [измеренный checkpoint 20.10.2026](../reports/checkpoint_20261020.md)
+содержит fresh baseline на **новой** frozen выборке 2974 карточек и реальный
+rules/LLM/brand-hybrid screening 200 карточек. Это не точное повторение старых
+3037 карточек. Прежние отчёты ниже сохранены как исторические. Новые judged
+расхождения раскрыты; model defaults и auto_accept не включались.
+
 Для сравнения исторического producer с новым commit предусмотрен отдельный
 `scripts/research/compare_silver_baseline.py`: два изолированных Git checkout,
 один frozen bundle/config/evaluator, paired new FP/lost TP и cold/warm ресурсы.

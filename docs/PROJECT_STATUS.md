@@ -1,25 +1,37 @@
-# 20.10.2026: подготовка #123/#124/#125, реальные измерения остаются заблокированы
+# 20.10.2026: фактический VM checkpoint #123/#125 и подготовка #124
 
-Добавлены hash-bound private handoffs, EVAL-007 comparison runner для двух
-изолированных Git worktree и paired transition diagnostics для existing silver
-candidate evaluator. До inference проверяются frozen bundle, EVAL-002 audit,
-preparation sources/exposure hashes и protected families. Сначала freeze, затем
-старый/новый rules runtime на одном input/config/reference; new FP/lost TP
-блокируют рекомендацию. Ресурсы имеют cold/warm условия и RSS; compute cost N/A.
+По поручению владельца после недоступности исходного EVAL-006 bundle создана
+новая frozen selection из существующих VM projection/split/family metadata,
+без изменения прежнего split и исторических reports: 2974 карточки / 1250 families,
+40 резервных карточек исключены. Bundle SHA fbd0dfd438226f09cdbab8e3bb2d618a215fefb729189094f48fed544777fdae.
+Все числа ниже — catalog silver / development feedback, не human quality.
 
-CONF-004: только deterministic train-only proposal и checklist существующего
-registry; #5/#10/#44 и утверждение mapping/families не подменены. EVAL-008:
-существующие adapters, actual producer hashes, per-category/attribute/slices,
-paired transitions, attempts/resources и usage price units; непроведённое not_run.
+EVAL-007: f33e3fc→1c64463 на одном input/reference/config/evaluator: +25 TP,
++20 new catalog FP, 6 lost TP, 10 removed FP; F1 0.758401→0.759222. Регрессии
+не скрыты общим F1; recommendation blocked, создан #137. Позднейший analytics
+producer e03767f повторил все 2974 rules values (проверка исключает только run_id).
 
-Локально 445 tests проходят, включая реальные процессы исторического f33e3fc и
-текущего checkout на synthetic входе. Это проверка инструмента, не новый real
-baseline. SSH-доступ на VM проверен; исходный ~/project не менялся. GLiNER assets
-найдены в отдельном прежнем checkout; frozen EVAL-006 bundle, EVAL-002 audit и
-approved expanded train projection не найдены ни локально, ни при поиске
-имён соответствующих artifacts в home VM. Raw/резервные карточки не открывались,
-model API не вызывался, средства шлюза не тратились. Полные планы остаются в
-ignored outputs, внутренний handoff только в GitHub; Gitea-фильтр сохранён.
+EVAL-008: frozen screening 200 development SKU / 200 families, одинаковый для
+rules/local brand/LLM. Brand-hybrid +48 TP / 0 new FP / 0 lost TP, keep только
+opt-in development. General LLM-fill +72 TP / 20 new FP / 0 lost TP, drop до
+adjudication; 19 новых расхождений относятся к model. Владелец явно разрешил
+расходы; 123 фактических organizer-gateway запроса, 45572 input / 29965 output
+токенов, provider estimate 2.55063692 ₽. Bounded batch 100 + completion 23 с
+проверенной копией кеша; cold/warm условия и итоговый full acquisition usage
+раскрыты. Compute/invoice N/A; нет заявления о бесплатной локальной модели.
+
+CONF-004: подготовлены 900 private train rows (300 ноутбуков 987, 300 телевизоров
+1682, 300 мониторов 1263), split/family/source hashes и draft обязательных полей.
+Новый category inference не запускался; #5/#10/#44 и owner mapping/units/family
+acceptance остаются блокерами. Доступный clicks source не совпал с historical
+fingerprint: не использован; фиктивные traffic weights не созданы.
+
+Локально 451 tests; на VM 12 ранних targeted tests и actual frozen comparison /
+brand / gateway / repeat процессы. Подробности и hashes — reports/checkpoint_20261020.md
+и JSON; полные predictions/кеши/train labels/секреты остаются private. Default
+runtime rules/units/confidence/decision/model modes не менялись под ответы.
+Рабочий ~/project и demo не обновлялись. В Gitea допускаются только безопасные
+измеренные отчёты и код; внутренний handoff/планы/TASKS/PROJECT_STATUS исключены.
 
 # 20.10.2026: реализации шести задач приняты, экспериментальная приёмка открыта
 

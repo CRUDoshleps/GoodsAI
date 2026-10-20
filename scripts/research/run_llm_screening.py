@@ -89,7 +89,12 @@ def run(args):
                 shutil.copyfile(seed / name, destination)
                 if digest(destination) != inventory[name]:
                     raise ValueError("cache_seed_changed_during_copy")
-        billed = producer.get("llm_acquisition", producer["llm"])
+        # Warm can retry a cold failure while the logical run cap still has room.
+        # Its counters are cumulative; billing must include those physical calls.
+        warm = json.loads((seed / "warm.manifest.json").read_text(encoding="utf-8"))
+        if any(warm.get(k) != producer.get(k) for k in ("input_sha256", "config_sha256", "code_sha256")):
+            raise ValueError("cache_seed_warm_identity_mismatch")
+        billed = warm.get("llm_acquisition", warm["llm"])
         prior = {k: billed.get(k) for k in ("calls", "attempts", "prompt_tokens", "completion_tokens", "cost")}
         prior["manifest_sha256"] = digest(seed / "manifest.json")
     dump(output / "freeze.json", {"bundle_manifest_sha256": bundle_hash,

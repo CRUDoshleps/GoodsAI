@@ -255,11 +255,17 @@ Manifest содержит effective config/policy и их SHA-256 без клю�
 [инструкция EVAL-006](docs/SILVER_EVALUATION.md). Это диагностика по шумному
 reference, независимое качество пока не подтверждено.
 
-Результат на 3037 development/feedback карточках: agreement P 94,65%,
+Исторический результат producer `f33e3fc` на 3037 development/feedback карточках: agreement P 94,65%,
 R 63,02%, F1 75,67%, supported recall 75,75%. Полные знаменатели и ограничения:
 [метрики](reports/metrics.md), [run stats](reports/run_stats.json),
 [выводы](docs/research/silver_evaluation_results.md). С результатами ручной
 разметки ниже эти числа напрямую не сравниваются.
+
+[Checkpoint 20.10.2026](reports/checkpoint_20261020.md): новая frozen выборка
+2974 карточек и общий screening 200 карточек для rules/LLM/brand-hybrid.
+Brand-hybrid дал 48 новых catalog TP без новых judged FP/lost TP; общий LLM-fill
+дал +72 TP и +20 FP, поэтому не рекомендован к включению по умолчанию. Это
+development catalog agreement; свежие hashes, расходы и ограничения — в отчёте.
 
 Без gold можно получить только отчёт `N/A`:
 
