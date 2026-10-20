@@ -26,6 +26,18 @@
 Она сохраняет JSON v0.1 и разделяет требования кейса, ограничения E1 и условия
 будущей приёмки. Официальные endpoints пока не объявлены.
 
+[Матрица сценариев](../../docs/SCENARIO_MATRIX.md): внешний CLI/HTTP без packaged
+examples, offline verifier/LLM и отдельный smoke; пробелы видны в общем отчёте.
+После установки зависимостей запустите:
+
+```bash
+.venv/bin/python scripts/release/scenario_matrix.py --seed 20261020 --output-dir outputs/scenarios-check
+```
+
+PowerShell: замените `.venv/bin/python` на `.\.venv\Scripts\python.exe`.
+Отчёт — `outputs/scenarios-check/report.md`. PASS относится к synthetic
+доказательствам реализованных сценариев, не ко всему кейсу или качеству каталога.
+
 ## Быстрый запуск
 
 Требуется Python 3.12+. Клонируйте с полной историей: comparison tests используют

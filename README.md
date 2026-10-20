@@ -32,6 +32,18 @@ PASS синтетики их не закрывает. Реализацию и о
 JSON v0.1 сохранён; ограничения E1, официальные требования и условия будущей
 приёмки перечислены отдельно.
 
+[Исполняемая матрица сценариев](docs/SCENARIO_MATRIX.md) одной командой проверяет
+внешний CLI/HTTP без packaged examples, verifier/LLM с fake providers и отдельный
+demo. Отчёт сохраняет непокрытые требования: зелёный gate не означает полного
+покрытия кейса или качества каталога. После [установки](#быстрый-запуск):
+
+```bash
+.venv/bin/python scripts/release/scenario_matrix.py --seed 20261020 --output-dir outputs/scenarios-check
+```
+
+В PowerShell используйте `.\.venv\Scripts\python.exe` вместо `.venv/bin/python`.
+Откройте `outputs/scenarios-check/report.md`; для нового запуска выберите новый каталог.
+
 ## Что работает сейчас
 
 - CLI для подготовки данных, пакетного прогноза и оценки;

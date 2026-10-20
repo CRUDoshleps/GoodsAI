@@ -281,6 +281,12 @@ hashes, сохраняя прежний временный prediction run ID и 
 
 ## 7. Метрики приёмки
 
+SPEC-002 `spec-002-v1`: [исполняемая матрица](docs/SCENARIO_MATRIX.md) проверяет
+заявленные synthetic сценарии внешнего CLI/HTTP и offline gates, фиксирует
+REQ/SCN source status и artifact hashes. Реализованный сценарий без доказательства
+не проходит gate; неготовые/неизвестные требования остаются в общем отчёте.
+Это не метрика качества каталога и не изменение JSON input/output v0.1.
+
 Качество измеряется только на зафиксированной разметке:
 
 - micro/macro precision, recall и F1;

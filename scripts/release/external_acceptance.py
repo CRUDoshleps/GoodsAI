@@ -43,7 +43,7 @@ def result_code(report):
     return {'passed': 0, 'failed': 1, 'error': 2}[report['status']]
 
 
-def run(output, seed):
+def run(output, seed, *, additional_cases=()):
     output = destination(output)
     output.mkdir(parents=True, exist_ok=False)  # Never overwrite an earlier run.
     config = load_config()
@@ -63,10 +63,11 @@ def run(output, seed):
         legacy_path = ROOT / 'src/goodsai/examples/synthetic/adversarial.json'
         legacy = json.loads(legacy_path.read_text(encoding='utf-8'))
         fresh = generated_cases(seed)
-        cases = fresh + [dict(c, id='qa-001/' + c['id']) for c in legacy['cases']]
+        cases = fresh + [dict(c, id='qa-001/' + c['id']) for c in legacy['cases']] + list(additional_cases)
         if len({c['id'] for c in cases}) != len(cases):
             raise ValueError('Duplicate case IDs')
         report.update(generated_cases=len(fresh), legacy_cases=len(legacy['cases']),
+                      additional_cases=len(additional_cases),
                       legacy_fixture_sha256=sha(legacy_path))
         save(output / 'expected.json', {'grammar': VERSION, 'seed': seed, 'cases': cases})
         input_path = output / 'input.jsonl'
