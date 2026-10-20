@@ -269,3 +269,7 @@ endpoint/key; изменение цен/timeout отражено в provenance. 
   невалидный JSON, 429 с Retry-After, 5xx, обрыв соединения, исчерпанный
   журнал) и тестами с фейковыми часами: `tests/test_llm_bounds.py`, 13 тестов.
   Внешний шлюз не вызывался.
+
+## Exact cache LLM-004
+
+Versioned exact-cache, TTL, single-flight и аудит без вызовов: [EXACT_CACHE](EXACT_CACHE.md). Репрезентативный keep/drop остаётся отдельной проверкой.

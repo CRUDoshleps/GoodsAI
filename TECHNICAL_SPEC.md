@@ -248,3 +248,11 @@ train values/support и конечный набор изученных numeric t
 Контракт train-проекции, словарей, нормализации, evidence и границы поддержки
 описаны в [CATEGORY_REGISTRY](docs/CATEGORY_REGISTRY.md). Реальный train/split,
 независимые метрики и принятие расширения остаются отдельными условиями.
+
+## Exact producer reuse (LLM-004)
+
+Opt-in cache сохраняет producer proposals, а не решения. Fingerprint включает
+exact исходные поля/flags, schema/config, prompt, generation, model/revision и
+namespace; TTL не более суток. Каждый replay проходит текущий общий gate.
+Single-flight не отменяет request deadline, budgets и concurrency. Формат
+prediction v0.1 и review/abstain остаётся прежним; подробности — docs/EXACT_CACHE.md.

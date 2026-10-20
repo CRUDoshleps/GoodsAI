@@ -50,13 +50,22 @@ def default_api_limits():
     return deepcopy(_packaged()["runtime"]["api"])
 
 
+LLM_EXTENSIONS = {"model_revision": None, "cache_namespace": "local", "cache_ttl_seconds": 3600}
+
+
 def default_llm_policy():
-    return deepcopy(_packaged()["runtime"]["llm"])
+    return {**deepcopy(_packaged()["runtime"]["llm"]), **LLM_EXTENSIONS}
 
 
 def validate_llm_policy(policy):
     """One schema for profile, resolved overrides and low-level LLMSettings."""
-    _keys(policy, default_llm_policy(), location="runtime.llm")
+    _keys(policy, set(default_llm_policy()) - set(LLM_EXTENSIONS), optional=LLM_EXTENSIONS, location="runtime.llm")
+    policy = {**LLM_EXTENSIONS, **policy}
+    _string(policy["cache_namespace"], "cache_namespace")
+    if policy["model_revision"] is not None:
+        _string(policy["model_revision"], "model_revision")
+    if type(policy["cache_ttl_seconds"]) is not int or not 1 <= policy["cache_ttl_seconds"] <= 86400:
+        raise ValueError("Cache TTL must be between 1 and 86400 seconds")
     if policy["model"] is not None:
         _string(policy["model"], "runtime.llm.model")
         if len(policy["model"]) > 200:
