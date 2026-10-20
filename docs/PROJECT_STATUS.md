@@ -1,4 +1,4 @@
-# 20.10.2026: VER-002 — общий verifier, кандидат для PR
+# 20.10.2026: VER-002 — REVIEW, PR #118
 
 Issue #37, ветка `qa/ver-002-common-verifier`, база `73faf07`, claim `8a55d81`
 (кодировка исправлена `eddf6a1`), реализация `a2c0b32`. В рабочую ветку включён
@@ -20,12 +20,15 @@ experimental GLiNER. Relation 1.2 отклоняет явно служебные
 значений. Это не independent gold и не доказательство улучшения каталожной F1.
 Добавлены 17 targeted тестов, CLI/API parity, manifest reasons, fake provider
 и cache replay, injected model entities без загрузки весов.
-Полные проверки итогового commit фиксируются в PR; в исходном прогоне до
-REL-005 — 377 основных + 3 reader tests OK, external acceptance 83/83,
-synthetic demo 6/6 и verify OK, pip check OK.
+На интегрированном commit `9ce6432`: **386 основных + 3 reader tests OK**,
+external acceptance **83/83**, synthetic demo **6/6** и verify OK, pip check OK,
+locked clean-run **11/11**. Все 6 CI checks SUCCESS: invariants, properties,
+external acceptance и clean-run на Linux/Windows. Freeze code hashes обоих
+development comparisons совпали с текущим пакетом; A→C pair deltas пусты.
 
 Реальных model calls, расходов, просмотра test reserve и изменений VM нет.
-PR подготовлен для команды; запросы reviewer не отправляются по указанию Влада.
+[PR #118](https://github.com/CRUDoshleps/GoodsAI/pull/118) открыт; запросы
+reviewer не отправлялись по указанию Влада. Merge в main не выполнялся.
 Схемы, ограничения, команды и private provenance: [VERIFIER](VERIFIER.md).
 
 # 20.10.2026: REL-005 — опубликован состав сдачи Gitea

@@ -1,6 +1,7 @@
 # VER-002: общий verifier кандидатов
 
-Ветка `qa/ver-002-common-verifier`, Issue [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37).
+Ветка `qa/ver-002-common-verifier`, Issue [#37](https://github.com/CRUDoshleps/GoodsAI/issues/37),
+открытый [PR #118](https://github.com/CRUDoshleps/GoodsAI/pull/118) без merge.
 База — `73faf07`, опубликованный claim — `8a55d81` (исправление кодировки — `eddf6a1`).
 Это завершение проверки на действующем stage contract v1 / result v0.1.
 Официальный контракт #10, изменение категорий и большой ARCH-001 рефакторинг
@@ -114,12 +115,15 @@ Reviewed development (AI-assisted, уже использовался разра�
 Unit/integration tests проверяют настоящий rules path, fake LLM + cache replay,
 инъекцию model entities без загрузки весов, CLI/API parity и manifest reasons.
 Реальные LLM и GLiNER inference не выполнялись. ВМ и `main` не менялись;
-test reserve не открывался. Число тестов и выпускные проверки фиксируются
-в `PROJECT_STATUS.md` после завершения прогона.
+test reserve не открывался. На candidate `9ce6432`: 386 основных + 3 reader
+tests OK; external 83/83; demo 6/6 и verify; locked clean-run 11/11; pip check
+OK. Все 6 CI checks SUCCESS на Linux/Windows. Последующее изменение этого
+документа не меняет проверенный runtime.
 
-Private артефакты: `outputs/ver002-synthetic-final/`,
-`outputs/ver002-external-final/`, `outputs/demo/ver002-final/`,
-`outputs/evaluation/ver002-m2-final/`, `outputs/evaluation/ver002-d21-final/`.
+Private артефакты: `outputs/ver002-synthetic-candidate/`,
+`outputs/ver002-external-candidate/`, `outputs/demo/ver002-candidate/`,
+`outputs/evaluation/ver002-m2-candidate/`, `outputs/evaluation/ver002-d21-candidate/`,
+`outputs/ver002-clean-9ce6432/`.
 Пакет и inputs привязаны hashes внутри отчётов; development тексты не коммитятся.
 
 Это конечные языковые проверки. Произвольные перефразирования команд,
