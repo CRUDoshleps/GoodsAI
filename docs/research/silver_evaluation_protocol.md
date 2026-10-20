@@ -1,7 +1,7 @@
 # EVAL-006: замороженный протокол catalog-silver
 
 Версия `catalog-silver-2`, seed `goodsai-silver-20261019-v1`.
-Поручение Владислава: выполнить V0–V4 плана сравнения с attrx; claim `f04abec`,
+Поручение Владислава: выполнить V0–V4 плана оценки; claim `f04abec`,
 Issue #91. Baseline: `977c5ed`. Протокол фиксируется **до новых predictions**.
 
 ## Границы и источники
