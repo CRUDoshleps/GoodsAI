@@ -214,6 +214,8 @@ def evaluate_models(reviewed, reference_sha256, predictions, config_path, output
         captured.parent.mkdir(parents=True)
         shutil.copyfile(path, captured)
         shutil.copyfile(producer_path, captured.with_suffix(".manifest.json"))
+        require(read(captured.with_suffix(".manifest.json")) == producer
+                and digest(captured) == producer["output_sha256"], "producer_changed_during_capture")
         all_rows = list(read_predictions(captured))
         require(len(all_rows) == producer["rows"] and len({r["sku_id"] for r in all_rows}) == len(all_rows),
                 "invalid_producer_population")
