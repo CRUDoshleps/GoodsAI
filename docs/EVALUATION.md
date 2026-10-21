@@ -49,6 +49,11 @@ python -m scripts.research.export_quality_report \
 (PowerShell: `Get-FileHash reports/quality_20261021.* -Algorithm SHA256`).
 Ожидаемый JSON SHA указан в [RESULTS](RESULTS.md), hashes сдаваемых файлов и
 source GitHub SHA — в `submission-manifest.json` опубликованного Gitea checkout.
+Exporter и оба публичных snapshot используют LF, поэтому файловые hashes
+совпадают с Git blobs и Gitea manifest независимо от Windows checkout.
+Это не нормализует runtime fingerprints: code_sha256 описывает загруженные
+байты Python и может отличаться между CRLF/LF checkout. При таком несовпадении
+экспорт frozen source отклоняется; для повтора нужны те же loaded source bytes.
 
 Основная единица — пара `(SKU, attribute)`. Для каждой пары gold определяет,
 есть ли характеристика, какое значение допустимо и каким текстом оно

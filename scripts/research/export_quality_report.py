@@ -197,8 +197,8 @@ def export(args):
     output = args.output_dir.resolve()
     require(output.is_relative_to((ROOT / "outputs").resolve()) and not output.exists(), "new_private_output_required")
     output.mkdir(parents=True)
-    (output / "quality_20261021.json").write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    (output / "quality_20261021.md").write_text(markdown(report), encoding="utf-8")
+    (output / "quality_20261021.json").write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+    (output / "quality_20261021.md").write_text(markdown(report), encoding="utf-8", newline="\n")
     return {"status": "aggregate_exported", "independent_human_quality": None}
 
 

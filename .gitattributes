@@ -1,3 +1,7 @@
 # Frozen delivery artifacts retain the measured bytes on Windows and Linux.
 # Keep this scoped: runtime source and ordinary documentation keep their defaults.
 docs/delivery/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Public quality hashes describe the same bytes in generated files and Git blobs.
+scripts/research/export_quality_report.py text eol=lf
+reports/quality_20261021.json text eol=lf
+reports/quality_20261021.md text eol=lf

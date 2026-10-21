@@ -102,6 +102,12 @@ class SubmissionTests(unittest.TestCase):
                 self.assertTrue(present, f"Broken submission link in {name}: {match[2]}")
         self.assertIn(b"](docs/QUICKSTART.md)", files["README.md"][1])
         self.assertIn(b"](../../docs/QUICKSTART.md)", files[publication.README_SOURCE][1])
+        quality = files["reports/quality_20261021.json"][1]
+        self.assertNotIn(b"\r", quality)
+        self.assertNotIn(b"\r", files["reports/quality_20261021.md"][1])
+        self.assertIn(hashlib.sha256(quality).hexdigest().encode(), files["docs/RESULTS.md"][1])
+        self.assertEqual(json.loads(quality)["provenance"]["exporter_sha256"],
+                         hashlib.sha256(files["scripts/research/export_quality_report.py"][1]).hexdigest())
 
     def test_migration_is_fast_forward_and_manifest_matches_every_file(self):
         before = self.git("status", "--porcelain")
