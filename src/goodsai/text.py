@@ -12,6 +12,20 @@ class VisibleText(HTMLParser):
         self.segments: list[tuple[int, str]] = []
         self.parts: list[tuple[str, list]] = []
 
+    def parse_marked_section(self, i, report=1):
+        # Older supported CPython parsers assert on untrusted <![x]> markup.
+        # Consume that declaration as a bogus comment, preserving original
+        # coordinates and hidden-node state rather than restarting feed as text.
+        position = self.getpos()
+        try:
+            return super().parse_marked_section(i, report)
+        except AssertionError:
+            if self.rawdata[i:i + 3] != '<![':
+                raise
+            # _scan_name may advance the parser position before asserting.
+            self.lineno, self.offset = position
+            return self.parse_bogus_comment(i, report)
+
     def boundary(self):
         self.parts.append(("\n", [None]))
 
