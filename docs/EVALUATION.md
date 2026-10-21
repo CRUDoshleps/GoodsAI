@@ -65,8 +65,10 @@ Throughput  = cards / elapsed_seconds
 ```
 
 ReviewRate, EvidenceExactRate и CostPer1000 выше — определения для отчётности,
-не обещание отдельных готовых полей evaluator. Сейчас вызовов моделей нет,
-API-расход равен нулю; стоимость compute в рублях не измерена.
+не обещание отдельных готовых полей evaluator. В rules-only режиме нет model
+API-вызовов; стоимость compute в рублях этим не измеряется. Opt-in model/LLM
+routes существуют: для конкретного запуска calls/tokens/latency/стоимость
+берутся из его manifest/usage. Отсутствующее измерение — N/A, а не ноль.
 
 ## Обязательные срезы
 
@@ -110,8 +112,127 @@ AI-assisted и использование для разработки фикси
 - нужны более явные end-to-end сценарии и release evidence;
 - эксплуатационные риски: pickle-import, логи и временные файлы.
 
-Атомарная запись и model rules после этого были улучшены. Интеграция LLM,
-независимый gold и полный release artifact остаются открыты.
+После этого улучшены атомарная запись и model rules, реализованы opt-in LLM
+route, общий verifier и сборщик шести артефактов. Это не завершает независимый
+human gold или финальную приёмку полного комплекта на целевой версии:
+их статус и ограничения указаны в [RESULTS](RESULTS.md).
+
+## Подготовка воспроизводимого human quality-пакета
+
+EVAL-003 использует существующие [human workflow](HUMAN_GOLD.md),
+`goodsai.evaluate.evaluate` и парные transitions из `compare_model_stage`.
+Новый orchestration tool не предсказывает, не размечает, не открывает reserve
+и не аутентифицирует людей. Пока нет gold, подготовка безопасна:
+
+```bash
+.venv/bin/python scripts/research/quality_evidence.py prepare --output-dir outputs/evaluation/quality-plan-next
+.venv/bin/python scripts/research/quality_evidence.py verify --bundle outputs/evaluation/quality-plan-next
+```
+
+В PowerShell executable — `.\.venv\Scripts\python.exe`. Нужен Python 3.12+
+и для assemble/verify с метриками полный development Git clone, содержащий
+frozen GitHub commit. Gitea-only clone с другой историей недостаточен.
+Каждый output-dir новый и находится в `outputs/`.
+Результат prepare: `status=blocked`, `independent_reference=false`, P/R/F1=null,
+baseline/hybrid=`not_run`, плюс заполняемый spec. Verify подтверждает целостность,
+но сохраняет `final_acceptance=blocked`. Exit 0 здесь означает успешную подготовку
+или проверку целостности, **не успешную независимую оценку**.
+
+### Когда люди закончат разметку
+
+В отдельной копии `evaluation.spec.template.json` указать записи
+`{"path": "…", "sha256": "…"}` для:
+
+- `input` — ровно text-only проекция выбранных reference-карточек;
+- `reference_package` — `manifest.json` готового EVAL-001 `finalize` пакета;
+- `review_packages.A/B` — `manifest.json` исходных раздельных human-пакетов;
+- `runs` — ровно baseline и hybrid, в этом порядке. Для готового запуска
+  `status=completed` и записи `predictions`, `manifest`, `config`. Manifest —
+  сохранённый CLI `.manifest.json`, конфиг — точный эффективный профиль;
+  для непроведённого hybrid — `status=not_run` и короткий `reason` код.
+
+Пути разрешаются **относительно spec**, абсолютные также допустимы. SHA должны
+идентифицировать утверждённые неизменённые файлы; нельзя обновлять их ради
+обхода ошибки. Baseline обязателен для сборки с gold. Для rehearsal на
+вымышленных данных `purpose=synthetic_workflow_check`; такой отчёт остаётся
+synthetic и не становится человеческой оценкой.
+
+```json
+{
+  "name": "baseline",
+  "status": "completed",
+  "predictions": {"path": "baseline/predictions.jsonl", "sha256": "<64 lowercase hex>"},
+  "manifest": {"path": "baseline/predictions.manifest.json", "sha256": "<64 lowercase hex>"},
+  "config": {"path": "profile.json", "sha256": "<64 lowercase hex>"}
+}
+```
+
+Это пример одной записи runs, не исполняемый spec. Gold/predictions сначала
+создаются отдельным разрешённым frozen experiment; orchestration их не запускает.
+
+```bash
+.venv/bin/python scripts/research/quality_evidence.py assemble --spec outputs/evaluation/quality-inputs/spec.json --output-dir outputs/evaluation/quality-bundle-next
+.venv/bin/python scripts/research/quality_evidence.py verify --bundle outputs/evaluation/quality-bundle-next --expected-sha256 <trusted-manifest-sha256>
+```
+
+Результаты сохраняются без перезаписи и публикуются локально только после
+успеха всей сборки:
+
+```text
+manifest.json                   SHA-256 всех captured артефактов
+public/report.json              per-attribute/category/category×attribute, FP/FN,
+                                coverage, exclusions, agreement и paired changes
+public/report.md                краткая сводка и явный статус каждого метода
+public/integrity.json            hashes и SHA самого manifest
+private/input.jsonl              закрытые тексты
+private/human/                  captured reference и review A/B
+private/baseline/, hybrid/      predictions + manifests + configs (если выполнены)
+private/changed_pairs.json       локальные пары ошибок, не для публикации
+private/evaluation.spec.json     исходные ссылки и hashes
+```
+
+Сборка повторяет `reconcile` и `finalize` по сохранённым human answers/signoff,
+сравнивает reference побайтно, проверяет guideline/freeze, существующий
+split-audit и eligible reserve membership без повторного sampling. Для сборки
+должны быть доступны исходные metadata/audit/source пути EVAL-001; их нельзя
+молча переписать. Поля approved/human-only и разные ID — заявления людей,
+а не доказательство их личности или независимости.
+
+Перед evaluator проверяются точные SKU/text наборы, evidence, manifest counts,
+run IDs, input/output/config/code hashes, clean producer и frozen Git tree.
+Строка с ошибкой обработки остаётся в unprocessed counts и даёт FN для present
+gold. В paired view это отсутствующее значение с исходным row status, а не
+успешный abstain; исходные predictions не переписываются. Пропущенная строка
+или изменённый SKU-набор останавливают сборку, а не сокращают знаменатель.
+Проверяются effective policy snapshot/hash; baseline не может содержать
+LLM/model результаты. Обе версии сейчас должны происходить из **одного
+замороженного commit и семантически одного config** EVAL-001: это сравнение
+режимов одного frozen runtime, не поддержка произвольных исторических producers.
+Model weights/prompts и отсутствие test-based выбора отдельно требуют
+проверки процесса; инструмент не выдаёт им автоматическую приёмку.
+
+Verify повторяет evaluator/paired transitions на captured файлах без исходных
+human-путей, требует ту же версию evaluator/runtime и доступный frozen commit.
+Code hashes относятся к байтам, включая EOL: при переносе Windows/Linux нужны
+исходные bytes/environment, молча пересчитывать identities для обхода ошибки нельзя.
+Изменённый metrics JSON не принимается даже после обновления внутренних hashes,
+если результат не совпадает с повторным расчётом. Доверенный внешний hash manifest
+проверяется через `--expected-sha256`; внутренние hashes сами по себе не являются
+подписью или защитой от согласованной подмены всего пакета.
+
+После assemble статус `assembled_awaiting_process_review` (либо
+`synthetic_workflow_checked`), **финальная приёмка всё ещё blocked**. Для #38
+нужны реальный independent gold #6 и проверка процесса/заморозки всех методов.
+Автоматического закрытия Issue, выпуска или включения auto_accept нет.
+Метрики exact canonical value/unit не доказывают полную семантику evidence;
+grouped CI, seller/rare slices и cost/latency этот инструмент не вычисляет.
+Они остаются отдельными измерениями, отсутствие данных явно раскрывается.
+
+Файлы `private/`, gold, forms и predictions не публикуются. `public/` — только
+агрегаты/hashes, но префикс не является разрешением загрузить их в Git: сначала
+проверить малые группы и согласовать состав сдачи через существующий release gate.
+Сборщик [шести артефактов](ARTIFACT_BUNDLE.md) сохраняется отдельно; quality-пакет
+не выдаётся за полный комплект или независимую приёмку VM.
 
 ## Протокол эксперимента
 
