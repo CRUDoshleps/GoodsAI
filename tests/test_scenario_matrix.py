@@ -39,7 +39,7 @@ class ScenarioMatrixTests(unittest.TestCase):
         self.validate()
         self.assertEqual(len(self.requirements), 29)
         self.assertEqual(len(self.scenarios), 29)
-        self.assertEqual(len(self.cases), 46)
+        self.assertEqual(len(self.cases), 47)
         rows = self.evaluate()
         self.assertEqual(sum(r['status'] == 'passed' for r in rows.values()), 17)
         self.assertEqual(rows['SCN-101']['status'], 'not_implemented')
@@ -133,7 +133,7 @@ class ScenarioMatrixTests(unittest.TestCase):
                     patch.object(matrix.external_acceptance, 'destination', side_effect=lambda p: Path(p).absolute()):
                 report = matrix.run(output, 20261020)
                 self.assertEqual(report['status'], 'passed')
-                self.assertEqual(report['external_checks'], dict(passed=101, total=101))
+                self.assertEqual(report['external_checks'], dict(passed=103, total=103))
                 self.assertFalse(report['complete_case_evidence'])
                 self.assertEqual(set(report['positive_attribute_evidence']), {'761', '482'})
                 self.assertTrue(all(ids for attrs in report['positive_attribute_evidence'].values() for ids in attrs.values()))
@@ -172,6 +172,16 @@ class ScenarioMatrixTests(unittest.TestCase):
             with patch.object(matrix.subprocess, 'run', return_value=fake):
                 report = matrix.offline_suite('verifier', Path(folder), {})
             self.assertFalse(report['passed'])
+
+    def test_green_suite_cannot_hide_missing_required_controls(self):
+        with tempfile.TemporaryDirectory() as folder:
+            fake = subprocess.CompletedProcess([], 0, stdout=json.dumps({
+                'passed': True, 'checks_run': 1, 'test_ids': ['some_unrelated_test']}).encode())
+            with patch.object(matrix.subprocess, 'run', return_value=fake):
+                report = matrix.offline_suite('verifier', Path(folder), {})
+            self.assertFalse(report['passed'])
+            self.assertIn('test_candidate_verifier.VerifierTests.test_auxiliary_llm_quantity_stays_rejected_on_fresh_response_and_cache_replay',
+                          report['required_tests_missing'])
 
     def test_cli_regression_and_execution_error_have_distinct_nonzero_codes(self):
         for status, code in [('failed', 1), ('error', 2)]:

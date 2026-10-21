@@ -28,6 +28,17 @@ def context(text: str, start: int, end: int, radius: int | None = None) -> str:
     return text[max(0, start - radius):min(len(text), end + radius)]
 
 
+def excluded_quantity_context(attribute: str, local: str) -> bool:
+    """Existing exclusions for auxiliary/other quantities, shared with the candidate gate."""
+    patterns = {
+        "screen_inches": r"дополнител\w*\s+экран|развернут|развёрнут",
+        "capacity_l": r"заварочн|чашк|стакан|упаковк",
+        "power_w": r"ожидани|дежурн|поддержани|подогрев",
+    }
+    pattern = patterns.get(attribute)
+    return bool(pattern and re.search(pattern, local, re.I))
+
+
 class Rules:
     def __init__(self, config: dict):
         self.config = config
@@ -201,21 +212,17 @@ class Rules:
                 local = context(text, m.start(), m.end(), self.limits["context_radius_chars"])
                 if self.uncertain(text, m.start()):
                     continue
+                if excluded_quantity_context(attr, local):
+                    continue
                 if attr == "screen_inches":
-                    if re.search(r"дополнител\w*\s+экран|развернут|развёрнут", local, re.I):
-                        continue
                     if field != "title" and not re.search(r"диагонал|экран|диспле", local, re.I):
                         continue
                 if attr == "battery_mah" and not re.search(r"аккумулятор|батаре", local, re.I):
                     continue
                 if attr == "capacity_l":
-                    if re.search(r"заварочн|чашк|стакан|упаковк", local, re.I):
-                        continue
                     if field != "title" and not re.search(r"об[ъь]?ем|объём|вместим|резервуар|чайник", local, re.I):
                         continue
                 if attr == "power_w":
-                    if re.search(r"ожидани|дежурн|поддержани|подогрев", local, re.I):
-                        continue
                     if field != "title" and not re.search(r"мощност|нагревател", local, re.I):
                         continue
                 try:

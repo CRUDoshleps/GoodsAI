@@ -55,6 +55,9 @@ def policy_cases(seed):
     c = add('wrong-capacity-unit', '482', 'Чайник Bosch', 'Объем 1,7 кг.')
     found(c, 'brand', 'Bosch', 'Bosch')
 
+    c = add('auxiliary-power', '482', 'Чайник Bosch', 'Мощность подогрева 300 Вт.')
+    found(c, 'brand', 'Bosch', 'Bosch')
+
     model = f'PX-{rng.randrange(1000, 9000)}'
     c = add('kettle-color', '482', f'Чайник Bosch {model} 1,7 л 2200 Вт белый')
     for attr, value in [('brand', 'Bosch'), ('model', model), ('color', 'белый')]:

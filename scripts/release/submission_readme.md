@@ -18,6 +18,10 @@
 | Независимый human test и общий актуальный model benchmark | N/A | приёмка не завершена; auto_accept выключен |
 
 Происхождение и воспроизведение: [RESULTS](../../docs/RESULTS.md).
+Корректные значения, конфликты и безопасные отказы:
+[таблица решений verifier](../../docs/VERIFIER.md#проверяемая-таблица-решений).
+`review` требует проверки перед публикацией в каталог; confidence эвристический,
+auto_accept без калибровки выключен.
 Свежие расхождения `model` разбираются отдельно
 ([#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)): synthetic PASS
 не заменяет adjudication. [Требования → реализация → оставшийся долг](../../docs/REQUIREMENTS.md).
