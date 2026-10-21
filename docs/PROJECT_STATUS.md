@@ -1,4 +1,4 @@
-# 21.10.2026: EVAL-003 — подготовка quality-пакета в REVIEW, финальная приёмка BLOCKED
+# 21.10.2026: EVAL-003 — подготовка quality-пакета merged, финальная приёмка BLOCKED
 
 Issue #38, подготовительный инкремент для #149 по поручению Владислава;
 claim `87887ce`, ветка `eval/eval-003-quality-evidence`. Реализован
@@ -35,7 +35,12 @@ independent P/R/F1 нет. Даже сборка с gold требует внеш
 и заморозки model/policy artifacts, автоматическая final acceptance не выдаётся.
 Нет открытия/разметки реального reserve, новых predictions по test, model API,
 расходов, calibration/auto_accept, изменений runtime v0.1, gold или VM.
-PR готовится без merge и без автозакрытия #38; #149 остаётся частично blocked.
+PR #150 принят в main по поручению Владислава, merge
+`467418ed3871597320c5170c77e0bc9e6c5b7148`. Все 6 CI checks на final head
+`181de65` SUCCESS; дерево merge совпало с протестированным. После commit
+9 submission tests PASS, allowlist export 189 файлов без private data/outputs
+и внутренних статусов. Весь #38 остаётся OPEN/BLOCKED, #149 — частично blocked.
+Обновление VM не выполнялось.
 
 # 20.10.2026: OPS-004 — DONE, закрытие SQLite-ресурсов QueueAudit
 
