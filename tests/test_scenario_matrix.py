@@ -183,6 +183,36 @@ class ScenarioMatrixTests(unittest.TestCase):
             self.assertIn('test_candidate_verifier.VerifierTests.test_auxiliary_llm_quantity_stays_rejected_on_fresh_response_and_cache_replay',
                           report['required_tests_missing'])
 
+    def test_qa002_green_suites_cannot_hide_missing_llm_acceptance_controls(self):
+        controls = {
+            'llm': {
+                'test_llm.GroundingTests.test_grounded_values_get_exact_raw_evidence_and_stay_review',
+                'test_llm.FailureTests.test_provider_failure_keeps_rule_output_and_adds_reason',
+                'test_llm.FailureTests.test_budget_exhausted_and_circuit_breaker',
+                'test_llm.ProviderTests.test_error_messages_never_contain_key_or_url',
+                'test_llm.CacheTests.test_warm_hit_skips_provider_and_is_reverified',
+                'test_llm.CliTests.test_llm_run_records_counts_without_text_or_secrets',
+                'test_llm.PolicyTests.test_request_carries_only_visible_text_and_schema',
+            },
+            'llm_bounds': {
+                'test_llm_bounds.LocalGateway.test_success_through_real_socket',
+                'test_llm_bounds.LocalGateway.test_slow_gateway_is_cut_by_request_deadline',
+                'test_llm_bounds.LocalGateway.test_daily_ledger_counts_physical_attempts_including_retries',
+            },
+            'llm_validation': {
+                'test_llm_validation.ResponseValidationTests.test_malformed_top_level_non_json_and_duplicate_keys_fail_closed',
+                'test_llm_validation.MalformedTransportTests.test_real_cli_batch_http_and_cache_replay_preserve_rules_and_continue',
+            },
+        }
+        for name, required in controls.items():
+            with self.subTest(suite=name), tempfile.TemporaryDirectory() as folder:
+                fake = subprocess.CompletedProcess([], 0, stdout=json.dumps({
+                    'passed': True, 'checks_run': 1, 'test_ids': ['unrelated_green_test']}).encode())
+                with patch.object(matrix.subprocess, 'run', return_value=fake):
+                    report = matrix.offline_suite(name, Path(folder), {})
+                self.assertFalse(report['passed'])
+                self.assertTrue(required <= set(report['required_tests_missing']))
+
     def test_cli_regression_and_execution_error_have_distinct_nonzero_codes(self):
         for status, code in [('failed', 1), ('error', 2)]:
             with self.subTest(status=status), patch.object(matrix, 'run', return_value=dict(status=status)):
