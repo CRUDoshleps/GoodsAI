@@ -16,6 +16,8 @@ tests проверяют privacy guards, source mismatch, воспроизвод
 Оба новых report пути явно добавлены в PUBLIC_FILES publisher, internal docs
 по-прежнему не публикуются. README обоих репозиториев ведут к actual artifacts.
 JSON SHA: `507a8d726714f0b367fc9620da2242a39281e083de93e4ba8e7c033e98bcf342`.
+Проверки текущего инкремента: 493 unittest PASS (149,434 s), 3 reader tests PASS,
+pip check PASS; повторный экспорт MD/JSON побайтно совпал с reports.
 Новых model calls/расходов/deployment нет. Полная #149 ещё не закрыта:
 независимая оценка #6/#38 остаётся N/A в выбранном AI-assisted workflow.
 
