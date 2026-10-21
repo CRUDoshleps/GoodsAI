@@ -127,12 +127,15 @@ def draft(selection, decisions, output):
         require(Path(name).name == name and digest(selection / name) == checksum, "selection_changed")
     tasks = list(read_jsonl(selection / "development.tasks.jsonl"))
     specs = read(decisions)
-    require(set(specs) == {t["review_id"] for t in tasks}, "draft_identity_mismatch")
+    require(tasks and set(specs) == {t["review_id"] for t in tasks}, "draft_identity_mismatch")
     rows, text = [], ["# M01 и далее: проверка model", "",
         "AI-assisted development; подтверждённых человеком карточек: 0. P/R/F1: N/A.",
         "Отобраны ВСЕ flagged model new_fp/lost_tp, а не случайный контроль качества.",
         "Проверяется только model. Источник ответа — title/description, не каталог.",
-        "Ответ: `M01–M26: подтверждаю`, либо `M03: model=...`, либо `M03: не уверен`.", ""]
+        f"Ответ: `{tasks[0]['review_id']}–{tasks[-1]['review_id']}: подтверждаю`, либо `M03: model=...`, либо `M03: не уверен`.", ""]
+    if summary["policy"].get("additional_unassessed_model_changes"):
+        text += ["M27 — отдельное дополнение после сравнения исправления: catalog conflict,",
+                 "не входит в исходные 26 flagged new_fp/lost_tp. Это post-prediction диагностика.", ""]
     for task in tasks:
         label = make_label(task, "model", specs[task["review_id"]])
         row = task | {"attributes": [label], "annotation_status": "draft", "label_source": "ai_assisted",

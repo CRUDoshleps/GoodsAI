@@ -124,6 +124,7 @@ class ModelAdjudicationTests(unittest.TestCase):
             with patch.object(review, 'ROOT', root):
                 review.draft(root / 'outputs/selected', root / 'decisions.json', root / 'outputs/draft')
             draft = root / 'outputs/draft'
+            self.assertIn('M01–M01', (draft / 'review.md').read_text(encoding='utf-8'))
             self.assertEqual(review.read(draft / 'draft.manifest.json')['human_reviewed_cards'], 0)
             feedback = root / 'feedback.json'
             save(feedback, {'source_draft_sha256': digest(draft / 'development.ai-draft.jsonl'),

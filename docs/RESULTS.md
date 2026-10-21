@@ -36,6 +36,29 @@ identity этого протокола. Отдельная независима�
 актуальный model comparison PR #136 и разбор #137 остаются незавершёнными.
 Улучшение баллов организаторов или real precision этим не заявляется.
 
+## 21.10.2026: регрессия цельных модельных кодов
+
+Код candidate `185e053`, baseline `7a95c59`. На одной frozen development-feedback
+выборке 2974 карточки / 1250 families, input/reference/config не менялись.
+Source bundle manifest SHA-256:
+`fbd0dfd438226f09cdbab8e3bb2d618a215fefb729189094f48fed544777fdae`.
+Shared verifier 1.2 сохраняет цельный код с unit-like ending; brand-like prefix
+допускается только при полном model span, уже доказанном grammar.
+
+Catalog agreement: **6 новых TP, 0 новых FP, 0 lost TP** на judged парах.
+Все изменения относятся к model; другие значения не менялись. Общий F1
+0,759222 → 0,759604; model F1 0,617551 → 0,622030. Есть ещё один новый model
+на catalog conflict: он исключён из TP/FP и явно сохранён для human review.
+Unknown/conflict не объявляются правильными предсказаниями.
+
+Private frozen report SHA-256:
+`3342085e9f9e8da5a391c3cd1109f98d28dc5122f28fb359d6efbeb0a9cdbfce`.
+Прежние 20 catalog mismatches остаются в исходном reference и отчётах:
+AI-assisted text review предполагает шум границ catalog model, но человеческое
+подтверждение ещё не получено. Human P/R/F1 = N/A; это не independent test и не
+сравнение реальных модельных вызовов. Никаких test reserve predictions,
+новых model calls или обновления ВМ в этом повторе нет.
+
 ## Сводка доказательств на 20.10.2026
 
 Runtime/documentation audit: код `1c64463`. Строки ниже относятся к разным
