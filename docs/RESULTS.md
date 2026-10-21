@@ -1,5 +1,41 @@
 # Результаты и происхождение измерений
 
+## Аудит защит 21.10.2026: отдельный synthetic протокол
+
+Источник runtime — candidate `2246425690f94499e1df80d3686a1e4cfb34dd4d`,
+baseline `7542d00`, seed `20261021`. Это проверка конечных контролей и одного
+исправленного пути, **не новый замер P/R/F1 каталога**. Исторические human/silver
+таблицы ниже сохраняются со своими producer/reference.
+
+- [Матрица сценариев](SCENARIO_MATRIX.md): 17/17 executable групп, внешний
+  CLI/socket HTTP без examples — 103/103 checks. В отчёте остаются 4
+  not_implemented, 7 not_verified, 1 unknown; complete_case_evidence=false.
+- [Таблица решений](VERIFIER.md#проверяемая-таблица-решений): schema/evidence,
+  единицы/роль, отрицания/чужие сущности, конфликты, fresh/cache и review-only.
+  В offline JSON сохраняются исполненные test IDs; удаление обязательного
+  verifier/config контроля не скрывается зелёным результатом оставшегося suite.
+- Найден и воспроизведён обход: LLM мог заполнить основную мощность из
+  «Мощность подогрева 300 Вт», которую rules уже отклонял. Общий gate теперь
+  применяет те же исключения вспомогательных величин. Ordinary LLM fallback
+  «Потребляет 2200 Вт» сохраняется; weights и реальные model API не запускались.
+- Существующий `verify_candidates` на тех же 12 synthetic probes: до/после
+  12/12, false_values=0, missed_true_facts=0, lost_true_facts=0. Это ограниченная
+  проверка отсутствия регрессии rules, не доказательство качества всех карточек.
+
+Команда из корня checkout (новый output-dir):
+
+```bash
+.venv/bin/python scripts/release/scenario_matrix.py --seed 20261021 --output-dir outputs/eval010/scenarios-next
+.venv/bin/python scripts/release/scenario_matrix.py --verify outputs/eval010/scenarios-next
+```
+
+Исходный локальный протокол — `outputs/eval010/scenarios-2246425/`,
+source/config/test/artifact hashes — в его `scenario.manifest.json`.
+Текущий запуск должен ссылаться на собственный manifest, а не наследовать
+identity этого протокола. Отдельная независимая оценка по #6/#38,
+актуальный model comparison PR #136 и разбор #137 остаются незавершёнными.
+Улучшение баллов организаторов или real precision этим не заявляется.
+
 ## Сводка доказательств на 20.10.2026
 
 Runtime/documentation audit: код `1c64463`. Строки ниже относятся к разным

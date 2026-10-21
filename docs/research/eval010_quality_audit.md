@@ -60,9 +60,23 @@ sources/test hashes и report/offline/external артефакты. Без source
 SCN-110 относится к этому synthetic runner, не отменяет отдельную завершённую
 подготовку реальных данных DATA-001.
 
-До PR проверены 20 verifier tests, 64 LLM tests, 13 matrix harness tests.
-Окончательный общий прогон, baseline/candidate и CI результаты фиксируются
-после freeze commit в статусе/PR; real quality P/R/F1 на этом этапе = N/A.
+На committed runtime candidate `2246425690f94499e1df80d3686a1e4cfb34dd4d`:
+20 verifier tests, 64 LLM tests, 13 matrix harness tests PASS. Полная финальная
+Windows-регрессия 479/479 PASS (149,712 s), research reader 3/3, pip check PASS.
+Отдельный matrix 17/17, external 103/103, verify PASS; runtime/config hashes
+соответствуют committed clean source. Локальные fingerprints артефактов:
+
+- `scenarios-2246425/scenario.manifest.json`: `7102941ed2ff436d92fe182a4967bb9e1a9befc29ba197f34cb01c0795706a36`;
+- `auxiliary-before-after-2246425/report.json`: `bd6d74166cf4ca74222f28b7881c546a3ca7f9bae89c6bcf39df5c13318f9434`;
+- `rules-before-after-2246425/report.json`: `7c76bae879ac2565ee7d810307a2696b9869bf50682f28257222140689f2f988`.
+
+Все пути — под `outputs/eval010/`, в Git не входят. До/после auxiliary regression
+выполнен на одинаковом текущем synthetic test source, но разных src snapshots:
+до exit 1 (воспроизведён дефект), после exit 0; отдельный позитивный fallback
+проходит. Существующий `verify_candidates` на 12 probes: обе версии 12/12,
+false_values=0, missed_true_facts=0, lost_true_facts=0. Это наблюдения конечных
+synthetic контролей, real quality P/R/F1 на этом этапе = N/A.
+CI фиксируется на final PR head; merge не выполняется.
 Новая синтетика не заменяет оценку реальных данных и не доказывает улучшение
 P/R/F1 или баллов организаторов.
 
