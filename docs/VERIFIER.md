@@ -59,8 +59,8 @@ synthetic-проверкам; **не является precision/recall/F1 реа
 | QV-08: решения/конфигурация | `review` не публикует значение в каталог. `abstain` пуст и имеет reason; произвольный auto_accept/threshold не включается | SCN-015 `offline-config.json`: `test_unsupported_policy_cannot_enable_llm_or_auto_accept` | implemented+verified, synthetic; calibration not implemented |
 | QV-09: перенос CLI/API | Совпадают value/unit/decision/evidence/reasons; ошибки входа не выдают фиктивный успешный результат | SCN-012/013/014/015, `external/report.json`, `offline-api.json` | implemented+verified, local socket |
 | QE-01: независимая итоговая оценка | Frozen human reference, отдельные baseline/hybrid, происхождение и реальные знаменатели | [quality-пакет](EVALUATION.md#подготовка-воспроизводимого-human-quality-пакета), #6/#38 | tooling implemented+verified; independent experiment missing |
-| QE-02: актуальное качество модели | Adjudication расхождений с silver и раздельные new TP/new FP/lost TP | #123/#125, PR #136 → #137 | not verified в текущем пакете; отдельная работа коллеги |
-| QE-03: редкие/новые категории, продавцы | Достаточная поддержка срезов, корректный отказ вне схемы; неизвестное не выдаётся за успех | SCN-103/104/107, #124/#36/#53 | not verified; default двух категорий не доказывает универсальность |
+| QE-02: актуальное качество модели | Adjudication расхождений с silver и раздельные new TP/new FP/lost TP | [Frozen report](../reports/quality_20261021.md), JSON provenance; #137 / merged PR #154 | implemented+verified на catalog-silver и AI-assisted reviewed development; independent human quality missing |
+| QE-03: редкие/новые категории, продавцы | Поддержка срезов, корректный отказ вне схемы; неизвестное не выдаётся за успех | [Frozen aggregate slices](../reports/quality_20261021.json), SCN-103/104/107, #124/#36/#53 | rarity/text/seller aggregates verified на frozen development; new-category/independent generalization not verified |
 
 Имена методов в таблице — методы `VerifierTests` из
 [test_candidate_verifier.py](../tests/test_candidate_verifier.py), кроме отдельно

@@ -32,9 +32,34 @@ baseline `7542d00`, seed `20261021`. Это проверка конечных к
 Исходный локальный протокол — `outputs/eval010/scenarios-2246425/`,
 source/config/test/artifact hashes — в его `scenario.manifest.json`.
 Текущий запуск должен ссылаться на собственный manifest, а не наследовать
-identity этого протокола. Отдельная независимая оценка по #6/#38,
-актуальный model comparison PR #136 и разбор #137 остаются незавершёнными.
+identity этого протокола. На момент этого исторического synthetic протокола
+оценка по #6/#38, model comparison PR #136 и разбор #137 ещё не были завершены.
+Актуальный статус #137 и frozen aggregates приведены в следующих разделах;
+независимая оценка #6/#38 по-прежнему не получена.
 Улучшение баллов организаторов или real precision этим не заявляется.
+
+## 21.10.2026: доступные агрегаты текущего frozen runtime
+
+[Таблицы по атрибутам и срезам](../reports/quality_20261021.md),
+[JSON с denominators, exclusions, intervals и provenance](../reports/quality_20261021.json).
+JSON SHA-256: `507a8d726714f0b367fc9620da2242a39281e083de93e4ba8e7c033e98bcf342`.
+Runtime code/config сверены с frozen producer `9ebba1d`; соответствие исходному
+GitHub commit и фактическому Gitea checkout фиксируется submission-manifest.
+
+В отчёте раздельны catalog-silver на 2974 карточках и подтверждённый AI-assisted
+model regression subset. Есть per-attribute/category/category×attribute,
+title-only/description, частые/редкие значения, unknown/conflict, family intervals
+и агрегированная поддержка seller cohorts. Продавцы/карточки/значения/цитаты не
+публикуются. Поддержка текста определяется автоматическим matcher; это не human
+audit. R_all и R_text_supported различаются явно. Поля с missing measurement
+остаются N/A, unknown/conflict не становятся TP.
+
+`export_quality_report` читает существующие frozen reports, переиспользует
+готовые метрики и проецирует только разрешённые numeric fields/dimensions.
+Другой code/config, неверные hashes, неподтверждённый/иной human protocol,
+test membership, raw slice identifiers и некорректные числа отклоняются.
+Новых inference или формул метрик нет. Независимая итоговая оценка остаётся N/A;
+отчёт не подтверждает универсальность или обновление ВМ.
 
 ## 21.10.2026: регрессия цельных модельных кодов
 

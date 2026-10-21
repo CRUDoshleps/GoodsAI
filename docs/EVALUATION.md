@@ -19,6 +19,37 @@ predictions с manifests, строит model-only view с исключением
 в private output, [ограниченные агрегаты](RESULTS.md) не выдаются за независимый
 test. Error-selected карточки не позволяют оценить качество всего каталога.
 
+Публикуемые frozen aggregates доступны в [отчёте](../reports/quality_20261021.md)
+и [JSON](../reports/quality_20261021.json). Экспорт существующих private reports:
+`python -m scripts.research.export_quality_report --help`. Проверяются ожидаемые
+source hashes, AI-assisted reviewed provenance и совпадение frozen code/config
+с текущим default checkout. Публикуются только numeric aggregates и фиксированные
+dimension labels; входные тексты, raw values, seller identities и credentials
+не переносятся. Старый датированный отчёт остаётся snapshot, не метрикой любой
+будущей версии. Автоматический text-support matcher не заменяет human audit.
+
+Например, для разрешённого приватного frozen пакета (пути адаптировать к его
+manifest, ожидаемые SHA взять из заранее зафиксированного протокола):
+
+```bash
+python -m scripts.research.export_quality_report \
+  --silver outputs/frozen-comparison/report.json --silver-sha256 "$SILVER_REPORT_SHA256" \
+  --human outputs/reviewed-models/metrics.json --human-sha256 "$HUMAN_REPORT_SHA256" \
+  --producer outputs/frozen-comparison/after/cold.manifest.json \
+  --reference outputs/reviewed-models/reference.partial.jsonl \
+  --output-dir outputs/public-quality-next
+```
+
+Это повторная публикация проверенных агрегатов, а не новый inference. Для
+пересчёта самих метрик из predictions используются существующий
+[silver runner](SILVER_EVALUATION.md) и model-only `evaluate-models` в
+`scripts.research.prepare_model_adjudication`; они требуют приватных входов.
+Без них воспроизвести эксперимент нельзя. Публичные файлы можно проверить
+без карточек: `sha256sum reports/quality_20261021.json reports/quality_20261021.md`
+(PowerShell: `Get-FileHash reports/quality_20261021.* -Algorithm SHA256`).
+Ожидаемый JSON SHA указан в [RESULTS](RESULTS.md), hashes сдаваемых файлов и
+source GitHub SHA — в `submission-manifest.json` опубликованного Gitea checkout.
+
 Основная единица — пара `(SKU, attribute)`. Для каждой пары gold определяет,
 есть ли характеристика, какое значение допустимо и каким текстом оно
 подтверждается. `ambiguous` не включается в обычные TP/FP/FN и показывается
