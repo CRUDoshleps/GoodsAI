@@ -2,6 +2,8 @@
 
 После получения frozen handoff и завершения #137 доступен следующий инкремент
 #149, claim `9c37e90`, ветка `eval/eval-010-public-quality-evidence`.
+Публичный инкремент подготовлен в PR #155. Полный EVAL-010 отмечен BLOCKED
+по независимому human evidence #6/#38; частичный PR не закрывает эту приёмку.
 `reports/quality_20261021.md` и JSON содержат source-bound per-attribute/category,
 category×attribute, text/rarity/role slices, family CI, unknown/conflict и seller
 aggregate support для runtime `9ebba1d`. Code/config совпадают с текущим default
