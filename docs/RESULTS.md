@@ -1,5 +1,21 @@
 # Результаты и происхождение измерений
 
+## QA-002, 21.10.2026: полный regression snapshot
+
+[Фактический отчёт](../reports/qa002_20261021.md), [JSON с hashes и средой](../reports/qa002_20261021.json),
+[повторение существующими инструментами](QA_ACCEPTANCE.md). Source `75d2821`,
+CPython 3.12.6 / Windows: 499 unit/integration + 3 reader + 11 properties PASS;
+clean-run 11/11 и побайтный replay, matrix 17/17 и external 103/103, verification PASS.
+Новый gate требует 12 конкретных LLM acceptance controls, не только зелёный suite.
+Property suite обнаружила #158: malformed HTML marked declaration падала в
+старом stdlib parser и могла сдвигать координаты. Narrow recovery сохраняет
+видимые факты, hidden state и точные raw offsets; CLI/API и interrupts проверены.
+
+Это synthetic correctness/reproducibility, не новый P/R/F1 каталога. Исторический
+quality snapshot ниже относится к runtime `9ebba1d` до QA parser fix. Его числа
+и provenance не меняются; независимая оценка и final VM acceptance остаются N/A.
+Внешние model calls/deployment не выполнялись.
+
 ## Аудит защит 21.10.2026: отдельный synthetic протокол
 
 Источник runtime — candidate `2246425690f94499e1df80d3686a1e4cfb34dd4d`,

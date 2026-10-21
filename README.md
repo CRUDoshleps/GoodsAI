@@ -16,22 +16,24 @@ runtime — только правила; сравнительное качест
 
 | Проверка / reference | Результат | Версия и ограничение |
 | --- | --- | --- |
+| Общий QA-002 прогон | 499 unit/integration, 3 reader, 11 property tests PASS | source `75d2821`; [протокол и ограничения](reports/qa002_20261021.md) |
 | Свой внешний JSONL → CLI и HTTP без packaged examples | 83/83 synthetic contract checks | интеграционный протокол кода `1c64463`, seed `20261020`; это не качество каталога |
 | 40 AI-assisted human-reviewed development | 143 TP / 0 FP / 22 FN | ARCH-001 snapshot `3d3dc49`; не independent test и не новый замер нынешнего main |
 | 3037 catalog-silver cards | agreement F1 75,67% | исторический producer `f33e3fc`; не human precision и не F1 текущего main |
 | Независимый human test / общий актуальный model benchmark | N/A | ещё не завершены; auto_accept выключен |
 
 Команды, hashes/reference и история: [RESULTS](docs/RESULTS.md).
-Актуальный frozen отчёт: [атрибуты, категории и ограничения](reports/quality_20261021.md)
+Последний измеренный quality snapshot (`9ebba1d`): [атрибуты и категории](reports/quality_20261021.md)
 и [машиночитаемые агрегаты](reports/quality_20261021.json). Catalog-silver и
 AI-assisted reviewed model regressions показаны отдельно; независимая оценка — N/A.
 Поведение при корректном значении, конфликте, неподдержанной роли числа и
 ошибке LLM связано с тестами в [таблице решений verifier](docs/VERIFIER.md#проверяемая-таблица-решений).
 Найденное значение с `review` требует проверки перед публикацией в каталог;
 его heuristic confidence не является калиброванной вероятностью.
-При новой версии метрики пересчитываются отдельно. Свежие расхождения `model`
-разбираются в [#137](https://github.com/CRUDoshleps/GoodsAI/issues/137);
-PASS синтетики их не закрывает. Реализацию и остаточный долг
+При новой версии метрики пересчитываются отдельно. Расхождения `model`
+разобраны в [#137](https://github.com/CRUDoshleps/GoodsAI/issues/137) по подтверждённой
+AI-assisted разметке; QA parser fix не сопровождается новым замером каталога.
+Команды полного прогона — [QA_ACCEPTANCE](docs/QA_ACCEPTANCE.md). Реализацию и остаточный долг
 по каждому требованию связывает [REQUIREMENTS](docs/REQUIREMENTS.md).
 
 Действующие решения команды при отсутствии дополнительных разъяснений —

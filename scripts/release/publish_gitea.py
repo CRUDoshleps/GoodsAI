@@ -23,6 +23,7 @@ PUBLIC_FILES = frozenset({
     "scripts/research/human_gold_form.html", "scripts/research/requirements.txt",
     "reports/metrics.md", "reports/run_stats.json",
     "reports/quality_20261021.json", "reports/quality_20261021.md",
+    "reports/qa002_20261021.json", "reports/qa002_20261021.md", "docs/QA_ACCEPTANCE.md",
     "docs/DICTIONARY_CONSOLE.md", "docs/REVIEW_PRIORITY.md", "docs/DRIFT.md", "docs/SPAN_SELECTOR.md", "docs/CONTEXT_PLANNER.md", "docs/EXACT_CACHE.md", "docs/ARCHITECTURE.md", "docs/ARTIFACT_BUNDLE.md", "docs/BATTERY_UNITS.md",
     "docs/CATEGORY_REGISTRY.md", "docs/CLEAN_RUN.md", "docs/CONFIGURATION.md",
     "docs/DATASET.md", "docs/EVALUATION.md", "docs/EXPERIMENTAL_GLINER.md",

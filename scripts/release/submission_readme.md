@@ -12,22 +12,24 @@
 
 | Проверка / reference | Результат | Версия и граница вывода |
 | --- | --- | --- |
+| Общий QA-002 прогон | 499 unit/integration, 3 reader, 11 property tests PASS | source `75d2821`; [протокол и ограничения](../../reports/qa002_20261021.md) |
 | Внешний JSONL → CLI/HTTP без packaged examples | 83/83 synthetic contract checks | протокол кода `1c64463`, seed `20261020`; не catalog P/R/F1 |
 | 40 AI-assisted human-reviewed development | 143 TP / 0 FP / 22 FN | snapshot `3d3dc49`; не independent test и не новый замер нынешнего main |
 | 3037 catalog-silver cards | agreement F1 75,67% | producer `f33e3fc`, исторический отчёт; не human precision |
 | Независимый human test и общий актуальный model benchmark | N/A | приёмка не завершена; auto_accept выключен |
 
 Происхождение и воспроизведение: [RESULTS](../../docs/RESULTS.md).
-Актуальный frozen отчёт: [атрибуты, категории и ограничения](../../reports/quality_20261021.md)
+Последний измеренный quality snapshot (`9ebba1d`): [атрибуты и категории](../../reports/quality_20261021.md)
 и [машиночитаемые агрегаты](../../reports/quality_20261021.json). Catalog-silver и
 AI-assisted reviewed model regressions показаны отдельно; независимая оценка — N/A.
 Корректные значения, конфликты и безопасные отказы:
 [таблица решений verifier](../../docs/VERIFIER.md#проверяемая-таблица-решений).
 `review` требует проверки перед публикацией в каталог; confidence эвристический,
 auto_accept без калибровки выключен.
-Свежие расхождения `model` разбираются отдельно
-([#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)): synthetic PASS
-не заменяет adjudication. [Требования → реализация → оставшийся долг](../../docs/REQUIREMENTS.md).
+Расхождения `model` разобраны в [#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)
+по подтверждённой AI-assisted разметке; QA parser fix не сопровождается новым
+замером каталога. [Команды общего QA-прогона](../../docs/QA_ACCEPTANCE.md).
+[Требования → реализация → оставшийся долг](../../docs/REQUIREMENTS.md).
 
 Рабочая политика команды — [SPEC-001: spec-team-v1](../../TECHNICAL_SPEC.md#0-действующая-политика-команды--spec-001).
 Она сохраняет JSON v0.1 и разделяет требования кейса, ограничения E1 и условия

@@ -5,3 +5,5 @@ docs/delivery/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-
 scripts/research/export_quality_report.py text eol=lf
 reports/quality_20261021.json text eol=lf
 reports/quality_20261021.md text eol=lf
+reports/qa002_20261021.json text eol=lf
+reports/qa002_20261021.md text eol=lf
