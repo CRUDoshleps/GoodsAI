@@ -123,6 +123,7 @@ class PublicQualityReportTests(unittest.TestCase):
                 export_tool.export(args)
                 for name in ('quality_20261021.json','quality_20261021.md'):
                     self.assertEqual((root / 'outputs/one' / name).read_bytes(), (root / 'outputs/two' / name).read_bytes())
+                    self.assertNotIn(b'\r', (root / 'outputs/one' / name).read_bytes())
                 args.output_dir = root / 'outputs/rejected'
                 expected = args.silver_sha256
                 args.silver_sha256 = 'wrong'

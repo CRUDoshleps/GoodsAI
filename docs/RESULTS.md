@@ -42,7 +42,7 @@ identity этого протокола. На момент этого истор�
 
 [Таблицы по атрибутам и срезам](../reports/quality_20261021.md),
 [JSON с denominators, exclusions, intervals и provenance](../reports/quality_20261021.json).
-JSON SHA-256: `507a8d726714f0b367fc9620da2242a39281e083de93e4ba8e7c033e98bcf342`.
+JSON SHA-256: `1fea6582090e09bc884b0221f60ef985edadb7c8e8ae45d050b8d8209fcc50a8`.
 Runtime code/config сверены с frozen producer `9ebba1d`; соответствие исходному
 GitHub commit и фактическому Gitea checkout фиксируется submission-manifest.
 

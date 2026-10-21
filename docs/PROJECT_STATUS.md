@@ -2,12 +2,21 @@
 
 После получения frozen handoff и завершения #137 доступен следующий инкремент
 #149, claim `9c37e90`, ветка `eval/eval-010-public-quality-evidence`.
-Публичный инкремент подготовлен в PR #155. Полный EVAL-010 отмечен BLOCKED
-по независимому human evidence #6/#38; частичный PR не закрывает эту приёмку.
+Публичный инкремент merged в PR #155 (`3ae1132`), publisher SUCCESS.
+Follow-up claim `efe1451`, ветка `eval/eval-010-canonical-report-hashes`:
+LF export и scoped .gitattributes устраняют расхождение Windows/file и Git blob
+hashes; новый regression проверяет hash из RESULTS и exporter provenance
+на фактически публикуемых байтах. Числа метрик не меняются.
+
+21.10.2026 Владислав согласовал приёмку #149 по human-reviewed AI-assisted
+проверке M01–M27. Это явное изменение scope: independent #6/#38 остаются
+отдельными незавершёнными задачами, не выдаются за выполненные и больше
+не блокируют завершение именно #149. До final merge инкремент находится в REVIEW.
 `reports/quality_20261021.md` и JSON содержат source-bound per-attribute/category,
 category×attribute, text/rarity/role slices, family CI, unknown/conflict и seller
-aggregate support для runtime `9ebba1d`. Code/config совпадают с текущим default
-checkout. Catalog-silver и AI-assisted human-reviewed model subset разделены;
+aggregate support для runtime `9ebba1d`. Loaded code/config сверены с локальным
+default checkout; raw code hashes зависят от checkout bytes и не подменяют
+submission source SHA. Catalog-silver и AI-assisted human-reviewed model subset разделены;
 independent_human_quality=null. Приватные карточки/labels/predictions не включены.
 
 Exporter не запускает inference и не считает метрики заново; он проверяет hashes,
@@ -17,11 +26,11 @@ dimension labels. Неверные hashes, неподтверждённый revi
 tests проверяют privacy guards, source mismatch, воспроизводимость и исключения.
 Оба новых report пути явно добавлены в PUBLIC_FILES publisher, internal docs
 по-прежнему не публикуются. README обоих репозиториев ведут к actual artifacts.
-JSON SHA: `507a8d726714f0b367fc9620da2242a39281e083de93e4ba8e7c033e98bcf342`.
+JSON SHA: `1fea6582090e09bc884b0221f60ef985edadb7c8e8ae45d050b8d8209fcc50a8`.
 Проверки текущего инкремента: 493 unittest PASS (149,434 s), 3 reader tests PASS,
 pip check PASS; повторный экспорт MD/JSON побайтно совпал с reports.
-Новых model calls/расходов/deployment нет. Полная #149 ещё не закрыта:
-независимая оценка #6/#38 остаётся N/A в выбранном AI-assisted workflow.
+Новых model calls/расходов/deployment нет. Независимая оценка #6/#38 остаётся
+N/A; приёмка #149 выполняется в явно согласованном выше scope.
 
 # 21.10.2026: EVAL-009 — model code regression исправлена и подтверждена на reviewed subset
 
