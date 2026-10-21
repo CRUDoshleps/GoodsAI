@@ -220,3 +220,48 @@ reference не требует присутствия значения в train, 
 unjudgeable, hash/mapping guards, train/test exclusion, ошибочные source/units/
 evidence, изменение входов до публикации и фиксированная безопасная CLI ошибка.
 Все примеры вымышленные; реальная human quality не измерялась.
+
+## Проверка интегрированного registry — CONF-003, 21.10.2026
+
+Механизм из PR #94 уже находится в main. Продолжение #44 проверяет его через
+нынешний composition root; повторная реализация learner не требуется.
+Зависимости #9/#24/#43 закрыты. Реальный пилот #124 остаётся отдельной задачей.
+
+Для opt-in v2 manifest и `/health` теперь содержат компактную идентичность:
+
+```json
+{"category_registry":{"registry_version":"1","registry_sha256":"<SHA-256>"}}
+```
+
+Hash вычисляется по всему валидированному `category_registry` с отсортированными
+JSON-ключами, UTF-8 и `ensure_ascii=False` (тот же `policy_hash`, что для effective
+config). Он связывает схемы всех категорий, словари, templates и provenance.
+Это версия содержимого; `registry_version=1` — версия формата. Смена словаря,
+единиц, ролей или provenance меняет hash. Перестановка JSON-ключей его не меняет.
+`/health` не выдаёт словари и обучающие строки. Manifest остаётся приватным:
+существующий `effective_config.profile` содержит train-derived словари.
+
+Строки predictions сохраняют JSON v0.1. Batch `run_id` связывает их с manifest,
+в котором есть также config/effective config/code hashes. HTTP `run_id` остаётся
+прежним служебным идентификатором, а не уникальной версией профиля: для сохранения
+HTTP-результатов необходимо вместе с ними фиксировать `/health` именно этого
+запуска сервиса. Отдельной версии категории в каждой prediction пока нет;
+требование #44 в этой части требует решения архитектора, если run-level связи
+недостаточно. Старые predictions/manifests не переписываются и не требуют новых
+полей. Default v1 не получает `category_registry` в metadata или health.
+
+Проверки `tests/test_registry_acceptance.py` запускают настоящий CLI subprocess
+и API с явным config для трёх вымышленных категорий, сверяют manifest/health,
+exact evidence, прежнюю категорию, unknown category и отказ на `params` во входе.
+Существующие registry tests проверяют split/hash, неизвестное значение, conflict,
+negation, HTML, неверную схему до inference и preservation unseen reference → FN.
+Это инженерная приёмка механизма; новые реальные категории этим не измерены.
+
+Границы схемы v1: явные обязательные поля, enum/number и буквальные единицы;
+произвольные aliases, наследование, новые normalizers/extractor plugins,
+конвертация новых единиц и numeric bounds для learned-полей не реализованы.
+Нельзя считать их принятыми только по наличию config v2. Новые расширения
+требуют архитектурного решения и отрицательных contract tests.
+
+Подготовленный контракт передачи и условия запуска реального пилота:
+[CONF-003 acceptance / CONF-004 handoff](research/conf003_acceptance_handoff.md).

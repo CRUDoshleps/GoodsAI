@@ -266,6 +266,12 @@ CONF-002 добавляет `runtime_policy`, `runtime_policy_sha256`,
 credentials. `config_sha256` сохраняет смысл hash базового профиля; batch run ID
 учитывает effective config и code hash. API `/health` публикует два effective
 hashes, сохраняя прежний временный prediction run ID и result schema v0.1.
+Для opt-in config v2 manifest и `/health` дополнительно содержат
+`category_registry={registry_version,registry_sha256}`: версия формата и hash
+всего валидированного реестра, включая provenance. Словари в health не выдаются.
+Default v1 и строки predictions не получают новых полей. Run-level связь
+не является отдельной версией категории в каждой HTTP prediction;
+HTTP-результаты сохраняются вместе с health соответствующего запуска.
 
 ## 6. Нефункциональные требования
 

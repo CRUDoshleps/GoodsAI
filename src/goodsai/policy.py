@@ -107,5 +107,10 @@ def policy_hash(value):
 def runtime_metadata(config, policy):
     """Both hashes are effective, resolved and secret-free; profile hash stays separate."""
     effective = {"profile": validate_config(config), "runtime_policy": deepcopy(policy)}
-    return {"runtime_policy": deepcopy(policy), "runtime_policy_sha256": policy_hash(policy),
-            "effective_config": effective, "effective_config_sha256": policy_hash(effective)}
+    metadata = {"runtime_policy": deepcopy(policy), "runtime_policy_sha256": policy_hash(policy),
+                "effective_config": effective, "effective_config_sha256": policy_hash(effective)}
+    registry = effective["profile"].get("category_registry")
+    if registry is not None:
+        metadata["category_registry"] = {"registry_version": registry["registry_version"],
+                                         "registry_sha256": policy_hash(registry)}
+    return metadata
