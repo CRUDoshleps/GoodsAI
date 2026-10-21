@@ -1,3 +1,24 @@
+# 21.10.2026: EVAL-010 — актуальные публичные агрегаты без закрытых данных
+
+После получения frozen handoff и завершения #137 доступен следующий инкремент
+#149, claim `9c37e90`, ветка `eval/eval-010-public-quality-evidence`.
+`reports/quality_20261021.md` и JSON содержат source-bound per-attribute/category,
+category×attribute, text/rarity/role slices, family CI, unknown/conflict и seller
+aggregate support для runtime `9ebba1d`. Code/config совпадают с текущим default
+checkout. Catalog-silver и AI-assisted human-reviewed model subset разделены;
+independent_human_quality=null. Приватные карточки/labels/predictions не включены.
+
+Exporter не запускает inference и не считает метрики заново; он проверяет hashes,
+producer/protocol/current runtime и применяет явный allowlist numeric fields и
+dimension labels. Неверные hashes, неподтверждённый review, test membership,
+сторонние slice IDs, bool counts/non-finite numbers отклоняются. Пять synthetic
+tests проверяют privacy guards, source mismatch, воспроизводимость и исключения.
+Оба новых report пути явно добавлены в PUBLIC_FILES publisher, internal docs
+по-прежнему не публикуются. README обоих репозиториев ведут к actual artifacts.
+JSON SHA: `507a8d726714f0b367fc9620da2242a39281e083de93e4ba8e7c033e98bcf342`.
+Новых model calls/расходов/deployment нет. Полная #149 ещё не закрыта:
+независимая оценка #6/#38 остаётся N/A в выбранном AI-assisted workflow.
+
 # 21.10.2026: EVAL-009 — model code regression исправлена и подтверждена на reviewed subset
 
 Issue #137, claim `0b84069`, ветка `eval/eval-009-model-adjudication`. Получены
@@ -36,7 +57,9 @@ existing evaluator/paired comparison, исключая 114 неразмечен�
 
 Влад выбрал AI-assisted review без дополнительных участников. Независимая
 приёмка #6/#38 этим не выполнена; не заявляется и не подменяется development.
-#137 готова к интеграции через PR #154; #149 остаётся незавершённой.
+#137 закрыта: PR #154 merged `b62d58d792a3185fc6823e303a2625925c032ab5`,
+6/6 CI SUCCESS, одинаковое проверенное merge tree. Publisher в Gitea SUCCESS.
+#149 остаётся незавершённой.
 Matrix 17/17, внешние 103/103
 и verify PASS; положительный новый код отдельно проверен через CLI/API.
 PR #136 не сливался,

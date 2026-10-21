@@ -19,6 +19,15 @@ predictions с manifests, строит model-only view с исключением
 в private output, [ограниченные агрегаты](RESULTS.md) не выдаются за независимый
 test. Error-selected карточки не позволяют оценить качество всего каталога.
 
+Публикуемые frozen aggregates доступны в [отчёте](../reports/quality_20261021.md)
+и [JSON](../reports/quality_20261021.json). Экспорт существующих private reports:
+`python -m scripts.research.export_quality_report --help`. Проверяются ожидаемые
+source hashes, AI-assisted reviewed provenance и совпадение frozen code/config
+с текущим default checkout. Публикуются только numeric aggregates и фиксированные
+dimension labels; входные тексты, raw values, seller identities и credentials
+не переносятся. Старый датированный отчёт остаётся snapshot, не метрикой любой
+будущей версии. Автоматический text-support matcher не заменяет human audit.
+
 Основная единица — пара `(SKU, attribute)`. Для каждой пары gold определяет,
 есть ли характеристика, какое значение допустимо и каким текстом оно
 подтверждается. `ambiguous` не включается в обычные TP/FP/FN и показывается

@@ -133,6 +133,7 @@ def project(silver, human, producer, reviewed_rows, current):
             "evaluator_sha256": human["evaluator_sha256"]},
         "independent_human_quality": None, "confidence_kind": "heuristic", "auto_accept": False,
         "limitations": ["Catalog agreement uses noisy labels and exposed development families.",
+                        "Text-supported recall uses an automatic matcher which has not been independently human-audited.",
                         "Model error-selected human review is AI-assisted, all-positive and not independent.",
                         "Unreviewed attributes are excluded; results do not estimate catalogue-wide human precision.",
                         "Unknown/conflict pairs are visible; seller identities and small-group values are not published.",
@@ -155,19 +156,21 @@ def markdown(report):
         lines.append(f"| {name} / error-selected model review | {m['tp']} | {m['fp']} | {m['fn']} |")
     before, after = (report["catalog_silver"]["variants"][name] for name in ("before", "after"))
     lines += ["", "## Per attribute: catalog agreement", "",
-              "| Attribute | Before TP / FP / FN | After TP / FP / FN | After P | R | F1 | Unknown / conflict |",
+              "| Attribute | Before TP / FP / FN | After TP / FP / FN | After P | R all / text-supported | F1 | Unknown / conflict |",
               "| --- | --- | --- | ---: | ---: | ---: | --- |"]
     for name, value in after["per_attribute"].items():
         lines.append(f"| {name} | {counts(before['per_attribute'][name])} | {counts(value)} | "
-                     + " | ".join(fmt(value.get(k)) for k in ("precision", "recall", "f1"))
-                     + f" | {value.get('unknown', 0)} / {value.get('conflict', 0)} |")
+                     + fmt(value.get("precision")) + " | "
+                     + fmt(value.get("recall")) + " / " + fmt(value.get("recall_supported"))
+                     + " | " + fmt(value.get("f1"))
+                     + f" | {value.get('unknown', 'N/A')} / {value.get('conflict', 'N/A')} |")
     lines += ["", "## Categories and cohorts: catalog agreement", "",
               "| Slice | Requested pairs | Known | Predicted | TP / FP / FN | F1 |",
               "| --- | ---: | ---: | ---: | --- | ---: |"]
     for dimension in ("per_category", "text", "reference_frequency"):
         for name, value in after[dimension].items():
-            lines.append(f"| {dimension}:{name} | {value.get('requested', 0)} | {value.get('known', 0)} "
-                         + f"| {value.get('predicted', 0)} | {counts(value)} | {fmt(value.get('f1'))} |")
+            lines.append(f"| {dimension}:{name} | {value.get('requested', 'N/A')} | {value.get('known', 'N/A')} "
+                         + f"| {value.get('predicted', 'N/A')} | {counts(value)} | {fmt(value.get('f1'))} |")
     sellers = after["seller_summary"]
     cohort = report["reviewed_regressions"]
     lines += ["", "Rare means fewer than 5 identical canonical catalog values for a category/attribute in this frozen bundle.",
