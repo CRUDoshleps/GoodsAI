@@ -53,7 +53,10 @@ PowerShell:
   fake или loopback, платных/внешних вызовов нет. Нулевой набор тестов и skips
   не считаются успешным доказательством. Это не live gateway benchmark.
   JSON содержит исполненные `test_ids`; отсутствие обязательного verifier/config
-  теста из `EVIDENCE_TESTS` также даёт failure. [Таблица решений](VERIFIER.md#проверяемая-таблица-решений)
+  теста из `EVIDENCE_TESTS` также даёт failure. QA-002 закрепляет ещё 12 LLM
+  success/failure/budget/cache/privacy/transport controls в том же gate;
+  [протокол общего прогона](QA_ACCEPTANCE.md) связывает их с остальными suites.
+  [Таблица решений](VERIFIER.md#проверяемая-таблица-решений)
   связывает ограничения с этими артефактами без создания второго runner.
 - Packaged demo 6/6 проверяется **отдельно**, вместе с hashes. Его успех не
   закрывает внешний ввод, реальный каталог или шесть финальных артефактов.

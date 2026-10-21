@@ -126,4 +126,23 @@ EVIDENCE_TESTS = {
             'test_cli_manifest_and_api_expose_same_rejection_and_preserve_conflict',
         )},
     'config': {'test_config.ConfigTests.test_unsupported_policy_cannot_enable_llm_or_auto_accept'},
+    # QA-002 acceptance must survive a green suite with a required test removed.
+    'llm': {
+        'test_llm.GroundingTests.test_grounded_values_get_exact_raw_evidence_and_stay_review',
+        'test_llm.FailureTests.test_provider_failure_keeps_rule_output_and_adds_reason',
+        'test_llm.FailureTests.test_budget_exhausted_and_circuit_breaker',
+        'test_llm.ProviderTests.test_error_messages_never_contain_key_or_url',
+        'test_llm.CacheTests.test_warm_hit_skips_provider_and_is_reverified',
+        'test_llm.CliTests.test_llm_run_records_counts_without_text_or_secrets',
+        'test_llm.PolicyTests.test_request_carries_only_visible_text_and_schema',
+    },
+    'llm_bounds': {
+        'test_llm_bounds.LocalGateway.test_success_through_real_socket',
+        'test_llm_bounds.LocalGateway.test_slow_gateway_is_cut_by_request_deadline',
+        'test_llm_bounds.LocalGateway.test_daily_ledger_counts_physical_attempts_including_retries',
+    },
+    'llm_validation': {
+        'test_llm_validation.ResponseValidationTests.test_malformed_top_level_non_json_and_duplicate_keys_fail_closed',
+        'test_llm_validation.MalformedTransportTests.test_real_cli_batch_http_and_cache_replay_preserve_rules_and_continue',
+    },
 }

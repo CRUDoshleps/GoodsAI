@@ -46,6 +46,14 @@ class ApiTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.json()["status"], "unsupported_category")
         self.assertEqual(response.json()["attributes"], [])
 
+    async def test_malformed_marked_html_does_not_return_server_error(self):
+        self.product['title'] = '<![x]> Samsung Orbit X82 8/256GB'
+        response = await self.client.post('/predict', json=self.product)
+        self.assertEqual(response.status_code, 200)
+        expected = Extractor(load_config()).predict(Product.from_dict(self.product), run_id='http-rules-v0')
+        self.assertEqual(response.json(), expected)
+        self.assertEqual(next(a for a in expected['attributes'] if a['attribute'] == 'model')['value'], 'Orbit X82')
+
     async def test_relation_guard_matches_core(self):
         product = self.product | {"description": "Совместим с телефоном: экран 6,3 дюйма."}
         response = await self.client.post("/predict", json=product)

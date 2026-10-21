@@ -1,0 +1,380 @@
+{
+  "artifact_hashes": {
+    "clean-repeat.json": "8146feab062e71c54975a1c32d3bcb63f65fcb9b1fa864bfbdd1cbbbb853678b",
+    "clean/report.json": "a22234a55e360476daa24d1978159660cc27fa4354cd27a94c69abe55f194d72",
+    "clean/report.md": "753bb5189d079d4ff8dd8be3fe98f0490b3e3c4358b0e304d39d9bcd78878338",
+    "scenarios/report.json": "473145a942d104a85c7fd9e1dea2a4671c69de4a923f8ff7459ba68322494418",
+    "scenarios/scenario.manifest.json": "91072afff7cf5dff7f00c4079a646ac4e4b7d9465445f0c0c38ed6653b286482",
+    "suites.json": "229e905d2c4b471fe389fa5206003de3cbcfde7e51b5c18516acf9494efb133d"
+  },
+  "catalog_quality": null,
+  "clean_run": {
+    "demo_checks": {
+      "passed": 6,
+      "total": 6
+    },
+    "dependencies": [
+      {
+        "name": "annotated-doc",
+        "version": "0.0.5"
+      },
+      {
+        "name": "annotated-types",
+        "version": "0.8.0"
+      },
+      {
+        "name": "anyio",
+        "version": "4.15.1"
+      },
+      {
+        "name": "certifi",
+        "version": "2026.10.18"
+      },
+      {
+        "name": "click",
+        "version": "8.5.0"
+      },
+      {
+        "name": "colorama",
+        "version": "0.4.6"
+      },
+      {
+        "name": "fastapi",
+        "version": "0.143.3"
+      },
+      {
+        "name": "goodsai",
+        "version": "0.1.0"
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.9"
+      },
+      {
+        "name": "httpx",
+        "version": "0.28.1"
+      },
+      {
+        "name": "idna",
+        "version": "3.20"
+      },
+      {
+        "name": "opentelemetry-api",
+        "version": "1.45.1"
+      },
+      {
+        "name": "packaging",
+        "version": "26.3"
+      },
+      {
+        "name": "pip",
+        "version": "26.2.1"
+      },
+      {
+        "name": "pyarrow",
+        "version": "26.0.0"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.14.1"
+      },
+      {
+        "name": "pydantic_core",
+        "version": "2.50.1"
+      },
+      {
+        "name": "setuptools",
+        "version": "84.0.0"
+      },
+      {
+        "name": "starlette",
+        "version": "1.9.0"
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.16.0"
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.4"
+      },
+      {
+        "name": "uvicorn",
+        "version": "0.54.0"
+      },
+      {
+        "name": "wheel",
+        "version": "0.48.0"
+      }
+    ],
+    "llm_calls": 0,
+    "lock_sha256": "51157e01a2d989761576cc8705c8bdc7f84a96116f90205890ae4a0a0657cc1a",
+    "replay_reports_byte_identical": true,
+    "rows": 6,
+    "stages": [
+      {
+        "exit_code": 0,
+        "name": "create_environment",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "install_lock",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "install_project",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "pip_check",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "synthetic_smoke",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "external_batch",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "metrics_without_gold",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "verify_external_pair",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "api_contract",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "artifact_smoke",
+        "status": "passed"
+      },
+      {
+        "exit_code": 0,
+        "name": "artifact_verify",
+        "status": "passed"
+      }
+    ],
+    "synthetic_bundle_verified": true
+  },
+  "date": "2026-10-21",
+  "evidence_kind": "synthetic_correctness_reproducibility",
+  "external_api_cost_rub": 0,
+  "external_model_calls": 0,
+  "fuzz": {
+    "actual_generated_example_count": null,
+    "max_examples_per_property": 300,
+    "profile": "quick",
+    "seed": 20261021
+  },
+  "identity": {
+    "code_sha256": "0d0ccf216a044ee15a408b2a1bf5d4251093abb82fbbb3238d8fb0bc7d124915",
+    "config_sha256": "d06044fcd7d8d00cf24e8ebdc726bba9197ffb7dcb9f9141eecdb47832e46e9e",
+    "dictionary_version": "manual-reviewed-brand-and-color-names-v2",
+    "git_commit": "75d2821f409717391cd7bc1e473f413731759c41",
+    "git_dirty": false,
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.6",
+    "rules_version": "rules-0.3.0-m2-policy"
+  },
+  "independent_human_quality": null,
+  "limitations": [
+    "Suite and scenario counts overlap; they are not unique scenarios.",
+    "Property max_examples is a configured bound, not an observed generated count.",
+    "Fake and loopback provider tests are not live model quality evidence.",
+    "Runtime code fingerprints describe loaded bytes on this platform.",
+    "Historical quality_20261021 is a separate frozen runtime snapshot; no new catalog metrics were measured."
+  ],
+  "matrix": {
+    "complete_case_evidence": false,
+    "counts": {
+      "not_implemented": 4,
+      "not_verified": 7,
+      "passed": 17,
+      "unknown": 1
+    },
+    "executable_gate": {
+      "passed": 17,
+      "required": 17
+    },
+    "external_checks": {
+      "passed": 103,
+      "total": 103
+    },
+    "offline_suites": [
+      {
+        "checks_run": 23,
+        "report_sha256": "18d36d57823de957ebd96aee98697a99d3afbb5ded860e514d84e8b274eb9484",
+        "required_tests_missing": [],
+        "suite": "verifier"
+      },
+      {
+        "checks_run": 15,
+        "report_sha256": "a8879e3af9c68246e0e7505152b80f59cca85eba81b5937d130587901144d4fc",
+        "required_tests_missing": [],
+        "suite": "config"
+      },
+      {
+        "checks_run": 38,
+        "report_sha256": "c5b1a98328c1bbc93a2f93f5f2187b85d9840112398aef6f55b55298400313ea",
+        "required_tests_missing": [],
+        "suite": "llm"
+      },
+      {
+        "checks_run": 14,
+        "report_sha256": "5e3b210d41b4a6f077a0fefe7d62d608a94b0a4653ca6f7b01699cee49972b75",
+        "required_tests_missing": [],
+        "suite": "llm_bounds"
+      },
+      {
+        "checks_run": 12,
+        "report_sha256": "c1fb99ba4e7f084bcf199140691cdeda9dbfddedde8a24032ecc913ca1281790",
+        "required_tests_missing": [],
+        "suite": "llm_validation"
+      },
+      {
+        "checks_run": 10,
+        "report_sha256": "850040bdf2524556e0d185714c54494389d74d8e9c13b8d066e6c87e04eba67f",
+        "required_tests_missing": [],
+        "suite": "api"
+      },
+      {
+        "checks_run": 6,
+        "report_sha256": "ede504ab84994ac96d1960da3f85da8294eafefffacc613c7a5b3225a5562a84",
+        "required_tests_missing": [],
+        "suite": "demo"
+      }
+    ]
+  },
+  "preflight_history": [
+    {
+      "fuzz_status": "import_error_missing_declared_extra",
+      "resolution": "install_project_fuzz_extra",
+      "source_sha": "c0c07cd9512700121c5b442a2b9bf56cb45e7095"
+    },
+    {
+      "fuzz_status": "failed_on_malformed_html",
+      "resolution": "issue_158_and_persistent_regressions",
+      "source_sha": "683604caaf2de4668d79400d65304bd03a5580cc"
+    }
+  ],
+  "regressions": {
+    "legacy_parser_position": {
+      "after": "position_restored_before_recovery",
+      "before": "offset_corruption_after_assertion"
+    },
+    "malformed_marked_declaration": {
+      "after": "safe_bogus_comment_with_original_offsets",
+      "before": "stdlib_assertion_on_untrusted_text",
+      "interrupts": "propagate",
+      "issue": 158
+    },
+    "missing_llm_acceptance_controls": {
+      "after": "passed",
+      "before": "failed_as_expected",
+      "mandatory_llm_test_ids": 12
+    }
+  },
+  "schema": "goodsai-qa002-acceptance-1",
+  "source_files_sha256": {
+    "scripts/release/clean_run.py": "9230f8cd74cff096489f8f50f2bbde9b95f1b285fa8a79bb881d518fd83ceda7",
+    "scripts/release/scenario_catalog.py": "1e2a82f066a716f040a13d5ab7e022d9d458aa2f5cd5baa32efa534f4d0834ab",
+    "scripts/release/scenario_matrix.py": "8e792af4d69342da79d025f4fc52345e3383742b8da8c1079334f0fc54d93cca",
+    "src/goodsai/text.py": "7106157abdb1940c5245d95d71c4792ec7841d141a8912001ff607a6e7c1a1d3",
+    "tests/test_api.py": "d291cd8e3ef563a775f9c0151a5c7587874a9f6ee77e1d523422c54948b08d55",
+    "tests/test_fuzz_regressions.py": "0ef89c49359076bd3c77270e1d48844924c899bf6170d62668871975bbcd86e9",
+    "tests/test_scenario_matrix.py": "7607469ca2334059ba6bd87e8539b4719e3705f4df208808ffdc5e085c709ab4"
+  },
+  "status": "passed",
+  "suites": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/fuzz",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log_sha256": "6ab3174ae2455d1c466162732b4567aca31e65a7c623b8bf8023762b4fbb7800",
+      "name": "fuzz",
+      "seconds": 9.922,
+      "tests": 11
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log_sha256": "eedaeddf3824b20ca20931f19781159c048ff4b7d7d0e32619db6e28c84988f7",
+      "name": "unit_integration",
+      "seconds": 151.234,
+      "tests": 499
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/research",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log_sha256": "4c769778ff7c139e60dbc047f8298701aab08baf12b7cbb20be53435509880c2",
+      "name": "research_reader",
+      "seconds": 0.203,
+      "tests": 3
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf",
+      "name": "pip_check",
+      "seconds": 0.625,
+      "tests": null
+    }
+  ],
+  "unverified": [
+    "real_gateway_and_model_quality",
+    "final_target_vm_acceptance_82",
+    "independent_human_evaluation_6_38",
+    "new_categories_and_all_sellers",
+    "final_six_artifact_delivery",
+    "official_http_transactions_unknown"
+  ],
+  "vm_deployed": false
+}

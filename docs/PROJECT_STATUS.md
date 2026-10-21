@@ -1,3 +1,29 @@
+# 21.10.2026: QA-002 / QA-007 — общий прогон подготовлен к интеграции
+
+#29, claim `c0c07cd`, ветка `qa/qa-002-full-acceptance`. Используются существующие
+unittest, clean-run и scenario matrix; нового runner/evaluator нет. Gate дополнен
+12 обязательными LLM acceptance test IDs, регрессия RED→GREEN.
+
+Прогон выявил зависимый дефект #158 / QA-007 (claim `17b6429`): CPython 3.12.6
+assertion на `<![x]>`, затем повреждённые positions при recovery. Узкий fix
+`75d2821` в VisibleText сохраняет исходные строки и восстанавливает позицию,
+не превращая скрытые узлы в видимые факты; interrupts не проглатываются.
+Постоянные regressions проверяют actual CLI batch, API, legacy assertion на
+новых Python и raw evidence/offsets. Генератор fuzz не ослаблялся.
+
+На чистом source `75d2821`: 499 основных tests + 3 reader + 11 properties PASS,
+pip check; clean-run 11/11, demo 6/6, idempotent report bytes; matrix 17/17,
+external 103/103, manifest verification PASS. Первые неуспешные прогоны с missing
+fuzz extra и parser error сохранены. Public numeric/protocol snapshots:
+`reports/qa002_20261021.*`, `docs/QA_ACCEPTANCE.md`, явный publisher allowlist.
+Старый quality snapshot `9ebba1d` не переписывается, catalog metrics QA-fix=N/A.
+CI/merge/publisher ещё ожидаются; статусы задач REVIEW. ВМ не обновляется.
+
+Новые условия организаторов и предложенный порядок подготовки живого показа,
+презентации/ответов и freeze сохранены во внутреннем
+`docs/research/technical_checkpoint_20261023_plan.md`. Это план, не готовые
+слайды, не запись на слот и не deployment. В Gitea он не включается.
+
 # 21.10.2026: EVAL-010 завершён в согласованных границах
 
 #149 закрывается интегратором после merge PR #156 (`e996786`) и успешной
