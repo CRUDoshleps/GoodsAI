@@ -14,6 +14,7 @@
 | EVAL-007 | [#123](https://github.com/CRUDoshleps/GoodsAI/issues/123) | P1 | READY | evaluation/data | — | — | свежий baseline против прежнего producer на frozen silver; приватный проверенный bundle обязателен, independent quality не заявляется |
 | CONF-004 | [#124](https://github.com/CRUDoshleps/GoodsAI/issues/124) | P1 | BLOCKED | архитектор/data/NLP | — | — | реальный категорийный пилот существующего registry; ждёт #10/#5 и приёмку #44; synthetic 30 не равны real coverage |
 | EVAL-008 | [#125](https://github.com/CRUDoshleps/GoodsAI/issues/125) | P1 | BLOCKED | evaluation/ML/LLM | — | — | общий development benchmark actual rules/LLM/brand-hybrid; ждёт #123, artifacts/режимы #16/#25 и разрешение пакета/бюджета; #40 не закрывает |
+| EVAL-010 | [#149](https://github.com/CRUDoshleps/GoodsAI/issues/149) | P1 | IN_PROGRESS | evaluation/QA/docs | urasha / Codex (сессия Влада) | `eval/eval-010-quality-audit` | 21.10.2026: доступная часть после PR #150: аудит decision paths, доказательная таблица и необходимые точечные проверки; без дублирования #136/#137. Полное завершение BLOCKED #6/#38/#136/#137; PR без merge |
 
 Порядок: #122 и #123 можно брать после claim; далее подтверждённый контракт
 #10/#17 и матрица #35, разрешённая train-проекция #5 и пилот #124 через
