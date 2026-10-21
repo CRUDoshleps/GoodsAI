@@ -126,6 +126,12 @@ Reference совместим с текущим evaluator v0.1. Runtime-метр�
 N/A: predictions/evaluate отдельно запускаются только на frozen candidate после
 контрольного human review происхождения. Доступ к final gold до freeze закрыт.
 
+Готовые пакеты A/B, исходные metadata/audit, ответы и finalize-результат нужно
+сохранить для [offline quality-сборки](EVALUATION.md#подготовка-воспроизводимого-human-quality-пакета).
+Она повторно проверяет human workflow и пересчитывает метрики уже сохранённых
+frozen predictions; без gold создаёт только blocked-plan с N/A, не раскрывая
+reserve. Этот подготовительный инструмент не заменяет разметчиков или signoff.
+
 Флаг independent_reference основан на **заявлениях людей и соблюдении процесса**.
 Инструмент не аутентифицирует личность, не доказывает отсутствие общения или
 использования ИИ. Reviewer проверяет эти условия отдельно. Нельзя закрывать Issue

@@ -325,6 +325,11 @@ R 63,02%, F1 75,67%, supported recall 75,75%. Полные знаменател�
 
 Для реальных метрик нужны локальные reviewed-метки и predictions **тех же**
 карточек. Нельзя сравнивать synthetic predictions с реальным reference.
+Подготовить пакет независимой оценки без открытия reserve:
+`.venv/bin/python scripts/research/quality_evidence.py prepare --output-dir outputs/evaluation/quality-plan-next`.
+Без human gold он сохраняет `blocked`, P/R/F1=N/A. Сборка из будущих frozen
+human/prediction пакетов и проверка hashes описаны в
+[протоколе оценки](docs/EVALUATION.md#подготовка-воспроизводимого-human-quality-пакета).
 Воспроизводимая команда для утверждённого M2 development, SHA reference и
 ограничения приведены в [индексе результатов](docs/RESULTS.md#воспроизведение-m2).
 

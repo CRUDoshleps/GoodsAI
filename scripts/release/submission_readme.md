@@ -122,6 +122,10 @@ clicks обязательны только для `--profile analytics`. `prepar
 - [Эксплуатация](../../docs/RUNBOOK.md), [LLM: opt-in, бюджет, fallback](../../docs/LLM.md).
 - [Общий verifier](../../docs/VERIFIER.md): evidence, нормализация, связь с товаром и причины отказа.
 - [Оценка](../../docs/EVALUATION.md), [результаты и provenance](../../docs/RESULTS.md).
+- Подготовка independent quality-пакета без открытия reserve:
+  `.venv/bin/python scripts/research/quality_evidence.py prepare --output-dir outputs/evaluation/quality-plan-next`.
+  Без human gold статус blocked, метрики N/A; сборка/verify по frozen hashes —
+  в [протоколе оценки](../../docs/EVALUATION.md#подготовка-воспроизводимого-human-quality-пакета).
 - [Silver-метрики](../../reports/metrics.md), [статистика прогона](../../reports/run_stats.json).
 - [Checkpoint: EDA, метрики, PDF-презентация](../../docs/delivery/2026-10-19/README.md).
 - [Продуктовая презентация](../../docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).

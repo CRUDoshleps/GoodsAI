@@ -1,3 +1,42 @@
+# 21.10.2026: EVAL-003 — подготовка quality-пакета в REVIEW, финальная приёмка BLOCKED
+
+Issue #38, подготовительный инкремент для #149 по поручению Владислава;
+claim `87887ce`, ветка `eval/eval-003-quality-evidence`. Реализован
+`scripts/research/quality_evidence.py`: prepare создаёт metadata/spec и
+blocked report с P/R/F1=null без чтения реальных данных. Assemble принимает
+уже готовые sealed human A/B/reference и сохранённые predictions, повторяет
+существующие reconcile/finalize, audit verification и evaluator. Собственных
+форм, разметки, извлечения или формул P/R/F1 не добавлено.
+
+Проверяются exact SKU/text/evidence, raw/config/effective policy/code hashes,
+clean producer и один frozen method commit/config; reference должен побайтно
+совпасть с replay human answers/signoff. Нет hybrid — явный not_run. Ошибочные
+строки не исчезают: unprocessed, FN и lost TP сохраняются. Есть per-attribute/
+category/category×attribute, exclusions/agreement и private paired changes.
+Verify проверяет inventory/hashes и повторяет evaluator/paired transitions
+на captured input, с контролем версии evaluator/runtime. Доверенный внешний
+manifest SHA допускается отдельно; checksum не доказывает подлинность людей.
+
+15 новых synthetic tests PASS: blocked/no data, hash/signoff/reference tamper,
+freeze/audit/producer mismatch, text/SKU/failed rows, missing methods, repeat и
+ложные метрики даже после обновления внутренних hashes. CI добавлен в
+Linux/Windows acceptance workflow. CLI prepare → verify и assemble пустого
+template → verify реально проверены в новых локальных outputs: blocked,
+independent_reference=false, metrics_recomputed=false. Pip check и diff check PASS.
+Полная финальная Windows-регрессия: **475 tests PASS** (145,099 s), отдельный
+research reader suite 3/3 PASS. Это проверки кода на synthetic fixtures,
+не реальные независимые метрики качества и не новый VM-прогон.
+README/submission README, HUMAN_GOLD и EVALUATION описывают команды, provenance,
+границы и fail-closed поведение; исправлены исторические общие заявления о
+якобы отсутствующей LLM-интеграции.
+
+**Весь #38 не завершён:** независимый human gold #6 отсутствует, реальных
+independent P/R/F1 нет. Даже сборка с gold требует внешней проверки процесса
+и заморозки model/policy artifacts, автоматическая final acceptance не выдаётся.
+Нет открытия/разметки реального reserve, новых predictions по test, model API,
+расходов, calibration/auto_accept, изменений runtime v0.1, gold или VM.
+PR готовится без merge и без автозакрытия #38; #149 остаётся частично blocked.
+
 # 20.10.2026: OPS-004 — DONE, закрытие SQLite-ресурсов QueueAudit
 
 Issue #142, claim `69b2c2c`, ветка `fix/ops-004-sqlite-lifecycle`. Операции
