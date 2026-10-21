@@ -11,6 +11,13 @@ Reference provenance, independent=false и N/A не меняются; обобщ
 полный method comparison и максимальный балл не заявляются. Это изменение
 границ задачи по решению пользователя, а не переименование development в test.
 
+Финальный scope выполнен: PR #156 merged `e996786`, CI 6/6 SUCCESS, publisher
+39601679832 SUCCESS; Gitea `baf5aa1` manifest и actual blobs сверены. JSON SHA
+`1fea6582090e09bc884b0221f60ef985edadb7c8e8ae45d050b8d8209fcc50a8`;
+exporter SHA `b5c45d2eac0ad849b5d9203a61741f267930f61bd653cce79e38602c6eaf7efc`.
+Отдельная регрессия hash проверена RED на прежнем HEAD, GREEN после исправления;
+5 export tests, 9 submission tests PASS. Новый canonical replay byte-identical.
+
 PR #155 merged `3ae1132`, Gitea publisher SUCCESS. Проверка опубликованных байтов
 нашла документированный Windows CRLF hash вместо Git LF hash. Follow-up claim
 `efe1451` фиксирует LF для exporter/публичных snapshots, сверяет RESULTS hash и
