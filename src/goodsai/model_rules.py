@@ -17,7 +17,13 @@ BAD_CONTEXT = re.compile(
 DESCRIPTOR = re.compile(
     r"^\s*(?:(?:восстановленный|новый|мобильный)\s+)?"
     r"(?:смартфон|телефон|электрочайник|чайник|электрический\s+чайник)\s+", re.I)
-QUANTITY = re.compile(r"\d+(?:[.,]\d+)?(?:\s*[/+]\s*\d+)?\s*(?:GB|ГБ|TB|ТБ|мА\*?ч|mAh|Вт|W|кВт|мл|ml|л|L|дюйм\w*)(?!\w)", re.I)
+# Power-like endings occur inside complete kettle identifiers (QZ-731W).
+# Keep the previous conservative memory/battery/capacity suffix exclusion:
+# glued memory such as OrbitQ82Plus256GB still has an ambiguous name boundary.
+AMOUNT = r"\d+(?:[.,]\d+)?(?:\s*[/+]\s*\d+)?\s*"
+QUANTITY = re.compile(
+    rf"(?:{AMOUNT}(?:GB|ГБ|TB|ТБ|мА\*?ч|mAh|мл|ml|л|L|дюйм\w*)|"
+    rf"(?<![\w.-])[+-]?{AMOUNT}(?:кВт|Вт|W))(?!\w)", re.I)
 SIM_FEATURE = re.compile(r'(?:Dual\s+SIM(?:\s*\+\s*eSIM)?|eSIM|Nano-SIM)(?!\w)', re.I)
 MATERIAL = re.compile(r'(?:нержавеющ\w*\s+сталь|stainless\s+steel)(?!\w)', re.I)
 STATE = re.compile(r"(?:восстановленный|рабочий|новый|б/у)\b", re.I)

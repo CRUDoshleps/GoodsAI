@@ -4,14 +4,14 @@ import math
 import re
 
 from goodsai.category_registry import Registry
-from goodsai.model_rules import QUANTITY, NETWORK
+from goodsai.model_rules import CODE, QUANTITY, NETWORK
 from goodsai.normalize import BOUNDS, NUMBER, UNITS, model_name
 from goodsai.relation import RelationVerifier
 from goodsai.rules import Rules, bounded_alias, context, excluded_quantity_context
 from goodsai.stages import Candidate
 from goodsai.text import visible_span
 
-VERSION = "candidate-verifier-1.1"
+VERSION = "candidate-verifier-1.2"
 UNIT_PATTERNS = {
     "storage_gb": r"GB|ГБ", "ram_gb": r"GB|ГБ",
     "screen_inches": r'дюйм\w*|inches?\b|["″]',
@@ -122,14 +122,21 @@ class CandidateVerifier:
                     or (start > 1 and text[start - 1] == "." and text[start - 2].isalnum())
                     or (end + 1 < len(text) and text[end] == "." and text[end + 1].isalnum())):
                 return "verifier_incomplete_model"
-            spans = self.models.spans(self.product.category_id, candidate.field, text)
+            spans = list(self.models.spans(self.product.category_id, candidate.field, text))
             if any(a <= start < end <= b and (a, b) != (start, end) for a, b, _ in spans):
                 return "verifier_incomplete_model"
             brands = (self.models.phone_brands if self.config["category_profiles"][self.product.category_id] == "smartphone"
                       else self.models.model_brands)
+            brand = self.models.prefix(visible, brands)
+            # A separately established full model code may repeat a maker's
+            # spelling before an internal hyphen. This is not a standalone
+            # brand token. No exception without the existing exact model span.
+            embedded_brand = (brand is not None and visible[brand.end():].startswith("-")
+                              and re.fullmatch(CODE, visible) is not None
+                              and any((a, b) == (start, end) for a, b, _ in spans))
             if (not re.search(r"[^\W\d_]", visible) or visible.casefold() in {
                     "смартфон", "телефон", "чайник", "электрочайник", "smartphone", "phone", "kettle"}
-                    or self.models.prefix(visible, brands) or QUANTITY.search(visible)
+                    or (brand is not None and not embedded_brand) or QUANTITY.search(visible)
                     or re.fullmatch(NETWORK, visible, re.I)
                     or any(re.search(bounded_alias(a), visible, re.I) for a in self.models.colors)):
                 return "verifier_unsupported_model"

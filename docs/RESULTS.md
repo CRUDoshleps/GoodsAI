@@ -36,6 +36,37 @@ identity этого протокола. Отдельная независима�
 актуальный model comparison PR #136 и разбор #137 остаются незавершёнными.
 Улучшение баллов организаторов или real precision этим не заявляется.
 
+## 21.10.2026: регрессия цельных модельных кодов
+
+Код candidate `9ebba1d`, baseline `7a95c59`. На одной frozen development-feedback
+выборке 2974 карточки / 1250 families, input/reference/config не менялись.
+Source bundle manifest SHA-256:
+`fbd0dfd438226f09cdbab8e3bb2d618a215fefb729189094f48fed544777fdae`.
+Shared verifier 1.2 сохраняет цельный код с power-like ending; brand-like prefix
+допускается только при полном model span, уже доказанном grammar.
+
+Catalog agreement: **6 новых TP, 0 новых FP, 0 lost TP** на judged парах.
+Все изменения относятся к model; другие значения не менялись. Общий F1
+0,759222 → 0,759604; model F1 0,617551 → 0,622030. Есть ещё один новый model
+на catalog conflict: он исключён из TP/FP и явно сохранён для human review.
+Unknown/conflict не объявляются правильными предсказаниями.
+
+Private frozen report SHA-256:
+`7b5979ef38be3bf1a97efe48eb58ddd78224354278af714ac7bb8b8c15310d11`.
+Прежние 20 catalog mismatches остаются в исходном reference и отчётах.
+После явного человеческого подтверждения всех 27 AI-assisted model labels:
+на этом error-selected development поднаборе (27 карточек / 25 families)
+pre-fix main имеет 20 TP / 0 FP / 7 FN, fixed — 27 TP / 0 FP / 0 FN.
+Другие 114 полей не размечались и исключены. Это проверка исправленных ошибок,
+не «100% качество каталога», не independent test и не сравнение model API.
+Reference SHA: `fc360386b5ab5eb402c83984fa2ef438073c7a7e3e23413248abb86b49ada090`.
+Human-reviewed model-only metrics SHA:
+`d6c2426d118e6ce4c34f9069e2ce18596235dfca1ac760d859a58d5fb1994c55`.
+Два повторных расчёта существующим evaluator дают побайтно одинаковый отчёт;
+independent_reference=false, независимая итоговая оценка остаётся N/A.
+Никаких test reserve predictions,
+новых model calls или обновления ВМ в этом повторе нет.
+
 ## Сводка доказательств на 20.10.2026
 
 Runtime/documentation audit: код `1c64463`. Строки ниже относятся к разным
