@@ -84,9 +84,12 @@ Catalog reference и исходные predictions **не исправляютс�
 
 ## Узкое runtime исправление
 
-`31c4590`: measurement matching учитывает левую границу токена и знак, поэтому
+`31c4590` / финальный `9ebba1d`: power measurement matching учитывает левую границу токена и знак, поэтому
 не ищет `731W` внутри вымышленного `QZ-731W`. Настоящие отдельные `2200W`,
 `-2200W`, `256GB`, `8/256GB`, `1.7L` по-прежнему исключаются из model.
+Прежний отказ для слитных memory/battery/capacity suffixes сохранён: слитное
+имя с `256GB` не становится доказанной моделью. Добавлена отдельная отрицательная
+регрессия; первоначально более широкий boundary matcher не интегрировался.
 
 Brand-like prefix допускается лишь внутри цельного буквенно-цифрового дефисного
 кода и при точном подтверждении полного span существующим ModelRules. Без
@@ -102,12 +105,16 @@ test падал в четырёх subtests, после проходит; negativ
 ## Повтор текущего baseline до/после
 
 Заморожены одинаковые input/reference/metadata/config из полученного пакета.
-Сравнены main `7a95c59` и candidate `185e053`, два isolated runtime, cold/warm
+Сравнены main `7a95c59` и финальный candidate `9ebba1d`, isolated runtime, cold/warm
 повтор внутри каждого процесса. Использован существующий `runtime_run` и silver
 evaluator из read-only checkout PR #136 (`b3941ce`); код коллеги не копировался
 в main. Private orchestration/protocol:
-`outputs/eval010/run_eval009_comparison.py` → `outputs/eval010/model-replay-185e053/`.
+`outputs/eval010/run_eval009_comparison_final.py` → `outputs/eval010/model-replay-9ebba1d/`.
 Это локальный Windows-повтор, не обновление ВМ и не production latency benchmark.
+Первичный протокол `185e053` сохранён отдельно. В финальном повторе неизменные
+baseline outputs переиспользованы с исходными hashes, новый candidate реально
+пересчитан. Все 2974 результата candidate совпадают с первичным, кроме run_id;
+equivalence proof — `outputs/eval010/model-replay-equivalence-final.json`.
 
 | Catalog agreement | До | После |
 | --- | ---: | ---: |
@@ -132,21 +139,21 @@ hash исходных 26 и полный diff. Никакого нового р�
 `63e32bac29af6018f20b19265108d477ff4d7966820ac4144470406ce4f973b3`.
 
 Private replay report SHA-256:
-`3342085e9f9e8da5a391c3cd1109f98d28dc5122f28fb359d6efbeb0a9cdbfce`.
+`7b5979ef38be3bf1a97efe48eb58ddd78224354278af714ac7bb8b8c15310d11`.
 Исходные silver labels, predictions и протокол PR #136 сохранены без изменений.
 Данные этого разбора уже development feedback; не объявлять его новым holdout.
 
-Проверки candidate: 486 основных unittest PASS (149,606 s), research reader 3/3,
+Проверки финального candidate: 487 основных unittest PASS (149,949 s), research reader 3/3,
 pip check PASS. Пять новых adjudication tests проверяют порчу/неполноту inventory,
 неверный producer input, запрет test families, происхождение draft/feedback и
-запрет выдуманной модели вне witness. Два verifier tests проверяют положительные
+запрет выдуманной модели вне witness. Три verifier tests проверяют положительные
 коды и сохранение отрицательных ограничений. Model tests 18/18,
 development_review 9/9 PASS. Финальный matrix: 17/17 executable групп,
 103/103 внешних checks и verify PASS; оставшиеся 4 not_implemented,
 7 not_verified и 1 unknown не скрыты. Отдельный вымышленный полный code с
 unit-like ending и brand-like prefix проходит CLI/API с одинаковыми attributes,
 точным evidence и decision=review. Протоколы:
-`outputs/eval010/eval009-scenarios-final/` и `model-cli-api-parity.json`.
+`outputs/eval010/eval009-scenarios-9ebba1d/` и `model-cli-api-parity.json`.
 CI и интеграция кода — PR #154; даже merge подготовительного инкремента
 не подтверждает человеческую разметку M01–M27 и не закрывает Issue #137.
 

@@ -10,10 +10,11 @@ Issue #137, claim `0b84069`, ветка `eval/eval-009-model-adjudication`. По
 Предварительно 20 catalog mismatches объясняются включёнными в catalog model
 цветом/материалом/памятью/состоянием/SIM; подтверждение Владислава ещё нужно.
 В 6 lost matches verifier ошибочно отвергал цельные коды из-за unit-like suffix
-или brand-like prefix. Исправление `31c4590`, runtime candidate `185e053`:
-границы measurement tokens; узкое разрешение дефисного кода с brand-like prefix
+или brand-like prefix. Исправления `31c4590`/`9ebba1d`, runtime candidate `9ebba1d`:
+границы power measurement tokens; узкое разрешение дефисного кода с brand-like prefix
 только при существующем полном model span. Shared verifier 1.2; contract,
-confidence, decisions и прочие attribute rules не менялись.
+confidence, decisions и прочие attribute rules не менялись. Прежние отказы для
+слитных memory/battery suffixes сохранены отдельной отрицательной регрессией.
 
 На тех же frozen input/reference/config: 6 new catalog TP, 0 new FP / lost TP;
 другие атрибуты без изменений. Есть седьмой новый model при catalog conflict:
@@ -21,8 +22,8 @@ confidence, decisions и прочие attribute rules не менялись.
 0,759222 → 0,759604, model F1 0,617551 → 0,622030. Это noisy agreement,
 не independent human quality. Cold/warm predictions совпали в каждом runtime.
 
-Проверки: 486 unittest + 3 reader PASS, pip check; targeted model 18,
-development_review 9, adjudication 5, verifier 22 PASS. Синтетический positive
+Проверки: финальные 487 unittest + 3 reader PASS, pip check; targeted model 18,
+development_review 9, adjudication 5, verifier 23 PASS. Синтетический positive
 регрессии воспроизводился до фикса в четырёх subtests. Текущая форма:
 `outputs/eval010/model-adjudication-20261021/draft-all27-v2/review.md`.
 Human reviewed=0, human P/R/F1=N/A. Используется existing exact-label validator

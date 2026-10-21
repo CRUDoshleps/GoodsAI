@@ -38,11 +38,11 @@ identity этого протокола. Отдельная независима�
 
 ## 21.10.2026: регрессия цельных модельных кодов
 
-Код candidate `185e053`, baseline `7a95c59`. На одной frozen development-feedback
+Код candidate `9ebba1d`, baseline `7a95c59`. На одной frozen development-feedback
 выборке 2974 карточки / 1250 families, input/reference/config не менялись.
 Source bundle manifest SHA-256:
 `fbd0dfd438226f09cdbab8e3bb2d618a215fefb729189094f48fed544777fdae`.
-Shared verifier 1.2 сохраняет цельный код с unit-like ending; brand-like prefix
+Shared verifier 1.2 сохраняет цельный код с power-like ending; brand-like prefix
 допускается только при полном model span, уже доказанном grammar.
 
 Catalog agreement: **6 новых TP, 0 новых FP, 0 lost TP** на judged парах.
@@ -52,7 +52,7 @@ Catalog agreement: **6 новых TP, 0 новых FP, 0 lost TP** на judged �
 Unknown/conflict не объявляются правильными предсказаниями.
 
 Private frozen report SHA-256:
-`3342085e9f9e8da5a391c3cd1109f98d28dc5122f28fb359d6efbeb0a9cdbfce`.
+`7b5979ef38be3bf1a97efe48eb58ddd78224354278af714ac7bb8b8c15310d11`.
 Прежние 20 catalog mismatches остаются в исходном reference и отчётах:
 AI-assisted text review предполагает шум границ catalog model, но человеческое
 подтверждение ещё не получено. Human P/R/F1 = N/A; это не independent test и не
