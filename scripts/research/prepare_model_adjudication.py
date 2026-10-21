@@ -3,15 +3,19 @@ import argparse
 from collections import Counter
 import json
 from pathlib import Path
+import re
+import shutil
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
-from goodsai.contracts import Product
-from goodsai.data import digest, read_jsonl
+from goodsai.contracts import Product, load_config
+from goodsai.data import digest, read_jsonl, read_predictions
+from goodsai.evaluate import evaluate as score_reference
 from goodsai.silver_prepare import verify_bundle
 from scripts.research.audit_splits import dump, require, unique_rows, write_rows
+from scripts.research.compare_model_stage import compare
 from scripts.research.review_m2 import cell, fence, make_label
 
 
@@ -162,6 +166,91 @@ def draft(selection, decisions, output):
     return {"cards": len(rows), "human_reviewed_cards": 0, "independent_reference": False}
 
 
+def evaluate_models(reviewed, reference_sha256, predictions, config_path, output):
+    """Project explicitly reviewed model labels; reuse the existing evaluator."""
+    reviewed = Path(reviewed)
+    source = reviewed / "development.human-reviewed.jsonl"
+    require(digest(source) == reference_sha256, "reviewed_reference_mismatch")
+    manifest = read(reviewed / "review.manifest.json")
+    require(manifest.get("status") == "ai_assisted_human_reviewed_development"
+            and manifest.get("independent_reference") is False
+            and manifest.get("pending_pairs") == 0, "confirmed_development_reference_required")
+    for name, checksum in manifest["artifacts"].items():
+        require(Path(name).name == name and digest(reviewed / name) == checksum, "reviewed_artifact_changed")
+    config = load_config(config_path)
+    tasks, reference = list(read_jsonl(source)), []
+    for task in tasks:
+        require(task.get("annotation_status") == "reviewed" and task.get("ai_assisted") is True
+                and task.get("independent_reference") is False
+                and [a["attribute"] for a in task["attributes"]] == ["model"], "model_only_review_required")
+        label = task["attributes"][0]
+        require(label.get("human_review_status") == "confirmed", "unconfirmed_model_label")
+        # Other fields are explicitly excluded, not silently copied from predictions.
+        labels = [label if attr == "model" else {"attribute": attr, "status": "unjudgeable",
+                  "value": None, "unit": None, "evidence": None,
+                  "label_origin": "not_reviewed_out_of_scope"}
+                  for attr in config["categories"][task["category_id"]]]
+        reference.append(task | {"attributes": labels, "reviewed_attributes": ["model"],
+                                "evaluation_view": "model_only_other_attributes_excluded"})
+    ids = {t["sku_id"] for t in tasks}
+    require(ids and len(ids) == len(tasks), "duplicate_or_empty_review")
+    output = new_output(output)
+    output.mkdir(parents=True)
+    write_rows(output / "model.reference-view.jsonl", reference)
+    metrics, variants, provenance = {}, {}, {}
+    input_sha = None
+    for spec in predictions:
+        name, separator, path = spec.partition("=")
+        require(separator and re.fullmatch(r"[a-z][a-z0-9_-]{0,31}", name)
+                and name not in variants, "invalid_or_duplicate_method")
+        path = Path(path)
+        producer_path = path.with_suffix(".manifest.json")
+        producer = read(producer_path)
+        require(producer.get("git_dirty") is False and producer.get("llm_calls") == 0
+                and producer["output_sha256"] == digest(path), "invalid_frozen_producer")
+        input_sha = input_sha or producer["input_sha256"]
+        require(producer["input_sha256"] == input_sha, "different_frozen_inputs")
+        captured = output / "captured" / name / "predictions.jsonl"
+        captured.parent.mkdir(parents=True)
+        shutil.copyfile(path, captured)
+        shutil.copyfile(producer_path, captured.with_suffix(".manifest.json"))
+        all_rows = list(read_predictions(captured))
+        require(len(all_rows) == producer["rows"] and len({r["sku_id"] for r in all_rows}) == len(all_rows),
+                "invalid_producer_population")
+        selected = [r for r in all_rows if r["sku_id"] in ids]
+        require({r["sku_id"] for r in selected} == ids, "reviewed_prediction_missing")
+        target = output / (name + ".model-subset.jsonl")
+        write_rows(target, selected)  # Analysis projection; never forge a producer manifest.
+        metrics[name] = score_reference(target, output / "model.reference-view.jsonl", config)
+        variants[name] = {r["sku_id"]: r for r in selected}
+        provenance[name] = {k: producer.get(k) for k in
+                            ("git_commit", "code_sha256", "config_sha256", "input_sha256", "output_sha256")}
+    require(len(variants) >= 2, "at_least_two_frozen_methods_required")
+    names = list(variants)
+    transitions = [(a, b) for i, a in enumerate(names) for b in names[i + 1:]]
+    changes = compare(reference, variants, transitions=transitions)
+    dump(output / "pair-changes.private.json", {"changes": changes})
+    report = {"sample_kind": "error_selected_development", "reference_origin": "ai_assisted_human_reviewed",
+              "independent_reference": False, "selection_uses_predictions": True,
+              "reviewed_attributes": ["model"], "cards": len(tasks), "metrics": metrics,
+              "source_reference_sha256": reference_sha256, "method_provenance": provenance,
+              "review_manifest_sha256": digest(reviewed / "review.manifest.json"),
+              "human_feedback_sha256": digest(reviewed / "human.feedback.json"),
+              "reference_view_sha256": digest(output / "model.reference-view.jsonl"),
+              "config_file_sha256": digest(config_path),
+              "evaluator_sha256": digest(ROOT / "src/goodsai/evaluate.py"),
+              "driver_sha256": digest(Path(__file__)),
+              "paired_model_transitions": {a + "->" + b: dict(Counter(
+                  c["before_verdict"] + "->" + c["after_verdict"] for c in changes
+                  if c["attribute"] == "model" and c["transition"] == a + "->" + b)) for a, b in transitions},
+              "limitation": "Only selected model errors; not full-card or catalogue quality. Other fields excluded."}
+    dump(output / "metrics.json", report)
+    dump(output / "manifest.json", {"artifacts": {p.relative_to(output).as_posix(): digest(p)
+         for p in sorted(output.rglob("*")) if p.is_file() and not p.name.startswith(".")}})
+    return {"cards": len(tasks), "independent_reference": False,
+            "metrics": {name: value.get("metrics", {}).get("micro") for name, value in metrics.items()}}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -173,13 +262,21 @@ def main():
     p = sub.add_parser("draft")
     for name in ("selection", "decisions", "output-dir"):
         p.add_argument("--" + name, type=Path, required=True)
+    p = sub.add_parser("evaluate-models")
+    for name in ("reviewed", "config", "output-dir"):
+        p.add_argument("--" + name, type=Path, required=True)
+    p.add_argument("--reference-sha256", required=True)
+    p.add_argument("--prediction", action="append", required=True)
     args = parser.parse_args()
     try:
         if args.command == "prepare":
             result = prepare(args.bundle, args.comparison, args.bundle_sha256,
                              args.comparison_sha256, args.output_dir)
-        else:
+        elif args.command == "draft":
             result = draft(args.selection, args.decisions, args.output_dir)
+        else:
+            result = evaluate_models(args.reviewed, args.reference_sha256,
+                                     args.prediction, args.config, args.output_dir)
     except (ValueError, OSError, KeyError, TypeError) as exc:
         parser.exit(2, "model adjudication: " + type(exc).__name__ + "\n")
     print(json.dumps(result, ensure_ascii=True))

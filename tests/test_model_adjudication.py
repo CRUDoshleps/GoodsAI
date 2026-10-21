@@ -8,6 +8,8 @@ from unittest.mock import patch
 from scripts.research import prepare_model_adjudication as review
 from scripts.research.development_review import record_feedback
 from goodsai.data import digest
+from goodsai.contracts import Product, load_config
+from goodsai.verify import Extractor
 
 
 def save(path, value):
@@ -153,6 +155,61 @@ class ModelAdjudicationTests(unittest.TestCase):
                 'field': 'title', 'quote': 'Demo Q520W', 'note': 'Must be rejected.'}})
             with patch.object(review, 'ROOT', root), self.assertRaisesRegex(ValueError, 'Model changes'):
                 review.draft(root / 'outputs/selected', root / 'decisions.json', root / 'outputs/draft')
+
+    def test_model_only_review_reuses_evaluator_and_excludes_other_fields(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            a, b = fixture(root)
+            prepare(root, a, b)
+            save(root / 'decisions.json', {'M01': {'value': 'Demo Q520W', 'unit': None,
+                'field': 'title', 'quote': 'Demo Q520W', 'note': 'Invented explicit model.'}})
+            with patch.object(review, 'ROOT', root):
+                review.draft(root / 'outputs/selected', root / 'decisions.json', root / 'outputs/draft')
+            save(root / 'feedback.json', {'source_draft_sha256': digest(root / 'outputs/draft/development.ai-draft.jsonl'),
+                                         'reviewer': 'SyntheticHuman', 'confirm_all_existing_labels': True})
+            reference = root / 'outputs/reviewed'
+            record_feedback(root / 'outputs/draft', root / 'feedback.json', reference)
+            p = Product.from_dict(next(review.read_jsonl(a / 'input.jsonl')))
+            row = Extractor(load_config()).predict(p)
+            self.assertEqual(next(x for x in row['attributes'] if x['attribute'] == 'model')['value'], 'Demo Q520W')
+            save(root / 'config.json', load_config())
+            specs = []
+            for mode in ('before', 'after'):
+                predicted = json.loads(json.dumps(row))
+                if mode == 'before':
+                    model = next(x for x in predicted['attributes'] if x['attribute'] == 'model')
+                    model.update(value=None, unit=None, confidence=None, decision='abstain',
+                                 rule_id=None, evidence=None, reason_codes=['not_found_by_rules'])
+                path = root / (mode + '.jsonl')
+                rows(path, [predicted])
+                save(path.with_suffix('.manifest.json'), {'rows': 1, 'git_dirty': False, 'llm_calls': 0,
+                    'input_sha256': 'synthetic-common-input', 'output_sha256': digest(path),
+                    'git_commit': ('a' if mode == 'before' else 'b') * 40})
+                specs.append(mode + '=' + str(path))
+            reference_sha = digest(reference / 'development.human-reviewed.jsonl')
+            # Only patch the private destination boundary, not the actual metric implementation/hash.
+            with patch.object(review, 'new_output', side_effect=lambda p: Path(p)):
+                result = review.evaluate_models(reference, reference_sha, specs, root / 'config.json', root / 'scored')
+            self.assertFalse(result['independent_reference'])
+            self.assertEqual(result['metrics']['before']['fn'], 1)
+            self.assertEqual(result['metrics']['after']['tp'], 1)
+            report = review.read(root / 'scored/metrics.json')
+            self.assertEqual(report['sample_kind'], 'error_selected_development')
+            self.assertEqual(report['metrics']['after']['excluded_pairs'], 4)
+            self.assertEqual(set(report['metrics']['after']['metrics']),
+                {'micro', 'attribute:model', 'category:482', 'category_attribute:482:model'})
+            self.assertEqual(report['paired_model_transitions']['before->after'], {'FN->TP': 1})
+            for mode in ('before', 'after'):
+                self.assertEqual(digest(root / (mode + '.jsonl')),
+                    review.read(root / (mode + '.manifest.json'))['output_sha256'])
+            with self.assertRaisesRegex(ValueError, 'reviewed_reference_mismatch'):
+                review.evaluate_models(reference, 'wrong', specs, root / 'config.json', root / 'rejected')
+            producer = review.read(root / 'after.manifest.json')
+            producer['input_sha256'] = 'different-input'
+            save(root / 'after.manifest.json', producer)
+            with patch.object(review, 'new_output', side_effect=lambda p: Path(p)), \
+                    self.assertRaisesRegex(ValueError, 'different_frozen_inputs'):
+                review.evaluate_models(reference, reference_sha, specs, root / 'config.json', root / 'different')
 
 
 if __name__ == '__main__':
