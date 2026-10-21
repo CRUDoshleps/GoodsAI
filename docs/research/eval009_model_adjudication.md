@@ -154,15 +154,58 @@ development_review 9/9 PASS. Финальный matrix: 17/17 executable гру�
 unit-like ending и brand-like prefix проходит CLI/API с одинаковыми attributes,
 точным evidence и decision=review. Протоколы:
 `outputs/eval010/eval009-scenarios-9ebba1d/` и `model-cli-api-parity.json`.
-CI и интеграция кода — PR #154; даже merge подготовительного инкремента
-не подтверждает человеческую разметку M01–M27 и не закрывает Issue #137.
+CI и интеграция кода — PR #154. Первоначальный подготовительный инкремент
+не означал подтверждение разметки; фактическое подтверждение записано ниже.
 
-## Что ещё нужно
+## Человеческое подтверждение и model-only оценка
 
-Владислав подтвердил участие в AI-assisted review без привлечения дополнительных
-людей. Нужны его ответы M01–M27, затем существующий `development_review feedback`
-фиксирует explicit confirmation/overrides с AI-origin и independent_reference=false.
-Отбор по predictions также сохраняется в provenance, не затирается при feedback.
+Владислав явно ответил «Подтверждаю все M01–M27 после проверки» для формы v2.
+Существующий `development_review.record_feedback` выпустил новую private версию
+`human-reviewed-v1`, 27 present model labels, без overrides. AI-origin и
+prediction-selection exposure сохранены; independent_reference=false.
+Исходные drafts не заменялись. Partial reference SHA-256:
+`fc360386b5ab5eb402c83984fa2ef438073c7a7e3e23413248abb86b49ada090`.
+
+По этой согласованной политике все 20 новых catalog disagreements оказались
+reference-boundary noise, а не human FP extractor. Шесть judged lost matches
+и дополнительный конфликтный случай M27 действительно содержат нужные модели.
+Catalog labels и старые отчёты не переписаны.
+
+`evaluate-models` формирует явный model-only view: 27 judged model pairs,
+114 остальных полей исключены как not_reviewed_out_of_scope. Расчёт выполняет
+существующий `goodsai.evaluate.evaluate`, paired changes — existing
+`compare_model_stage.compare`. Формулы метрик и runtime не дублируются.
+Frozen predictions захватываются с manifest/hash/producer/input проверками;
+пустой или иной input, неподтверждённый reference и изменившийся capture дают отказ.
+
+**Это выбранные ошибки development, не оценка всего каталога.** В наборе 27
+карточек / 25 families (24 чайника, 3 смартфона), все model labels present;
+нет основания оценивать поведение на absent или перенос на новые категории.
+
+| Версия | model TP | FP | FN |
+| --- | ---: | ---: | ---: |
+| historical `f33e3fc` | 7 | 0 | 20 |
+| reported candidate `1c64463` | 20 | 0 | 7 |
+| pre-fix main `7a95c59` | 20 | 0 | 7 |
+| fixed `9ebba1d` | 27 | 0 | 0 |
+
+Переход pre-fix→fixed: 7 FN→TP, 0 new FP / lost TP на этом reviewed поднаборе.
+По категории: fixed 24/24 model TP у чайников, 3/3 у смартфонов. Это ограниченный
+regression result, не утверждение «precision каталога 100%».
+
+Одна команда повторяет четыре frozen варианта (новый output-dir):
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.research.prepare_model_adjudication evaluate-models --reviewed outputs/eval010/model-adjudication-20261021/human-reviewed-v1 --reference-sha256 fc360386b5ab5eb402c83984fa2ef438073c7a7e3e23413248abb86b49ada090 --config outputs/eval010/handoff-sftp-20261021/eval-007-20261020-rebuilt-comparison/config.json --prediction historical=outputs/eval010/handoff-sftp-20261021/eval-007-20261020-rebuilt-comparison/historical/cold.jsonl --prediction reported_candidate=outputs/eval010/handoff-sftp-20261021/eval-007-20261020-rebuilt-comparison/candidate/cold.jsonl --prediction pre_fix_main=outputs/eval010/model-replay-9ebba1d/before/cold.jsonl --prediction fixed=outputs/eval010/model-replay-9ebba1d/after/cold.jsonl --output-dir outputs/eval010/model-human-metrics-next
+```
+
+Реальные runs: `human-metrics-v2` и `human-metrics-replay` внутри
+`outputs/eval010/model-adjudication-20261021/`; `metrics.json` побайтно одинаковы.
+Metrics SHA-256: `d6c2426d118e6ce4c34f9069e2ce18596235dfca1ac760d859a58d5fb1994c55`.
+Финальная полная проверка с новым adapter: **488 unittest PASS** (174,022 s),
+шесть adjudication tests PASS. Reader 3/3, runtime verifier 23/23 и model 18/18.
+
+## Оставшиеся ограничения
 
 Полное независимое доказательство #6/#38 этим процессом не выполняется. Оно
 остаётся N/A; reserve не превращается в новый AI-draft. #149 нельзя закрывать

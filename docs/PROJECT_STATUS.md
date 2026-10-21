@@ -1,4 +1,4 @@
-# 21.10.2026: EVAL-009 — model code regression исправлена, human review pending
+# 21.10.2026: EVAL-009 — model code regression исправлена и подтверждена на reviewed subset
 
 Issue #137, claim `0b84069`, ветка `eval/eval-009-model-adjudication`. Получены
 приватные frozen артефакты PR #136 read-only SFTP, без изменения ВМ/сервиса/ветки
@@ -7,8 +7,8 @@ Issue #137, claim `0b84069`, ветка `eval/eval-009-model-adjudication`. По
 
 Подготовлены M01–M26 по всем model new_fp/lost_tp. AI draft написан по тексту до
 чтения catalog/prediction values; при этом selection уже использует predictions.
-Предварительно 20 catalog mismatches объясняются включёнными в catalog model
-цветом/материалом/памятью/состоянием/SIM; подтверждение Владислава ещё нужно.
+20 catalog mismatches объясняются включёнными в catalog model
+цветом/материалом/памятью/состоянием/SIM; Владислав подтвердил M01–M27 явно.
 В 6 lost matches verifier ошибочно отвергал цельные коды из-за unit-like suffix
 или brand-like prefix. Исправления `31c4590`/`9ebba1d`, runtime candidate `9ebba1d`:
 границы power measurement tokens; узкое разрешение дефисного кода с brand-like prefix
@@ -22,18 +22,22 @@ confidence, decisions и прочие attribute rules не менялись. П�
 0,759222 → 0,759604, model F1 0,617551 → 0,622030. Это noisy agreement,
 не independent human quality. Cold/warm predictions совпали в каждом runtime.
 
-Проверки: финальные 487 unittest + 3 reader PASS, pip check; targeted model 18,
-development_review 9, adjudication 5, verifier 23 PASS. Синтетический positive
+Проверки: финальные 488 unittest + 3 reader PASS, pip check; targeted model 18,
+development_review 9, adjudication 6, verifier 23 PASS. Синтетический positive
 регрессии воспроизводился до фикса в четырёх subtests. Текущая форма:
 `outputs/eval010/model-adjudication-20261021/draft-all27-v2/review.md`.
-Human reviewed=0, human P/R/F1=N/A. Используется existing exact-label validator
-и feedback workflow с сохранением AI-origin и prediction-selection provenance.
+Human review завершён: новая private версия human-reviewed-v1, AI-origin и
+prediction-selection provenance сохранены. `evaluate-models` переиспользует
+existing evaluator/paired comparison, исключая 114 неразмеченных полей.
+На 27 model pairs (25 families; 24 чайника, 3 смартфона): pre-fix main
+20 TP / 0 FP / 7 FN → fixed 27 TP / 0 FP / 0 FN. Два offline повтора дают
+побайтно одинаковые metrics; это error-selected development, не качество каталога.
 Полный внутренний протокол: `docs/research/eval009_model_adjudication.md`.
 
 Влад выбрал AI-assisted review без дополнительных участников. Независимая
 приёмка #6/#38 этим не выполнена; не заявляется и не подменяется development.
-#137 ждёт явных ответов M01–M27, #149 остаётся незавершённой. Код/подготовка
-поставляются PR #154 отдельно от human acceptance. Matrix 17/17, внешние 103/103
+#137 готова к интеграции через PR #154; #149 остаётся незавершённой.
+Matrix 17/17, внешние 103/103
 и verify PASS; положительный новый код отдельно проверен через CLI/API.
 PR #136 не сливался,
 новых model calls/расходов и deployment не выполнялось.

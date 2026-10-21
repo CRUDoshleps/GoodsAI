@@ -11,6 +11,14 @@ runtime heuristic confidence и review/abstain.
 
 ## Единица оценки
 
+Для разбора регрессий `model` доступен offline adapter
+`python -m scripts.research.prepare_model_adjudication evaluate-models --help`.
+Он принимает явно подтверждённый AI-assisted development reference и frozen
+predictions с manifests, строит model-only view с исключением остальных полей
+и вызывает существующий evaluator. Повторяемые hashes/paired deltas остаются
+в private output, [ограниченные агрегаты](RESULTS.md) не выдаются за независимый
+test. Error-selected карточки не позволяют оценить качество всего каталога.
+
 Основная единица — пара `(SKU, attribute)`. Для каждой пары gold определяет,
 есть ли характеристика, какое значение допустимо и каким текстом оно
 подтверждается. `ambiguous` не включается в обычные TP/FP/FN и показывается
