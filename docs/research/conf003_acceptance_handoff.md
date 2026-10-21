@@ -80,3 +80,22 @@ catalog agreement и human quality; поддержка схемы не равн�
 откат реального профиля — packaged v1 без перезаписи прежних outputs.
 #44 передаётся в REVIEW после опубликованного PR; DONE остаётся интегратору.
 #124 сохраняет BLOCKED до согласования scope/данных/приёмки #44.
+
+## Фактические проверки продолжения
+
+Source `8861b91`, macOS 15.7.5 arm64, CPython 3.14.8:
+
+- `PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m unittest discover -s tests`: 502 tests PASS, 44.617 s; venv переиспользован из исходного checkout, импорт — из текущего src.
+- Research reader suite: 3 tests PASS; pip check: no broken requirements.
+- Existing fuzz quick, seed 20261021: 11 tests PASS, 4.034 s. Hypothesis 6.170.1 установлен в ignored `outputs/conf003-acceptance/fuzz-deps`, добавлен к PYTHONPATH только этого прогона.
+- Existing E1 demo: 6/6 + verify; existing category demo: 120 invented train cards → 30 invented categories / 180 candidates. Качество реальных категорий N/A.
+- Новые metadata/entrypoint regressions: до реализации два ERROR на отсутствующем registry metadata; после — 3/3 PASS.
+
+Первый общий прогон на dirty worktree в sandbox: 502 tests, 3 failures/13 errors
+(socket bind запрещён, frozen producer не был clean). Исправления в проверках
+не делались; после commit и разрешения loopback полный suite PASS. Первый fuzz
+preflight без extra завершился ModuleNotFoundError; повтор с declared dependency
+PASS. Логи первоначальных и итоговых запусков сохранены вне Git.
+
+Это локальная инженерная проверка. CI/merge/Gitea, Linux/Windows нового
+инкремента, реальный pilot quality и deployment этим отчётом не подтверждены.

@@ -1,3 +1,30 @@
+# 21.10.2026: CONF-003 — продолжение инженерной приёмки, REVIEW
+
+По поручению Тимура продолжена #44, claim `a652ec1`, ветка
+`codex/conf-003-acceptance`, база `5f8b05d`, реализация `8861b91`.
+#9/#24/#43 закрыты; механизм #94 уже был интегрирован. Learner/evaluator
+не переписаны. Opt-in v2 теперь показывает registry format version и hash
+содержимого в batch manifest и HTTP health. Default v1 и predictions E1 v0.1
+сохранены. Новые synthetic tests проверяют actual CLI subprocess/API для трёх
+категорий, совпадение hashes/evidence, запрет params и legacy parity.
+
+На чистом source `8861b91`, macOS / CPython 3.14.8: 502 основных tests PASS
+(44.617 s), 3 reader PASS, 11 properties PASS (quick, seed 20261021), pip check
+PASS. E1 demo 6/6 + verify, registry demo 30 invented categories / 180 candidates.
+Начальный sandbox run не прошёл socket bind/dirty-producer guards; повтор
+на чистом commit с loopback PASS. Fuzz extra сначала отсутствовал; закреплённый
+hypothesis установлен в отдельный ignored output target, общее venv не менялось.
+Локальные логи — `outputs/conf003-acceptance/`, данные/outputs не публикуются.
+
+#44 передаётся на review, не объявляется полностью DONE: нужно решение
+архитектора по run-level provenance вместо версии категории в каждой prediction
+и границам aliases/inheritance/plugins. #124 назначена e345ee; владельца не
+меняли, реальный inference не начинали. SPEC-001/DATA-001 закрыты, но approved
+train/split/traffic и пригодный validation/reference здесь не получены.
+Raw pickle/parquet, test reserve, model API и VM не использовались.
+Внутренний handoff: `docs/research/conf003_acceptance_handoff.md`.
+Merge/публикация в Gitea и окончательная приёмка остаются интегратору.
+
 # 21.10.2026: QA-002 / QA-007 завершены
 
 PR #159 merged `d06cc2b0358d473b2393aed9981244274761b004` после CI 6/6 и

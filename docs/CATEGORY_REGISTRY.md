@@ -263,5 +263,5 @@ negation, HTML, неверную схему до inference и preservation unsee
 Нельзя считать их принятыми только по наличию config v2. Новые расширения
 требуют архитектурного решения и отрицательных contract tests.
 
-Подготовленный контракт передачи и условия запуска реального пилота:
-[CONF-003 acceptance / CONF-004 handoff](research/conf003_acceptance_handoff.md).
+Контракт передачи и условия запуска реального пилота сохранены во внутреннем
+CONF-003 acceptance handoff в GitHub; внутренний план не публикуется в Gitea.
