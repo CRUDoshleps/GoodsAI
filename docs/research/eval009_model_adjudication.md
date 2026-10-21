@@ -54,7 +54,7 @@ Draft SHA-256: `3f48ee9aab44c024b45fb21ac3124297b829e0199e5c5d389da78486c672cad8
 - source: `outputs/eval010/handoff-sftp-20261021/`;
 - selection: `outputs/eval010/model-adjudication-20261021/selection/`;
 - исходная форма 26: `outputs/eval010/model-adjudication-20261021/draft/review.md`;
-- итоговая форма 27: `outputs/eval010/model-adjudication-20261021/draft-all27/review.md`;
+- итоговая форма 27: `outputs/eval010/model-adjudication-20261021/draft-all27-v2/review.md`;
 - авторские решения: `outputs/eval010/model-decisions-20261021.json`.
 
 Протокол можно повторить новым output-dir, не перезаписывая предыдущие файлы:
@@ -127,8 +127,9 @@ catalog agreement, не human correctness и не прогноз баллов.
 как **M27**, не подменяя исходные M01–M26. Его текст просмотрен после predictions:
 это явно post-prediction диагностика. Supplement selection/policy ссылаются на
 hash исходных 26 и полный diff. Никакого нового результата human quality нет.
-Итоговый draft-all27 SHA:
-`dbffa9273f5d72cf02f1656fa72207ad6b80cce721621c35603d73838c031f61`.
+Первый draft-all27 сохранён; в v2 исправлена кодировка только пояснения M27,
+значения и evidence не менялись. Текущий draft-all27-v2 SHA:
+`63e32bac29af6018f20b19265108d477ff4d7966820ac4144470406ce4f973b3`.
 
 Private replay report SHA-256:
 `3342085e9f9e8da5a391c3cd1109f98d28dc5122f28fb359d6efbeb0a9cdbfce`.
@@ -140,7 +141,14 @@ pip check PASS. Пять новых adjudication tests проверяют пор
 неверный producer input, запрет test families, происхождение draft/feedback и
 запрет выдуманной модели вне witness. Два verifier tests проверяют положительные
 коды и сохранение отрицательных ограничений. Model tests 18/18,
-development_review 9/9 PASS. Финальная CI/внешняя проверка фиксируется отдельно.
+development_review 9/9 PASS. Финальный matrix: 17/17 executable групп,
+103/103 внешних checks и verify PASS; оставшиеся 4 not_implemented,
+7 not_verified и 1 unknown не скрыты. Отдельный вымышленный полный code с
+unit-like ending и brand-like prefix проходит CLI/API с одинаковыми attributes,
+точным evidence и decision=review. Протоколы:
+`outputs/eval010/eval009-scenarios-final/` и `model-cli-api-parity.json`.
+CI и интеграция кода — PR #154; даже merge подготовительного инкремента
+не подтверждает человеческую разметку M01–M27 и не закрывает Issue #137.
 
 ## Что ещё нужно
 

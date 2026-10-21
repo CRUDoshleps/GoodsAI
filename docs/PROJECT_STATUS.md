@@ -24,14 +24,17 @@ confidence, decisions и прочие attribute rules не менялись.
 Проверки: 486 unittest + 3 reader PASS, pip check; targeted model 18,
 development_review 9, adjudication 5, verifier 22 PASS. Синтетический positive
 регрессии воспроизводился до фикса в четырёх subtests. Текущая форма:
-`outputs/eval010/model-adjudication-20261021/draft-all27/review.md`.
+`outputs/eval010/model-adjudication-20261021/draft-all27-v2/review.md`.
 Human reviewed=0, human P/R/F1=N/A. Используется existing exact-label validator
 и feedback workflow с сохранением AI-origin и prediction-selection provenance.
 Полный внутренний протокол: `docs/research/eval009_model_adjudication.md`.
 
 Влад выбрал AI-assisted review без дополнительных участников. Независимая
 приёмка #6/#38 этим не выполнена; не заявляется и не подменяется development.
-#137 ждёт явных ответов M01–M27, #149 остаётся незавершённой. PR #136 не сливался,
+#137 ждёт явных ответов M01–M27, #149 остаётся незавершённой. Код/подготовка
+поставляются PR #154 отдельно от human acceptance. Matrix 17/17, внешние 103/103
+и verify PASS; положительный новый код отдельно проверен через CLI/API.
+PR #136 не сливался,
 новых model calls/расходов и deployment не выполнялось.
 
 # 21.10.2026: EVAL-010 — доступный инкремент merged, полное завершение BLOCKED
