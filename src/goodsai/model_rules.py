@@ -17,7 +17,9 @@ BAD_CONTEXT = re.compile(
 DESCRIPTOR = re.compile(
     r"^\s*(?:(?:восстановленный|новый|мобильный)\s+)?"
     r"(?:смартфон|телефон|электрочайник|чайник|электрический\s+чайник)\s+", re.I)
-QUANTITY = re.compile(r"\d+(?:[.,]\d+)?(?:\s*[/+]\s*\d+)?\s*(?:GB|ГБ|TB|ТБ|мА\*?ч|mAh|Вт|W|кВт|мл|ml|л|L|дюйм\w*)(?!\w)", re.I)
+# A separate measurement may follow a model, but its numeric suffix must not
+# be matched inside a complete identifier such as the invented QZ-731W.
+QUANTITY = re.compile(r"(?<![\w.-])[+-]?\d+(?:[.,]\d+)?(?:\s*[/+]\s*\d+)?\s*(?:GB|ГБ|TB|ТБ|мА\*?ч|mAh|Вт|W|кВт|мл|ml|л|L|дюйм\w*)(?!\w)", re.I)
 SIM_FEATURE = re.compile(r'(?:Dual\s+SIM(?:\s*\+\s*eSIM)?|eSIM|Nano-SIM)(?!\w)', re.I)
 MATERIAL = re.compile(r'(?:нержавеющ\w*\s+сталь|stainless\s+steel)(?!\w)', re.I)
 STATE = re.compile(r"(?:восстановленный|рабочий|новый|б/у)\b", re.I)

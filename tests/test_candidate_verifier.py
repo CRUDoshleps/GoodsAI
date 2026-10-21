@@ -162,6 +162,30 @@ class VerifierTests(unittest.TestCase):
         ]:
             self.assertEqual(CandidateVerifier(p, self.config).reason(c), expected)
 
+    def test_whole_model_codes_keep_unit_like_endings_and_brand_like_prefixes(self):
+        for name in ("QZ-731W", "XZ950W", "QT-510GB", "Bosch-QZ731G"):
+            p = self.product(None, "Электрочайник Bosch " + name, "482")
+            with self.subTest(name=name):
+                c = candidate(p, name, name, "model", "title", None)
+                self.assertIsNone(CandidateVerifier(p, self.config).reason(c))
+                self.assertIsNone(ground(p, "model", name, name, self.config)[1])
+                a = attrs(Extractor(self.config).predict(p))["model"]
+                self.assertEqual(a["value"], name)
+                self.assertEqual(a["evidence"]["text"], name)
+                self.assertEqual(a["decision"], "review")
+
+    def test_separate_model_measurements_and_unproved_brand_prefix_stay_rejected(self):
+        for measure in ("256GB", "8/256GB", "2200W", "-2200W", "1.7L"):
+            name = "QZ82 " + measure
+            p = self.product(None, "Электрочайник Bosch " + name, "482")
+            with self.subTest(measure=measure):
+                self.assertEqual(CandidateVerifier(p, self.config).reason(
+                    candidate(p, name, name, "model", "title", None)), "verifier_unsupported_model")
+        p = self.product(None, "Электрочайник Bosch-QZ731G", "482")
+        self.assertEqual(CandidateVerifier(p, self.config).reason(
+            candidate(p, "Bosch-QZ731G", "Bosch-QZ731G", "model", "title", None)),
+            "verifier_unsupported_model")
+
     def test_same_candidate_gate_for_injected_rule_model_and_llm_sources(self):
         p = self.product("Совместим с телефоном: батарея 5000 мАч")
         c = candidate(p, "5000 мАч", "5000")
