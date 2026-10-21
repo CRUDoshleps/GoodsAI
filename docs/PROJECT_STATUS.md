@@ -1,4 +1,18 @@
-# 21.10.2026: EVAL-010 — актуальные публичные агрегаты без закрытых данных
+# 21.10.2026: EVAL-010 завершён в согласованных границах
+
+#149 закрывается интегратором после merge PR #156 (`e996786`) и успешной
+публикации 39601679832. Gitea commit `baf5aa1`: submission-manifest source_sha
+равен `e996786a51f580e5d1cf7cc6612ab4efbceed1bd`. Фактические Git blobs MD/JSON
+и exporter побайтно совпали с generated files и manifest hashes. Canonical
+replay также побайтно одинаков. CI PR #155/#156 — по 6/6 SUCCESS.
+
+Владислав явно согласовал human-reviewed AI-assisted development как приёмку
+#149. Независимая оценка #6/#38 остаётся OPEN/N/A, за выполненную не выдаётся.
+Это завершение исправлений и доказательств по согласованному scope, не обещание
+максимального организаторского балла или качества на независимом test.
+ВМ и сервис не обновлялись, новых модельных вызовов/расходов нет.
+
+## История публичного инкремента и проверок
 
 После получения frozen handoff и завершения #137 доступен следующий инкремент
 #149, claim `9c37e90`, ветка `eval/eval-010-public-quality-evidence`.
@@ -11,7 +25,7 @@ hashes; новый regression проверяет hash из RESULTS и exporter p
 21.10.2026 Владислав согласовал приёмку #149 по human-reviewed AI-assisted
 проверке M01–M27. Это явное изменение scope: independent #6/#38 остаются
 отдельными незавершёнными задачами, не выдаются за выполненные и больше
-не блокируют завершение именно #149. До final merge инкремент находится в REVIEW.
+не блокируют завершение именно #149. PR #156 принят после проверок и публикации.
 `reports/quality_20261021.md` и JSON содержат source-bound per-attribute/category,
 category×attribute, text/rarity/role slices, family CI, unknown/conflict и seller
 aggregate support для runtime `9ebba1d`. Loaded code/config сверены с локальным
