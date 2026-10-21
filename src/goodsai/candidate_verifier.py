@@ -7,11 +7,11 @@ from goodsai.category_registry import Registry
 from goodsai.model_rules import QUANTITY, NETWORK
 from goodsai.normalize import BOUNDS, NUMBER, UNITS, model_name
 from goodsai.relation import RelationVerifier
-from goodsai.rules import Rules, bounded_alias
+from goodsai.rules import Rules, bounded_alias, context, excluded_quantity_context
 from goodsai.stages import Candidate
 from goodsai.text import visible_span
 
-VERSION = "candidate-verifier-1"
+VERSION = "candidate-verifier-1.1"
 UNIT_PATTERNS = {
     "storage_gb": r"GB|ГБ", "ram_gb": r"GB|ГБ",
     "screen_inches": r'дюйм\w*|inches?\b|["″]',
@@ -166,6 +166,9 @@ class CandidateVerifier:
                 continue
             if self.rules.uncertain(text, match.start()):
                 return "verifier_uncertain_value"
+            if excluded_quantity_context(c.attribute, context(text, match.start(), match.end(),
+                                                              self.rules.limits["context_radius_chars"])):
+                return "verifier_unsupported_value"
             if c.attribute in {"ram_gb", "storage_gb"}:
                 radius = self.rules.limits["memory_role_distance_chars"] + 40
                 left, right = max(0, start - radius), min(len(text), end + radius)

@@ -16,7 +16,7 @@ from scripts.release import external_acceptance
 from scripts.release.clean_run import destination, sha, verify_pair
 from scripts.release.external_cases import generated_cases, ATTRIBUTES
 from scripts.release.scenario_cases import policy_cases
-from scripts.release.scenario_catalog import VERSION, REQUIREMENTS, SCENARIOS, SUITES
+from scripts.release.scenario_catalog import VERSION, REQUIREMENTS, SCENARIOS, SUITES, EVIDENCE_TESTS
 from goodsai.config import load_config
 from goodsai.data import write_json
 from goodsai.runtime import identity
@@ -167,10 +167,13 @@ def offline_suite(name, output, env):
                 "'checks_run':r['checks_total']}))")
         args = [sys.executable, '-c', code, str(output / 'packaged-demo')]
     else:
-        code = ("import io,json,sys,unittest; s=unittest.defaultTestLoader.discover('tests',pattern=sys.argv[1]); "
+        code = ("import io,json,sys,unittest\n"
+                "def ids(s):\n"
+                " return [i for t in s for i in ids(t)] if isinstance(s,unittest.TestSuite) else [s.id()]\n"
+                "s=unittest.defaultTestLoader.discover('tests',pattern=sys.argv[1]); names=ids(s); "
                 "r=unittest.TextTestRunner(stream=io.StringIO()).run(s); "
                 "print(json.dumps({'passed':r.wasSuccessful() and r.testsRun>0 and not r.skipped,"
-                "'checks_run':r.testsRun,'skipped':len(r.skipped),'failures':len(r.failures),'errors':len(r.errors)}))")
+                "'test_ids':names,'checks_run':r.testsRun,'skipped':len(r.skipped),'failures':len(r.failures),'errors':len(r.errors)}))")
         args = [sys.executable, '-c', code, Path(SUITES[name]).name]
     result = subprocess.run(args, cwd=ROOT, env=env, timeout=120, capture_output=True)
     try:
@@ -181,6 +184,14 @@ def offline_suite(name, output, env):
         report = dict(passed=False, error_kind='InvalidSuiteReport')
     if type(report.get('checks_run')) is not int or report['checks_run'] <= 0:
         report['passed'] = False
+    if name != 'demo':
+        names = report.get('test_ids')
+        valid = (isinstance(names, list) and all(isinstance(n, str) for n in names)
+                 and len(names) == len(set(names)) == report.get('checks_run'))
+        missing = sorted(EVIDENCE_TESTS.get(name, set()) - set(names if valid else []))
+        report['required_tests_missing'] = missing
+        if not valid or missing:
+            report['passed'] = False
     report.update(driver=SUITES[name], driver_sha256=sha(ROOT / SUITES[name]), provider='fake_or_disabled', live_calls=0)
     write_json(output / f'offline-{name}.json', report)
     return report

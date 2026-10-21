@@ -1,3 +1,41 @@
+# 21.10.2026: EVAL-010 — доступный инкремент REVIEW, полное завершение BLOCKED
+
+Issue #149, claim `d2f5321`, ветка `eval/eval-010-quality-audit` от main
+`7542d00`, runtime candidate `2246425`. Учтён merged PR #150; его evaluator/
+human workflow/quality tool не дублируются. Оценённый организаторами SHA
+остаётся unknown: скриншот 4,87/5 не связывается произвольно с текущим code.
+
+Найден и воспроизведён дефект: LLM мог заполнить power_w=300 из «Мощность
+подогрева 300 Вт», хотя rules отбрасывает вспомогательный режим. Общий numeric
+gate теперь переиспользует те же `excluded_quantity_context` для мощности,
+дополнительного экрана и объёма. Не добавлены новые units/thresholds/decisions;
+обычный LLM fallback «Потребляет 2200 Вт» сохраняется. `candidate-verifier-1.1`,
+reason `verifier_unsupported_value` уже существовал; model rules не менялись.
+
+В существующую matrix добавлен внешний auxiliary-power case; SCN-015 связывает
+verifier/config. Offline JSON содержит исполненные test_ids; пропажа обязательного
+контроля даёт failure независимо от остальных зелёных тестов. Новый runner не
+создавался. Таблица QV/QE в VERIFIER связывает поведение/причины со сценариями,
+тестами и hash-bound артефактами; README/RESULTS/SCENARIO_MATRIX обновлены.
+Полный внутренний аудит — `docs/research/eval010_quality_audit.md` (не для Gitea).
+
+Фактические проверки: 20 verifier, 64 LLM, 13 matrix harness tests PASS;
+полная Windows-регрессия **479 tests PASS** (149,712 s), reader 3/3, pip check.
+Отдельный committed matrix seed 20261021: 17/17 executable групп, 103/103 внешних
+CLI/socket checks без packaged examples и verify PASS. Пробелы остаются:
+4 not_implemented, 7 not_verified, 1 unknown; complete_case_evidence=false.
+До/после source snapshot новый synthetic defect test воспроизводит ошибку
+на базе и проходит на candidate; существующие 12 rules probes — 12/12,
+false_values=0, missed_true_facts=0, lost_true_facts=0 в обеих версиях.
+
+Приватные synthetic outputs: `outputs/eval010/scenarios-2246425/`,
+`outputs/eval010/auxiliary-before-after-2246425/`, `outputs/eval010/rules-before-after-2246425/`.
+Исторические reviewed/silver цифры не менялись. Real/independent P/R/F1 = N/A.
+Полная приёмка #149 **BLOCKED #6/#38/PR #136/#137**. Коллега продолжает #136,
+его код/пакеты не менялись. Нет reserve/test просмотра или inference, model API,
+расходов, полного EDA, новых категорий, калибровки, публикации в Gitea или VM.
+Этот инкремент передаётся в PR без merge и без автоматического закрытия #149.
+
 # 21.10.2026: EVAL-003 — подготовка quality-пакета merged, финальная приёмка BLOCKED
 
 Issue #38, подготовительный инкремент для #149 по поручению Владислава;

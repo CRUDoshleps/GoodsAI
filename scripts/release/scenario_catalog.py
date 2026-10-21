@@ -65,7 +65,8 @@ SCENARIOS = {
                            ['qa-001/capacity_conversion', 'generated/description-482', 'matrix/wrong-capacity-unit']),
     'SCN-005': implemented('Missing, negated, range, accessory and foreign facts are not filled', 'negative',
                            ['generated/missing', 'qa-001/negated_capacity', 'qa-001/power_range',
-                            'qa-001/foreign_screen', 'qa-001/memory_card', 'qa-001/bundle_battery']),
+                            'qa-001/foreign_screen', 'qa-001/memory_card', 'qa-001/bundle_battery',
+                            'matrix/auxiliary-power']),
     'SCN-006': implemented('Conflicting color and storage produce explicit abstention', 'negative',
                            ['generated/conflict', 'qa-001/memory_conflict']),
     'SCN-007': implemented('Explicit commercial name/5G retained; ambiguous slash code refused', 'boundary',
@@ -87,7 +88,8 @@ SCENARIOS = {
     'SCN-014': implemented('Isolated CLI/socket parity for every oracle case; server cleaned up', 'boundary',
                            cases=['generated/unsupported', 'qa-001/unsupported'],
                            stages=['isolated_package_without_examples', 'server_cleanup', 'all_external_checks']),
-    'SCN-015': implemented('Malformed/unsupported candidate rejected by shared gate', 'negative', suite='verifier'),
+    'SCN-015': implemented('Shared candidate gate and uncalibrated review-only configuration', 'negative',
+                           suite=('verifier', 'config')),
     'SCN-016': implemented('Fake LLM proposals, failures, physical budgets and no secret leakage', 'negative',
                            suite=('llm', 'llm_bounds', 'llm_validation')),
     'SCN-017': implemented('Packaged six-card smoke plus checksum verification, explicitly synthetic', 'positive', suite='demo'),
@@ -105,6 +107,23 @@ SCENARIOS = {
     'SCN-201': gap('Official HTTP transactions', 'unknown', [17], 'Organizers have not provided a final endpoint contract.'),
 }
 
-SUITES = {'verifier': 'tests/test_candidate_verifier.py', 'llm': 'tests/test_llm.py',
+SUITES = {'verifier': 'tests/test_candidate_verifier.py', 'config': 'tests/test_config.py', 'llm': 'tests/test_llm.py',
           'llm_bounds': 'tests/test_llm_bounds.py', 'llm_validation': 'tests/test_llm_validation.py',
           'api': 'tests/test_api.py', 'demo': 'src/goodsai/demo.py'}
+
+# A nonempty suite is insufficient if a required control has been removed.
+# IDs match unittest discovery and are captured before TestSuite consumes its children.
+EVIDENCE_TESTS = {
+    'verifier': {
+        'test_candidate_verifier.VerifierTests.' + name for name in (
+            'test_malformed_candidates_have_fixed_safe_reasons',
+            'test_number_requires_correct_evidence_unit_conversion_and_canonical_value',
+            'test_same_candidate_gate_for_injected_rule_model_and_llm_sources',
+            'test_instruction_and_example_spans_reject_rules_and_llm_but_keep_real_fact',
+            'test_auxiliary_quantities_are_rejected_regardless_of_producing_method',
+            'test_auxiliary_llm_quantity_stays_rejected_on_fresh_response_and_cache_replay',
+            'test_positive_quantity_fallback_is_preserved_without_requiring_rule_discovery',
+            'test_cli_manifest_and_api_expose_same_rejection_and_preserve_conflict',
+        )},
+    'config': {'test_config.ConfigTests.test_unsupported_policy_cannot_enable_llm_or_auto_accept'},
+}

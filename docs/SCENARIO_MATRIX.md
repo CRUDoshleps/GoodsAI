@@ -40,18 +40,21 @@ PowerShell:
   раздел, статус `case_requirement` / `team_policy` / `unknown_condition`,
   ожидаемое поведение и ссылки на доказательства либо открытые Issues.
 - [Внешний acceptance](EXTERNAL_ACCEPTANCE.md) получает 16 generated и 21
-  legacy adversarial case; SPEC-002 добавляет 9 source-authored policy cases.
+  legacy adversarial case; SPEC-002 добавляет 10 source-authored policy cases.
   Harness может читать legacy fixture перед запуском. **Копия runtime не
   содержит `goodsai/examples`**, а отдельные CLI/HTTP процессы запускаются вне
   рабочего checkout с очищенными model env. Проверяется место импорта.
 - Ожидаемые значения/единицы/decisions/evidence задаются до prediction, не
   извлекаются из ответа системы. Для новых cases заполнены все поля категории;
   общий checker сверяет ожидания и контракт. CLI/API parity дополняет эту
-  проверку, а не заменяет её. Проверяются все 46 cases в обоих transport.
-- `test_candidate_verifier.py`, `test_llm.py`, `test_llm_bounds.py` и
+  проверку, а не заменяет её. Проверяются все 47 cases в обоих transport.
+- `test_candidate_verifier.py`, `test_config.py`, `test_llm.py`, `test_llm_bounds.py` и
   `test_llm_validation.py` и `test_api.py` запускаются отдельными child-процессами. Провайдеры
   fake или loopback, платных/внешних вызовов нет. Нулевой набор тестов и skips
   не считаются успешным доказательством. Это не live gateway benchmark.
+  JSON содержит исполненные `test_ids`; отсутствие обязательного verifier/config
+  теста из `EVIDENCE_TESTS` также даёт failure. [Таблица решений](VERIFIER.md#проверяемая-таблица-решений)
+  связывает ограничения с этими артефактами без создания второго runner.
 - Packaged demo 6/6 проверяется **отдельно**, вместе с hashes. Его успех не
   закрывает внешний ввод, реальный каталог или шесть финальных артефактов.
 
@@ -79,7 +82,7 @@ HTTP 400/413/415/422 с восстановлением. Offline API test доп�
 сохраняет все 29 групп; пробелы не входят в число успешных. Эти количества —
 не P/R/F1, не заполненность каталога и не процент выполнения официальной оценки.
 
-Внешняя часть содержит 101 check: 46 × CLI/HTTP + 9 технических стадий.
+Внешняя часть содержит 103 checks: 47 × CLI/HTTP + 9 технических стадий.
 Offline-наборы записывают свои counts отдельно; packaged smoke — ещё 6 checks.
 `positive_attribute_evidence` связывает каждое поле каждой default-категории с
 положительными oracle cases. Это наличие synthetic примера, не качество категории.

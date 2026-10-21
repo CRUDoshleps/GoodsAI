@@ -85,6 +85,47 @@ class VerifierTests(unittest.TestCase):
             self.assertEqual(CandidateVerifier(p, self.config).reason(candidate(p, "5000 мАч", "5000")), expected)
             self.assertEqual(CandidateVerifier(p, self.config).reason(candidate(p, text, "5000")), expected)
 
+    def test_auxiliary_quantities_are_rejected_regardless_of_producing_method(self):
+        examples = [
+            ("482", "Чайник Zorion", "Мощность подогрева 300 Вт.", "300 Вт", "300", "power_w", "W"),
+            ("482", "Чайник Zorion", "Мощность в режиме ожидания 300 Вт.", "300 Вт", "300", "power_w", "W"),
+            ("761", "Смартфон Zorion", "Дополнительный экран 6,5 дюйма.", "6,5 дюйма", "6.5", "screen_inches", "inch"),
+        ]
+        for category, title, description, quote, value, attribute, unit in examples:
+            p = self.product(description, title, category)
+            self.assertIsNone(attrs(Extractor(self.config).predict(p))[attribute]["value"])
+            c = candidate(p, quote, value, attribute, unit=unit)
+            for method in ("rule", "model", "llm"):
+                with self.subTest(attribute=attribute, method=method, description=description):
+                    self.assertEqual(CandidateVerifier(p, self.config).reason(
+                        replace(c, rule_id=method + ".synthetic", score=.99)), "verifier_unsupported_value")
+            self.assertEqual(ground(p, attribute, value, quote, self.config), (None, "verifier_unsupported_value"))
+
+    def test_auxiliary_llm_quantity_stays_rejected_on_fresh_response_and_cache_replay(self):
+        p = self.product("Мощность подогрева 300 Вт.", "Чайник Zorion", "482")
+        class Provider:
+            calls = 0
+            def complete(self, messages, max_tokens):
+                self.calls += 1
+                return ProviderResponse(json.dumps({"attributes": [
+                    {"attribute": "power_w", "value": "300", "quote": "300 Вт"}]}))
+        provider = Provider()
+        with tempfile.TemporaryDirectory() as folder:
+            settings = LLMSettings(model="fake", cache_dir=Path(folder))
+            for _ in range(2):
+                row = LLMExtractor(self.config, provider, settings).predict(p)
+                self.assertIsNone(attrs(row)["power_w"]["value"])
+                self.assertEqual(attrs(row)["power_w"]["decision"], "abstain")
+                self.assertIn("verifier_unsupported_value", attrs(row)["power_w"]["reason_codes"])
+        self.assertEqual(provider.calls, 1)
+
+    def test_positive_quantity_fallback_is_preserved_without_requiring_rule_discovery(self):
+        p = self.product("Потребляет 2200 Вт.", "Чайник Zorion", "482")
+        self.assertIsNone(attrs(Extractor(self.config).predict(p))["power_w"]["value"])
+        c, reason = ground(p, "power_w", "2200", "2200 Вт", self.config)
+        self.assertIsNone(reason)
+        self.assertEqual(c.value, "2200")
+
     def test_memory_pair_order_single_role_and_ambiguous_singleton(self):
         for title, description, quote, value, attribute, field, expected in [
             ("Телефон 8/256GB", None, "8/256GB", "8", "ram_gb", "title", None),
