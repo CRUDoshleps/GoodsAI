@@ -1,4 +1,4 @@
-# 21.10.2026: CONF-003 — продолжение инженерной приёмки, REVIEW
+# 21.10.2026: CONF-003 — инженерные проверки завершены, PR не создан
 
 По поручению Тимура продолжена #44, claim `a652ec1`, ветка
 `codex/conf-003-acceptance`, база `5f8b05d`, реализация `8861b91`.
@@ -16,13 +16,17 @@ PASS. E1 demo 6/6 + verify, registry demo 30 invented categories / 180 candidate
 hypothesis установлен в отдельный ignored output target, общее venv не менялось.
 Локальные логи — `outputs/conf003-acceptance/`, данные/outputs не публикуются.
 
-#44 передаётся на review, не объявляется полностью DONE: нужно решение
+#44 подготовлена к review, PR не создан (GitHub API 403 Resource not accessible
+by integration); статус IN_PROGRESS сохранён. Нужны создание PR и решение
 архитектора по run-level provenance вместо версии категории в каждой prediction
 и границам aliases/inheritance/plugins. #124 назначена e345ee; владельца не
 меняли, реальный inference не начинали. SPEC-001/DATA-001 закрыты, но approved
 train/split/traffic и пригодный validation/reference здесь не получены.
 Raw pickle/parquet, test reserve, model API и VM не использовались.
 Внутренний handoff: `docs/research/conf003_acceptance_handoff.md`.
+Автоматическая проверка запретила browser fallback как обход API access denial
+без отдельного разрешения пользователя. Дополнительные обходы не выполнялись.
+Описание PR сохранено локально в outputs/conf003-acceptance/PR.md.
 Merge/публикация в Gitea и окончательная приёмка остаются интегратору.
 
 # 21.10.2026: QA-002 / QA-007 завершены

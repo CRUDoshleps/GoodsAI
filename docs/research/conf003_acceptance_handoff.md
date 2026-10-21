@@ -99,3 +99,12 @@ PASS. Логи первоначальных и итоговых запусков
 
 Это локальная инженерная проверка. CI/merge/Gitea, Linux/Windows нового
 инкремента, реальный pilot quality и deployment этим отчётом не подтверждены.
+
+## Публикация
+
+Ветка с реализацией и протоколом опубликована. Создание draft PR через GitHub
+connector отклонено: 403 Resource not accessible by integration. Автоматическая
+проверка запретила открытие browser PR form как обход API access denial без
+отдельного разрешения пользователя. PR не создан, label/assignee чужой #124
+не менялись. Поэтому TASKS сохраняет IN_PROGRESS до создания PR; REVIEW/DONE
+не объявляются. Текст готового PR — в приватном outputs/conf003-acceptance/PR.md.
