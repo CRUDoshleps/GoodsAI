@@ -1,4 +1,12 @@
-# 21.10.2026: QA-002 / QA-007 — общий прогон подготовлен к интеграции
+# 21.10.2026: QA-002 / QA-007 завершены
+
+PR #159 merged `d06cc2b0358d473b2393aed9981244274761b004` после CI 6/6 и
+совпадения проверенного merge tree. Publisher 39644690241 SUCCESS; publication
+artifact скачан через GitHub. Gitea SHA `d5d04d5a4e8776a0db691c3e332666fad8de99ad`,
+submission tree `fae1230808d3197c36b76c45a9103ec2ed0180c3` совпал с локальной
+реконструкцией из точного source. Workflow проверил remote main после push.
+Локальный Gitea fetch отклонён авторизацией и не объявляется успешным.
+Интегратор фиксирует #29/#158 как DONE; рабочая часть завершена.
 
 #29, claim `c0c07cd`, ветка `qa/qa-002-full-acceptance`. Используются существующие
 unittest, clean-run и scenario matrix; нового runner/evaluator нет. Gate дополнен
@@ -17,12 +25,14 @@ external 103/103, manifest verification PASS. Первые неуспешные 
 fuzz extra и parser error сохранены. Public numeric/protocol snapshots:
 `reports/qa002_20261021.*`, `docs/QA_ACCEPTANCE.md`, явный publisher allowlist.
 Старый quality snapshot `9ebba1d` не переписывается, catalog metrics QA-fix=N/A.
-CI/merge/publisher ещё ожидаются; статусы задач REVIEW. ВМ не обновляется.
+CI/merge/publisher завершены, как указано выше. ВМ не обновляется.
 
 Новые условия организаторов и предложенный порядок подготовки живого показа,
 презентации/ответов и freeze сохранены во внутреннем
 `docs/research/technical_checkpoint_20261023_plan.md`. Это план, не готовые
 слайды, не запись на слот и не deployment. В Gitea он не включается.
+По последнему указанию Влада после закрытия QA работа останавливается:
+презентация, репетиция и обновление ВМ не начинаются.
 
 # 21.10.2026: EVAL-010 завершён в согласованных границах
 
