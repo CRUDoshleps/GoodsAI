@@ -163,7 +163,7 @@ class VerifierTests(unittest.TestCase):
             self.assertEqual(CandidateVerifier(p, self.config).reason(c), expected)
 
     def test_whole_model_codes_keep_unit_like_endings_and_brand_like_prefixes(self):
-        for name in ("QZ-731W", "XZ950W", "QT-510GB", "Bosch-QZ731G"):
+        for name in ("QZ-731W", "XZ950W", "QT-510W", "Bosch-QZ731G"):
             p = self.product(None, "Электрочайник Bosch " + name, "482")
             with self.subTest(name=name):
                 c = candidate(p, name, name, "model", "title", None)
@@ -185,6 +185,14 @@ class VerifierTests(unittest.TestCase):
         self.assertEqual(CandidateVerifier(p, self.config).reason(
             candidate(p, "Bosch-QZ731G", "Bosch-QZ731G", "model", "title", None)),
             "verifier_unsupported_model")
+
+    def test_ambiguous_memory_and_battery_suffixes_remain_excluded_from_model(self):
+        for name in ("OrbitQ82Plus256GB", "QZ-510GB", "OrbitQ8TB", "OrbitQ5000mAh"):
+            p = self.product(None, "Смартфон Samsung " + name)
+            with self.subTest(name=name):
+                self.assertEqual(CandidateVerifier(p, self.config).reason(
+                    candidate(p, name, name, "model", "title", None)), "verifier_unsupported_model")
+                self.assertIsNone(attrs(Extractor(self.config).predict(p))["model"]["value"])
 
     def test_same_candidate_gate_for_injected_rule_model_and_llm_sources(self):
         p = self.product("Совместим с телефоном: батарея 5000 мАч")
