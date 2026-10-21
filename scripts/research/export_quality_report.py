@@ -141,6 +141,8 @@ def project(silver, human, producer, reviewed_rows, current):
 
 
 def markdown(report):
+    fmt = lambda value: "N/A" if value is None else f"{value:.4f}"
+    counts = lambda value: f"{value['tp']} / {value['fp']} / {value['fn']}"
     lines = ["# GoodsAI: frozen quality evidence, 21.10.2026", "",
         "Rules-only comparison; catalog-silver and AI-assisted reviewed model regressions are separate.",
         "Independent human quality: N/A. Confidence: heuristic; auto_accept: disabled.", "",
@@ -151,8 +153,30 @@ def markdown(report):
     for name, item in report["reviewed_regressions"]["variants"].items():
         m = item["model"]
         lines.append(f"| {name} / error-selected model review | {m['tp']} | {m['fp']} | {m['fn']} |")
-    lines += ["", "Per-attribute/category, title-only/description, rare-value support, unknown/conflict,",
-              "family intervals, seller aggregate support and source hashes:",
+    before, after = (report["catalog_silver"]["variants"][name] for name in ("before", "after"))
+    lines += ["", "## Per attribute: catalog agreement", "",
+              "| Attribute | Before TP / FP / FN | After TP / FP / FN | After P | R | F1 | Unknown / conflict |",
+              "| --- | --- | --- | ---: | ---: | ---: | --- |"]
+    for name, value in after["per_attribute"].items():
+        lines.append(f"| {name} | {counts(before['per_attribute'][name])} | {counts(value)} | "
+                     + " | ".join(fmt(value.get(k)) for k in ("precision", "recall", "f1"))
+                     + f" | {value.get('unknown', 0)} / {value.get('conflict', 0)} |")
+    lines += ["", "## Categories and cohorts: catalog agreement", "",
+              "| Slice | Requested pairs | Known | Predicted | TP / FP / FN | F1 |",
+              "| --- | ---: | ---: | ---: | --- | ---: |"]
+    for dimension in ("per_category", "text", "reference_frequency"):
+        for name, value in after[dimension].items():
+            lines.append(f"| {dimension}:{name} | {value.get('requested', 0)} | {value.get('known', 0)} "
+                         + f"| {value.get('predicted', 0)} | {counts(value)} | {fmt(value.get('f1'))} |")
+    sellers = after["seller_summary"]
+    cohort = report["reviewed_regressions"]
+    lines += ["", "Rare means fewer than 5 identical canonical catalog values for a category/attribute in this frozen bundle.",
+              "Unknown/conflict are excluded from assessed precision; coverage includes all requested pairs.",
+              f"Seller metadata: {sellers['known_sellers']} known sellers; {sellers['groups_under_20_requested_pairs']} "
+              + "groups have fewer than 20 requested pairs. Individual identities/values are not published.",
+              f"Reviewed model regressions: {cohort['cards']} cards / {cohort['families']} families, "
+              + "all model labels present; other attributes explicitly excluded. This is an error-selected regression check.",
+              "", "Full category-attribute cells, family intervals, role slices and source hashes:",
               "[quality_20261021.json](quality_20261021.json).", ""]
     lines += ["- " + item for item in report["limitations"]]
     return "\n".join(lines) + "\n"
