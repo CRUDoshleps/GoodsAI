@@ -1,3 +1,24 @@
+# 22.10.2026: EVAL-011 — storage shadow-пилот, runtime без изменений
+
+Issue #161, claim `600405d`, ветка `eval/eval-011-storage-shadow`. Заранее
+зафиксированы две формы storage_gb смартфонов и policy seed. Использованы
+существующие CLI, verifier, silver evaluator/calibrator и human-form helpers.
+Ни extractor, ни v0.1, ни heuristic confidence/decisions не изменены.
+
+Screening: 1 528/1 861 smartphone storage подходят под shadow-политику;
+catalog 1 513 TP / 2 mismatch, 10 unknown / 3 conflict. Это не human precision.
+Владислав явно подтвердил все три партии S001–S145: 145/145 подтверждений,
+0 отказов/спорных/непроверенных. Выборка — одна карточка из непросмотренной
+семьи, предложения правил видимы, independent=false. Условная нижняя 95%-граница
+97,955% не достигает предзаданной цели 99%; runtime auto_accept остаётся off.
+#6/#38/#39 не закрываются. Отчёт: `reports/storage_shadow_20261022.*`.
+
+Два CLI-прогона побайтно совпали. Формы/selection/predictions v1/v2 одинаковы;
+v2 переносит протокол в публичный allowlist, без изменения критериев. В private
+outputs сохранены freeze/manifests/receipts; в Git только инструменты и агрегаты.
+511 tests + 3 reader PASS, 12 shadow tests PASS, pip check и JS syntax PASS.
+PR #162 открыт; main, ВМ и презентация этим этапом не изменяются.
+
 # 21.10.2026: QA-002 / QA-007 завершены
 
 PR #159 merged `d06cc2b0358d473b2393aed9981244274761b004` после CI 6/6 и

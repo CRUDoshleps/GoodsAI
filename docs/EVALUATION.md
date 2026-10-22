@@ -9,6 +9,12 @@ reference kind и [протоколом](research/silver_evaluation_protocol.md)
 блокеры gold/test и не разрешает auto_accept. Offline-калибровка сохраняет
 runtime heuristic confidence и review/abstain.
 
+Фиксированный [storage shadow-пилот 22.10](../reports/storage_shadow_20261022.md)
+измеряет потенциальное принятие одного поля без изменения runtime. Человек
+подтвердил 145/145 предложений правил; это development-аудит, не независимый
+test. Нижняя условная 95%-граница 97,955% не достигает заданных 99%, поэтому
+auto_accept остаётся выключенным. [Протокол](STORAGE_SHADOW.md).
+
 ## Единица оценки
 
 Для разбора регрессий `model` доступен offline adapter
