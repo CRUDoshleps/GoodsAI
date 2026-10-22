@@ -1,13 +1,15 @@
-"""Provisional HTTP transport for the unchanged E1 contract, pending organizer API."""
+"""HTTP transport for the unchanged E1 contract (schema 0.1)."""
 import argparse
 import json
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException
 
+from goodsai import api_examples
 from goodsai.contracts import Product, load_config
 from goodsai.config import default_api_limits
 from goodsai.composition import Components, build_runtime
@@ -30,8 +32,7 @@ def create_app(config_path: str | None = None, *, components: Components | None 
     api_limits = config["runtime"]["api"]
     extractor, llm = runtime.predictor, runtime.llm
     run_id = "http-rules-llm-v0" if llm is not None else "http-rules-v0"
-    app = FastAPI(title="GoodsAI provisional API", version="0.1.0",
-                  description="Temporary weekend API. Organizer endpoints are pending.")
+    app = FastAPI(title=api_examples.TITLE, version="0.1.0", description=api_examples.DESCRIPTION)
     app.state.goodsai_config = config
     app.state.goodsai_runtime = metadata
 
@@ -44,7 +45,7 @@ def create_app(config_path: str | None = None, *, components: Components | None 
         return {"service": "goodsai", "api_status": "provisional",
                 "health": "/health", "predict": "/predict", "docs": "/docs"}
 
-    @app.get("/health")
+    @app.get("/health", summary=api_examples.HEALTH_SUMMARY)
     def health():
         body = {"status": "ok", "service": "goodsai", "schema_version": "0.1",
                 "api_status": "provisional", "categories": sorted(config["categories"]),
@@ -64,7 +65,8 @@ def create_app(config_path: str | None = None, *, components: Components | None 
                                                          "max_calls", "cache_hits", "disabled_reason")}
         return body
 
-    @app.post("/predict", openapi_extra={"requestBody": {
+    @app.post("/predict", summary=api_examples.PREDICT_SUMMARY, description=api_examples.PREDICT_DESCRIPTION,
+              openapi_extra={"requestBody": {
         "required": True, "content": {"application/json": {"schema": {
             "type": "object", "additionalProperties": False,
             "required": ["schema_version", "sku_id", "title"],
@@ -106,6 +108,16 @@ def create_app(config_path: str | None = None, *, components: Components | None 
             LOGGER.error("GoodsAI extraction failed")
             return error(500, "prediction_failed", "Extraction failed")
 
+    def openapi_with_examples():
+        # Examples are attached after generation: FastAPI drops null values inside
+        # examples, and documented responses must keep every field of schema 0.1.
+        if app.openapi_schema is None:
+            schema = get_openapi(title=app.title, version=app.version,
+                                 description=app.description, routes=app.routes)
+            app.openapi_schema = api_examples.attach(schema)
+        return app.openapi_schema
+
+    app.openapi = openapi_with_examples
     return app
 
 
