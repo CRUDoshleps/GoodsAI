@@ -4,7 +4,7 @@
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| CONF-008 | — | P2 | IN_PROGRESS | timur0o31 / Claude | `conf/conf-008-silver-trial-auto-accept` | 22.10.2026: пробная политика `silver-trial-v1` поверх CONF-007 для 761 ram_gb/battery_mah/color/brand и 482 brand/color по catalog-silver нижней 95%-границе. Только opt-in профиль, default off, не human audit и не independent; PR draft, без merge и ВМ |
+| CONF-008 | — | P2 | REVIEW | timur0o31 / Claude | `conf/conf-008-silver-trial-auto-accept` | 22.10.2026: пробная политика `silver-trial-v1` поверх CONF-007 для 761 ram_gb/battery_mah/color/brand и 482 brand/color по catalog-silver нижней 95%-границе. Только opt-in профиль, default off, не human audit и не independent; PR draft, без merge и ВМ. 554 tests: 12 новых trial tests PASS; прежние 12 падений только из-за fastapi/pyarrow в среде |
 
 ## CONF-007: per-category auto_accept policy matrix
 

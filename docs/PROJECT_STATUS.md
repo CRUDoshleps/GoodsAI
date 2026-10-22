@@ -1,3 +1,12 @@
+# 22.10.2026: CONF-008 — пробный opt-in auto_accept ещё для 6 полей (draft)
+
+Поверх CONF-007: политика `silver-trial-v1` для 761 ram_gb, battery_mah, color,
+brand и 482 brand, color. Основание — catalog-silver TP/FP из
+`reports/run_stats.json` (f33e3fc), нижние 95%-границы 0,995…0,879; targets
+0,99…0,87 выбраны после чисел. Только сгенерированный opt-in профиль; default,
+значения, evidence и scores не меняются; human audit и independent reference —
+false. PR draft, без merge и ВМ. [AUTO_ACCEPT_TRIAL](AUTO_ACCEPT_TRIAL.md).
+
 # 22.10.2026: CONF-007 — матрица auto_accept по всем категориям, default off
 
 `runtime.auto_accept_policies` задаёт политику для каждой пары category ×

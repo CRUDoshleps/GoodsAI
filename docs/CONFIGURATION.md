@@ -66,6 +66,7 @@ HTTP-сервера. Окружение и файлы с ключами не ч�
 | `runtime.auto_accept_enabled` | Default `false`; `true` только с явной политикой storage-пилота |
 | `runtime.auto_accept` | Опциональный `storage-pilot-97-v1` с target_precision `[0.97,1]`; [scope и запуск](STORAGE_PILOT.md) |
 | `runtime.auto_accept_policies` | Политика решения для каждой пары category × attribute: `review` или аудированная политика именно этой ячейки (сейчас только `761/storage_gb` → `storage-pilot-97-v1`). См. «Матрица auto_accept по категориям» ниже |
+| `runtime.auto_accept_trial` | Только пробный профиль CONF-008: `silver-trial-v1` и targets `[0.85,1]` для 6 ячеек с catalog-silver evidence; [AUTO_ACCEPT_TRIAL](AUTO_ACCEPT_TRIAL.md) |
 | `runtime.review_threshold` | Только `null`: произвольный порог для heuristic score не применяется |
 | `runtime.llm` | Полные не-секретные настройки opt-in LLM: model, timeout, retries, budgets, cache, цены |
 | `brands`, `colors` и дополнительные словари | Существующие aliases, subbrands и модификаторы evidence |
@@ -261,6 +262,11 @@ Base URL и ключ разрешены только в `GOODSAI_LLM_BASE_URL` /
 и в ответ `/health` как `auto_accept_policies`. Новая ячейка появляется только
 после отдельного аудита (CONF-006), решения архитектора и записи в
 `AUDITED_POLICIES` в `src/goodsai/storage_acceptance.py`.
+
+Пробная ветка CONF-008 дополнительно разрешает в шести ячейках значение
+`silver-trial-v1` (761 ram_gb/battery_mah/color/brand, 482 brand/color) вместе
+с `runtime.auto_accept_trial`; это catalog-silver проба, не аудит —
+см. [AUTO_ACCEPT_TRIAL](AUTO_ACCEPT_TRIAL.md).
 
 Manifest содержит:
 
