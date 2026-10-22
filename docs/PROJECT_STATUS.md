@@ -1,9 +1,11 @@
-# 22.10.2026: CONF-008 — пробный opt-in auto_accept ещё для 6 полей (draft)
+# 22.10.2026: CONF-008 — пробный opt-in auto_accept для 12 полей с порогом (draft)
 
-Поверх CONF-007: политика `silver-trial-v1` для 761 ram_gb, battery_mah, color,
-brand и 482 brand, color. Основание — catalog-silver TP/FP из
-`reports/run_stats.json` (f33e3fc), нижние 95%-границы 0,995…0,879; targets
-0,99…0,87 выбраны после чисел. Только сгенерированный opt-in профиль; default,
+Поверх CONF-007: политика `silver-trial-v1` привязывает все 11 ячеек кроме
+storage; ячейка активна при catalog-silver нижней 95%-границе ≥ target
+(минимум 0,85). Основание — TP/FP из `reports/run_stats.json` (f33e3fc).
+Активны 8 из 12: storage (CONF-005), 761 ram/battery/color/brand,
+482 brand/color/power_w. 761 model/screen и 482 model ниже порога,
+482 capacity_l без reference. Targets выбраны после чисел. Только сгенерированный opt-in профиль; default,
 значения, evidence и scores не меняются; human audit и independent reference —
 false. PR draft, без merge и ВМ. [AUTO_ACCEPT_TRIAL](AUTO_ACCEPT_TRIAL.md).
 

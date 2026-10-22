@@ -58,7 +58,7 @@ GoodsAI. Claims, ветки, Issues и согласования ниже отн�
   22.10.2026 исключение CONF-005: opt-in `storage-pilot-97-v1` для `storage_gb`
   смартфонов; условия и пределы в `docs/STORAGE_PILOT.md`. Вне этого пилота
   `auto_accept` запрещён до независимой калибровки.
-  Текущая работа по матрице политик и пробе на 6 полей (CONF-007/008):
+  Текущая работа по матрице политик и пробе на 12 полей (CONF-007/008):
   `docs/AUTO_ACCEPT_CONTEXT.md`.
 - Общая accuracy не заменяет per-attribute precision/recall/F1 и coverage.
 
