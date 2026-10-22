@@ -291,6 +291,18 @@ credentials. `config_sha256` сохраняет смысл hash базового
 учитывает effective config и code hash. API `/health` публикует два effective
 hashes, сохраняя прежний временный prediction run ID и result schema v0.1.
 
+### Подготовка политик по атрибутам — CONF-006
+
+Отдельный offline-план `attribute-shadow-1` задаёт category/attribute/rule scope,
+raw-score filter и целевую precision группы для всех 12 текущих category×field
+сочетаний. Он не является runtime config и не разрешает auto_accept.
+До predictions фиксируются config/plan/code hashes, после — family-balanced
+selection до чтения reference. Per-field shadow coverage, catalog agreement и
+human audit с границами риска разделены. Неизвестные labels, отсутствие support
+и pending ответы не считаются успехом. Принятый storage-pilot-97-v1 сохраняет
+свои отдельные условия; его аудит не переносится на другие поля.
+Команды и ограничения: [ATTRIBUTE_SHADOW](docs/ATTRIBUTE_SHADOW.md).
+
 ## 6. Нефункциональные требования
 
 | Область | Требование |
