@@ -30,6 +30,10 @@ jobs:
         run: python -m unittest discover -s tests -p test_storage_acceptance.py -v
       - name: Per-attribute shadow policies, frozen audit and human answer guards
         run: python -m unittest discover -s tests -p test_attribute_shadow.py -v
+      - name: Candidate confidence, sparse calibration and CLI/API agreement
+        run: python -m unittest discover -s tests -p test_confidence.py -v
+      - name: Learned advisory artifact safety, scope fallback and CLI/API agreement
+        run: python -m unittest discover -s tests -p test_learned_confidence.py -v
       - name: Strict external CLI and listening HTTP without packaged examples
         run: python scripts/release/external_acceptance.py --seed 20261020 --output-dir outputs/external-ci
       - name: Executable scenario matrix with explicit uncovered requirements

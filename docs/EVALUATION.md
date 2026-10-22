@@ -20,6 +20,12 @@ test. Нижняя условная 95%-граница 97,955% не достиг
 independent=false сохраняется, #6/#38/#39 не закрываются. Это версия политики
 допустимого риска для пилота, не калибровка heuristic score и не независимый test.
 
+EVAL-012 добавляет opt-in [learned advisory confidence](CONFIDENCE.md): logistic
+score по текстовым признакам с Platt-настройкой на отдельной catalog-silver
+calibration. Это proxy agreement, не независимая human probability. При проверке
+разделяются catalog mismatches (включая policy/data disagreements), правильные
+human-reviewed извлечения и реальные ошибки. Высокий score не расширяет auto_accept.
+
 ## Единица оценки
 
 Для разбора регрессий `model` доступен offline adapter

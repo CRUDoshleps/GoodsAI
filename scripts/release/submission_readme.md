@@ -31,6 +31,11 @@ AI-assisted reviewed model regressions показаны отдельно; нез
 Корректные значения, конфликты и безопасные отказы:
 [таблица решений verifier](../../docs/VERIFIER.md#проверяемая-таблица-решений).
 `review` требует проверки перед публикацией в каталог; confidence эвристический,
+не вероятность. [Обучаемый advisory score](../../docs/CONFIDENCE.md) доступен
+как opt-in для приоритизации review: catalog-proxy Brier 0.06590 → 0.03283,
+reviewed sanity Brier 0.03937 → 0.00959. Это не независимая human calibration
+и не основание для новых порогов auto_accept; default fixed-v1 сохраняется.
+Независимо от выбранного score,
 auto_accept по умолчанию выключен; узкое исключение пилота описано выше.
 Расхождения `model` разобраны в [#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)
 по подтверждённой AI-assisted разметке; QA parser fix не сопровождается новым
@@ -143,7 +148,6 @@ clicks обязательны только для `--profile analytics`. `prepar
   в [протоколе оценки](../../docs/EVALUATION.md#подготовка-воспроизводимого-human-quality-пакета).
 - [Silver-метрики](../../reports/metrics.md), [статистика прогона](../../reports/run_stats.json).
 - [Checkpoint: EDA, метрики, PDF-презентация](../../docs/delivery/2026-10-19/README.md).
-- [Продуктовая презентация](../../docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).
 - [Сборка и проверка шести артефактов](../../docs/ARTIFACT_BUNDLE.md).
 
 ## Инструменты оператора и диагностики

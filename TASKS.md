@@ -6,6 +6,18 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | CONF-006 | создание Issue: GitHub API 403 | P1 | IN_PROGRESS | timur0o31 | `codex/conf-006-attribute-shadow` | 22.10.2026: claim b094b8e, код 9cc4a05; per-field plan/selection/human forms/assessment для 9 атрибутов / 12 cells. 540+3 tests, 11 properties PASS; synthetic 36 tasks. Runtime #163 прежний, остальные поля не включены. Real bundle в Git отсутствует; нужны private handoff/human review. Issue create API 403, PR не создан |
 
+## EVAL-012: candidate-specific confidence
+
+| ID | Issue | P | Status | Owner | Branch | Scope |
+| --- | --- | --- | --- | --- | --- | --- |
+| EVAL-012 | [#168](https://github.com/CRUDoshleps/GoodsAI/issues/168) | P1 | REVIEW | urasha / Codex (Vlad session) | `eval/eval-012-context-confidence` | 2026-10-22: PR #169, learned-v1 advisory ready; 2171-card runtime replay, catalog diagnostic Brier 0.06590 -> 0.03283, human sanity 0.03937 -> 0.00959. No new acceptance thresholds/VM changes; #39/#6/#38 remain open for independent calibration. Do not merge. |
+
+## REL-006: submission cleanup
+
+| ID | Issue | P | Status | Owner | Branch | Scope |
+| --- | --- | --- | --- | --- | --- | --- |
+| REL-006 | [#166](https://github.com/CRUDoshleps/GoodsAI/issues/166) | P1 | REVIEW | urasha / Codex (Vlad session) | `chore/rel-006-submission-cleanup` | 2026-10-22: remove obsolete product-stage materials from submission only; preserve evidence, private data and concurrent CONF-006 |
+
 ## CONF-005: opt-in storage pilot, precision target 97%
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |

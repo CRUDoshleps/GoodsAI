@@ -208,6 +208,11 @@ python3.12 scripts/release/clean_run.py --output-dir outputs/clean-first
 При отсутствии или конфликте возвращается `decision=abstain` с `reason_codes`.
 Текущий confidence не является вероятностью и сам по себе не разрешает
 `auto_accept`; ограниченный storage pilot использует отдельную групповую политику.
+По умолчанию score фиксирован для правила. [Обучаемый confidence](docs/CONFIDENCE.md)
+доступен как opt-in для приоритизации review: учитывает конкретного кандидата,
+прошёл catalog-proxy comparison и reviewed sanity check. Это heuristic score,
+не human probability; он не добавляет новых порогов auto_accept. Ручной
+context-v1 сохранён только как неудачный экспериментальный comparator.
 
 Например, запись `model` для строки выше выглядит так (это один элемент
 `attributes`, а не полный ответ):

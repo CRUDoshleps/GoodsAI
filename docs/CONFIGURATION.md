@@ -1,5 +1,14 @@
 # Конфигурация runtime — CONF-001 / CONF-002
 
+Для opt-in оценки конкретного кандидата доступна
+[конфигурация confidence](CONFIDENCE.md): `fixed-v1` (default), исторический
+`context-v1` и обучаемый advisory `learned-v1`. Последний требует полной
+проверенной model JSON в `runtime.confidence.model`; используйте генератор
+`python -m goodsai.confidence --model ... --model-sha256 ... --output ...`.
+Он не меняет категории/значения/decisions и не включает новые auto_accept.
+При смене extraction profile/source fingerprint модель отклоняется до старта;
+при неизвестном scope применяется прежний fixed score.
+
 Полный профиль по умолчанию — `src/goodsai/baseline.json`. `schema_version=0.1`
 задаёт прежний контракт карточки и предсказания; отдельный `config_version=1`
 задаёт структуру настроек (v2 дополнительно поддерживает registry). Конфигурация не включает LLM, не меняет

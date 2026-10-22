@@ -42,3 +42,12 @@ __pycache__/
 *.egg-info/
 /build/
 /dist/
+
+# OS metadata and editor recovery files (never source or delivery artifacts).
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+~$*
