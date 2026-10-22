@@ -52,6 +52,8 @@ class Extractor:
                             rule_id=c.rule_id, evidence={"field": c.field, "start": c.start,
                                                        "end": c.end, "text": c.text})
             row["attributes"].append(base)
+        from goodsai.confidence import apply_scores
+        apply_scores(product, row, grouped, self.config)
         validate_prediction(row, self.config, product, registry=self.registry)
         from goodsai.storage_acceptance import apply_policy
         apply_policy(row, product, self.config)

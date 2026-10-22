@@ -80,6 +80,8 @@ def resolve_runtime_policy(config, *, enabled=None, overrides=None, environ=None
             "decisions": {"confidence_kind": "heuristic", "review_threshold": None,
                           "auto_accept_enabled": config["runtime"]["auto_accept_enabled"]}}
     from goodsai.storage_acceptance import metadata
+    if "confidence" in config["runtime"]:
+        policy["decisions"]["confidence"] = deepcopy(config["runtime"]["confidence"])
     acceptance = metadata(config)
     if acceptance is not None:
         policy["decisions"]["auto_accept"] = acceptance

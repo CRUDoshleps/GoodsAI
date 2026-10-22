@@ -242,7 +242,10 @@ def validate_config(config: dict) -> dict:
 
     runtime = config["runtime"]
     _keys(runtime, {"llm_enabled", "auto_accept_enabled", "api"},
-          {"llm", "review_threshold", "auto_accept"}, location="runtime")
+          {"llm", "review_threshold", "auto_accept", "confidence"}, location="runtime")
+    if "confidence" in runtime:
+        from goodsai.confidence import validate_policy
+        runtime["confidence"] = validate_policy(runtime["confidence"])
     if runtime["llm_enabled"] is not False or type(runtime["auto_accept_enabled"]) is not bool:
         raise ValueError("LLM profile flag must be false; auto_accept_enabled must be boolean")
     if "auto_accept" in runtime:
