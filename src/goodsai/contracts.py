@@ -96,4 +96,6 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None,
             from goodsai.storage_acceptance import validate_accepted, effective_cell_policies
             from goodsai.trial_acceptance import TRIAL_POLICY, validate_accepted as validate_trial
             cell = effective_cell_policies(config).get(row.get("category_id"), {}).get(a["attribute"])
-            (validate_trial if cell == TRIAL_POLICY else validate_accepted)(row, a, config, product)
+            from goodsai.experiment_acceptance import EXPERIMENT_POLICY, validate_accepted as validate_experiment
+            validator = {TRIAL_POLICY: validate_trial, EXPERIMENT_POLICY: validate_experiment}.get(cell, validate_accepted)
+            validator(row, a, config, product)
