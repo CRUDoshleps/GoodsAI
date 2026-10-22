@@ -22,7 +22,7 @@ PUBLIC_FILES = frozenset({
     "reports/storage_pilot_20261022.json", "reports/storage_pilot_20261022.md",
     "docs/STORAGE_SHADOW.md",
     "reports/storage_shadow_20261022.json", "reports/storage_shadow_20261022.md",
-    ".env.example", ".gitattributes", ".gitignore", "pyproject.toml", "TECHNICAL_SPEC.md",
+    "LICENSE", ".env.example", ".gitattributes", ".gitignore", "pyproject.toml", "TECHNICAL_SPEC.md",
     "configs/production.example.json", "deploy/systemd/goodsai.service", README_SOURCE,
     "requirements/clean-run.in", "requirements/clean-run.lock",
     "scripts/research/human_gold_form.html", "scripts/research/requirements.txt",
