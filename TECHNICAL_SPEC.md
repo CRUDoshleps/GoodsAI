@@ -286,10 +286,17 @@ Score применяется после merger/verifier к выбранному 
 не калибруются. Версия входит в существующий снимок runtime policy и его hash.
 Генератор конфигурации не меняет default, сервис или ВМ. Совместимость с
 storage-pilot-97-v1 проверяется без расширения его области принятия.
-Первый development-прогон не подтвердил улучшения; штатное включение не
-рекомендуется. Learned/Platt comparator остаётся offline; положительные-only
-данные не позволяют обучить оценку ошибок. Приёмка независимой калибровки
-и новых auto_accept thresholds остаётся отдельной задачей.
+Первый context-v1 development-прогон не подтвердил улучшения и сохранён как
+исторический comparator. Продолжение по запросу Владислава: opt-in learned-v1
+с полной model JSON в runtime.confidence.model. Модель обучается на text-only
+признаках и catalog-silver agreement, отдельный Platt fit использует calibration
+семейства. Это heuristic advisory score, не human probability. Schema, finite
+weights, feature version и extraction/source fingerprint проверяются до старта;
+неизвестный/малопредставленный scope сохраняет исходный fixed score. Model JSON
+и приватный profile не коммитятся; генератор требует явный SHA файла модели.
+Источник/версия доступны в /health.confidence и существующих policy hashes.
+Факты и решения сохраняются, LLM/encoder и новые auto_accept thresholds не
+калибруются этим режимом. Приёмка независимой калибровки остаётся отдельной.
 
 ### FR-6. Ручная проверка
 

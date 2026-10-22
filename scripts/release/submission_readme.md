@@ -31,8 +31,10 @@ AI-assisted reviewed model regressions показаны отдельно; нез
 Корректные значения, конфликты и безопасные отказы:
 [таблица решений verifier](../../docs/VERIFIER.md#проверяемая-таблица-решений).
 `review` требует проверки перед публикацией в каталог; confidence эвристический,
-не вероятность. [Контекстный score](../../docs/CONFIDENCE.md) доступен только
-как экспериментальный opt-in; измерения пока не разрешают его штатное включение.
+не вероятность. [Обучаемый advisory score](../../docs/CONFIDENCE.md) доступен
+как opt-in для приоритизации review: catalog-proxy Brier 0.06590 → 0.03283,
+reviewed sanity Brier 0.03937 → 0.00959. Это не независимая human calibration
+и не основание для новых порогов auto_accept; default fixed-v1 сохраняется.
 Независимо от выбранного score,
 auto_accept по умолчанию выключен; узкое исключение пилота описано выше.
 Расхождения `model` разобраны в [#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)

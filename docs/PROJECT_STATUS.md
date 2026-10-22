@@ -1,4 +1,33 @@
-# 22.10.2026: EVAL-012 ? candidate confidence, experimental only
+# 22.10.2026: EVAL-012 v2 — learned advisory confidence ready, PR without merge
+
+PR #169 / #168 продолжен по прямому запросу Владислава; v2 protocol `9e49b53`
+зафиксирован до новых score. Runtime producer `b9472b1`, report/bootstrap `8a50c5d`.
+Вместо провалившейся ручной эвристики построен opt-in learned-v1: logistic по
+text-only candidate features, отдельный Platt fit на catalog-silver calibration.
+2 171 development карточка, validation/feedback и reserve исключены; пересечений
+семейств между ролями нет. Fit 1 875/400 групп, calibration 310/77, diagnostic
+3 986/127. Diagnostic Brier 0.06590 → 0.03283, ECE 0.15501 → 0.03648;
+catalog mismatch capture при review 10%: 12.43% → 89.74% (tie-averaged).
+Family-bootstrap delta Brier [-0.03471,-0.02399]. Reviewed sanity 107 correct
+candidates: Brier 0.03937 → 0.00959, P/R/F1 и все факты/decisions прежние.
+
+Это score для advisory/review, не human probability: catalog mismatches включают
+policy/data disagreements. AI spot check не выдаётся за human review. #39/#6/#38
+остаются открыты для независимой калибровки; новых auto_accept thresholds нет.
+9 scopes с достаточным fit support; остальные явно сохраняют fixed score.
+JSON/schema/finite weights и source/profile fingerprint проверяются до API startup.
+Модель 2.3 KB и готовый config сохранены приватно в
+`outputs/confidence-eval012-20261022/learned-v2-verified/` исходного каталога Влада.
+
+Полный runtime replay 2 171 cards: 6 422 score changes, 0 changes to values,
+evidence или decisions. Mean 3.02 ms/p95 7.96 ms локально, без model calls/cost.
+549 полных unittest PASS на runtime producer; новые artifact/bootstrap tests и
+живой trained HTTP/CLI PASS. Повторные release bytes идентичны. Совместимость
+97% storage pilot и filtered submission fingerprint проверена. Default/main/ВМ
+не меняются; PR не сливать. Результаты: `docs/research/candidate_confidence_v2_results.md`,
+публичные режимы/запуск: `docs/CONFIDENCE.md`.
+
+# 22.10.2026: EVAL-012 v1 — candidate confidence, experimental only
 
 Issue #168, claim e77fada, protocol cf26b8b, producer bbb265d.
 Opt-in context-v1 scores verified selected rules candidates from text features;
