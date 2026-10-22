@@ -1,5 +1,11 @@
 # Рабочие задачи команды
 
+## CONF-008: пробный opt-in auto_accept для 12 полей с порогом (catalog-silver trial)
+
+| ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
+| --- | --- | --- | --- | --- | --- | --- |
+| CONF-008 | — | P2 | REVIEW | timur0o31 / Claude | `conf/conf-008-silver-trial-auto-accept` | 22.10.2026: пробная политика `silver-trial-v1` поверх CONF-007 для всех 11 ячеек кроме storage; активна при catalog-silver нижней 95%-границе ≥ target (≥0,85): сейчас 8/12 (storage, 761 ram/battery/color/brand, 482 brand/color/power_w). Только opt-in профиль, default off, не human audit и не independent; PR draft, без merge и ВМ. 554 tests: 12 новых trial tests PASS; прежние 12 падений только из-за fastapi/pyarrow в среде |
+
 ## CONF-007: per-category auto_accept policy matrix
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |

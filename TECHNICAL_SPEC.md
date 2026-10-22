@@ -278,6 +278,12 @@ storage-pilot-97-v1; остальные 11 полей смартфонов и ч
 hash и `/health`. Расширение на новые ячейки требует аудита (CONF-006) и решения
 архитектора.
 
+CONF-008 (пробная ветка, draft): opt-in `silver-trial-v1` для всех 11 ячеек,
+кроме storage, с per-cell target `[0.85,1]`; ячейка активна только при
+catalog-silver нижней 95%-границе (producer f33e3fc) ≥ target. Сейчас активны
+761 ram/battery/color/brand и 482 brand/color/power_w. Не human audit и не
+independent calibration; default не меняется. [AUTO_ACCEPT_TRIAL](docs/AUTO_ACCEPT_TRIAL.md).
+
 Это явное решение пользователя о риске после результатов; исходная цель 99%
 не объявляется выполненной и её отчёт не переписывается. Независимая
 calibration/human gold не завершены. Пилот не даёт production-гарантий,
