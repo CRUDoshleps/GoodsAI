@@ -7,6 +7,11 @@ from copy import deepcopy
 import re
 
 POLICY_VERSION = "storage-pilot-97-v1"
+REVIEW = "review"
+# The only category x attribute cells with a completed audit. A cell may name its
+# audited policy or "review"; anything else is rejected before inference. New
+# entries require a new audit (for example CONF-006) and an architect decision.
+AUDITED_POLICIES = {("761", "storage_gb"): POLICY_VERSION}
 MIN_TARGET = .97
 AUDIT_CORRECT = AUDIT_TOTAL = 145
 AUDIT_LOWER = .05 ** (1 / AUDIT_TOTAL)
@@ -26,6 +31,45 @@ def validate_policy(value):
     return deepcopy(value)
 
 
+def default_cell_policies(categories):
+    """Every configured category x attribute; audited cells name their policy, others review."""
+    return {category: {attribute: AUDITED_POLICIES.get((category, attribute), REVIEW)
+                       for attribute in attributes}
+            for category, attributes in categories.items()}
+
+
+def validate_cell_policies(value, categories=None):
+    """Check every given cell; return the section unchanged (idempotent for derived profiles).
+
+    A cell is either review or the audited policy of exactly that category and
+    attribute, so no value can grant auto_accept to an unaudited cell. Cells that
+    are absent, or belong to an unconfigured category/attribute, act as review.
+    """
+    if not isinstance(value, dict):
+        raise ValueError("auto_accept_policies must be an object")
+    for category, cells in value.items():
+        if not isinstance(category, str) or not isinstance(cells, dict):
+            raise ValueError("auto_accept_policies must map category IDs to attribute objects")
+        for attribute, policy in cells.items():
+            if policy != REVIEW and policy != AUDITED_POLICIES.get((category, attribute), REVIEW):
+                raise ValueError("auto_accept policy is not audited for this category and attribute")
+    return deepcopy(value)
+
+
+def effective_cell_policies(config):
+    """Complete view over every configured category x attribute, in schema order."""
+    given = config["runtime"].get("auto_accept_policies")
+    if given is None:
+        return default_cell_policies(config["categories"])
+    return {category: {attribute: given.get(category, {}).get(attribute, REVIEW) for attribute in attributes}
+            for category, attributes in config["categories"].items()}
+
+
+def bound_cells(config, policy_version=POLICY_VERSION):
+    return [(category, attribute) for category, row in effective_cell_policies(config).items()
+            for attribute, policy in row.items() if policy == policy_version]
+
+
 def metadata(config):
     runtime = config["runtime"]
     policy = runtime.get("auto_accept")
@@ -33,9 +77,12 @@ def metadata(config):
         return None
     target_met = AUDIT_LOWER >= policy["target_precision"]
     enabled = runtime["auto_accept_enabled"]
+    bound = ("761", "storage_gb") in bound_cells(config)
+    active = enabled and bound and target_met
+    reason = ("pilot_active" if active else "disabled" if not enabled
+              else "cell_not_bound" if not bound else "audit_bound_below_target")
     return deepcopy(policy) | {
-        "enabled": enabled, "active": enabled and target_met,
-        "reason": "pilot_active" if enabled and target_met else "disabled" if not enabled else "audit_bound_below_target",
+        "enabled": enabled, "active": active, "reason": reason,
         "category_id": "761", "attribute": "storage_gb",
         "audit_correct": AUDIT_CORRECT, "audit_total": AUDIT_TOTAL,
         "exploratory_one_sided_lower_95": AUDIT_LOWER,

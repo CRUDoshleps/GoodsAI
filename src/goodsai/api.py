@@ -50,6 +50,7 @@ def create_app(config_path: str | None = None, *, components: Components | None 
                 "api_status": "provisional", "categories": sorted(config["categories"]),
                 "runtime_policy_sha256": metadata["runtime_policy_sha256"],
                 "effective_config_sha256": metadata["effective_config_sha256"]}
+        body["auto_accept_policies"] = policy["decisions"]["auto_accept_policies"]
         acceptance = policy["decisions"].get("auto_accept")
         if acceptance is not None:
             body["auto_accept"] = acceptance

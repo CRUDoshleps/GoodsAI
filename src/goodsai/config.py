@@ -242,18 +242,24 @@ def validate_config(config: dict) -> dict:
 
     runtime = config["runtime"]
     _keys(runtime, {"llm_enabled", "auto_accept_enabled", "api"},
-          {"llm", "review_threshold", "auto_accept", "confidence"}, location="runtime")
+          {"llm", "review_threshold", "auto_accept", "auto_accept_policies", "confidence"}, location="runtime")
     if "confidence" in runtime:
         from goodsai.confidence import validate_policy
         runtime["confidence"] = validate_policy(runtime["confidence"], config)
     if runtime["llm_enabled"] is not False or type(runtime["auto_accept_enabled"]) is not bool:
         raise ValueError("LLM profile flag must be false; auto_accept_enabled must be boolean")
+    from goodsai.storage_acceptance import validate_policy, validate_cell_policies, bound_cells
     if "auto_accept" in runtime:
-        from goodsai.storage_acceptance import validate_policy
         runtime["auto_accept"] = validate_policy(runtime["auto_accept"])
+    # Per category x attribute decision policy. Absent section (old profiles) means
+    # the default: audited cells bound, everything else review.
+    if "auto_accept_policies" in runtime:
+        runtime["auto_accept_policies"] = validate_cell_policies(runtime["auto_accept_policies"])
     if runtime["auto_accept_enabled"]:
         if "auto_accept" not in runtime:
             raise ValueError("auto_accept requires the explicit approved storage pilot policy")
+        if not bound_cells(config):
+            raise ValueError("auto_accept_enabled requires at least one audited category/attribute cell")
         # The audited scope may not silently inherit modified rules/dictionaries,
         # bounds, categories, source grammars or experimental ablations.
         baseline = _packaged()
