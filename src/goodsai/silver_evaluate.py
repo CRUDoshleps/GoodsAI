@@ -126,7 +126,9 @@ def evaluate_rows(inputs, references, metadata, predictions, config, repeats=100
                 support_unknown=int(known and label["support"]["state"] == "unknown"),
                 support_unsupported=int(known and label["support"]["state"] == "unsupported"),
                 mismatched_supported=int(filled and supported and not correct),
-                review=int(filled), abstain=int(not filled))
+                review=int(filled and candidate["decision"] == "review"), abstain=int(not filled))
+            if filled and candidate["decision"] == "auto_accept":
+                count["auto_accept"] = 1
             all_counts.update(count)
             groups[meta["family_id"]].update(count)
             if traffic_available:
@@ -164,7 +166,9 @@ def evaluate_rows(inputs, references, metadata, predictions, config, repeats=100
         "grouped_ci": bootstrap(groups, repeats=repeats),
         "traffic_grouped_ci": bootstrap(weighted_groups, repeats=repeats) if traffic_available else None,
         "support_status": "lexical_matcher_pending_human_audit",
-        "independent_precision": None, "auto_accept": "forbidden"}
+        "independent_precision": None, "auto_accept": (
+            "limited_storage_pilot_not_independent_calibration"
+            if config["runtime"]["auto_accept_enabled"] else "forbidden")}
     return report, private_pairs, dict(groups)
 
 

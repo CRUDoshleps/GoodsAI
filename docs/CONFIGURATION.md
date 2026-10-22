@@ -54,7 +54,8 @@ HTTP-сервера. Окружение и файлы с ключами не ч�
 | `rule_limits` | Размеры контекстных окон и отдельные ограничения записи RAM/ROM |
 | `runtime.api` | Размер HTTP body, concurrency uvicorn и keep-alive timeout |
 | `runtime.llm_enabled` | Только `false`: зарезервировано; конфигурация не включает LLM-fallback, он включается флагом `--llm` / `GOODSAI_LLM_ENABLED=1` (см. [LLM](LLM.md)) |
-| `runtime.auto_accept_enabled` | Только `false`: калибровка отсутствует |
+| `runtime.auto_accept_enabled` | Default `false`; `true` только с явной политикой storage-пилота |
+| `runtime.auto_accept` | Опциональный `storage-pilot-97-v1` с target_precision `[0.97,1]`; [scope и запуск](STORAGE_PILOT.md) |
 | `runtime.review_threshold` | Только `null`: произвольный порог для heuristic score не применяется |
 | `runtime.llm` | Полные не-секретные настройки opt-in LLM: model, timeout, retries, budgets, cache, цены |
 | `brands`, `colors` и дополнительные словари | Существующие aliases, subbrands и модификаторы evidence |
@@ -62,7 +63,7 @@ HTTP-сервера. Окружение и файлы с ключами не ч�
 Числа в `numeric_bounds` проверяются и при извлечении, и в общем candidate/output
 verifier. Слишком большое значение даёт отсутствие кандидата; изменение границ
 не приводит к внутренней ошибке всего batch. Scores находятся в `[0, 1]` и не
-становятся вероятностями; найденный кандидат по-прежнему получает `review`.
+становятся вероятностями; по умолчанию найденный кандидат получает `review`.
 
 `runtime.api.max_body_bytes`, `limit_concurrency` и `timeout_keep_alive_seconds`
 должны быть положительными целыми. Body limit действует внутри приложения,
@@ -207,12 +208,17 @@ Base URL и ключ разрешены только в `GOODSAI_LLM_BASE_URL` /
 ## Решения, audit и пределы
 
 Для heuristic score нет откалиброванного порога: `runtime.review_threshold=null`,
-`runtime.auto_accept_enabled=false` — единственная допустимая политика.
-Любой числовой review threshold и попытка включить auto-accept отклоняются.
+`runtime.auto_accept_enabled=false` — политика по умолчанию.
+Любой числовой review threshold и голый флаг auto-accept без политики отклоняются.
 Кандидат с evidence проходит verifier и получает `review`; отсутствие/конфликт
 остаётся `abstain`. Ни scores, ни единицы, ни result v0.1 не изменены.
 Числовую политику принятия можно добавить только после отдельного решения
 архитектора и калибровки; наличие ключа `review_threshold` её не реализует.
+
+Согласованное Владиславом 22.10.2026 исключение: [CONF-005 storage pilot](STORAGE_PILOT.md).
+Оно допускает opt-in auto_accept только для двух проверенных форм storage_gb
+смартфонов. Цель precision 97% выбрана после аудита, confidence остаётся heuristic;
+пилот не завершает независимую калибровку и не меняет default config.
 
 Manifest содержит:
 

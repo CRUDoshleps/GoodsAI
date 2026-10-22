@@ -67,8 +67,8 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None,
             if any(a.get(k) is not None for k in ["value", "unit", "confidence", "evidence"]) or not a.get("reason_codes"):
                 raise ValueError("Abstention must be explicit and empty")
             continue
-        if a.get("decision") != "review" or a.get("confidence_kind") != "heuristic":
-            raise ValueError("Uncalibrated baseline can only return heuristic review candidates")
+        if a.get("decision") not in {"review", "auto_accept"} or a.get("confidence_kind") != "heuristic":
+            raise ValueError("Only heuristic review or explicitly approved storage pilot candidates are supported")
         score = a.get("confidence")
         if type(score) not in (int, float) or not math.isfinite(score) or not 0 <= score <= 1:
             raise ValueError("Invalid heuristic score")
@@ -92,3 +92,6 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None,
                 raise ValueError("Registry value is not supported by evidence grammar")
             if a["attribute"] == "model" and model_name(visible_span(source, e["start"], e["end"])) != a["value"]:
                 raise ValueError("Model value is not the approved normalization of visible evidence")
+        if a["decision"] == "auto_accept":
+            from goodsai.storage_acceptance import validate_accepted
+            validate_accepted(row, a, config, product)

@@ -1,0 +1,155 @@
+{
+  "schema": "goodsai-storage-pilot-summary-1",
+  "date": "2026-10-22",
+  "source_git_sha": "ba5fd5cbad1ca4ea0a88475b8ecb49f4bad3de56",
+  "evaluation_role": "development_feedback",
+  "assessment": {
+    "policy": {
+      "policy_version": "storage-pilot-97-v1",
+      "target_precision": 0.97,
+      "enabled": true,
+      "active": true,
+      "reason": "pilot_active",
+      "category_id": "761",
+      "attribute": "storage_gb",
+      "audit_correct": 145,
+      "audit_total": 145,
+      "exploratory_one_sided_lower_95": 0.979551737597723,
+      "answers_sha256": "1ed9b66ac9acfb59a18a35183fd311da1525468c78a80b978def8db5c52a169c",
+      "independent_reference": false,
+      "target_chosen_after_audit": true,
+      "confidence_kind": "heuristic"
+    },
+    "scope": "post_audit_owner_approved_limited_pilot",
+    "original_target_precision": 0.99,
+    "original_numerical_target_met": false,
+    "new_numerical_target_met": true,
+    "source_audit_metrics_sha256": "1388116a1dea687778736735352ec3c811e7f46de69ace7fbd9a96cd4d22c243",
+    "source_audit_manifest_sha256": "1c1c13a2a381ad40d7463c3c985ccd37ec0096635ebb25ceb36dde39bd85b915",
+    "confidence_interpretation": "heuristic_not_probability",
+    "independent_calibration_complete": false,
+    "runtime_deployed": false,
+    "llm_calls": 0,
+    "model_api_cost_rub": 0,
+    "limitations": [
+      "Human sees a deterministic proposal; developer review is not blind gold.",
+      "Family-balanced selected sample is not production SKU-weighted precision.",
+      "Binomial bound assumes independent representative family observations.",
+      "Unresolved judgments count as errors for the conservative lower bound.",
+      "Risk target changed after results; not a new prospective experiment.",
+      "Decision authorizes only an opt-in pilot; independent calibration remains open."
+    ]
+  },
+  "runtime_replay": {
+    "cards": 2974,
+    "input_sha256": "5d5faf21412243a38f6c3ca625966de2b8ae4ddd3eba8f9bea12fab6cc96f79b",
+    "extraction_unchanged": true,
+    "repeat_predictions_identical": true,
+    "previous_extraction_checked": true,
+    "decision_counts": {
+      "baseline": {
+        "review": 10320,
+        "abstain": 8272
+      },
+      "pilot": {
+        "review": 8792,
+        "abstain": 8272,
+        "auto_accept": 1528
+      },
+      "strict": {
+        "review": 10320,
+        "abstain": 8272
+      }
+    },
+    "accepted_by_rule": {
+      "memory.title-pair.v1": 1511,
+      "memory.context.v1": 17
+    },
+    "accepted_pairs": 1528,
+    "policy": {
+      "policy_version": "storage-pilot-97-v1",
+      "target_precision": 0.97,
+      "enabled": true,
+      "active": true,
+      "reason": "pilot_active",
+      "category_id": "761",
+      "attribute": "storage_gb",
+      "audit_correct": 145,
+      "audit_total": 145,
+      "exploratory_one_sided_lower_95": 0.979551737597723,
+      "answers_sha256": "1ed9b66ac9acfb59a18a35183fd311da1525468c78a80b978def8db5c52a169c",
+      "independent_reference": false,
+      "target_chosen_after_audit": true,
+      "confidence_kind": "heuristic"
+    },
+    "code_sha256": "ae89e7e3c3baead2b2bc405aee16af429b82e53c57c1011667c6d13ae89597e0",
+    "effective_config_sha256": "58b01319f427e49ee9280124b6239067c7249947c279b6380037f7093a76a57c",
+    "baseline_prediction_sha256": "d70a13961f4ab603c6de9fbba8f7a8f1ff2a2e75c93c4833e8978dcf990b4fa3",
+    "pilot_prediction_sha256": "7e83f679cf0b8cbf36f65a8199befb443e72b1274b456830e2ac4ea2bf4246ef",
+    "latency_ms": {
+      "baseline": {
+        "p50": 2.3603999870829284,
+        "p95": 8.583200018620118
+      },
+      "pilot": {
+        "p50": 4.713600006652996,
+        "p95": 9.79199999710545
+      },
+      "strict": {
+        "p50": 3.115200001047924,
+        "p95": 7.8585000010207295
+      },
+      "repeat": {
+        "p50": 4.754699999466538,
+        "p95": 10.117099998751655
+      }
+    },
+    "quality_precision_recall_f1": null,
+    "quality_note": "Decision replay is not independent quality evaluation.",
+    "runtime_deployed": false,
+    "llm_calls": 0,
+    "model_api_cost_rub": 0
+  },
+  "historical_catalog_screening": {
+    "conflict": 3,
+    "fp": 2,
+    "selected": 1528,
+    "tp": 1513,
+    "unknown": 10
+  },
+  "historical_catalog_mismatches_human_adjudicated": false,
+  "verification": {
+    "unit_tests": 525,
+    "pilot_tests_included": 14,
+    "reader_tests": 3,
+    "default_demo_checks_passed": 6,
+    "default_demo_checks_total": 6,
+    "live_http": {
+      "synthetic": true,
+      "checks": [
+        {
+          "target_precision": 0.97,
+          "health_active": true,
+          "storage_decision": "auto_accept",
+          "storage_value": "256",
+          "confidence_kind": "heuristic"
+        },
+        {
+          "target_precision": 0.99,
+          "health_active": false,
+          "storage_decision": "review",
+          "storage_value": "256",
+          "confidence_kind": "heuristic"
+        }
+      ],
+      "own_server_processes_reaped": true
+    },
+    "pip_check": "PASS",
+    "previous_extraction_unchanged": true,
+    "test_reserved_opened": false,
+    "vm_updated": false,
+    "presentation_changed": false,
+    "independent_calibration_complete": false
+  },
+  "compute_cost_rub": null
+}

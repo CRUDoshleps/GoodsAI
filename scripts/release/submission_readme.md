@@ -16,7 +16,7 @@
 | Внешний JSONL → CLI/HTTP без packaged examples | 83/83 synthetic contract checks | протокол кода `1c64463`, seed `20261020`; не catalog P/R/F1 |
 | 40 AI-assisted human-reviewed development | 143 TP / 0 FP / 22 FN | snapshot `3d3dc49`; не independent test и не новый замер нынешнего main |
 | 3037 catalog-silver cards | agreement F1 75,67% | producer `f33e3fc`, исторический отчёт; не human precision |
-| Независимый human test и общий актуальный model benchmark | N/A | приёмка не завершена; auto_accept выключен |
+| Независимый human test и общий актуальный model benchmark | N/A | приёмка не завершена; auto_accept по умолчанию выключен |
 
 Происхождение и воспроизведение: [RESULTS](../../docs/RESULTS.md).
 Последний измеренный quality snapshot (`9ebba1d`): [атрибуты и категории](../../reports/quality_20261021.md)
@@ -24,12 +24,14 @@
 AI-assisted reviewed model regressions показаны отдельно; независимая оценка — N/A.
 В [storage shadow-пилоте](../../reports/storage_shadow_20261022.md) человек
 подтвердил 145/145 предложений правил. Условная нижняя 95%-граница 97,955%
-не достигает выбранных 99%; `auto_accept` остаётся выключенным. Это
-development-аудит, потенциальная доля автоматизации не является включённым режимом.
+не достигает выбранных 99%. Это development-аудит, не independent calibration.
+После аудита согласован [ограниченный opt-in auto_accept с целью 97%](../../docs/STORAGE_PILOT.md)
+только для накопителя смартфонов. Default остаётся review/abstain; при цели
+99% пилот также возвращает review. Confidence остаётся эвристическим.
 Корректные значения, конфликты и безопасные отказы:
 [таблица решений verifier](../../docs/VERIFIER.md#проверяемая-таблица-решений).
 `review` требует проверки перед публикацией в каталог; confidence эвристический,
-auto_accept без калибровки выключен.
+auto_accept по умолчанию выключен; узкое исключение пилота описано выше.
 Расхождения `model` разобраны в [#137](https://github.com/CRUDoshleps/GoodsAI/issues/137)
 по подтверждённой AI-assisted разметке; QA parser fix не сопровождается новым
 замером каталога. [Команды общего QA-прогона](../../docs/QA_ACCEPTANCE.md).
@@ -164,7 +166,8 @@ clicks обязательны только для `--profile analytics`. `prepar
 
 ## Ограничения
 
-Поддерживаются две категории. `auto_accept` выключен, confidence — эвристика.
+По умолчанию две категории и `auto_accept` off; отдельный opt-in storage pilot
+описан выше. Confidence — эвристика, независимая калибровка не завершена.
 Development и silver-метрики не являются независимым human test.
 Сравнительное качество LLM и encoder на реальном каталоге не подтверждено.
 Реальные данные, gold, predictions, модели и секреты предоставляются отдельно

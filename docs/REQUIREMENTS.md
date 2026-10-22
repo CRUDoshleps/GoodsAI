@@ -28,7 +28,7 @@
 | структурированный выход | одинаковый JSONL/JSON schema `0.1` для CLI/API | официальный окончательный HTTP/batch контракт |
 | значение подтверждается текстом | общий CandidateVerifier для rules/LLM/cache/experimental GLiNER: exact raw/visible evidence, типы, единицы, роль памяти, границы модели, отрицания/совместимость/чужие сущности | семантические проверки консервативны; не гарантируют понимание любого текста |
 | нормализация | source выдаёт canonical Candidate; общий gate сверяет с evidence, aliases, units и configured bounds | приёмка новых категорий и согласованный mapping |
-| confidence и порог надёжности по ТЗ | heuristic score, все значения только `review`, неопределённость — `abstain` | независимая калибровка и обоснованный порог не выполнены; `auto_accept` запрещён |
+| confidence и порог надёжности по ТЗ | heuristic score; default review/abstain; [opt-in storage pilot](STORAGE_PILOT.md) с целью precision 97% | независимая калибровка не выполнена; разрешение ограничено storage_gb смартфонов и не переносится на другие поля |
 | несколько категорий | default: смартфоны `761` и чайники `482`; opt-in train-only registry config v2 уже реализован | реальные новые категории/ноутбуки не приняты; synthetic 30-category test не равен качеству каталога |
 | ML/LLM в pipeline | интегрированный opt-in LLM fallback в общей сборке CLI/API; отдельный экспериментальный GLiNER для однословного бренда | сравнительная польза актуальных методов на общем reference и независимая оценка |
 | стоимость и отказы LLM | calls/physical attempts/tokens/cache/failures, pricing при заданных ценах, ledger, concurrency, deadline и byte limit | стоимость без цен N/A; compute не считается бесплатным; фактический benchmark отдельно |
