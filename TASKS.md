@@ -1,5 +1,11 @@
 # Рабочие задачи команды
 
+## EVAL-012: candidate-specific confidence
+
+| ID | Issue | P | Status | Owner | Branch | Scope |
+| --- | --- | --- | --- | --- | --- | --- |
+| EVAL-012 | [#168](https://github.com/CRUDoshleps/GoodsAI/issues/168) | P1 | REVIEW | urasha / Codex (Vlad session) | `eval/eval-012-context-confidence` | 2026-10-22: PR #169, learned-v1 advisory ready; 2171-card runtime replay, catalog diagnostic Brier 0.06590 -> 0.03283, human sanity 0.03937 -> 0.00959. No new acceptance thresholds/VM changes; #39/#6/#38 remain open for independent calibration. Do not merge. |
+
 ## REL-006: submission cleanup
 
 | ID | Issue | P | Status | Owner | Branch | Scope |

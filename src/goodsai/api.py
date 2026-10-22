@@ -53,6 +53,10 @@ def create_app(config_path: str | None = None, *, components: Components | None 
         acceptance = policy["decisions"].get("auto_accept")
         if acceptance is not None:
             body["auto_accept"] = acceptance
+        from goodsai.learned_confidence import metadata as confidence_metadata
+        confidence = confidence_metadata(config)
+        if confidence is not None:
+            body['confidence'] = confidence
         if llm is not None:
             report = llm.report()
             body["llm"] = {key: report[key] for key in ("enabled", "model", "prompt_version", "calls",

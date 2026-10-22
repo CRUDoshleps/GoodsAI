@@ -274,6 +274,30 @@ Default config, извлекаемые значения и scores не меня�
 calibration/human gold не завершены. Пилот не даёт production-гарантий,
 не пишет значения в каталог и не меняет ВМ автоматически.
 
+### Контекстный confidence: EVAL-012, 22.10.2026
+
+По запросу Владислава на реализацию плана оценки конкретных кандидатов добавлена
+опциональная `runtime.confidence = {"version":"context-v1"}`; `fixed-v1` или
+отсутствие секции сохраняют прежнее поведение. Публичный объект v0.1 не меняется:
+confidence остаётся heuristic `[0,1]`, при abstain — null. Это не вероятность.
+Формула, признаки, ограничения и протокол: [CONFIDENCE](docs/CONFIDENCE.md).
+Score применяется после merger/verifier к выбранному rules-кандидату и не
+влияет на value/unit/evidence/rule_id/decision. LLM/encoder scores этим режимом
+не калибруются. Версия входит в существующий снимок runtime policy и его hash.
+Генератор конфигурации не меняет default, сервис или ВМ. Совместимость с
+storage-pilot-97-v1 проверяется без расширения его области принятия.
+Первый context-v1 development-прогон не подтвердил улучшения и сохранён как
+исторический comparator. Продолжение по запросу Владислава: opt-in learned-v1
+с полной model JSON в runtime.confidence.model. Модель обучается на text-only
+признаках и catalog-silver agreement, отдельный Platt fit использует calibration
+семейства. Это heuristic advisory score, не human probability. Schema, finite
+weights, feature version и extraction/source fingerprint проверяются до старта;
+неизвестный/малопредставленный scope сохраняет исходный fixed score. Model JSON
+и приватный profile не коммитятся; генератор требует явный SHA файла модели.
+Источник/версия доступны в /health.confidence и существующих policy hashes.
+Факты и решения сохраняются, LLM/encoder и новые auto_accept thresholds не
+калибруются этим режимом. Приёмка независимой калибровки остаётся отдельной.
+
 ### FR-6. Ручная проверка
 
 Review-интерфейс или отчёт показывает исходный текст, подсвеченный evidence,

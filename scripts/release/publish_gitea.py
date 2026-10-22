@@ -17,6 +17,7 @@ README_SOURCE = "scripts/release/submission_readme.md"
 # New prose is private to development until explicitly approved here. Executable
 # tools in scripts/research are retained: tests and evaluation use them.
 PUBLIC_FILES = frozenset({
+    "docs/CONFIDENCE.md",
     "docs/STORAGE_PILOT.md",
     "reports/storage_pilot_20261022.json", "reports/storage_pilot_20261022.md",
     "docs/STORAGE_SHADOW.md",
