@@ -7,6 +7,7 @@ from collections import Counter, defaultdict
 from copy import deepcopy
 import hashlib
 import json
+import random
 from pathlib import Path
 import subprocess
 import time
@@ -16,7 +17,7 @@ from goodsai.config import load_config
 from goodsai.contracts import Product
 from goodsai.evaluate import evaluate
 from goodsai.data import digest, preparation_directory, read_jsonl, write_json, write_line
-from goodsai.silver_evaluate import evaluate_rows
+from goodsai.silver_evaluate import evaluate_rows, quantile
 from goodsai.silver_calibration import fit_logistic, logit, sigmoid
 from goodsai.text import visible_view
 from goodsai.verify import Extractor
@@ -124,6 +125,23 @@ def ranking(pairs, scores, fraction=.1):
     return {'review_fraction':fraction,'errors':total_errors,'expected_captured':captured,'capture':captured/total_errors}
 
 
+def paired_brier_uncertainty(pairs, scores, repeats=1000, seed=2212):
+    """Resample whole families with paired draws; no candidate independence claim."""
+    groups=defaultdict(lambda:[0,0.,0.])
+    for p,s in zip(pairs,scores):
+        g=groups[p['group']];g[0]+=1;g[1]+=(p['fixed']-p['correct'])**2;g[2]+=(s-p['correct'])**2
+    if len(groups)<20:return {'status':'insufficient_groups','groups':len(groups),'interval':None}
+    values=[groups[g] for g in sorted(groups)];rng=random.Random(seed);deltas=[]
+    for _ in range(repeats):
+        draw=rng.choices(values,k=len(values))
+        deltas.append(sum(g[2]-g[1] for g in draw)/sum(g[0] for g in draw))
+    return {'status':'paired_family_bootstrap','groups':len(groups),'repeats':repeats,'seed':seed,
+        'delta':'learned_minus_fixed_brier','interval':{'lower':quantile(deltas,.025),'upper':quantile(deltas,.975)},
+        'macro_family_brier':{'fixed':sum(g[1]/g[0] for g in values)/len(values),
+                              'learned':sum(g[2]/g[0] for g in values)/len(values)},
+        'limitation':'Conditional catalog-proxy development interval; not independent human quality.'}
+
+
 def experiment(pairs):
     parts={r:[p for p in pairs if p['role']==r] for r in ROLES}
     groups={r:{p['group'] for p in ps} for r,ps in parts.items()}
@@ -220,6 +238,12 @@ def finalize(prepared, human, output):
             'source_sha':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
             'profile_sha256':model['profile_sha256'],
             'prepared_manifest_sha256':digest(prepared/'manifest.json'),'human_manifest_sha256':digest(human/'manifest.json')}
+        diagnostic=[p for p in pairs if p['role']=='diagnostic']
+        report['diagnostic_uncertainty']=paired_brier_uncertainty(diagnostic,[predict_score(p['features'],p['scope'],model) for p in diagnostic])
+        report['limitations']=['Catalog mismatches include taxonomy/policy differences and erroneous catalog labels; they are not verified extraction errors.',
+            'Reviewed human sanity data contains no wrong extracted candidates and was previously used in rule development.',
+            'Unseen/low-support scopes retain fixed scores; LLM and encoder scores are not calibrated.',
+            'Use for advisory confidence/review ordering, not as a new auto_accept threshold or guaranteed human probability.']
         write_json(stage/'model.json',model);write_json(stage/'profile.json',learned_config);write_json(stage/'report.json',report)
         write_json(stage/'manifest.json',{'status':'complete','files_sha256':{p.name:digest(p) for p in stage.iterdir()}})
     return report

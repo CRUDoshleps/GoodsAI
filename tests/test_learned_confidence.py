@@ -14,7 +14,7 @@ from goodsai.contracts import Product
 from goodsai.learned_confidence import (FORMAT, FEATURE_VERSION, explain, metadata,
                                        predict_score, profile_fingerprint, validate_model)
 from goodsai.verify import Extractor
-from scripts.research.learn_confidence import experiment, ranking, verified_directory
+from scripts.research.learn_confidence import experiment, paired_brier_uncertainty, ranking, verified_directory
 
 
 def model(config=None):
@@ -94,6 +94,13 @@ class LearnedConfidenceTests(unittest.TestCase):
         self.assertAlmostEqual(ranking(ps,[.8]*10)['capture'],.1)
         self.assertEqual(ranking(ps,[.9]*8+[.1]*2)['capture'],.5)
         self.assertIsNone(ranking([{'correct':True}],[.8])['capture'])
+
+    def test_uncertainty_resamples_families_and_is_reproducible(self):
+        ps=[{'group':str(i),'fixed':.8,'correct':True} for i in range(25)]
+        a=paired_brier_uncertainty(ps,[.9]*25,repeats=100)
+        self.assertEqual(a,paired_brier_uncertainty(ps,[.9]*25,repeats=100))
+        self.assertLess(a['interval']['upper'],0)
+        self.assertEqual(paired_brier_uncertainty(ps[:3],[.9]*3)['status'],'insufficient_groups')
 
     def test_prepared_manifest_tamper_and_path_escape_fail(self):
         with tempfile.TemporaryDirectory() as folder:
