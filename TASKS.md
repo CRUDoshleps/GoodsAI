@@ -4,7 +4,7 @@
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| CONF-005 | [#163](https://github.com/CRUDoshleps/GoodsAI/issues/163) | P1 | IN_PROGRESS | urasha / Codex (сессия Влада) | `conf/conf-005-storage-pilot` | 22.10.2026: согласован узкий opt-in pilot после аудита, target 97%; confidence heuristic, old 99% report immutable, independent=false; #6/#38/#39 остаются открыты. Поверх PR #162, main/VM без изменений |
+| CONF-005 | [#163](https://github.com/CRUDoshleps/GoodsAI/issues/163) | P1 | REVIEW | urasha / Codex (сессия Влада) | `conf/conf-005-storage-pilot` | 22.10.2026: claim 7131ede, runtime ba5fd5c; согласован opt-in target 97%, confidence heuristic, old 99% immutable, independent=false. 525+3 tests PASS, 14 pilot tests, live HTTP 97/99 и demo PASS. Replay 2974: 1528 auto / 8792 review / 8272 abstain, values/evidence прежние. Поверх PR #162; #6/#38/#39 OPEN, main/VM без изменений |
 
 ## EVAL-011: shadow-проверка автоматического принятия накопителя
 

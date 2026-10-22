@@ -6,8 +6,14 @@ storage_gb смартфонов. Добавлен явно включаемый 
 сохранён, confidence heuristic. Target 99% даёт review; scope не расширяется.
 Исходный 99%-отчёт и freeze не меняются. independent=false, #6/#38/#39 OPEN.
 Условия и запуск: `docs/STORAGE_PILOT.md`. Main/ВМ/презентация не изменены.
-13 новых synthetic tests PASS с serve/test extras; полный чистый прогон и
-development replay будут записаны после фиксации runtime commit.
+На чистом `ba5fd5c`: 525 основных tests PASS (14 новых pilot tests включены),
+3 reader, default demo 6/6 и два живых local HTTP profiles PASS; pip check PASS.
+2974-card development replay: 1528 auto_accept, review 10320 → 8792, abstain
+8272 прежние. Все value/unit/score/evidence/reasons совпали с frozen predictions;
+повтор 97% byte-identical, target 99% даёт только review/abstain.
+Отчёт: `reports/storage_pilot_20261022.*`. Независимые P/R/F1 не измерялись.
+Runtime `.py` закреплены LF для совпадения source fingerprints с git archive;
+исходный Windows non-UTF8/CRLF failed run сохранён вне Git, provenance не ослаблен.
 
 # 22.10.2026: EVAL-011 — storage shadow-пилот, runtime без изменений
 
