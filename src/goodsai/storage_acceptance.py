@@ -64,6 +64,8 @@ def allowed_policies(category, attribute):
         allowed.add(AUDITED_POLICIES[(category, attribute)])
     if (category, attribute) in EVIDENCE:
         allowed.add(TRIAL_POLICY)
+    from goodsai.experiment_acceptance import EXPERIMENT_POLICY
+    allowed.add(EXPERIMENT_POLICY)  # unaudited experiment; also requires runtime.auto_accept_experiment
     return allowed
 
 

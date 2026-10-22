@@ -1,5 +1,11 @@
 # Рабочие задачи команды
 
+## EXP-ALL: эксперимент auto_accept для всех 12 полей (без аудита)
+
+| ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
+| --- | --- | --- | --- | --- | --- | --- |
+| EXP-ALL | — | P3 | IN_PROGRESS | timur0o31 / Claude | `exp/all-fields-auto-accept` | 22.10.2026: opt-in `all-fields-unaudited-v1` для всех 12 полей без порога точности, с явным `acknowledge_unaudited`. Только экспериментальная ветка: не для main/сдачи/ВМ |
+
 ## CONF-008: пробный opt-in auto_accept для 12 полей с порогом (catalog-silver trial)
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |

@@ -142,6 +142,10 @@ def validate_accepted(row, attribute, config, product=None):
     if ((row.get("category_id"), attribute["attribute"]) not in active_cells(config)
             or not _eligible(row, attribute)):
         raise ValueError("auto_accept is outside the approved policies")
+    rederive(attribute, config, product)
+
+
+def rederive(attribute, config, product=None):
     if product is None:
         return  # Persisted outputs lack source text; full grounding requires Product.
     # Re-derive gate-approved rule candidates: no forged rule IDs, values or evidence, no conflicts.
