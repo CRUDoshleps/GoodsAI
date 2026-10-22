@@ -1,5 +1,11 @@
 # Рабочие задачи команды
 
+## EVAL-011: shadow-проверка автоматического принятия накопителя
+
+| ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
+| --- | --- | --- | --- | --- | --- | --- |
+| EVAL-011 | [#161](https://github.com/CRUDoshleps/GoodsAI/issues/161) | P1 | IN_PROGRESS | urasha / Codex (сессия Влада) | `eval/eval-011-storage-shadow` | 22.10.2026: фиксированный offline-пилот storage_gb смартфонов, development only; runtime review/abstain прежние. #6/#38/#39 остаются блокерами включения auto_accept. Human correctness до проверки N/A |
+
 ## Следующий технический прогон — приоритетные доработки
 
 Общая метка GitHub: `review:next-checkpoint`. Формирование очереди —
