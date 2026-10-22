@@ -1,4 +1,4 @@
-"""CONF-008 trial: opt-in auto_accept for six more fields from catalog-silver agreement.
+"""CONF-008 trial: opt-in auto_accept for all remaining fields from catalog-silver agreement.
 
 This is a TRIAL, not a human audit and not an independent calibration. The
 evidence below is the frozen catalog-silver agreement of the rules baseline
@@ -31,11 +31,20 @@ EVIDENCE = {
     ("761", "brand"): {"tp": 1714, "fp": 156},
     ("482", "brand"): {"tp": 610, "fp": 0},
     ("482", "color"): {"tp": 136, "fp": 11},
+    # Weak or missing evidence: bound but inactive until the lower bound reaches MIN_TARGET.
+    ("482", "power_w"): {"tp": 97, "fp": 9},
+    ("482", "model"): {"tp": 470, "fp": 83},
+    ("761", "screen_inches"): {"tp": 12, "fp": 0},
+    ("761", "model"): {"tp": 83, "fp": 72},
+    ("482", "capacity_l"): {"tp": 0, "fp": 0},
 }
-# Trial profile defaults: each target sits at or below its frozen lower bound.
+# Trial profile defaults cover every non-storage cell (11 + storage pilot = 12).
+# Strong cells sit at or below their frozen lower bound; the rest use the floor
+# MIN_TARGET and stay review while the evidence is below it.
 DEFAULT_TARGETS = {
-    "761": {"ram_gb": .99, "battery_mah": .93, "color": .91, "brand": .90},
-    "482": {"brand": .99, "color": .87},
+    "761": {"ram_gb": .99, "battery_mah": .93, "color": .91, "brand": .90, "screen_inches": MIN_TARGET,
+            "model": MIN_TARGET},
+    "482": {"brand": .99, "color": .87, "power_w": MIN_TARGET, "model": MIN_TARGET, "capacity_l": MIN_TARGET},
 }
 
 
@@ -95,9 +104,10 @@ def metadata(config):
     for (category, attribute), target in sorted(targets(config).items()):
         lower = LOWER[(category, attribute)]
         active = enabled and (category, attribute) in bound and lower >= target
-        reason = ("trial_active" if active else "disabled" if not enabled
-                  else "cell_not_bound" if (category, attribute) not in bound else "evidence_below_target")
         evidence = EVIDENCE[(category, attribute)]
+        reason = ("trial_active" if active else "disabled" if not enabled
+                  else "cell_not_bound" if (category, attribute) not in bound
+                  else "no_evidence" if evidence["tp"] + evidence["fp"] == 0 else "evidence_below_target")
         cells.setdefault(category, {})[attribute] = {
             "target_precision": target, "active": active, "reason": reason,
             "silver_tp": evidence["tp"], "silver_fp": evidence["fp"],

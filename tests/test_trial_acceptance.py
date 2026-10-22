@@ -1,4 +1,4 @@
-"""CONF-008 trial: opt-in catalog-silver auto_accept for six more fields; never a quality claim."""
+"""CONF-008 trial: opt-in catalog-silver auto_accept for all 12 fields, gated by evidence; not a quality claim."""
 from copy import deepcopy
 import json
 from pathlib import Path
@@ -12,7 +12,7 @@ from goodsai.config import load_config, validate_config
 from goodsai.contracts import Product, validate_prediction
 from goodsai.policy import policy_for_settings
 from goodsai.storage_acceptance import AUDIT_LOWER, POLICY_VERSION
-from goodsai.trial_acceptance import (DEFAULT_TARGETS, EVIDENCE, LOWER, SOURCE, TRIAL_POLICY, apply_policy,
+from goodsai.trial_acceptance import (DEFAULT_TARGETS, EVIDENCE, LOWER, MIN_TARGET, SOURCE, TRIAL_POLICY, apply_policy,
                                       lower_bound, metadata)
 from goodsai.verify import Extractor
 
@@ -20,6 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PHONE = Product("trial-phone", "761", "Смартфон Samsung Galaxy A55 8/256GB черный", "Аккумулятор 5000 мАч")
 KETTLE = Product("trial-kettle", "482", "Чайник электрический Bosch TWK 1.7 л 2200 Вт белый")
 TRIAL_CELLS = {(c, a) for c, row in DEFAULT_TARGETS.items() for a in row}
+ACTIVE_CELLS = {("761", "ram_gb"), ("761", "battery_mah"), ("761", "color"), ("761", "brand"),
+                ("482", "brand"), ("482", "color"), ("482", "power_w")}
 
 
 def trial_config(targets=None, storage=True):
@@ -59,12 +61,17 @@ class TrialAcceptanceTests(unittest.TestCase):
     def test_evidence_matches_frozen_report_and_targets_sit_below_bounds(self):
         report = json.loads((ROOT / "reports/run_stats.json").read_text(encoding="utf-8"))
         cells = report["slices"]["category_attribute"]
-        self.assertEqual(len(EVIDENCE), 6)
-        self.assertEqual(set(EVIDENCE), TRIAL_CELLS)
+        config = load_config()
+        all_cells = {(c, a) for c, attrs in config["categories"].items() for a in attrs}
+        self.assertEqual(len(all_cells), 12)
+        self.assertEqual(TRIAL_CELLS, set(EVIDENCE))
+        self.assertEqual(TRIAL_CELLS | {("761", "storage_gb")}, all_cells)
         for (category, attribute), evidence in EVIDENCE.items():
             measured = cells[f"{category}:{attribute}"]
             self.assertEqual((evidence["tp"], evidence["fp"]), (measured["tp"], measured["fp"]))
-            self.assertGreaterEqual(LOWER[(category, attribute)], DEFAULT_TARGETS[category][attribute])
+            strong = LOWER[(category, attribute)] >= DEFAULT_TARGETS[category][attribute]
+            self.assertEqual(strong, (category, attribute) in ACTIVE_CELLS)
+            self.assertGreaterEqual(DEFAULT_TARGETS[category][attribute], MIN_TARGET)
         self.assertEqual(report["cards"], SOURCE["cards"])
         self.assertIn(SOURCE["producer"], json.dumps(report))
 
@@ -74,20 +81,23 @@ class TrialAcceptanceTests(unittest.TestCase):
         self.assertLess(lower_bound(90, 100), .9)
         self.assertGreater(lower_bound(1714, 1870), .9)  # large n must not overflow
 
-    def test_trial_profile_accepts_exactly_the_six_cells_plus_storage_pilot(self):
+    def test_all_twelve_cells_bound_but_only_strong_evidence_auto_accepts(self):
         config = trial_config()
         baseline = load_config()
         for product in (PHONE, KETTLE):
             row = Extractor(config).predict(product)
             accepted = {(product.category_id, k) for k, v in decisions(row).items() if v == "auto_accept"}
-            expected = {cell for cell in TRIAL_CELLS if cell[0] == product.category_id}
+            expected = {cell for cell in ACTIVE_CELLS if cell[0] == product.category_id}
             if product is PHONE:
                 expected.add(("761", "storage_gb"))
             self.assertEqual(accepted, expected)
             self.assertEqual(without_decisions(row), without_decisions(Extractor(baseline).predict(product)))
-        never = {("761", "model"), ("761", "screen_inches"), ("482", "model"), ("482", "capacity_l"), ("482", "power_w")}
-        self.assertFalse(never & {cell for cell in TRIAL_CELLS})
         state = metadata(config)
+        reasons = {(c, a): v["reason"] for c, row in state["cells"].items() for a, v in row.items()}
+        self.assertEqual({cell for cell, r in reasons.items() if r == "trial_active"}, ACTIVE_CELLS)
+        self.assertEqual(reasons[("482", "capacity_l")], "no_evidence")
+        for cell in [("761", "model"), ("761", "screen_inches"), ("482", "model")]:
+            self.assertEqual(reasons[cell], "evidence_below_target")
         self.assertFalse(state["human_audit"])
         self.assertFalse(state["independent_reference"])
         self.assertTrue(state["target_chosen_after_results"])
@@ -116,18 +126,21 @@ class TrialAcceptanceTests(unittest.TestCase):
             targets["761"]["ram_gb"] = target
             with self.subTest(target=target), self.assertRaises(ValueError):
                 trial_config(targets)
-        for cell in [("761", "model"), ("761", "screen_inches"), ("482", "power_w"), ("482", "capacity_l"),
-                     ("482", "model")]:
+        for cell in [("761", "storage_gb"), ("761", "invented"), ("9999", "brand")]:
             config = load_config()
-            config["runtime"]["auto_accept_policies"][cell[0]][cell[1]] = TRIAL_POLICY
+            config["runtime"]["auto_accept_policies"].setdefault(cell[0], {})[cell[1]] = TRIAL_POLICY
             with self.subTest(cell=cell), self.assertRaises(ValueError):
                 validate_config(config)
+        targets = deepcopy(DEFAULT_TARGETS)
+        targets["761"]["storage_gb"] = .99  # storage belongs to the human-audited pilot only
+        with self.assertRaises(ValueError):
+            trial_config(targets)
         config = trial_config()
         changes = [lambda r: r["auto_accept_trial"].update(policy_version="silver-trial-v2"),
                    lambda r: r["auto_accept_trial"].update(extra=True),
                    lambda r: r["auto_accept_trial"]["targets"]["761"].pop("ram_gb"),
                    lambda r: r["auto_accept_policies"]["761"].update(ram_gb="review"),
-                   lambda r: r["auto_accept_trial"]["targets"]["761"].update(model=.9),
+                   lambda r: r["auto_accept_trial"]["targets"]["761"].update(storage_gb=.99),
                    lambda r: r.pop("auto_accept")]
         for index, change in enumerate(changes):
             profile = deepcopy(config)
