@@ -179,7 +179,7 @@ class StorageAcceptanceTests(unittest.TestCase):
                                    ("input.jsonl", "reference.jsonl", "metadata.jsonl")]
             config = pilot_config()
             predictions = [Extractor(config).predict(Product.from_dict(r)) for r in inputs]
-            report, _, _ = evaluate_rows(inputs, refs, metas, predictions, config, repeats=5)
+            report, _, _ = evaluate_rows(inputs, refs, metas, predictions, config, repeats=100)
             storage = report["per_attribute"]["storage_gb"]
             self.assertEqual(storage["auto_accept"], 3)
             self.assertEqual(storage.get("review", 0), 0)
