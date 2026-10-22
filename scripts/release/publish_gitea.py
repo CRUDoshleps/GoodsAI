@@ -17,6 +17,7 @@ README_SOURCE = "scripts/release/submission_readme.md"
 # New prose is private to development until explicitly approved here. Executable
 # tools in scripts/research are retained: tests and evaluation use them.
 PUBLIC_FILES = frozenset({
+    "docs/STORAGE_SHADOW.md",
     ".env.example", ".gitattributes", ".gitignore", "pyproject.toml", "TECHNICAL_SPEC.md",
     "configs/production.example.json", "deploy/systemd/goodsai.service", README_SOURCE,
     "requirements/clean-run.in", "requirements/clean-run.lock",

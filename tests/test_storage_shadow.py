@@ -62,6 +62,15 @@ class StorageShadowTests(unittest.TestCase):
         cls.config = load_config()
         cls.extractor = Extractor(cls.config)
 
+    def test_runtime_helpers_and_protocol_are_in_submission(self):
+        from scripts.release.publish_gitea import allowed
+        self.assertTrue(shadow.PROTOCOL.is_file())
+        for path in [shadow.PROTOCOL, Path(shadow.__file__), shadow.TEMPLATE,
+                     shadow.ROOT/'scripts/research/human_gold.py',
+                     shadow.ROOT/'scripts/research/audit_splits.py',
+                     shadow.ROOT/'scripts/research/review_m2.py']:
+            self.assertTrue(allowed(path.relative_to(shadow.ROOT).as_posix()), str(path))
+
     def test_fixed_policy_selects_roles_and_unit_pairs_without_changing_review(self):
         for product in [Product('a', '761', 'Смартфон Example 8/128GB'),
                         Product('b', '761', 'Смартфон Example', 'Встроенная память 128 ГБ')]:

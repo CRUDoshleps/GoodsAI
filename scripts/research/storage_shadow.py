@@ -24,7 +24,7 @@ from scripts.research.audit_splits import dump, exposure_ids, require, write_row
 from scripts.research.human_gold import TEMPLATE, checked, evidence, new_directory, seal
 from scripts.research.review_m2 import fence
 
-PROTOCOL = ROOT / 'docs/research/storage_shadow_protocol.md'
+PROTOCOL = ROOT / 'docs/STORAGE_SHADOW.md'
 POLICY = {
     'version': 'storage-shadow-1', 'seed': 'goodsai-storage-shadow-20261022-v1',
     'category_id': '761', 'attribute': 'storage_gb', 'unit': 'GB',
