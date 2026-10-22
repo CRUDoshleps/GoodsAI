@@ -22,7 +22,7 @@
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| REL-007 | — | P1 | IN_PROGRESS | Глеб Алферов / Claude | `rel/rel-007-license-cleanup` | 23.10.2026: в репозитории нет LICENSE, публичный репозиторий сам по себе лицензию не задаёт. Добавить Apache-2.0 (как у gpt-oss и GLiNER) в корень и в allowlist сдачи. Выбор лицензии подтверждает команда. Код, конфиг, pyproject и runtime fingerprints не меняются |
+| REL-007 | — | P1 | REVIEW | Глеб Алферов / Claude | `rel/rel-007-license-cleanup` | 23.10.2026: в репозитории нет LICENSE, публичный репозиторий сам по себе лицензию не задаёт. Добавить Apache-2.0 (как у gpt-oss и GLiNER) в корень и в allowlist сдачи. Выбор лицензии подтверждает команда. Код, конфиг, pyproject и runtime fingerprints не меняются. 555 tests PASS. Уборка docs не нужна: внутренние документы уже не входят в сдачу по allowlist REL-006 |
 
 ## CONF-005: opt-in storage pilot, precision target 97%
 
