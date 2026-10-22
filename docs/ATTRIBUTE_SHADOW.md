@@ -116,3 +116,24 @@ input/reference/metadata и exposure ledgers в проверенных main и e
 ветках не найдены; их нужно получить приватным согласованным handoff. Исходный
 pickle не является заменой такого frozen bundle. До handoff real per-field
 shadow selection и human correctness не измерены.
+
+## Фактическая проверка инкремента
+
+Чистый source `9cc4a05`, macOS 15.7.5 arm64 / CPython 3.14.8:
+540 основных tests PASS, 3 research-reader PASS, 11 properties PASS (quick,
+seed 20261022), pip check PASS. Включены 15 новых tests плана, каждого поля,
+provenance forgery, split/target/exposure guards, атомарной публикации, pending/
+неоднозначных ответов, bounds и package/source tamper. Existing storage tests
+прошли в общем suite; независимое качество этим не измеряется.
+
+Синтетическое CLI prepare: 6 invented cards, 12 groups, 36 human tasks;
+blank answers отвергнуты с exit 2, report не опубликован. E1 demo 6/6 + verify,
+созданный form script прошёл node --check. Первые две targeted failures были
+ошибкой synthetic fixture: assemble сортирует SKU, а тест менял metadata[0]
+вместо p1; исправлено адресное обращение по SKU без ослабления проверок.
+
+Логи и demo вне Git: outputs/conf006-verification и outputs/attribute-demo-final.
+Runtime .venv переиспользован из исходного checkout, импорт из текущего src;
+Hypothesis — из ранее изолированного test target, зависимости проекта не менялись.
+CI нового инкремента, Linux/Windows, real data/human review и VM не проверены
+этим локальным прогоном. Протокол представляет готовый инженерный кандидат.

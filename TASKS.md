@@ -4,7 +4,7 @@
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| CONF-006 | создание Issue: GitHub API 403 | P1 | IN_PROGRESS | timur0o31 | `codex/conf-006-attribute-shadow` | 22.10.2026: прямое поручение Тимура; отдельный versioned план и shadow-аудит всех 9 атрибутов / 12 category×attribute cells. Storage #163 сохраняется; runtime других полей review до аудита/согласования. Реальные данные только из approved frozen bundle; без reserve/model API/VM |
+| CONF-006 | создание Issue: GitHub API 403 | P1 | IN_PROGRESS | timur0o31 | `codex/conf-006-attribute-shadow` | 22.10.2026: claim b094b8e, код 9cc4a05; per-field plan/selection/human forms/assessment для 9 атрибутов / 12 cells. 540+3 tests, 11 properties PASS; synthetic 36 tasks. Runtime #163 прежний, остальные поля не включены. Real bundle в Git отсутствует; нужны private handoff/human review. Issue create API 403, PR не создан |
 
 ## CONF-005: opt-in storage pilot, precision target 97%
 

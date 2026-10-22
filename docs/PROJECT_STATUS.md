@@ -1,3 +1,34 @@
+# 22.10.2026: CONF-006 — per-attribute shadow-подготовка в отдельной ветке
+
+По прямому поручению Тимура, claim `b094b8e`, реализация `9cc4a05`, ветка
+`codex/conf-006-attribute-shadow` от `9a670b9`. Отдельный offline-план задаёт
+целевые precision, rule whitelist, raw-score filter и family budget для всех
+9 текущих атрибутов / 12 category×field cells. Общий verifier и реальные rule
+candidates проверяются повторно; targets фиксируются до predictions, sample —
+до чтения catalog reference. Reused evaluator, precision_lower и human form;
+нет второго predictor или формулы catalog P/R/F1.
+
+Prepare создаёт private frozen package, per-field diagnostics и формы с
+unreviewed. Assess проверяет ответы, даёт индивидуальные и Bonferroni bounds,
+partial/ambiguous/unknown support не превращает в success. `runtime_authorized`
+всегда false: это подготовка, а не принятие всех атрибутов. Storage #163 и
+runtime contracts/default profiles не менялись. New protocol допускается в
+submission allowlist; internal status/outputs не публикуются.
+
+На чистом `9cc4a05`, macOS / CPython 3.14.8: 540 основных tests PASS (50.677 s),
+3 reader PASS, 11 properties PASS (quick, seed 20261022), pip check PASS;
+E1 demo 6/6 + verify. 15 новых targeted tests PASS. Реальный CLI prepare на
+synthetic bundle дал 12 групп / 36 tasks; blank answers rejected без публикации
+report. JS созданной формы node --check PASS. Публичные новые метрики реального
+качества не заявляются. Полные команды: `docs/ATTRIBUTE_SHADOW.md`.
+
+Main и evaluation branch Git не содержат реальный frozen input/reference/
+metadata bundle/exposure ledgers. Источники pickle/parquet не читались.
+Дальнейшие real measurements требуют private approved handoff и human answers;
+независимые #6/#38/#39 остаются открытыми. GitHub Issue create через connector
+вернул 403; claim опубликован в TASKS по явному поручению пользователя, Issue/PR
+не созданы. Merge, Gitea публикация и ВМ не выполнялись.
+
 # 22.10.2026: CONF-005 — согласованный opt-in storage pilot, target 97%
 
 Issue #163, claim `7131ede`: PR #164 merged `4bb1dc0` после PR #162 (`3d09851`).
