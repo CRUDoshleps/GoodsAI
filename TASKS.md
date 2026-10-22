@@ -1,5 +1,11 @@
 # Рабочие задачи команды
 
+## EVAL-012: candidate-specific confidence
+
+| ID | Issue | P | Status | Owner | Branch | Scope |
+| --- | --- | --- | --- | --- | --- | --- |
+| EVAL-012 | [#168](https://github.com/CRUDoshleps/GoodsAI/issues/168) | P1 | IN_PROGRESS | urasha / Codex (Vlad session) | `eval/eval-012-context-confidence` | 2026-10-22: available scoring/comparison part of #39; independent calibration and new acceptance thresholds remain blocked by #6/#38 |
+
 ## REL-006: submission cleanup
 
 | ID | Issue | P | Status | Owner | Branch | Scope |
