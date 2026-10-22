@@ -1,3 +1,19 @@
+# 22.10.2026: EVAL-012 ? candidate confidence, experimental only
+
+Issue #168, claim e77fada, protocol cf26b8b, producer bbb265d.
+Opt-in context-v1 scores verified selected rules candidates from text features;
+fixed default, v0.1, extraction facts and decisions preserved. Shared CLI/API
+policy hashes include version; existing storage-pilot scope unchanged.
+Offline runner reuses evaluator, logistic/Platt/reliability and atomic output
+helpers. Reviewed development only; family/exact duplicate split before scoring.
+30 cards, 107 TP / 0 FP / 13 FN; context diagnostic Brier 0.05836 vs fixed
+0.03930: no measured gain. Learned status insufficient_data (zero negatives).
+Default NOT changed; #39/#6/#38 remain blocked for independent calibration.
+539 tests PASS (14 new), default demo 6/6, live HTTP/CLI parity, pip check PASS.
+Two frozen replays byte-identical apart from separate timing. Results:
+`docs/research/candidate_confidence_results.md`; public usage `docs/CONFIDENCE.md`.
+No model calls, new auto_accept thresholds, deployment or VM profile changes.
+
 # 22.10.2026: REL-006 — очистка состава сдачи
 
 Issue #166, claim `49deddf`, ветка `chore/rel-006-submission-cleanup`.
