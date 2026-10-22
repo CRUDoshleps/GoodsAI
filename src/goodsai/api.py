@@ -12,6 +12,7 @@ from goodsai.contracts import Product, load_config
 from goodsai.config import default_api_limits
 from goodsai.composition import Components, build_runtime
 from goodsai.policy import resolve_runtime_policy
+from goodsai.review_page import register as register_review_page
 
 MAX_BODY_BYTES = default_api_limits()["max_body_bytes"]  # Backward-compatible default export.
 LOGGER = logging.getLogger(__name__)
@@ -38,6 +39,8 @@ def create_app(config_path: str | None = None, *, components: Components | None 
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException):
         return error(exc.status_code, "http_error", "Request cannot be handled")
+
+    register_review_page(app)  # operator screen: calls the same /predict, stores nothing
 
     @app.get("/")
     def index():
