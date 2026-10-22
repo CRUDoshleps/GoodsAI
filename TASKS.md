@@ -1,5 +1,11 @@
 # Рабочие задачи команды
 
+## REL-006: submission cleanup
+
+| ID | Issue | P | Status | Owner | Branch | Scope |
+| --- | --- | --- | --- | --- | --- | --- |
+| REL-006 | [#166](https://github.com/CRUDoshleps/GoodsAI/issues/166) | P1 | REVIEW | urasha / Codex (Vlad session) | `chore/rel-006-submission-cleanup` | 2026-10-22: remove obsolete product-stage materials from submission only; preserve evidence, private data and concurrent CONF-006 |
+
 ## CONF-005: opt-in storage pilot, precision target 97%
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
