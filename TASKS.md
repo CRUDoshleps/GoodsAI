@@ -1,5 +1,11 @@
 # Рабочие задачи команды
 
+## CONF-005: opt-in storage pilot, precision target 97%
+
+| ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
+| --- | --- | --- | --- | --- | --- | --- |
+| CONF-005 | [#163](https://github.com/CRUDoshleps/GoodsAI/issues/163) | P1 | IN_PROGRESS | urasha / Codex (сессия Влада) | `conf/conf-005-storage-pilot` | 22.10.2026: согласован узкий opt-in pilot после аудита, target 97%; confidence heuristic, old 99% report immutable, independent=false; #6/#38/#39 остаются открыты. Поверх PR #162, main/VM без изменений |
+
 ## EVAL-011: shadow-проверка автоматического принятия накопителя
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
