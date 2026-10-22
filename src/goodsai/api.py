@@ -51,6 +51,8 @@ def create_app(config_path: str | None = None, *, components: Components | None 
                 "runtime_policy_sha256": metadata["runtime_policy_sha256"],
                 "effective_config_sha256": metadata["effective_config_sha256"]}
         body["auto_accept_policies"] = policy["decisions"]["auto_accept_policies"]
+        if "auto_accept_trial" in policy["decisions"]:
+            body["auto_accept_trial"] = policy["decisions"]["auto_accept_trial"]
         acceptance = policy["decisions"].get("auto_accept")
         if acceptance is not None:
             body["auto_accept"] = acceptance

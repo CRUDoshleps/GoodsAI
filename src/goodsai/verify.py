@@ -57,6 +57,8 @@ class Extractor:
         validate_prediction(row, self.config, product, registry=self.registry)
         from goodsai.storage_acceptance import apply_policy
         apply_policy(row, product, self.config)
+        from goodsai.trial_acceptance import apply_policy as apply_trial
+        apply_trial(row, product, self.config)
         if self.config["runtime"]["auto_accept_enabled"]:
             validate_prediction(row, self.config, product, registry=self.registry)
         return row

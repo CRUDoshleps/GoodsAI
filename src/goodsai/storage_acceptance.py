@@ -51,9 +51,20 @@ def validate_cell_policies(value, categories=None):
         if not isinstance(category, str) or not isinstance(cells, dict):
             raise ValueError("auto_accept_policies must map category IDs to attribute objects")
         for attribute, policy in cells.items():
-            if policy != REVIEW and policy != AUDITED_POLICIES.get((category, attribute), REVIEW):
+            if policy not in allowed_policies(category, attribute):
                 raise ValueError("auto_accept policy is not audited for this category and attribute")
     return deepcopy(value)
+
+
+def allowed_policies(category, attribute):
+    """review, the cell's audited policy, or the CONF-008 trial where silver evidence exists."""
+    from goodsai.trial_acceptance import TRIAL_POLICY, EVIDENCE
+    allowed = {REVIEW}
+    if (category, attribute) in AUDITED_POLICIES:
+        allowed.add(AUDITED_POLICIES[(category, attribute)])
+    if (category, attribute) in EVIDENCE:
+        allowed.add(TRIAL_POLICY)
+    return allowed
 
 
 def effective_cell_policies(config):

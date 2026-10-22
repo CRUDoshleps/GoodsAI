@@ -93,5 +93,7 @@ def validate_prediction(row: dict, config: dict, product: Product | None = None,
             if a["attribute"] == "model" and model_name(visible_span(source, e["start"], e["end"])) != a["value"]:
                 raise ValueError("Model value is not the approved normalization of visible evidence")
         if a["decision"] == "auto_accept":
-            from goodsai.storage_acceptance import validate_accepted
-            validate_accepted(row, a, config, product)
+            from goodsai.storage_acceptance import validate_accepted, effective_cell_policies
+            from goodsai.trial_acceptance import TRIAL_POLICY, validate_accepted as validate_trial
+            cell = effective_cell_policies(config).get(row.get("category_id"), {}).get(a["attribute"])
+            (validate_trial if cell == TRIAL_POLICY else validate_accepted)(row, a, config, product)

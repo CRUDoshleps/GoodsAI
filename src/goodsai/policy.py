@@ -87,6 +87,10 @@ def resolve_runtime_policy(config, *, enabled=None, overrides=None, environ=None
     acceptance = metadata(config)
     if acceptance is not None:
         policy["decisions"]["auto_accept"] = acceptance
+    from goodsai.trial_acceptance import metadata as trial_metadata
+    trial = trial_metadata(config)
+    if trial is not None:
+        policy["decisions"]["auto_accept_trial"] = trial
     return policy
 
 

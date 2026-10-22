@@ -242,7 +242,7 @@ def validate_config(config: dict) -> dict:
 
     runtime = config["runtime"]
     _keys(runtime, {"llm_enabled", "auto_accept_enabled", "api"},
-          {"llm", "review_threshold", "auto_accept", "auto_accept_policies", "confidence"}, location="runtime")
+          {"llm", "review_threshold", "auto_accept", "auto_accept_policies", "auto_accept_trial", "confidence"}, location="runtime")
     if "confidence" in runtime:
         from goodsai.confidence import validate_policy
         runtime["confidence"] = validate_policy(runtime["confidence"], config)
@@ -255,10 +255,16 @@ def validate_config(config: dict) -> dict:
     # the default: audited cells bound, everything else review.
     if "auto_accept_policies" in runtime:
         runtime["auto_accept_policies"] = validate_cell_policies(runtime["auto_accept_policies"])
+    from goodsai.trial_acceptance import TRIAL_POLICY, validate_trial, targets
+    if "auto_accept_trial" in runtime:
+        runtime["auto_accept_trial"] = validate_trial(runtime["auto_accept_trial"])
+    trial_cells = set(bound_cells(config, TRIAL_POLICY))
+    if trial_cells != set(targets(config)):
+        raise ValueError("Every silver-trial cell needs exactly one auto_accept_trial target")
     if runtime["auto_accept_enabled"]:
-        if "auto_accept" not in runtime:
+        if bound_cells(config) and "auto_accept" not in runtime:
             raise ValueError("auto_accept requires the explicit approved storage pilot policy")
-        if not bound_cells(config):
+        if not bound_cells(config) and not trial_cells:
             raise ValueError("auto_accept_enabled requires at least one audited category/attribute cell")
         # The audited scope may not silently inherit modified rules/dictionaries,
         # bounds, categories, source grammars or experimental ablations.
