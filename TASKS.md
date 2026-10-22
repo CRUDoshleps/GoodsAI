@@ -4,7 +4,7 @@
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| DOCS-005 | — | P1 | IN_PROGRESS | Глеб Алферов / Claude | `docs/docs-005-openapi-examples` | 22.10.2026: замечание ревью прогона 2 «снабдить примерами responses». Только OpenAPI: описание сервиса и примеры запроса и ответов 200/400/413/415/422/500 в `/docs`. Поведение `/predict`, `/health`, конфиг и default profile не меняются |
+| DOCS-005 | — | P1 | REVIEW | Глеб Алферов / Claude | `docs/docs-005-openapi-examples` | 22.10.2026: замечание ревью прогона 2 «снабдить примерами responses». Только OpenAPI: описание сервиса и примеры запроса и ответов 200/400/413/415/422/500 в `/docs`. Поведение `/predict`, `/health`, конфиг и default profile не меняются. 560 tests PASS, новый `tests/test_api_examples.py` сверяет каждый пример с реальным ответом |
 
 ## CONF-007: per-category auto_accept policy matrix
 
