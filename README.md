@@ -20,7 +20,7 @@ runtime — только правила; сравнительное качест
 | Свой внешний JSONL → CLI и HTTP без packaged examples | 83/83 synthetic contract checks | интеграционный протокол кода `1c64463`, seed `20261020`; это не качество каталога |
 | 40 AI-assisted human-reviewed development | 143 TP / 0 FP / 22 FN | ARCH-001 snapshot `3d3dc49`; не independent test и не новый замер нынешнего main |
 | 3037 catalog-silver cards | agreement F1 75,67% | исторический producer `f33e3fc`; не human precision и не F1 текущего main |
-| Независимый human test / общий актуальный model benchmark | N/A | ещё не завершены; auto_accept выключен |
+| Независимый human test / общий актуальный model benchmark | N/A | ещё не завершены; auto_accept по умолчанию выключен |
 
 Команды, hashes/reference и история: [RESULTS](docs/RESULTS.md).
 Последний измеренный quality snapshot (`9ebba1d`): [атрибуты и категории](reports/quality_20261021.md)
@@ -28,8 +28,10 @@ runtime — только правила; сравнительное качест
 AI-assisted reviewed model regressions показаны отдельно; независимая оценка — N/A.
 В [storage shadow-пилоте](reports/storage_shadow_20261022.md) человек подтвердил
 145/145 предложений правил. Условная нижняя 95%-граница 97,955% не достигает
-выбранных 99%; `auto_accept` остаётся выключенным. Это development-аудит,
-потенциальная доля автоматизации не является уже включённым режимом.
+выбранных 99%. Это development-аудит, не independent calibration.
+После аудита согласован [ограниченный opt-in auto_accept с целью 97%](docs/STORAGE_PILOT.md)
+только для накопителя смартфонов. Default остаётся review/abstain; при цели
+99% пилот также возвращает review. Confidence остаётся эвристическим.
 Поведение при корректном значении, конфликте, неподдержанной роли числа и
 ошибке LLM связано с тестами в [таблице решений verifier](docs/VERIFIER.md#проверяемая-таблица-решений).
 Найденное значение с `review` требует проверки перед публикацией в каталог;
@@ -204,7 +206,8 @@ python3.12 scripts/release/clean_run.py --output-dir outputs/clean-first
 Для каждого запрошенного атрибута ответ содержит одну запись. Найденное
 значение имеет `decision=review`, эвристический `confidence`, метод и evidence.
 При отсутствии или конфликте возвращается `decision=abstain` с `reason_codes`.
-Текущий confidence не является вероятностью и не разрешает `auto_accept`.
+Текущий confidence не является вероятностью и сам по себе не разрешает
+`auto_accept`; ограниченный storage pilot использует отдельную групповую политику.
 
 Например, запись `model` для строки выше выглядит так (это один элемент
 `attributes`, а не полный ответ):
@@ -259,8 +262,8 @@ API временный до публикации точной схемы орг�
 [configs/production.example.json](configs/production.example.json).
 CLI принимает `--config path.json` перед подкомандой; HTTP-сервис поддерживает
 тот же профиль через `python -m goodsai.api --config path.json`. Невалидный
-профиль останавливает запуск; LLM включается только явным opt-in, auto-accept
-запрещён. Приоритет настроек общий: профиль → разрешённые env → явные CLI-флаги.
+профиль останавливает запуск; LLM и ограниченный storage pilot включаются
+только явно. Приоритет LLM-настроек общий: профиль → разрешённые env → явные CLI-флаги.
 Manifest содержит effective config/policy и их SHA-256 без ключа/URL шлюза;
 у API эти hashes доступны в `/health`. Числовой review threshold до калибровки
 не поддерживается (`null`), score остаётся эвристическим.
@@ -537,7 +540,8 @@ Gitea останавливают job; прежняя история сохран
 - штатный профиль поддерживает две категории; реальный пилот расширения ещё не принят;
 - seller attributes пока запрещены, чтобы не подмешать target;
 - LLM-маршрут opt-in; его качество на реальном каталоге не измерено, encoder в основном пути нет;
-- `auto_accept` выключен до независимой оценки и калибровки;
+- `auto_accept` по умолчанию выключен; [узкий storage pilot](docs/STORAGE_PILOT.md)
+  не заменяет независимую оценку и калибровку;
 - фактическое качество на независимом test неизвестно;
 - публичный API временный;
 - реальные данные, gold, predictions, модели, логи и секреты не входят в Git.

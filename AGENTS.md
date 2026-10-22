@@ -54,7 +54,10 @@ GoodsAI. Claims, ветки, Issues и согласования ниже отн�
 - Evidence обязан точно совпадать с исходным title/description.
 - Несколько несовместимых значений дают конфликт, а не случайный выбор.
 - Confidence rules baseline — эвристический score, не вероятность.
-- До калибровки все найденные кандидаты имеют `review`; `auto_accept` запрещён.
+- По умолчанию все найденные кандидаты имеют `review`. Согласованное Владиславом
+  22.10.2026 исключение CONF-005: opt-in `storage-pilot-97-v1` для `storage_gb`
+  смартфонов; условия и пределы в `docs/STORAGE_PILOT.md`. Вне этого пилота
+  `auto_accept` запрещён до независимой калибровки.
 - Общая accuracy не заменяет per-attribute precision/recall/F1 и coverage.
 
 ## Работа с моделями

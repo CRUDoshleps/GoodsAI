@@ -76,9 +76,14 @@ def resolve_runtime_policy(config, *, enabled=None, overrides=None, environ=None
         raise ValueError("LLM requires --llm-model, GOODSAI_LLM_MODEL or runtime.llm.model")
     if enabled and settings["budget_ledger"] is None:
         raise ValueError("Enabled LLM requires a shared budget ledger")
-    return {"policy_version": "1", "llm_enabled": enabled, "llm": settings,
+    policy = {"policy_version": "1", "llm_enabled": enabled, "llm": settings,
             "decisions": {"confidence_kind": "heuristic", "review_threshold": None,
-                          "auto_accept_enabled": False}}
+                          "auto_accept_enabled": config["runtime"]["auto_accept_enabled"]}}
+    from goodsai.storage_acceptance import metadata
+    acceptance = metadata(config)
+    if acceptance is not None:
+        policy["decisions"]["auto_accept"] = acceptance
+    return policy
 
 
 def llm_settings(policy):

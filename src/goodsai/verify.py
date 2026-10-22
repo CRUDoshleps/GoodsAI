@@ -53,4 +53,8 @@ class Extractor:
                                                        "end": c.end, "text": c.text})
             row["attributes"].append(base)
         validate_prediction(row, self.config, product, registry=self.registry)
+        from goodsai.storage_acceptance import apply_policy
+        apply_policy(row, product, self.config)
+        if self.config["runtime"]["auto_accept_enabled"]:
+            validate_prediction(row, self.config, product, registry=self.registry)
         return row

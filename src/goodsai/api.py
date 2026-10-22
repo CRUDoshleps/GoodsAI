@@ -50,6 +50,9 @@ def create_app(config_path: str | None = None, *, components: Components | None 
                 "api_status": "provisional", "categories": sorted(config["categories"]),
                 "runtime_policy_sha256": metadata["runtime_policy_sha256"],
                 "effective_config_sha256": metadata["effective_config_sha256"]}
+        acceptance = policy["decisions"].get("auto_accept")
+        if acceptance is not None:
+            body["auto_accept"] = acceptance
         if llm is not None:
             report = llm.report()
             body["llm"] = {key: report[key] for key in ("enabled", "model", "prompt_version", "calls",

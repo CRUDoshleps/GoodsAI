@@ -242,9 +242,21 @@ def validate_config(config: dict) -> dict:
 
     runtime = config["runtime"]
     _keys(runtime, {"llm_enabled", "auto_accept_enabled", "api"},
-          {"llm", "review_threshold"}, location="runtime")
-    if runtime["llm_enabled"] is not False or runtime["auto_accept_enabled"] is not False:
-        raise ValueError("LLM and auto_accept are unsupported in the uncalibrated rules runtime")
+          {"llm", "review_threshold", "auto_accept"}, location="runtime")
+    if runtime["llm_enabled"] is not False or type(runtime["auto_accept_enabled"]) is not bool:
+        raise ValueError("LLM profile flag must be false; auto_accept_enabled must be boolean")
+    if "auto_accept" in runtime:
+        from goodsai.storage_acceptance import validate_policy
+        runtime["auto_accept"] = validate_policy(runtime["auto_accept"])
+    if runtime["auto_accept_enabled"]:
+        if "auto_accept" not in runtime:
+            raise ValueError("auto_accept requires the explicit approved storage pilot policy")
+        # The audited scope may not silently inherit modified rules/dictionaries,
+        # bounds, categories, source grammars or experimental ablations.
+        baseline = _packaged()
+        if ({k: v for k, v in config.items() if k != "runtime"}
+                != {k: v for k, v in baseline.items() if k != "runtime"}):
+            raise ValueError("Storage pilot requires the audited default extraction profile")
     # Backward-compatible completion of old v1/v2 profiles. A present section is complete.
     runtime.setdefault("llm", default_llm_policy())
     runtime.setdefault("review_threshold", None)

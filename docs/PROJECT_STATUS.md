@@ -1,3 +1,14 @@
+# 22.10.2026: CONF-005 — согласованный opt-in storage pilot, target 97%
+
+Issue #163, claim `7131ede`, ветка `conf/conf-005-storage-pilot`, поверх PR #162.
+Владислав согласовал новую цель после завершённого аудита 145/145: 97% для
+storage_gb смартфонов. Добавлен явно включаемый профиль; default review/abstain
+сохранён, confidence heuristic. Target 99% даёт review; scope не расширяется.
+Исходный 99%-отчёт и freeze не меняются. independent=false, #6/#38/#39 OPEN.
+Условия и запуск: `docs/STORAGE_PILOT.md`. Main/ВМ/презентация не изменены.
+13 новых synthetic tests PASS с serve/test extras; полный чистый прогон и
+development replay будут записаны после фиксации runtime commit.
+
 # 22.10.2026: EVAL-011 — storage shadow-пилот, runtime без изменений
 
 Issue #161, claim `600405d`, ветка `eval/eval-011-storage-shadow`. Заранее
