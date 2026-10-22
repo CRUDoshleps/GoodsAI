@@ -18,6 +18,7 @@ README_SOURCE = "scripts/release/submission_readme.md"
 # tools in scripts/research are retained: tests and evaluation use them.
 PUBLIC_FILES = frozenset({
     "docs/STORAGE_SHADOW.md",
+    "reports/storage_shadow_20261022.json", "reports/storage_shadow_20261022.md",
     ".env.example", ".gitattributes", ".gitignore", "pyproject.toml", "TECHNICAL_SPEC.md",
     "configs/production.example.json", "deploy/systemd/goodsai.service", README_SOURCE,
     "requirements/clean-run.in", "requirements/clean-run.lock",

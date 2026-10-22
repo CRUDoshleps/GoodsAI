@@ -1,0 +1,80 @@
+{
+  "attribute": "storage_gb",
+  "category_id": "761",
+  "code_sha256": "0d0ccf216a044ee15a408b2a1bf5d4251093abb82fbbb3238d8fb0bc7d124915",
+  "config_sha256": "d06044fcd7d8d00cf24e8ebdc726bba9197ffb7dcb9f9141eecdb47832e46e9e",
+  "date": "2026-10-22",
+  "evaluation_role": "development_feedback",
+  "human_audit": {
+    "catalog_mismatches_in_reviewed_sample": 0,
+    "completed_by_explicit_user_confirmation_batches": 3,
+    "counts": {
+      "correct": 145,
+      "incorrect": 0,
+      "pending": 0,
+      "unresolved": 0
+    },
+    "exploratory_one_sided_95_lower": 0.979551737597723,
+    "independent_reference": false,
+    "numerical_target_met": false,
+    "observed_precision_in_reviewed_sample": 1.0,
+    "review_kind": "human_verified_deterministic_proposals",
+    "reviewer_count": 1,
+    "sample_size": 145,
+    "sampling": "one_candidate_per_previously_unexposed_family",
+    "target_precision": 0.99
+  },
+  "limitations": [
+    "Human sees a deterministic proposal; developer review is not blind gold.",
+    "Family-balanced selected sample is not production SKU-weighted precision.",
+    "Binomial bound assumes independent representative family observations.",
+    "Unresolved judgments count as errors for the conservative lower bound.",
+    "Two catalog mismatches are outside the 145-case audit and not adjudicated here.",
+    "The numerical 99% target is not met; independent calibration and contract approval are still required.",
+    "Potential review reduction is a shadow estimate, not deployed automation or measured labor savings."
+  ],
+  "policy": "storage-shadow-1",
+  "runtime": {
+    "auto_accept": false,
+    "confidence_kind": "heuristic",
+    "decisions": [
+      "review",
+      "abstain"
+    ],
+    "infrastructure_cost_rub": null,
+    "llm_calls": 0,
+    "model_api_cost_rub": 0,
+    "vm_updated": false
+  },
+  "schema": "goodsai-storage-shadow-summary-1",
+  "shadow_screening": {
+    "actual_runtime_abstain": 8272,
+    "actual_runtime_review": 10320,
+    "catalog_selected": {
+      "conflict": 3,
+      "fp": 2,
+      "selected": 1528,
+      "tp": 1513,
+      "unknown": 10
+    },
+    "catalog_selected_precision": 0.9986798679867986,
+    "found_storage": 1533,
+    "phone_cards": 1861,
+    "remaining_all_fields_review": 8792,
+    "remaining_storage_review": 5,
+    "requested_all_fields": 18592,
+    "shadow_coverage_phone_storage": 0.8210639441160666,
+    "shadow_selected_storage": 1528,
+    "share_found_storage_selected": 0.9967384213959556
+  },
+  "source_git_sha": "696da649f976fef85ce627051c3b81edbd1ffbb5",
+  "verification": {
+    "answers_sha256": "1ed9b66ac9acfb59a18a35183fd311da1525468c78a80b978def8db5c52a169c",
+    "human_metrics_sha256": "1388116a1dea687778736735352ec3c811e7f46de69ace7fbd9a96cd4d22c243",
+    "private_bundle_manifest_sha256": "ed2a98ad663cf8e9e80b7ed60ad45ad34a7897c2b38c7689bfddc96f4f6406ed",
+    "repeat_predictions_identical": true,
+    "source_hashes_rechecked": true,
+    "test_reserved_opened": false,
+    "v1_v2_tasks_selection_predictions_byte_identical": true
+  }
+}

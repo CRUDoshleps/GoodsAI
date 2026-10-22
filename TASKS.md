@@ -4,7 +4,7 @@
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| EVAL-011 | [#161](https://github.com/CRUDoshleps/GoodsAI/issues/161) | P1 | IN_PROGRESS | urasha / Codex (сессия Влада) | `eval/eval-011-storage-shadow` | 22.10.2026: фиксированный offline-пилот storage_gb смартфонов, development only; runtime review/abstain прежние. #6/#38/#39 остаются блокерами включения auto_accept. Human correctness до проверки N/A |
+| EVAL-011 | [#161](https://github.com/CRUDoshleps/GoodsAI/issues/161) | P1 | REVIEW | urasha / Codex (сессия Влада) | `eval/eval-011-storage-shadow` | 22.10.2026: shadow 1528/1861 storage; Владислав подтвердил S001–S145, 145 correct / 0 incorrect / 0 pending. Нижняя условная 95%-граница 97,955% < 99%; runtime review/abstain прежние, independent=false. 511+3 tests PASS, 12 новых shadow checks. #6/#38/#39 остаются блокерами включения auto_accept |
 
 ## Следующий технический прогон — приоритетные доработки
 
