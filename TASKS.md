@@ -1,5 +1,11 @@
 # Рабочие задачи команды
 
+## CONF-006: per-attribute политики и shadow-аудит
+
+| ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
+| --- | --- | --- | --- | --- | --- | --- |
+| CONF-006 | создание Issue: GitHub API 403 | P1 | IN_PROGRESS | timur0o31 | `codex/conf-006-attribute-shadow` | 22.10.2026: прямое поручение Тимура; отдельный versioned план и shadow-аудит всех 9 атрибутов / 12 category×attribute cells. Storage #163 сохраняется; runtime других полей review до аудита/согласования. Реальные данные только из approved frozen bundle; без reserve/model API/VM |
+
 ## CONF-005: opt-in storage pilot, precision target 97%
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
