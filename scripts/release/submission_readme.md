@@ -143,7 +143,6 @@ clicks обязательны только для `--profile analytics`. `prepar
   в [протоколе оценки](../../docs/EVALUATION.md#подготовка-воспроизводимого-human-quality-пакета).
 - [Silver-метрики](../../reports/metrics.md), [статистика прогона](../../reports/run_stats.json).
 - [Checkpoint: EDA, метрики, PDF-презентация](../../docs/delivery/2026-10-19/README.md).
-- [Продуктовая презентация](../../docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf).
 - [Сборка и проверка шести артефактов](../../docs/ARTIFACT_BUNDLE.md).
 
 ## Инструменты оператора и диагностики

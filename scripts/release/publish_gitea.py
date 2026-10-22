@@ -40,11 +40,8 @@ PUBLIC_FILES = frozenset({
     "docs/delivery/2026-10-19/checkpoint.json", "docs/delivery/2026-10-19/eda.md",
     "docs/delivery/2026-10-19/metrics.json", "docs/delivery/2026-10-19/pipeline.json",
     "docs/delivery/2026-10-19/technical_slides.md", "docs/delivery/2026-10-19/technical_slides.pdf",
-    "docs/product-stage/README.md", "docs/product-stage/SOURCE_MANIFEST.json",
     "docs/product-stage/context/README.md", "docs/product-stage/context/case/attribute-extraction-case.pdf",
     "docs/product-stage/context/case/platform-requirements.md",
-    "docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf",
-    "docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pptx",
 })
 LINK = re.compile(r"(!?\[[^\]\n]*\]\()([^\s)]+)([^)\n]*\))")
 SHA = re.compile(r"[0-9a-f]{40}\Z")

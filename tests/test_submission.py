@@ -50,6 +50,12 @@ class SubmissionTests(unittest.TestCase):
             "outputs/tracked-secret.json": "must never be published\n",
             "data/accidentally-tracked.json": "must never be published\n",
             ".env": "must never be published\n",
+            "docs/product-stage/README.md": "obsolete archive index\n",
+            "docs/product-stage/SOURCE_MANIFEST.json": "{}\n",
+            "docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pdf": "obsolete deck\n",
+            "docs/product-stage/presentation/GoodsAI_Product_Checkpoint_Final.pptx": "obsolete source deck\n",
+            "docs/product-stage/context/case/platform-requirements.md": "official case source\n",
+            "docs/delivery/2026-10-19/technical_slides.pdf": "frozen technical delivery\n",
         })
 
     def git(self, *args, data=None):
@@ -73,6 +79,8 @@ class SubmissionTests(unittest.TestCase):
         self.assertIn("scripts/research/tool.py", files)
         self.assertIn("scripts/research/human_gold_form.html", files)
         self.assertIn("tests/fixtures/test/products.jsonl", files)
+        self.assertIn("docs/product-stage/context/case/platform-requirements.md", files)
+        self.assertIn("docs/delivery/2026-10-19/technical_slides.pdf", files)
         for name in publication.entries(self.root, self.source):
             if name not in files and name != "README.md":
                 self.assertFalse(publication.allowed(name), name)
