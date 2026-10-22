@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 
 from goodsai.config import validate_config, validate_llm_policy
+from goodsai.storage_acceptance import effective_cell_policies
 
 # Endpoint/key stay solely in the provider environment, never in policy snapshots.
 ENV_FIELDS = {
@@ -78,7 +79,8 @@ def resolve_runtime_policy(config, *, enabled=None, overrides=None, environ=None
         raise ValueError("Enabled LLM requires a shared budget ledger")
     policy = {"policy_version": "1", "llm_enabled": enabled, "llm": settings,
             "decisions": {"confidence_kind": "heuristic", "review_threshold": None,
-                          "auto_accept_enabled": config["runtime"]["auto_accept_enabled"]}}
+                          "auto_accept_enabled": config["runtime"]["auto_accept_enabled"],
+                          "auto_accept_policies": effective_cell_policies(config)}}
     from goodsai.storage_acceptance import metadata
     if "confidence" in config["runtime"]:
         policy["decisions"]["confidence"] = deepcopy(config["runtime"]["confidence"])

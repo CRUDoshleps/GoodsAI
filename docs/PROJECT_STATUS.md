@@ -1,3 +1,14 @@
+# 22.10.2026: CONF-007 — матрица auto_accept по всем категориям, default off
+
+`runtime.auto_accept_policies` задаёт политику для каждой пары category ×
+attribute обеих настроенных категорий (761 — 7 полей, 482 — 5 полей). Ячейка —
+`review` или аудированная политика этой же ячейки; единственная такая —
+761/storage_gb → storage-pilot-97-v1 (CONF-005). Остальные 11 ячеек остаются
+review и конфигом не включаются. Default `auto_accept_enabled=false`; флаг без
+привязанной ячейки отклоняется. Профили без секции работают как раньше.
+Матрица видна в runtime policy hash и `/health`. Новых порогов, LLM-прав,
+изменения извлечения и ВМ нет. Расширение — после аудитов CONF-006.
+
 # 22.10.2026: EVAL-012 v2 — learned advisory confidence ready, PR without merge
 
 PR #169 / #168 продолжен по прямому запросу Владислава; v2 protocol `9e49b53`

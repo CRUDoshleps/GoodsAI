@@ -65,6 +65,7 @@ HTTP-сервера. Окружение и файлы с ключами не ч�
 | `runtime.llm_enabled` | Только `false`: зарезервировано; конфигурация не включает LLM-fallback, он включается флагом `--llm` / `GOODSAI_LLM_ENABLED=1` (см. [LLM](LLM.md)) |
 | `runtime.auto_accept_enabled` | Default `false`; `true` только с явной политикой storage-пилота |
 | `runtime.auto_accept` | Опциональный `storage-pilot-97-v1` с target_precision `[0.97,1]`; [scope и запуск](STORAGE_PILOT.md) |
+| `runtime.auto_accept_policies` | Политика решения для каждой пары category × attribute: `review` или аудированная политика именно этой ячейки (сейчас только `761/storage_gb` → `storage-pilot-97-v1`). См. «Матрица auto_accept по категориям» ниже |
 | `runtime.review_threshold` | Только `null`: произвольный порог для heuristic score не применяется |
 | `runtime.llm` | Полные не-секретные настройки opt-in LLM: model, timeout, retries, budgets, cache, цены |
 | `brands`, `colors` и дополнительные словари | Существующие aliases, subbrands и модификаторы evidence |
@@ -228,6 +229,38 @@ Base URL и ключ разрешены только в `GOODSAI_LLM_BASE_URL` /
 Оно допускает opt-in auto_accept только для двух проверенных форм storage_gb
 смартфонов. Цель precision 97% выбрана после аудита, confidence остаётся heuristic;
 пилот не завершает независимую калибровку и не меняет default config.
+
+### Матрица auto_accept по категориям (CONF-007)
+
+`runtime.auto_accept_policies` перечисляет все настроенные категории и их
+атрибуты. Значение ячейки — `review` либо политика, аудит которой проведён
+именно для этой пары category × attribute. Штатный профиль:
+
+```json
+"auto_accept_policies": {
+  "761": {"brand": "review", "model": "review", "storage_gb": "storage-pilot-97-v1",
+          "ram_gb": "review", "screen_inches": "review", "battery_mah": "review", "color": "review"},
+  "482": {"brand": "review", "model": "review", "capacity_l": "review", "power_w": "review", "color": "review"}
+}
+```
+
+Ячейка только привязывает политику; включает её по-прежнему
+`runtime.auto_accept_enabled=true` вместе с `runtime.auto_accept`. Поэтому по
+умолчанию auto_accept выключен во всех категориях. Правила валидации:
+
+- политика в ячейке без завершённого аудита (любой атрибут чайника 482, любое
+  поле смартфона кроме `storage_gb`, неизвестная версия) отклоняется до inference;
+- `auto_accept_enabled=true` без ни одной привязанной ячейки отклоняется;
+- `storage_gb: "review"` при выключенном флаге — штатный способ закрепить
+  отказ от пилота в профиле;
+- отсутствующая ячейка и категории, добавленные registry, работают как `review`;
+- профиль без секции (созданный до CONF-007) получает штатную матрицу и ведёт
+  себя как раньше.
+
+Эффективная матрица по всем категориям входит в `runtime_policy` (и его hash)
+и в ответ `/health` как `auto_accept_policies`. Новая ячейка появляется только
+после отдельного аудита (CONF-006), решения архитектора и записи в
+`AUDITED_POLICIES` в `src/goodsai/storage_acceptance.py`.
 
 Manifest содержит:
 

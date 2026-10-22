@@ -402,6 +402,24 @@
   "runtime": {
     "llm_enabled": false,
     "auto_accept_enabled": false,
+    "auto_accept_policies": {
+      "761": {
+        "brand": "review",
+        "model": "review",
+        "storage_gb": "storage-pilot-97-v1",
+        "ram_gb": "review",
+        "screen_inches": "review",
+        "battery_mah": "review",
+        "color": "review"
+      },
+      "482": {
+        "brand": "review",
+        "model": "review",
+        "capacity_l": "review",
+        "power_w": "review",
+        "color": "review"
+      }
+    },
     "review_threshold": null,
     "llm": {
       "model": null,

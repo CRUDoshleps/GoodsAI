@@ -14,7 +14,8 @@ from goodsai.contracts import Product, validate_prediction
 from goodsai.composition import build_runtime
 from goodsai.data import read_predictions
 from goodsai.policy import policy_for_settings
-from goodsai.storage_acceptance import metadata, apply_policy, AUDIT_LOWER
+from goodsai.storage_acceptance import (metadata, apply_policy, AUDIT_LOWER, AUDITED_POLICIES, POLICY_VERSION,
+                                        effective_cell_policies)
 from goodsai.verify import Extractor
 from scripts.research.storage_pilot import pilot_config, compare, reassess
 from scripts.research.storage_shadow import select_reason
@@ -191,6 +192,74 @@ SERVICE_DEPS = all(importlib.util.find_spec(n) for n in ("fastapi", "httpx", "uv
 if SERVICE_DEPS:
     from goodsai.api import create_app
     from httpx import ASGITransport, AsyncClient
+
+
+KETTLE = Product("kettle-ok", "482", "Чайник Demo 1.7 л 2200 Вт белый")
+
+
+class CategoryPolicyMatrixTests(unittest.TestCase):
+    """CONF-007: every configured category x attribute has a policy; default off."""
+
+    def test_default_matrix_covers_every_category_attribute_and_is_off(self):
+        config = load_config()
+        self.assertIs(config["runtime"]["auto_accept_enabled"], False)
+        cells = config["runtime"]["auto_accept_policies"]
+        self.assertEqual({k: list(v) for k, v in cells.items()}, config["categories"])
+        bound = {(c, a) for c, row in cells.items() for a, p in row.items() if p != "review"}
+        self.assertEqual(bound, set(AUDITED_POLICIES))
+        self.assertEqual(policy_for_settings(config)["decisions"]["auto_accept_policies"], cells)
+        for product in (PHONE, KETTLE):
+            row = Extractor(config).predict(product)
+            self.assertNotIn("auto_accept", [a["decision"] for a in row["attributes"]])
+
+    def test_unaudited_cells_and_malformed_matrix_cannot_be_enabled(self):
+        config = load_config()
+        for category, attributes in config["categories"].items():
+            for attribute in attributes:
+                if (category, attribute) in AUDITED_POLICIES:
+                    continue
+                for profile in (load_config(), pilot_config()):
+                    profile["runtime"]["auto_accept_policies"][category][attribute] = POLICY_VERSION
+                    with self.subTest(cell=(category, attribute)), self.assertRaises(ValueError):
+                        validate_config(profile)
+        for bad in [None, [], {"761": None}, {"761": ["storage_gb"]}, {"761": {"storage_gb": "storage-pilot-99"}},
+                    {"761": {"storage_gb": True}}, {"761": {"storage_gb": None}}, {"9999": {"storage_gb": POLICY_VERSION}},
+                    {"761": {"storge_gb": POLICY_VERSION}}, {"482": {"storage_gb": POLICY_VERSION}}]:
+            profile = pilot_config()
+            profile["runtime"]["auto_accept_policies"] = bad
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                validate_config(profile)
+
+    def test_flag_without_bound_cell_fails_and_review_cell_disables_scope(self):
+        profile = pilot_config()
+        profile["runtime"]["auto_accept_policies"]["761"]["storage_gb"] = "review"
+        with self.assertRaises(ValueError):
+            validate_config(profile)
+        profile["runtime"]["auto_accept_enabled"] = False
+        profile = validate_config(profile)
+        self.assertEqual(metadata(profile)["reason"], "disabled")
+        self.assertEqual(Extractor(profile).predict(PHONE), Extractor(load_config()).predict(PHONE))
+
+    def test_old_profile_without_section_and_explicit_matrix_behave_identically(self):
+        old = pilot_config()
+        del old["runtime"]["auto_accept_policies"]
+        old = validate_config(old)
+        self.assertNotIn("auto_accept_policies", old["runtime"])
+        self.assertEqual(effective_cell_policies(old), effective_cell_policies(pilot_config()))
+        for product in (PHONE, KETTLE):
+            self.assertEqual(Extractor(old).predict(product), Extractor(pilot_config()).predict(product))
+        row = Extractor(pilot_config()).predict(PHONE)
+        decisions = {a["attribute"]: a["decision"] for a in row["attributes"]}
+        self.assertEqual([k for k, v in decisions.items() if v == "auto_accept"], ["storage_gb"])
+        self.assertEqual(validate_config(pilot_config()), pilot_config())
+
+    def test_added_category_is_review_in_effective_view(self):
+        profile = load_config()
+        profile["categories"]["invented"] = ["brand", "color"]
+        profile["category_profiles"]["invented"] = "kettle"
+        profile = validate_config(profile)
+        self.assertEqual(effective_cell_policies(profile)["invented"], {"brand": "review", "color": "review"})
+        self.assertEqual(validate_config(profile), profile)
 
 
 @unittest.skipUnless(SERVICE_DEPS, "serve/test extras are required")
