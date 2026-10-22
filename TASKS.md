@@ -4,7 +4,7 @@
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| CONF-007 | — | P1 | IN_PROGRESS | timur0o31 / Claude | `conf/conf-007-category-auto-accept` | 22.10.2026: `runtime.auto_accept_policies` для каждой configured category × attribute (761, 482). Default off; включить можно только ячейку с завершённым аудитом (сейчас 761/storage_gb → storage-pilot-97-v1), остальные `review`. Новых порогов, LLM-прав и изменений ВМ нет; CONF-006 даёт аудиты для будущих ячеек |
+| CONF-007 | — | P1 | REVIEW | timur0o31 / Claude | `conf/conf-007-category-auto-accept` | 22.10.2026: `runtime.auto_accept_policies` для каждой configured category × attribute (761, 482). Default off; включить можно только ячейку с завершённым аудитом (сейчас 761/storage_gb → storage-pilot-97-v1), остальные `review`. Новых порогов, LLM-прав и изменений ВМ нет; CONF-006 даёт аудиты для будущих ячеек. 542 tests: новые 5 matrix tests PASS; 12 падений только из-за отсутствия fastapi/pyarrow в среде (идентичны `main`), ждём CI |
 
 ## EVAL-012: candidate-specific confidence
 
