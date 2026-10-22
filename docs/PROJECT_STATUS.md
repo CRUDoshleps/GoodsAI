@@ -17,7 +17,7 @@ catalog 1 513 TP / 2 mismatch, 10 unknown / 3 conflict. Это не human precis
 v2 переносит протокол в публичный allowlist, без изменения критериев. В private
 outputs сохранены freeze/manifests/receipts; в Git только инструменты и агрегаты.
 511 tests + 3 reader PASS, 12 shadow tests PASS, pip check и JS syntax PASS.
-PR готовится; main, ВМ и презентация этим этапом не изменяются.
+PR #162 открыт; main, ВМ и презентация этим этапом не изменяются.
 
 # 21.10.2026: QA-002 / QA-007 завершены
 
