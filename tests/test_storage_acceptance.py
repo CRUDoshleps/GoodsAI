@@ -169,6 +169,23 @@ class StorageAcceptanceTests(unittest.TestCase):
             with self.assertRaises((ValueError, FileNotFoundError)):
                 reassess(audit, root / "out")
 
+    def test_silver_metrics_keep_auto_accept_separate_from_review(self):
+        from test_storage_shadow import fixture
+        from goodsai.data import read_jsonl
+        from goodsai.silver_evaluate import evaluate_rows
+        with tempfile.TemporaryDirectory() as folder:
+            bundle = fixture(Path(folder))
+            inputs, refs, metas = [list(read_jsonl(bundle / name)) for name in
+                                   ("input.jsonl", "reference.jsonl", "metadata.jsonl")]
+            config = pilot_config()
+            predictions = [Extractor(config).predict(Product.from_dict(r)) for r in inputs]
+            report, _, _ = evaluate_rows(inputs, refs, metas, predictions, config, repeats=5)
+            storage = report["per_attribute"]["storage_gb"]
+            self.assertEqual(storage["auto_accept"], 3)
+            self.assertEqual(storage.get("review", 0), 0)
+            self.assertEqual(storage["fp"], 1)  # A catalog mismatch remains visible.
+            self.assertIsNone(report["independent_precision"])
+
 
 SERVICE_DEPS = all(importlib.util.find_spec(n) for n in ("fastapi", "httpx", "uvicorn"))
 if SERVICE_DEPS:
