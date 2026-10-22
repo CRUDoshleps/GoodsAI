@@ -1,11 +1,15 @@
 # 22.10.2026: CONF-005 — согласованный opt-in storage pilot, target 97%
 
-Issue #163, claim `7131ede`, ветка `conf/conf-005-storage-pilot`, поверх PR #162.
+Issue #163, claim `7131ede`: PR #164 merged `4bb1dc0` после PR #162 (`3d09851`).
+Оба PR без конфликтов, CI 6/6; проверенный integration tree совпал с candidate.
+Publisher #164 `39757039215` SUCCESS; provenance artifact source `4bb1dc0`,
+Gitea `b8253a3c91ca8eece8a83c204963ba523990ee3f`, 209 файлов. #161/#163 DONE.
 Владислав согласовал новую цель после завершённого аудита 145/145: 97% для
 storage_gb смартфонов. Добавлен явно включаемый профиль; default review/abstain
 сохранён, confidence heuristic. Target 99% даёт review; scope не расширяется.
 Исходный 99%-отчёт и freeze не меняются. independent=false, #6/#38/#39 OPEN.
-Условия и запуск: `docs/STORAGE_PILOT.md`. Main/ВМ/презентация не изменены.
+Условия и запуск: `docs/STORAGE_PILOT.md`. Код опубликован в main/Gitea;
+ВМ и презентация не изменены, default остаётся off.
 На чистом `ba5fd5c`: 525 основных tests PASS (14 новых pilot tests включены),
 3 reader, default demo 6/6 и два живых local HTTP profiles PASS; pip check PASS.
 2974-card development replay: 1528 auto_accept, review 10320 → 8792, abstain
@@ -34,7 +38,9 @@ catalog 1 513 TP / 2 mismatch, 10 unknown / 3 conflict. Это не human precis
 v2 переносит протокол в публичный allowlist, без изменения критериев. В private
 outputs сохранены freeze/manifests/receipts; в Git только инструменты и агрегаты.
 511 tests + 3 reader PASS, 12 shadow tests PASS, pip check и JS syntax PASS.
-PR #162 открыт; main, ВМ и презентация этим этапом не изменяются.
+PR #162 merged `3d09851`, publisher `39756958651` SUCCESS. Его shadow-результат
+сохранён без переписывания; последующее runtime-исключение — CONF-005 выше.
+ВМ и презентация этим этапом не изменялись.
 
 # 21.10.2026: QA-002 / QA-007 завершены
 

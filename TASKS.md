@@ -4,13 +4,13 @@
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| CONF-005 | [#163](https://github.com/CRUDoshleps/GoodsAI/issues/163) | P1 | REVIEW | urasha / Codex (сессия Влада) | `conf/conf-005-storage-pilot` | 22.10.2026: claim 7131ede, runtime ba5fd5c; согласован opt-in target 97%, confidence heuristic, old 99% immutable, independent=false. 525+3 tests PASS, 14 pilot tests, live HTTP 97/99 и demo PASS. Replay 2974: 1528 auto / 8792 review / 8272 abstain, values/evidence прежние. Поверх PR #162; #6/#38/#39 OPEN, main/VM без изменений |
+| CONF-005 | [#163](https://github.com/CRUDoshleps/GoodsAI/issues/163) | P1 | DONE | urasha / Codex (сессия Влада) | `main` | 22.10.2026: PR #164 merged 4bb1dc0 после #162, CI 6/6, publisher 39757039215 SUCCESS (Gitea b8253a3). Claim 7131ede, runtime ba5fd5c; opt-in target 97%, confidence heuristic, old 99% immutable, independent=false. 525+3 tests PASS, 14 pilot tests, live HTTP 97/99 и demo PASS. Replay 2974: 1528 auto / 8792 review / 8272 abstain, values/evidence прежние. #6/#38/#39 OPEN; ВМ не обновлена, default off |
 
 ## EVAL-011: shadow-проверка автоматического принятия накопителя
 
 | ID | Issue | P | Статус | Исполнитель | Ветка | Граница |
 | --- | --- | --- | --- | --- | --- | --- |
-| EVAL-011 | [#161](https://github.com/CRUDoshleps/GoodsAI/issues/161) | P1 | REVIEW | urasha / Codex (сессия Влада) | `eval/eval-011-storage-shadow` | 22.10.2026: PR #162; shadow 1528/1861 storage; Владислав подтвердил S001–S145, 145 correct / 0 incorrect / 0 pending. Нижняя условная 95%-граница 97,955% < 99%; runtime review/abstain прежние, independent=false. 511+3 tests PASS, 12 новых shadow checks. #6/#38/#39 остаются блокерами включения auto_accept |
+| EVAL-011 | [#161](https://github.com/CRUDoshleps/GoodsAI/issues/161) | P1 | DONE | urasha / Codex (сессия Влада) | `main` | 22.10.2026: PR #162 merged 3d09851, CI 6/6, publisher 39756958651 SUCCESS. Shadow 1528/1861 storage; подтверждены S001–S145, 145 correct / 0 incorrect / 0 pending. Условная нижняя 95%-граница 97,955% < 99%; original report immutable, independent=false. 511+3 tests PASS, 12 shadow checks. Общая независимая калибровка #6/#38/#39 OPEN; узкое последующее исключение — CONF-005 |
 
 ## Следующий технический прогон — приоритетные доработки
 
